@@ -8,12 +8,14 @@ specifiers:
   '@types/react-dom': 18.0.11
   plasmo: 0.67.4
   prettier: 2.8.4
+  puro: ^0.8.3
   react: 18.2.0
   react-dom: 18.2.0
   typescript: 4.9.5
 
 dependencies:
   plasmo: 0.67.4_biqbaboplfbrettd7655fr4n2y
+  puro: 0.8.3_react@18.2.0
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
 
@@ -4430,6 +4432,15 @@ packages:
   /punycode/2.3.0:
     resolution: {integrity: sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==}
     engines: {node: '>=6'}
+    dev: false
+
+  /puro/0.8.3_react@18.2.0:
+    resolution: {integrity: sha512-wsf9nNa2SitTfi+PSYNQtDBlDCMCYrucoQxvbJp8WwNAuuLciSW2vR/2gyYJOvgQHx+ALoqKwF757Tvmdgon3g==}
+    hasBin: true
+    peerDependencies:
+      react: '>=17 || >=18'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /queue-microtask/1.2.3:

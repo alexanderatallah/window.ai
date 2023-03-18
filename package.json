@@ -11,25 +11,27 @@
   },
   "dependencies": {
     "plasmo": "0.67.4",
+    "puro": "^0.8.3",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@plasmohq/prettier-plugin-sort-imports": "3.6.3",
     "@types/chrome": "0.0.224",
     "@types/node": "18.15.3",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
     "prettier": "2.8.4",
-    "typescript": "4.9.5",
-    "@plasmohq/prettier-plugin-sort-imports": "3.6.3"
+    "typescript": "4.9.5"
   },
   "manifest": {
-    "key": "$CRX_PUBLIC_KEY",
     "host_permissions": [
       "https://*/*"
     ],
     "permissions": [
-      "tabs", "identity", "identity.email"
+      "tabs",
+      "identity",
+      "identity.email"
     ],
     "oauth2": {
       "client_id": "$OAUTH_CLIENT_ID",
