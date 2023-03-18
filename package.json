@@ -1,6 +1,6 @@
 {
   "name": "llmixer",
-  "displayName": "Llmixer",
+  "displayName": "LLMixer",
   "version": "0.0.1",
   "description": "Use your own language models on the AI-enabled web",
   "author": "Alex Atallah",
@@ -24,11 +24,19 @@
     "@plasmohq/prettier-plugin-sort-imports": "3.6.3"
   },
   "manifest": {
+    "key": "$CRX_PUBLIC_KEY",
     "host_permissions": [
       "https://*/*"
     ],
     "permissions": [
-      "tabs"
-    ]
+      "tabs", "identity", "identity.email"
+    ],
+    "oauth2": {
+      "client_id": "$OAUTH_CLIENT_ID",
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile"
+      ]
+    }
   }
 }
