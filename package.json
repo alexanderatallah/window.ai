@@ -3,7 +3,7 @@
   "displayName": "LLMixer",
   "version": "0.0.1",
   "description": "Use your own language models on the AI-enabled web",
-  "author": "Alex Atallah",
+  "author": "Alex Atallah <alexander.atallah@gmail.com>",
   "scripts": {
     "start": "next start",
     "dev": "run-p dev:*",
@@ -14,6 +14,7 @@
     "build:next": "next build"
   },
   "dependencies": {
+    "google-auth-library": "^8.7.0",
     "next": "^13.2.4",
     "plasmo": "0.67.4",
     "puro": "^0.8.3",
@@ -45,8 +46,7 @@
     "oauth2": {
       "client_id": "$OAUTH_CLIENT_ID",
       "scopes": [
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile"
+        "https://www.googleapis.com/auth/userinfo.email"
       ]
     }
   }

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { getSubsciption } from "../_common"
+import { getSubsciption, getUserInfo } from "../_common"
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,18 +11,18 @@ export default async function handler(
       throw new Error("Invalid request method")
     }
 
-    // TODO add auth
-    // const userInfo = await getUserInfo(req.headers.authorization)
+    const userInfo = await getUserInfo(req.headers.authorization)
 
-    const subscription = await getSubsciption(req.query.email as string | undefined)
+    // TODO check subscription
+    // const subscription = await getSubsciption(userInfo.email)
 
-    if (subscription.status !== "active") {
-      // throw new Error(`Subscription is not active`)
-      console.log("No subscription yet")
-    }
+    // const code = subscription.status
+    // if (subscription.status !== "active") {
+    //   console.log("No subscription yet")
+    // }
 
-    return res.status(200).json({ success: true, code: "147" })
+    return res.status(200).json({ success: true, code: "success for " + userInfo.email })
   } catch (error) {
-    return res.status(401).json({ success: false, error: error.message })
+    return res.status(401).json({ success: false, code: error.message, error: error.message })
   }
 }

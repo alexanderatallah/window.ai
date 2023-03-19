@@ -15,10 +15,9 @@ const EmailShowcase = () => {
 
 const PremiumFeatureButton = () => {
   const userInfo = useUserInfo()
-  const emailParam = encodeURIComponent(userInfo?.email)
 
   const { data, error } = useSWR<{ active: boolean }>(
-    `/api/check-subscription?email=${emailParam}`,
+    `/api/check-subscription`,
     callAPI
   )
   const isSubscribed = !error && data?.active
@@ -30,28 +29,23 @@ const PremiumFeatureButton = () => {
         <button
           disabled={!userInfo}
           onClick={async () => {
-            window.open(
-              `${process.env.PLASMO_PUBLIC_STRIPE_LINK}?client_reference_id=${userInfo.id}&prefilled_email=${emailParam}`,
-              "_blank"
+            chrome.identity.getAuthToken(
+              {
+                interactive: true
+              },
+              (token) => {
+                if (!!token) {
+                  window.open(
+                    `${
+                      process.env.PLASMO_PUBLIC_STRIPE_LINK
+                    }?client_reference_id=${
+                      userInfo.id
+                    }&prefilled_email=${encodeURIComponent(userInfo?.email)}`,
+                    "_blank"
+                  )
+                }
+              }
             )
-            // TODO do we need oauth?
-            // chrome.identity.getAuthToken(
-            //   {
-            //     interactive: true
-            //   },
-            //   (token) => {
-            //     if (!!token) {
-            //       window.open(
-            //         `${
-            //           process.env.PLASMO_PUBLIC_STRIPE_LINK
-            //         }?client_reference_id=${
-            //           userInfo.id
-            //         }&prefilled_email=${encodeURIComponent(userInfo.email)}`,
-            //         "_blank"
-            //       )
-            //     }
-            //   }
-            // )
           }}>
           Unlock GPT-4
         </button>

@@ -1,4 +1,4 @@
-// import { OAuth2Client } from "google-auth-library"
+import { OAuth2Client } from "google-auth-library"
 import Stripe from "stripe"
 
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY, {
@@ -9,30 +9,29 @@ export function isAdmin(email: string) {
   return process.env.ADMIN_EMAILS?.split(",").includes(email)
 }
 
-// TODO do we need oauth?
 // Verify the Google JWT and get the user's info
-// export const getUserInfo = async (authHeader: string) => {
-//   const [type, accessToken] = authHeader.split(" ")
+export const getUserInfo = async (authHeader: string) => {
+  const [type, accessToken] = authHeader.split(" ")
 
-//   if (type !== "Bearer" || !accessToken) {
-//     throw new Error("Invalid or no access token")
-//   }
+  if (type !== "Bearer" || !accessToken) {
+    throw new Error("Invalid or no access token")
+  }
 
-//   const client = new OAuth2Client()
-//   client.setCredentials({
-//     access_token: accessToken
-//   })
+  const client = new OAuth2Client()
+  client.setCredentials({
+    access_token: accessToken
+  })
 
-//   const userInfoRes = await client.request<{
-//     id: string
-//     email: string
-//     name: string
-//   }>({
-//     url: "https://www.googleapis.com/oauth2/v1/userinfo"
-//   })
+  const userInfoRes = await client.request<{
+    id: string
+    email: string
+    name: string
+  }>({
+    url: "https://www.googleapis.com/oauth2/v1/userinfo"
+  })
 
-//   return userInfoRes.data
-// }
+  return userInfoRes.data
+}
 
 export const getSubsciption = async (email: string): Promise<Stripe.Subscription | undefined> => {
   const customerResp = await stripe.customers.list({

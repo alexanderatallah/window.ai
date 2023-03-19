@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { getSubsciption, isAdmin } from "./_common"
+import { getSubsciption, getUserInfo, isAdmin } from "./_common"
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,19 +11,13 @@ export default async function handler(
       throw new Error("Invalid request method")
     }
 
-    // TODO add auth
-    // const userInfo = await getUserInfo(req.headers.authorization)
-
-    const email = req.query.email as string | undefined
-    if (!email) {
-      throw new Error("No email provided")
-    }
+    const userInfo = await getUserInfo(req.headers.authorization)
 
     let active = false
-    if (isAdmin(email)) {
+    if (isAdmin(userInfo.email)) {
       active = true
     } else {
-      const subscription = await getSubsciption(email)
+      const subscription = await getSubsciption(userInfo.email)
       active = subscription?.status === "active"
     }
 
