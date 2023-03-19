@@ -5,18 +5,26 @@
   "description": "Use your own language models on the AI-enabled web",
   "author": "Alex Atallah",
   "scripts": {
-    "dev": "plasmo dev",
-    "build": "plasmo build",
-    "package": "plasmo package"
+    "start": "next start",
+    "dev": "run-p dev:*",
+    "dev:plasmo": "plasmo dev",
+    "dev:next": "next dev --port 8472",
+    "build": "run-p build:*",
+    "build:plasmo": "plasmo build",
+    "build:next": "next build"
   },
   "dependencies": {
+    "next": "^13.2.4",
     "plasmo": "0.67.4",
     "puro": "^0.8.3",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "stripe": "^11.15.0",
+    "swr": "^2.1.0"
   },
   "devDependencies": {
     "@plasmohq/prettier-plugin-sort-imports": "3.6.3",
+    "@plasmohq/rps": "^1.8.4",
     "@types/chrome": "0.0.224",
     "@types/node": "18.15.3",
     "@types/react": "18.0.28",
@@ -26,6 +34,7 @@
   },
   "manifest": {
     "host_permissions": [
+      "$PLASMO_PUBLIC_API_URI/*",
       "https://*/*"
     ],
     "permissions": [
