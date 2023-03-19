@@ -10,11 +10,9 @@ function IndexOptions() {
         flexDirection: "column",
         padding: 16
       }}>
-      <h1>
-        Welcome to your <a href="https://www.plasmo.com">Plasmo</a> Extension!
-      </h1>
+      <h1>Bring your own LLM options</h1>
       <input onChange={(e) => setData(e.target.value)} value={data} />
-      <footer>Crafted by @PlamoHQ</footer>{" "}
+      <footer>Crafted by ...</footer>{" "}
     </div>
   )
 }

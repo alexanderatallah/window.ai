@@ -86,7 +86,7 @@ function IndexPopup() {
           flexDirection: "column",
           padding: 16
         }}>
-        <h1>Welcome to LLMixer!</h1>
+        <h1>Bring your own LLM</h1>
         <EmailShowcase />
         <PremiumFeatureButton />
       </div>
