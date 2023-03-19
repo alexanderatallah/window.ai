@@ -25,7 +25,11 @@ const PremiumFeatureButton = () => {
   if (!isSubscribed) {
     return (
       <div>
-        {error && <div>Failed to fetch subscription: {error.toString()}</div>}
+        {error && (
+          <div style={{ color: "red" }}>
+            Failed to fetch subscription: {error.toString()}
+          </div>
+        )}
         <button
           disabled={!userInfo}
           onClick={async () => {
@@ -55,14 +59,20 @@ const PremiumFeatureButton = () => {
 
   return (
     <button
-      onClick={async () => {
-        const data = await callAPI("/api/model/call", {
-          method: "POST"
-        })
+      onClick={async (e) => {
+        const data = await callAPI(
+          "/api/model/call",
+          {
+            method: "POST"
+          },
+          {
+            prompt: "The quick brown fox"
+          }
+        )
 
-        alert(data.code)
+        alert(data.completion)
       }}>
-      Call Paid Model
+      The quick brown fox...
     </button>
   )
 }

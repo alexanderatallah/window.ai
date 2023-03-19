@@ -1,5 +1,6 @@
 declare namespace NodeJS {
   interface ProcessEnv {
+    OPENAI_API_KEY?: string
     PLASMO_PUBLIC_API_URI?: string
     PLASMO_PUBLIC_STRIPE_LINK?: string
 
