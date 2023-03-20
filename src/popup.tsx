@@ -1,6 +1,6 @@
 import useSWR from "swr"
 
-import { callAPI } from "~core/premium-api"
+import { callAPI } from "~core/network"
 import { UserInfoProvider, useUserInfo } from "~core/user-info"
 
 const EmailShowcase = () => {

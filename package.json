@@ -14,6 +14,7 @@
     "build:next": "next build"
   },
   "dependencies": {
+    "@plasmohq/messaging": "^0.1.6",
     "axios": "^1.3.4",
     "axios-retry": "^3.4.0",
     "google-auth-library": "^8.7.0",
@@ -42,7 +43,8 @@
       "https://*/*"
     ],
     "permissions": [
-      "tabs",
+      "storage",
+      "scripting",
       "identity",
       "identity.email"
     ],
