@@ -7,7 +7,11 @@ export enum ContentMessageType {
   Cancel = "cancel"
 }
 
-export interface ContentMessage {
+export interface CompletionRequest {
   prompt: string
   shouldStream?: boolean
+}
+
+export interface CompletionResponse {
+  completion: string
 }

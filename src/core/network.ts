@@ -9,5 +9,5 @@ export async function callAPI(uri: string, opts: RequestInit, body?: object) {
     body: body ? JSON.stringify(body) : undefined,
     ...opts
   })
-  return res.json()
+  return res.json() as unknown
 }

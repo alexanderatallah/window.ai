@@ -9,8 +9,8 @@ export const config: PlasmoCSConfig = {
 }
 
 let _portSingleton: Runtime.Port | undefined = undefined
-function getPort(): Runtime.Port {
-  if (!_portSingleton) {
+function getPort(shouldReinitialize = false): Runtime.Port {
+  if (!_portSingleton || shouldReinitialize) {
     _portSingleton = browser.runtime.connect({ name: PORT_NAME });
   }
   return _portSingleton;
@@ -24,6 +24,15 @@ getPort().onMessage.addListener((msg) => {
   }, "*");
 });
 
+function postPortMessage(data: any) {
+  try {
+    getPort().postMessage(data);
+  } catch (e) {
+    log("Error posting message to port. Retrying ", e);
+    getPort(true).postMessage(data);
+  }
+}
+
 // Handle requests from content script
 window.addEventListener('message', (event) => {
   const { source, data } = event;
@@ -35,9 +44,9 @@ window.addEventListener('message', (event) => {
 
   const { type } = data;
 
-  if (type !== ContentMessageType.Response) {
-    getPort().postMessage(data);
-  }
-
   log("Relay received message: ", event);
+
+  if (type !== ContentMessageType.Response) {
+    postPortMessage(data);
+  }
 });
