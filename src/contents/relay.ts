@@ -12,19 +12,25 @@ let _portSingleton: Runtime.Port | undefined = undefined
 function getPort(shouldReinitialize = false): Runtime.Port {
   if (!_portSingleton || shouldReinitialize) {
     _portSingleton = browser.runtime.connect({ name: PORT_NAME });
+    _portSingleton.onDisconnect.addListener(() => {
+      log('Disconnected from port');
+    });
   }
   return _portSingleton;
 }
 
 // Handle responses from background script
 getPort().onMessage.addListener((msg) => {
+  const { id, ...response } = msg;
   window.postMessage({
     type: ContentMessageType.Response,
-    response: msg
+    portName: PORT_NAME,
+    id,
+    response
   }, "*");
 });
 
-function postPortMessage(data: any) {
+function postPortMessage(data: unknown) {
   try {
     getPort().postMessage(data);
   } catch (e) {
@@ -44,7 +50,7 @@ window.addEventListener('message', (event) => {
 
   const { type } = data;
 
-  log("Relay received message: ", event);
+  log("Relay received message: ", data);
 
   if (type !== ContentMessageType.Response) {
     postPortMessage(data);

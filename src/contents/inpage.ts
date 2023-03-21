@@ -13,14 +13,14 @@ export const config: PlasmoCSConfig = {
 export const AI = {
 
   async getCompletion(prompt: string): Promise<string> {
-    const requestId = _relayMessage<CompletionRequest>({ prompt });
+    const requestId = _relayRequest<CompletionRequest>({ prompt });
     return new Promise((resolve) => {
       _onRelayResponse<CompletionResponse>(requestId, (res) => resolve(res.completion));
     })
   },
 
   streamCompletion(prompt: string): string {
-    return _relayMessage<CompletionRequest>({ prompt, shouldStream: true });
+    return _relayRequest<CompletionRequest>({ prompt, shouldStream: true });
   },
 
   addListener(requestId: string, handler: (res: string) => unknown) {
@@ -32,13 +32,13 @@ export const AI = {
   }
 }
 
-function _relayMessage<T>(message: T): string {
+function _relayRequest<T>(request: T): string {
   const requestId = uuidv4()
   window.postMessage({
     type: ContentMessageType.Request,
     id: requestId,
     portName: PORT_NAME,
-    message
+    request
   }, "*");
   return requestId
 }
