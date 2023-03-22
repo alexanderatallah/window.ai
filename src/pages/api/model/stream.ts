@@ -23,9 +23,9 @@ export default async function handler(
   })
 
   res.setHeader('Content-Type', 'text/event-stream');
-  // TODO are these headers needed
-  res.setHeader('Cache-Control', 'no-cache, no-transform');
-  res.setHeader('Content-Encoding', 'none');
+  // TODO needed? res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Content-Encoding', 'none'); // Required
+  res.setHeader('Connection', 'keep-alive');
 
   stream.pipe(
     new Transform({
@@ -36,25 +36,4 @@ export default async function handler(
       }
     })
   ).pipe(res);
-
-  // Set up Server-Sent Events (SSE) headers
-  // res.setHeader('Content-Type', 'text/event-stream');
-  // res.setHeader('Cache-Control', 'no-cache');
-  // res.setHeader('Connection', 'keep-alive');
-
-  // // Listen for data events
-  // stream.on(StreamEvent.Data, (chunk) => {
-  //   res.write(chunk);
-  // });
-
-  // // Listen for error events
-  // stream.on(StreamEvent.Error, (err) => {
-  //   // TODO: Handle error
-  //   res.status(500).json({ success: false, error: err });
-  // });
-
-  // // Listen for end events
-  // stream.on(StreamEvent.End, () => {
-  //   res.end();
-  // });
 }
