@@ -54,8 +54,14 @@ window.addEventListener("message", (event) => {
 
   const { type } = data
 
-  if (type !== ContentMessageType.Response) {
-    log("Relay received request: ", data)
-    postPortMessage(data)
+  switch (type) {
+    case ContentMessageType.Request:
+    case ContentMessageType.Cancel:
+      log(`Relay received ${type}: `, data)
+      postPortMessage(data)
+      break
+    case ContentMessageType.Response:
+      // Handled by inpage script
+      break
   }
 })

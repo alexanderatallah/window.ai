@@ -12,7 +12,7 @@ const api = axios.create({
   adapter: fetchAdapter
 })
 
-export async function getAPI<T>(path: string, params?: object) {
+export async function get<T>(path: string, params?: object) {
   const res = await api.get<T>(path, {
     params,
     headers: {
@@ -21,7 +21,7 @@ export async function getAPI<T>(path: string, params?: object) {
   })
   return res.data
 }
-export async function postAPI<T>(path: string, data?: object) {
+export async function post<T>(path: string, data?: object) {
   const res = await api.post<T>(path, data, {
     headers: {
       Authorization: `Bearer ${await getAccessToken()}`
@@ -30,7 +30,7 @@ export async function postAPI<T>(path: string, data?: object) {
   return res.data
 }
 
-export async function streamAPI<T>(
+export async function stream<T>(
   path: string,
   data?: object
 ): Promise<AsyncGenerator<T>> {

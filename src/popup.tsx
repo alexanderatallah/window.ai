@@ -1,7 +1,7 @@
 import useSWR from "swr"
 
+import { get, post } from "~core/api"
 import type { CompletionResponse } from "~core/constants"
-import { getAPI, postAPI } from "~core/network"
 import { UserInfoProvider, useUserInfo } from "~core/user-info"
 
 const EmailShowcase = () => {
@@ -19,7 +19,7 @@ const PremiumFeatureButton = () => {
 
   const { data, error } = useSWR<{ active: boolean }>(
     `/api/check-subscription`,
-    (url) => getAPI<{ active: boolean }>(url)
+    (url) => get<{ active: boolean }>(url)
   )
   const isSubscribed = !error && data?.active
 
@@ -61,7 +61,7 @@ const PremiumFeatureButton = () => {
   return (
     <button
       onClick={async (e) => {
-        const data = await postAPI<CompletionResponse>("/api/model/generate", {
+        const data = await post<CompletionResponse>("/api/model/generate", {
           prompt: "The quick brown fox"
         })
 

@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios"
+import axios, { AxiosInstance, AxiosResponse } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 import { Readable, Transform, TransformCallback } from "stream"
@@ -225,6 +225,7 @@ export class Model {
       stream: payload["stream"]
     })
 
+    let stream: Readable
     try {
       const response = await this.api.post<Readable>(generationPath, payload, {
         timeout: opts.timeout,
@@ -232,7 +233,7 @@ export class Model {
       })
 
       // Transform all data chunks using transformResponse
-      const stream = response.data.pipe(
+      stream = response.data.pipe(
         new Transform({
           transform: (chunk, encoding, callback: TransformCallback) => {
             const chunkStr: string = chunk.toString("utf8")
@@ -261,16 +262,23 @@ export class Model {
         })
       )
 
-      return stream
+      // TODO handle these errors
+      // throw new Error("test")
     } catch (err: unknown) {
-      const asResponse = err as any
+      const asResponse = err as { response: AxiosResponse }
       this.error(
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
         `ERROR ${asResponse.response?.statusText} for id ${id}:`,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        asResponse.response?.data || asResponse.message
+        asResponse.response?.data || (err as Error).message
       )
-      throw err
+      if (stream) {
+        stream.emit("error", err as Error)
+      } else {
+        // TODO handle better along with complete()
+        throw err
+      }
     }
+    return stream
   }
 }
