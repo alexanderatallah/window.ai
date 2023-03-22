@@ -50,9 +50,8 @@ window.addEventListener('message', (event) => {
 
   const { type } = data;
 
-  log("Relay received message: ", data);
-
   if (type !== ContentMessageType.Response) {
+    log("Relay received request: ", data);
     postPortMessage(data);
   }
 });

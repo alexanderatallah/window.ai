@@ -66,7 +66,7 @@ function _onRelayResponse<T>(requestId: string, handler: (data: T) => unknown) {
     if (data?.type === ContentMessageType.Response
       && data.id === requestId) {
 
-      log("Inject script received response: ", data);
+      // log("Inject script received response: ", data);
       handler(data.response);
     }
   }, false)
