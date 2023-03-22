@@ -1,7 +1,7 @@
 import axiosRetry, { exponentialDelay } from 'axios-retry'
 import axios, { AxiosInstance } from 'axios'
 import objectHash from 'object-hash'
-import type { EventEmitter } from 'events'
+import { Readable, Transform, TransformCallback } from 'stream'
 
 export interface ModelConfig {
   baseUrl: string
@@ -38,8 +38,8 @@ export interface ModelOptions {
 
 export type RequestPrompt = { prompt: string; suffix?: string }
 
-export type RequestData = Omit<ModelOptions, 'user_identifier' | 'timeout'> &
-  Pick<ModelConfig, 'modelId' | 'modelProvider'> &
+export type RequestData = Omit<Required<ModelOptions>, 'user_identifier' | 'timeout'> &
+  Pick<Required<ModelConfig>, 'modelId' | 'modelProvider'> &
   RequestPrompt
 
 export type RequestMetadata = Pick<ModelOptions, 'user_identifier'>
@@ -75,7 +75,7 @@ export class Model {
       presence_penalty: 0,
       top_p: 1,
       stop_sequences: null,
-      max_tokens: 256,
+      max_tokens: 30,
       stream: false,
       ...opts,
     }
@@ -137,6 +137,7 @@ export class Model {
       presence_penalty: opts.presence_penalty,
       stop_sequences: opts.stop_sequences,
       max_tokens: opts.max_tokens,
+      stream: opts.stream,
     }
   }
 
@@ -201,57 +202,57 @@ export class Model {
   async stream(
     { prompt, suffix }: RequestPrompt,
     requestOpts: ModelOptions = {}
-  ): Promise<EventEmitter> {
+  ): Promise<Readable> {
     const opts: Required<ModelOptions> = {
       ...this.options,
       ...requestOpts,
       stream: true,
     }
+    const { transformResponse, transformForRequest, generationPath } = this.config
     const request = this.getRequestData({ prompt, suffix }, opts)
     const id = objectHash(request)
     const promptSnippet = prompt.slice(80, 300)
-    const payload = this.config.transformForRequest(request, opts)
+    const payload = transformForRequest(request, opts)
     this.log(`STREAMING id ${id}: ...${promptSnippet}...`, {
-      suffix: payload['suffix'],
-      max_tokens: payload['max_tokens'],
-      stop_sequences: payload['stop_sequences'],
+      stream: payload['stream'],
     })
 
     try {
-      const response = await this.api.post<EventEmitter>(
-        this.config.generationPath,
-        payload,
+      const response = await this.api.post<Readable>(generationPath, payload,
         { timeout: opts.timeout, responseType: 'stream' }
       )
 
-      return response.data
+      // Transform all data chunks using transformResponse
+      const stream = response.data.pipe(
+        new Transform({
+          transform: (chunk, encoding, callback: TransformCallback) => {
+            const chunkStr: string = chunk.toString('utf8')
+            const chunkDataRes = chunkStr.split('data: ')[1]?.trim()
+            if (chunkDataRes === '[DONE]') {
+              this.log('End:', chunkDataRes)
+              callback(null, null)
+            } else if (!chunkDataRes) {
+              const e = new Error(`Returned no data: ${chunkStr}`)
+              this.error(e)
+              callback(e, null)
+            } else {
+              const chunkData = JSON.parse(chunkDataRes)
+              const result = transformResponse(chunkData)
+              if (!result) {
+                const e = new Error(`Returned empty data: ${chunkDataRes}`)
+                this.error(e)
+                callback(e, null)
+              } else {
+                this.log('Result: ', result)
+                callback(null, result)
+              }
+            }
+          },
+        })
+      )
 
-      // .on('data', (chunk) => {
-      //   const chunkStr = chunk.toString('utf8');
-      //   const chunkDataRes = chunkStr.split('data: ')[1];
-      //   if (chunkDataRes === '[DONE]') {
-      //     // res.write('event: done\ndata: {"message": "Stream finished"}\n\n');
-      //     // res.end();
-      //     emitter.emit(StreamEvent.Done, { message: 'Stream finished' });
-      //   } else {
-      //     // res.write(`data: ${chunkStr}\n\n`);
-      //     const chunkData = JSON.parse(chunkDataRes)
-      //     const result = this.config.transformResponse(chunkData)
-      //     emitter.emit(StreamEvent.Data, result);
-      //   }
-      // });
+      return stream
 
-      // // Listen for error events
-      // response.data.on('error', (err) => {
-      //   emitter.emit(StreamEvent.Error, err);
-      // });
-
-      // // Listen for end events
-      // response.data.on('end', () => {
-      //   emitter.emit(StreamEvent.Done);
-      // });
-
-      // return emitter;
     } catch (err: unknown) {
       const asResponse = err as any
       this.error(

@@ -57,7 +57,7 @@ export function init(
       transformResponse: res => {
         return res['output']
           ? // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            res['output']['choices'][0]['text']?.trim()
+          res['output']['choices'][0]['text']
           : null
       },
     },

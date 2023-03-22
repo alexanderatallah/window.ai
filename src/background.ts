@@ -1,7 +1,7 @@
 
 import browser, { type Runtime } from 'webextension-polyfill'
-import type { CompletionRequest, CompletionResponse } from '~core/constants';
-import { callAPI, streamAPI } from '~core/network';
+import type { CompletionRequest, CompletionResponse, StreamResponse } from '~core/constants';
+import { postAPI, streamAPI } from '~core/network';
 import { log } from '~core/utils';
 
 export { }
@@ -21,7 +21,7 @@ async function handleRequest(event: any, port: Runtime.Port) {
   const completionReq = request as CompletionRequest;
 
   if (completionReq.shouldStream) {
-    const stream = await streamAPI(
+    const stream = await streamAPI<StreamResponse>(
       "/api/model/stream",
       {
         prompt: completionReq.prompt
@@ -29,15 +29,16 @@ async function handleRequest(event: any, port: Runtime.Port) {
     );
 
     for await (const result of stream) {
+      console.info("Got result: ", result)
       port.postMessage({ ...result, id });
     }
   } else {
-    const result = await callAPI(
+    const result = await postAPI<CompletionResponse>(
       "/api/model/complete",
       {
         prompt: request.prompt
       }
-    ) as CompletionResponse;
+    );
 
     port.postMessage({ ...result, id });
   }

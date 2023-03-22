@@ -9,74 +9,55 @@ const api = axios.create({
   },
   adapter: fetchAdapter
 });
-export async function callAPI(path: string, body?: object) {
-  api.defaults.headers['Authorization'] = `Bearer ${await getAccessToken()}`
-  const res = await api.post(path, {
-    data: body ? JSON.stringify(body) : undefined
-  })
-  return res.data as unknown
-}
 
-export async function streamAPI(path: string, body?: object) {
-  api.defaults.headers['Authorization'] = `Bearer ${await getAccessToken()}`
-  try {
-    const res = await api.post(path, {
-      data: body ? JSON.stringify(body) : undefined,
-      responseType: 'stream'
-    })
-
-    return streamCompletion(res.data);
-
-  } catch (error) {
-    // TODO error handling cleanup
-    if (error.response?.status) {
-      console.error(error.response.status, error.message);
-
-      for await (const data of error.response.data) {
-        const message = data.toString();
-
-        try {
-          const parsed = JSON.parse(message);
-
-          console.error("An error occurred during request: ", parsed);
-        } catch (error) {
-          console.error("An error occurred during request and parse: ", message);
-        }
-      }
+export async function getAPI<T>(path: string, params?: object) {
+  const res = await api.get<T>(path, {
+    params,
+    headers: {
+      Authorization: `Bearer ${await getAccessToken()}`
     }
-    throw error;
-  }
+  })
+  return res.data
+}
+export async function postAPI<T>(path: string, data?: object) {
+  const res = await api.post<T>(path, data, {
+    headers: {
+      Authorization: `Bearer ${await getAccessToken()}`
+    }
+  })
+  return res.data
 }
 
-// TODO better typing
-async function* chunksToLines(chunksAsync) {
-  let previous = "";
-  for await (const chunk of chunksAsync) {
-    const bufferChunk = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-    previous += bufferChunk;
-    let eolIndex;
-    while ((eolIndex = previous.indexOf("\n")) >= 0) {
-      // line includes the EOL
-      const line = previous.slice(0, eolIndex + 1).trimEnd();
-      if (line === "data: [DONE]") {
+export async function streamAPI<T>(path: string, data?: object): Promise<AsyncGenerator<T>> {
+  const res = await api.post<ReadableStream>(path, data, {
+    headers: {
+      Authorization: `Bearer ${await getAccessToken()}`
+    },
+    responseType: 'stream'
+  })
+
+  return readableStreamToGenerator<T>(res.data)
+}
+
+async function* readableStreamToGenerator<T>(stream: ReadableStream) {
+  const reader = stream.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let lastValue;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        console.warn("Stream ended", lastValue)
         break;
       }
-      if (line.startsWith("data: ")) {
-        yield line;
-      }
-      previous = previous.slice(eolIndex + 1);
+      lastValue = decoder.decode(value, { stream: true });
+      console.warn("Got value: ", lastValue)
+      const jsonStr = lastValue.split('data: ')[1]?.trim()
+      yield JSON.parse(jsonStr) as T;
     }
+  } catch (error) {
+    console.error(error, lastValue);
+  } finally {
+    reader.releaseLock();
   }
-}
-
-async function* linesToMessages(linesAsync) {
-  for await (const line of linesAsync) {
-    const message = line.substring("data :".length);
-
-    yield message;
-  }
-}
-
-async function* streamCompletion(data) {
-  yield* linesToMessages(chunksToLines(data));
 }

@@ -21,10 +21,10 @@ export function init(
   return new Model(
     {
       modelProvider: 'openai',
+      modelId,
       apiKey,
       baseUrl: 'https://api.openai.com/v1',
       generationPath: '/completions',
-      modelId,
       tokenLimit: OpenAIModels[modelId].contextLimit,
       debug: config.debug,
       cacheGet: (...args) =>
@@ -43,7 +43,7 @@ export function init(
       },
       transformResponse: res => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return res['choices'][0]['text']?.trim()
+        return res['choices'][0]['text']
       },
     },
     opts

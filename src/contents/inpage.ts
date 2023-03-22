@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 import type { PlasmoCSConfig } from "plasmo"
-import { ContentMessageType, PORT_NAME, CompletionRequest, CompletionResponse } from "~core/constants"
+import { ContentMessageType, PORT_NAME, CompletionRequest, CompletionResponse, StreamResponse } from "~core/constants"
 import { log } from "~core/utils"
 
 export const config: PlasmoCSConfig = {
@@ -15,7 +15,8 @@ export const AI = {
   async getCompletion(prompt: string): Promise<string> {
     const requestId = _relayRequest<CompletionRequest>({ prompt });
     return new Promise((resolve) => {
-      _onRelayResponse<CompletionResponse>(requestId, (res) => resolve(res.completion));
+      _onRelayResponse<CompletionResponse>(requestId,
+        (res) => resolve(res.completion));
     })
   },
 
@@ -24,7 +25,8 @@ export const AI = {
   },
 
   addListener(requestId: string, handler: (res: string) => unknown) {
-    _onRelayResponse(requestId, handler);
+    _onRelayResponse<StreamResponse>(requestId,
+      (res) => handler(res.text));
   },
 
   cancel(requestId: string) {

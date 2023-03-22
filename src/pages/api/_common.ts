@@ -24,7 +24,7 @@ export const openai = initOpenAI(process.env.OPENAI_API_KEY, {
   cacheSet: async (data) => cache[data.id] = data
 }, {
   presence_penalty: 0, // Using negative numbers causes 500s from davinci
-  stop_sequences: ['\n'],
+  // stop_sequences: ['\n'],
 })
 
 export function isAdmin(email: string) {

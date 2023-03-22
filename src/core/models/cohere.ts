@@ -57,11 +57,11 @@ export function init(
       transformResponse: res => {
         return res['generations']
           ? // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            res['generations'][0]['text']?.trim()
+          res['generations'][0]['text']
           : res['text']
-          ? // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            res['text'].trim()
-          : null
+            ? // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            res['text']
+            : null
       },
     },
     options

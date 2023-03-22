@@ -15,3 +15,7 @@ export interface CompletionRequest {
 export interface CompletionResponse {
   completion: string
 }
+
+export interface StreamResponse {
+  text: string
+}
