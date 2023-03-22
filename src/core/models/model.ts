@@ -1,6 +1,7 @@
 import axiosRetry, { exponentialDelay } from 'axios-retry'
 import axios, { AxiosInstance } from 'axios'
 import objectHash from 'object-hash'
+import type { EventEmitter } from 'events'
 
 export interface ModelConfig {
   baseUrl: string
@@ -32,6 +33,7 @@ export interface ModelOptions {
   timeout?: number
   user_identifier?: string | null
   max_tokens?: number
+  stream?: boolean
 }
 
 export type RequestPrompt = { prompt: string; suffix?: string }
@@ -51,6 +53,12 @@ export type CacheSetter = (data: {
   completion: string
 }) => Promise<unknown>
 
+export enum StreamEvent {
+  Data = 'data',
+  Error = 'error',
+  End = 'end'
+}
+
 export class Model {
   public api: AxiosInstance
   public config: Required<ModelConfig>
@@ -68,6 +76,7 @@ export class Model {
       top_p: 1,
       stop_sequences: null,
       max_tokens: 256,
+      stream: false,
       ...opts,
     }
     // Create API client
@@ -175,7 +184,7 @@ export class Model {
     this.log('RESPONSE for id ' + id)
     const result = this.config.transformResponse(responseData)
     if (!result) {
-      const e = new Error(`Returned an empty result for id ${id}`)
+      const e = new Error(`Returned an empty result: ${JSON.stringify(responseData)}`)
       this.error(e)
       throw e
     }
@@ -187,5 +196,71 @@ export class Model {
     })
     this.log('SAVED TO CACHE: ' + id)
     return result
+  }
+
+  async stream(
+    { prompt, suffix }: RequestPrompt,
+    requestOpts: ModelOptions = {}
+  ): Promise<EventEmitter> {
+    const opts: Required<ModelOptions> = {
+      ...this.options,
+      ...requestOpts,
+      stream: true,
+    }
+    const request = this.getRequestData({ prompt, suffix }, opts)
+    const id = objectHash(request)
+    const promptSnippet = prompt.slice(80, 300)
+    const payload = this.config.transformForRequest(request, opts)
+    this.log(`STREAMING id ${id}: ...${promptSnippet}...`, {
+      suffix: payload['suffix'],
+      max_tokens: payload['max_tokens'],
+      stop_sequences: payload['stop_sequences'],
+    })
+
+    try {
+      const response = await this.api.post<EventEmitter>(
+        this.config.generationPath,
+        payload,
+        { timeout: opts.timeout, responseType: 'stream' }
+      )
+
+      return response.data
+
+      // .on('data', (chunk) => {
+      //   const chunkStr = chunk.toString('utf8');
+      //   const chunkDataRes = chunkStr.split('data: ')[1];
+      //   if (chunkDataRes === '[DONE]') {
+      //     // res.write('event: done\ndata: {"message": "Stream finished"}\n\n');
+      //     // res.end();
+      //     emitter.emit(StreamEvent.Done, { message: 'Stream finished' });
+      //   } else {
+      //     // res.write(`data: ${chunkStr}\n\n`);
+      //     const chunkData = JSON.parse(chunkDataRes)
+      //     const result = this.config.transformResponse(chunkData)
+      //     emitter.emit(StreamEvent.Data, result);
+      //   }
+      // });
+
+      // // Listen for error events
+      // response.data.on('error', (err) => {
+      //   emitter.emit(StreamEvent.Error, err);
+      // });
+
+      // // Listen for end events
+      // response.data.on('end', () => {
+      //   emitter.emit(StreamEvent.Done);
+      // });
+
+      // return emitter;
+    } catch (err: unknown) {
+      const asResponse = err as any
+      this.error(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
+        `ERROR ${asResponse.response?.statusText} for id ${id}:`,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        asResponse.response?.data || asResponse.message
+      )
+      throw err
+    }
   }
 }

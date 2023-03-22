@@ -3,10 +3,12 @@ lockfileVersion: 5.4
 specifiers:
   '@plasmohq/prettier-plugin-sort-imports': 3.6.3
   '@plasmohq/rps': ^1.8.4
+  '@types/chrome': ^0.0.224
   '@types/node': 18.15.3
   '@types/react': 18.0.28
   '@types/react-dom': 18.0.11
   '@types/webextension-polyfill': ^0.10.0
+  '@vespaiach/axios-fetch-adapter': github:alexanderatallah/axios-fetch-adapter
   axios: ^1.3.4
   axios-retry: ^3.4.0
   google-auth-library: ^8.7.0
@@ -24,7 +26,9 @@ specifiers:
   webextension-polyfill: ^0.10.0
 
 dependencies:
+  '@types/chrome': 0.0.224
   '@types/webextension-polyfill': 0.10.0
+  '@vespaiach/axios-fetch-adapter': github.com/alexanderatallah/axios-fetch-adapter/cbcb74760abea79d20d84cf4edb65471e74f1336_axios@1.3.4
   axios: 1.3.4
   axios-retry: 3.4.0
   google-auth-library: 8.7.0
@@ -2426,6 +2430,27 @@ packages:
   /@trysound/sax/0.2.0:
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
+    dev: false
+
+  /@types/chrome/0.0.224:
+    resolution: {integrity: sha512-YkL7q3KDV7OAKgVCBNIfH73rnjNMbIzAYHzTa2DKhSK/2z0Wf/n8yJnK/UoW+lvuYJJR4LtAkG3YvsIZTy7BOA==}
+    dependencies:
+      '@types/filesystem': 0.0.32
+      '@types/har-format': 1.2.10
+    dev: false
+
+  /@types/filesystem/0.0.32:
+    resolution: {integrity: sha512-Yuf4jR5YYMR2DVgwuCiP11s0xuVRyPKmz8vo6HBY3CGdeMj8af93CFZX+T82+VD1+UqHOxTq31lO7MI7lepBtQ==}
+    dependencies:
+      '@types/filewriter': 0.0.29
+    dev: false
+
+  /@types/filewriter/0.0.29:
+    resolution: {integrity: sha512-BsPXH/irW0ht0Ji6iw/jJaK8Lj3FJemon2gvEqHKpCdDCeemHa+rI3WBGq5z7cDMZgoLjY40oninGxqk+8NzNQ==}
+    dev: false
+
+  /@types/har-format/1.2.10:
+    resolution: {integrity: sha512-o0J30wqycjF5miWDKYKKzzOU1ZTLuA42HZ4HE7/zqTOc/jTLdQ5NhYWvsRQo45Nfi1KHoRdNhteSI4BAxTF1Pg==}
     dev: false
 
   /@types/http-cache-semantics/4.0.1:
@@ -5751,4 +5776,15 @@ packages:
       archiver-utils: 2.1.0
       compress-commons: 4.1.1
       readable-stream: 3.6.2
+    dev: false
+
+  github.com/alexanderatallah/axios-fetch-adapter/cbcb74760abea79d20d84cf4edb65471e74f1336_axios@1.3.4:
+    resolution: {tarball: https://codeload.github.com/alexanderatallah/axios-fetch-adapter/tar.gz/cbcb74760abea79d20d84cf4edb65471e74f1336}
+    id: github.com/alexanderatallah/axios-fetch-adapter/cbcb74760abea79d20d84cf4edb65471e74f1336
+    name: '@vespaiach/axios-fetch-adapter'
+    version: 0.3.1
+    peerDependencies:
+      axios: '>=0.26.0'
+    dependencies:
+      axios: 1.3.4
     dev: false
