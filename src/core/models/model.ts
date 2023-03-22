@@ -1,8 +1,9 @@
-import axiosRetry, { exponentialDelay } from 'axios-retry'
-import axios, { AxiosInstance } from 'axios'
-import objectHash from 'object-hash'
-import { Readable, Transform, TransformCallback } from 'stream'
-import { parseDataChunks } from '~core/utils'
+import axios, { AxiosInstance } from "axios"
+import axiosRetry, { exponentialDelay } from "axios-retry"
+import objectHash from "object-hash"
+import { Readable, Transform, TransformCallback } from "stream"
+
+import { parseDataChunks } from "~core/utils"
 
 export interface ModelConfig {
   baseUrl: string
@@ -15,7 +16,7 @@ export interface ModelConfig {
   authPrefix?: string
   debug?: boolean
   retries?: number
-  quality?: 'low' | 'max' // defaults to 'max'
+  quality?: "low" | "max" // defaults to 'max'
   cacheGet: CacheGetter
   cacheSet: CacheSetter
   transformForRequest: (
@@ -39,11 +40,14 @@ export interface ModelOptions {
 
 export type RequestPrompt = { prompt: string; suffix?: string }
 
-export type RequestData = Omit<Required<ModelOptions>, 'user_identifier' | 'timeout'> &
-  Pick<Required<ModelConfig>, 'modelId' | 'modelProvider'> &
+export type RequestData = Omit<
+  Required<ModelOptions>,
+  "user_identifier" | "timeout"
+> &
+  Pick<Required<ModelConfig>, "modelId" | "modelProvider"> &
   RequestPrompt
 
-export type RequestMetadata = Pick<ModelOptions, 'user_identifier'>
+export type RequestMetadata = Pick<ModelOptions, "user_identifier">
 
 // TODO cache statistics and log probs etc
 export type CacheGetter = (id: string) => Promise<string | null | undefined>
@@ -55,9 +59,9 @@ export type CacheSetter = (data: {
 }) => Promise<unknown>
 
 export enum StreamEvent {
-  Data = 'data',
-  Error = 'error',
-  End = 'end'
+  Data = "data",
+  Error = "error",
+  End = "end"
 }
 
 export class Model {
@@ -78,20 +82,20 @@ export class Model {
       stop_sequences: null,
       max_tokens: 30,
       stream: false,
-      ...opts,
+      ...opts
     }
     // Create API client
     this.api = axios.create({
       baseURL: this.config.baseUrl,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `${this.config.authPrefix}${config.apiKey}`,
-        ...this.config.customHeaders,
-      },
+        ...this.config.customHeaders
+      }
     })
     axiosRetry(this.api, {
       retries: this.config.retries,
-      retryDelay: exponentialDelay,
+      retryDelay: exponentialDelay
     })
   }
 
@@ -101,13 +105,13 @@ export class Model {
 
   addDefaults(config: ModelConfig): Required<ModelConfig> {
     return {
-      quality: 'max',
-      authPrefix: 'Bearer ',
+      quality: "max",
+      authPrefix: "Bearer ",
       retries: 3,
       tokenLimit: 4000,
       debug: true,
       customHeaders: {},
-      ...config,
+      ...config
     }
   }
 
@@ -138,7 +142,7 @@ export class Model {
       presence_penalty: opts.presence_penalty,
       stop_sequences: opts.stop_sequences,
       max_tokens: opts.max_tokens,
-      stream: opts.stream,
+      stream: opts.stream
     }
   }
 
@@ -148,7 +152,7 @@ export class Model {
   ): Promise<string> {
     const opts: Required<ModelOptions> = {
       ...this.options,
-      ...requestOpts,
+      ...requestOpts
     }
     const request = this.getRequestData({ prompt, suffix }, opts)
     const id = objectHash(request)
@@ -160,9 +164,9 @@ export class Model {
     }
     const payload = this.config.transformForRequest(request, opts)
     this.log(`FETCHING id ${id}: ...${promptSnippet}...`, {
-      suffix: payload['suffix'],
-      max_tokens: payload['max_tokens'],
-      stop_sequences: payload['stop_sequences'],
+      suffix: payload["suffix"],
+      max_tokens: payload["max_tokens"],
+      stop_sequences: payload["stop_sequences"]
     })
     let responseData: Record<string, any>
     try {
@@ -183,10 +187,12 @@ export class Model {
       throw err
     }
 
-    this.log('RESPONSE for id ' + id)
+    this.log("RESPONSE for id " + id)
     const result = this.config.transformResponse(responseData)
     if (!result) {
-      const e = new Error(`Returned an empty result: ${JSON.stringify(responseData)}`)
+      const e = new Error(
+        `Returned an empty result: ${JSON.stringify(responseData)}`
+      )
       this.error(e)
       throw e
     }
@@ -194,9 +200,9 @@ export class Model {
     await this.config.cacheSet({
       id,
       prompt: request,
-      completion: result,
+      completion: result
     })
-    this.log('SAVED TO CACHE: ' + id)
+    this.log("SAVED TO CACHE: " + id)
     return result
   }
 
@@ -207,30 +213,32 @@ export class Model {
     const opts: Required<ModelOptions> = {
       ...this.options,
       ...requestOpts,
-      stream: true,
+      stream: true
     }
-    const { transformResponse, transformForRequest, generationPath } = this.config
+    const { transformResponse, transformForRequest, generationPath } =
+      this.config
     const request = this.getRequestData({ prompt, suffix }, opts)
     const id = objectHash(request)
     const promptSnippet = prompt.slice(80, 300)
     const payload = transformForRequest(request, opts)
     this.log(`STREAMING id ${id}: ...${promptSnippet}...`, {
-      stream: payload['stream'],
+      stream: payload["stream"]
     })
 
     try {
-      const response = await this.api.post<Readable>(generationPath, payload,
-        { timeout: opts.timeout, responseType: 'stream' }
-      )
+      const response = await this.api.post<Readable>(generationPath, payload, {
+        timeout: opts.timeout,
+        responseType: "stream"
+      })
 
       // Transform all data chunks using transformResponse
       const stream = response.data.pipe(
         new Transform({
           transform: (chunk, encoding, callback: TransformCallback) => {
-            const chunkStr: string = chunk.toString('utf8')
+            const chunkStr: string = chunk.toString("utf8")
             for (const chunkDataRes of parseDataChunks(chunkStr)) {
-              if (chunkDataRes === '[DONE]') {
-                this.log('End:', chunkDataRes)
+              if (chunkDataRes === "[DONE]") {
+                this.log("End:", chunkDataRes)
                 callback(null, null)
               } else if (!chunkDataRes) {
                 const e = new Error(`Returned no data: ${chunkStr}`)
@@ -244,17 +252,16 @@ export class Model {
                   this.error(e)
                   callback(e, null)
                 } else {
-                  this.log('Result: ', result)
+                  this.log("Result: ", result)
                   callback(null, result)
                 }
               }
             }
-          },
+          }
         })
       )
 
       return stream
-
     } catch (err: unknown) {
       const asResponse = err as any
       this.error(

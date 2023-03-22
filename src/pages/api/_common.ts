@@ -1,7 +1,8 @@
 import { OAuth2Client } from "google-auth-library"
 import type { NextApiRequest } from "next"
-import { init as initOpenAI } from '~/core/models/openai'
 import Stripe from "stripe"
+
+import { init as initOpenAI } from "~/core/models/openai"
 
 const cache = {}
 
@@ -14,18 +15,24 @@ export type Request = {
 }
 
 export type Response = {
-  success: boolean, completion?: string, error?: string
+  success: boolean
+  completion?: string
+  error?: string
 }
 
-export const openai = initOpenAI(process.env.OPENAI_API_KEY, {
-  quality: "max",
-  debug: process.env.NODE_ENV !== "production",
-  cacheGet: async (key) => cache[key]?.completion,
-  cacheSet: async (data) => cache[data.id] = data
-}, {
-  presence_penalty: 0, // Using negative numbers causes 500s from davinci
-  // stop_sequences: ['\n'],
-})
+export const openai = initOpenAI(
+  process.env.OPENAI_API_KEY,
+  {
+    quality: "max",
+    debug: process.env.NODE_ENV !== "production",
+    cacheGet: async (key) => cache[key]?.completion,
+    cacheSet: async (data) => (cache[data.id] = data)
+  },
+  {
+    presence_penalty: 0 // Using negative numbers causes 500s from davinci
+    // stop_sequences: ['\n'],
+  }
+)
 
 export function isAdmin(email: string) {
   return process.env.ADMIN_EMAILS?.split(",").includes(email)
@@ -69,7 +76,9 @@ export const getUserInfo = async (authHeader: string) => {
   return userInfoRes.data
 }
 
-export const getSubsciption = async (email: string): Promise<Stripe.Subscription | undefined> => {
+export const getSubsciption = async (
+  email: string
+): Promise<Stripe.Subscription | undefined> => {
   const customerResp = await stripe.customers.list({
     email,
     limit: 1

@@ -1,4 +1,3 @@
-
 export const PORT_NAME = "web41"
 
 export enum ContentMessageType {
