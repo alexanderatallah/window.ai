@@ -1,7 +1,7 @@
 import { getAccessToken } from "./access-token"
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
 import axios from 'axios'
-import { log } from "./utils";
+import { log, parseDataChunks } from "./utils";
 
 const api = axios.create({
   baseURL: process.env.PLASMO_PUBLIC_API_URI,
@@ -52,10 +52,8 @@ async function* readableStreamToGenerator<T>(stream: ReadableStream) {
       }
       lastValue = decoder.decode(value, { stream: true });
       log("Got stream value: ", lastValue)
-      const lines = lastValue.split('\n').filter(l => l.startsWith('data: '));
-      for (const line of lines) {
-        const jsonStr = line.split('data: ')[1]?.trim()
-        yield JSON.parse(jsonStr) as T;
+      for (const data of parseDataChunks(lastValue)) {
+        yield JSON.parse(data) as T;
       }
     }
   } catch (error) {

@@ -2,6 +2,7 @@ import axiosRetry, { exponentialDelay } from 'axios-retry'
 import axios, { AxiosInstance } from 'axios'
 import objectHash from 'object-hash'
 import { Readable, Transform, TransformCallback } from 'stream'
+import { parseDataChunks } from '~core/utils'
 
 export interface ModelConfig {
   baseUrl: string
@@ -227,24 +228,25 @@ export class Model {
         new Transform({
           transform: (chunk, encoding, callback: TransformCallback) => {
             const chunkStr: string = chunk.toString('utf8')
-            const chunkDataRes = chunkStr.split('data: ')[1]?.trim()
-            if (chunkDataRes === '[DONE]') {
-              this.log('End:', chunkDataRes)
-              callback(null, null)
-            } else if (!chunkDataRes) {
-              const e = new Error(`Returned no data: ${chunkStr}`)
-              this.error(e)
-              callback(e, null)
-            } else {
-              const chunkData = JSON.parse(chunkDataRes)
-              const result = transformResponse(chunkData)
-              if (!result) {
-                const e = new Error(`Returned empty data: ${chunkDataRes}`)
+            for (const chunkDataRes of parseDataChunks(chunkStr)) {
+              if (chunkDataRes === '[DONE]') {
+                this.log('End:', chunkDataRes)
+                callback(null, null)
+              } else if (!chunkDataRes) {
+                const e = new Error(`Returned no data: ${chunkStr}`)
                 this.error(e)
                 callback(e, null)
               } else {
-                this.log('Result: ', result)
-                callback(null, result)
+                const chunkData = JSON.parse(chunkDataRes)
+                const result = transformResponse(chunkData)
+                if (!result) {
+                  const e = new Error(`Returned empty data: ${chunkDataRes}`)
+                  this.error(e)
+                  callback(e, null)
+                } else {
+                  this.log('Result: ', result)
+                  callback(null, result)
+                }
               }
             }
           },
