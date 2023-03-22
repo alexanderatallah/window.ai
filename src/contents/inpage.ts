@@ -8,16 +8,15 @@ import {
   PORT_NAME,
   StreamResponse
 } from "~core/constants"
-import { log } from "~core/utils"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
   world: "MAIN",
-  all_frames: true,
-  run_at: "document_start"
+  all_frames: true
+  // run_at: "document_start" // This causes some Next.js pages (e.g. Plasmo docs) to break
 }
 
-export const AI = {
+export const Web41 = {
   async getCompletion(prompt: string): Promise<string> {
     const requestId = _relayRequest<CompletionRequest>({ prompt })
     return new Promise((resolve) => {
@@ -87,7 +86,7 @@ function _onRelayResponse<T>(requestId: string, handler: (data: T) => unknown) {
 
 declare global {
   interface Window {
-    ai: typeof AI
+    ai: typeof Web41
   }
 }
-window.ai = AI
+window.ai = Web41

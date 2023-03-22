@@ -146,7 +146,7 @@ export class Model {
     }
   }
 
-  async generate(
+  async complete(
     { prompt, suffix }: RequestPrompt,
     requestOpts: ModelOptions = {}
   ): Promise<string> {
@@ -156,14 +156,14 @@ export class Model {
     }
     const request = this.getRequestData({ prompt, suffix }, opts)
     const id = objectHash(request)
-    const promptSnippet = prompt.slice(80, 300)
+    const promptSnippet = prompt.slice(0, 100)
     const cached = await this.config.cacheGet(id)
     if (cached) {
-      this.log(`\nCACHE HIT for id ${id}: ...${promptSnippet}...`)
+      this.log(`\nCACHE HIT for id ${id}: ${promptSnippet}...`)
       return cached
     }
     const payload = this.config.transformForRequest(request, opts)
-    this.log(`FETCHING id ${id}: ...${promptSnippet}...`, {
+    this.log(`COMPLETING id ${id}: ${promptSnippet}...`, {
       suffix: payload["suffix"],
       max_tokens: payload["max_tokens"],
       stop_sequences: payload["stop_sequences"]
@@ -219,9 +219,9 @@ export class Model {
       this.config
     const request = this.getRequestData({ prompt, suffix }, opts)
     const id = objectHash(request)
-    const promptSnippet = prompt.slice(80, 300)
+    const promptSnippet = prompt.slice(0, 100)
     const payload = transformForRequest(request, opts)
-    this.log(`STREAMING id ${id}: ...${promptSnippet}...`, {
+    this.log(`STREAMING id ${id}: ${promptSnippet}...`, {
       stream: payload["stream"]
     })
 

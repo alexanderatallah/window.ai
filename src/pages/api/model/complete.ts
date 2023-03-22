@@ -17,7 +17,7 @@ export default async function handler(
     throw new Error("Invalid prompt: " + req.body)
   }
 
-  const completion = await openai.generate({
+  const completion = await openai.complete({
     prompt: body.prompt
   })
   return res.status(200).json({ success: true, completion })
