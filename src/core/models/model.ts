@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios"
+import axios, { AxiosAdapterConfig, AxiosInstance, AxiosResponse } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 import { Readable, Transform, TransformCallback } from "stream"
@@ -12,7 +12,7 @@ export interface ModelConfig {
   modelProvider: string
   modelId: string
   customHeaders?: Record<string, string>
-  tokenLimit?: number
+  tokenLimit?: number | null
   authPrefix?: string
   debug?: boolean
   retries?: number
@@ -36,13 +36,14 @@ export interface ModelOptions {
   user_identifier?: string | null
   max_tokens?: number
   stream?: boolean
+  adapter?: AxiosAdapterConfig | AxiosAdapterConfig[]
 }
 
 export type RequestPrompt = { prompt: string; suffix?: string }
 
 export type RequestData = Omit<
   Required<ModelOptions>,
-  "user_identifier" | "timeout"
+  "user_identifier" | "timeout" | "adapter"
 > &
   Pick<Required<ModelConfig>, "modelId" | "modelProvider"> &
   RequestPrompt
@@ -82,6 +83,7 @@ export class Model {
       stop_sequences: null,
       max_tokens: 30,
       stream: false,
+      adapter: undefined,
       ...opts
     }
     // Create API client
@@ -91,7 +93,8 @@ export class Model {
         "Content-Type": "application/json",
         Authorization: `${this.config.authPrefix}${config.apiKey}`,
         ...this.config.customHeaders
-      }
+      },
+      adapter: this.options.adapter
     })
     axiosRetry(this.api, {
       retries: this.config.retries,
@@ -108,7 +111,7 @@ export class Model {
       quality: "max",
       authPrefix: "Bearer ",
       retries: 3,
-      tokenLimit: 4000,
+      tokenLimit: null,
       debug: true,
       customHeaders: {},
       ...config,

@@ -25,7 +25,6 @@ export function init(
       apiKey,
       baseUrl: "https://api.openai.com/v1",
       generationPath: "/completions",
-      tokenLimit: OpenAIModels[modelId].contextLimit,
       debug: config.debug,
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,

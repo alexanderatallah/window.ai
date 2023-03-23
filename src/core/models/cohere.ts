@@ -30,16 +30,14 @@ export function init(
       : CohereModelId.XlargeNightly
   return new Model(
     {
+      ...config,
       modelProvider: "cohere",
       apiKey,
       baseUrl: "https://api.cohere.ai",
       generationPath: "/generate",
       authPrefix: "BEARER ",
       modelId,
-      tokenLimit: CohereModels[modelId].contextLimit,
       debug: config.debug,
-      cacheGet: config.cacheGet,
-      cacheSet: config.cacheSet,
       customHeaders: {
         "Cohere-Version": "2022-12-06"
       },

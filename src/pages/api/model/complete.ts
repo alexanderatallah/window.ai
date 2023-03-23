@@ -1,12 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import {
-  Request,
-  Response,
-  alpacaTurbo,
-  authenticate,
-  openai
-} from "../_common"
+import { Request, Response, authenticate, openai } from "../_common"
 
 export default async function handler(
   req: NextApiRequest,

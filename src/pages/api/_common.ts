@@ -2,10 +2,12 @@ import { OAuth2Client } from "google-auth-library"
 import type { NextApiRequest } from "next"
 import Stripe from "stripe"
 
-import { init as initAlpacaTurbo } from "~/core/models/alpaca-turbo"
 import { init as initOpenAI } from "~/core/models/openai"
 
+// Basic in-memory cache. TODO replace w Redis
 const cache = {}
+const cacheGet = async (key) => cache[key]?.completion
+const cacheSet = async (data) => (cache[data.id] = data)
 
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY, {
   apiVersion: "2022-11-15"
@@ -26,16 +28,14 @@ export const openai = initOpenAI(
   {
     quality: "max",
     debug: process.env.NODE_ENV !== "production",
-    cacheGet: async (key) => cache[key]?.completion,
-    cacheSet: async (data) => (cache[data.id] = data)
+    cacheGet,
+    cacheSet
   },
   {
     presence_penalty: 0 // Using negative numbers causes 500s from davinci
     // stop_sequences: ['\n'],
   }
 )
-
-export const alpacaTurbo = initAlpacaTurbo()
 
 export function isAdmin(email: string) {
   return process.env.ADMIN_EMAILS?.split(",").includes(email)

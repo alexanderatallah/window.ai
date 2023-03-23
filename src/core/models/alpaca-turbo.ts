@@ -17,7 +17,7 @@ export function init(
       modelProvider: "alpaca",
       modelId,
       apiKey: null,
-      baseUrl: "http://127.0.0.1:5000",
+      baseUrl: "http://127.0.0.1:8000",
       generationPath: "/ask_bot",
       debug: config.debug,
       cacheGet: config.cacheGet,

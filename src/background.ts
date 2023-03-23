@@ -1,6 +1,7 @@
 import browser, { type Runtime } from "webextension-polyfill"
 
-import { post, stream } from "~core/api"
+import { post as postExternal, stream as streamExternal } from "~core/api"
+import { post as postLocal, stream as streamLocal } from "~core/api-local"
 import type {
   CompletionRequest,
   CompletionResponse,
@@ -22,11 +23,15 @@ async function handleRequest(event: any, port: Runtime.Port) {
 
   const { id, request } = event
 
-  const completionReq = request as CompletionRequest
+  const req = request as CompletionRequest
 
-  if (completionReq.shouldStream) {
+  const [stream, post] = isLocalhost(req)
+    ? [streamLocal, postLocal]
+    : [streamExternal, postExternal]
+
+  if (req.shouldStream) {
     const results = await stream<StreamResponse>("/api/model/stream", {
-      prompt: completionReq.prompt
+      prompt: req.prompt
     })
 
     for await (const result of results) {
@@ -35,9 +40,19 @@ async function handleRequest(event: any, port: Runtime.Port) {
     }
   } else {
     const result = await post<CompletionResponse>("/api/model/complete", {
-      prompt: request.prompt
+      prompt: req.prompt
     })
 
     port.postMessage({ ...result, id })
   }
+}
+
+function isLocalhost(req: CompletionRequest): boolean {
+  // TODO check url etc instead, after API consolidated
+  // if (!url) {
+  //   return false
+  // }
+  // const parsed = new URL(url)
+  // return parsed.hostname === "localhost" || parsed.hostname.startsWith("127.")
+  return !!req.isLocal
 }

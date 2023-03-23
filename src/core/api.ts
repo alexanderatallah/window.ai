@@ -9,6 +9,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json"
   },
+  // TODO move this into the default model axios code
   adapter: fetchAdapter
 })
 

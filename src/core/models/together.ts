@@ -29,7 +29,6 @@ export function init(
       baseUrl: "https://staging.together.xyz/api",
       generationPath: "/inference",
       modelId,
-      tokenLimit: TogetherModels[modelId].contextLimit,
       debug: config.debug,
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,

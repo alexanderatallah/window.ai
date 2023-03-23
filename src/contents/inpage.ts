@@ -17,8 +17,13 @@ export const config: PlasmoCSConfig = {
 }
 
 export const Web41 = {
+  _isLocal: false,
+
   async getCompletion(prompt: string): Promise<string> {
-    const requestId = _relayRequest<CompletionRequest>({ prompt })
+    const requestId = _relayRequest<CompletionRequest>({
+      prompt,
+      isLocal: Web41._isLocal
+    })
     return new Promise((resolve) => {
       _onRelayResponse<CompletionResponse>(requestId, (res) =>
         resolve(res.completion)
@@ -27,7 +32,11 @@ export const Web41 = {
   },
 
   streamCompletion(prompt: string): string {
-    return _relayRequest<CompletionRequest>({ prompt, shouldStream: true })
+    return _relayRequest<CompletionRequest>({
+      prompt,
+      shouldStream: true,
+      isLocal: Web41._isLocal
+    })
   },
 
   addListener(requestId: string, handler: (res: string) => unknown) {

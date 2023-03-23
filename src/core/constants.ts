@@ -1,3 +1,5 @@
+import type { ModelConfig } from "./models/model"
+
 export const PORT_NAME = "web41"
 
 export enum ContentMessageType {
@@ -9,6 +11,7 @@ export enum ContentMessageType {
 export interface CompletionRequest {
   prompt: string
   shouldStream?: boolean
+  isLocal?: boolean
 }
 
 export interface CompletionResponse {
