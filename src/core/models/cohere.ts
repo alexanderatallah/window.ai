@@ -38,10 +38,8 @@ export function init(
       modelId,
       tokenLimit: CohereModels[modelId].contextLimit,
       debug: config.debug,
-      cacheGet: (...args) =>
-        config.cacheGet ? config.cacheGet(...args) : Promise.resolve(undefined),
-      cacheSet: (...args) =>
-        config.cacheSet ? config.cacheSet(...args) : Promise.resolve(undefined),
+      cacheGet: config.cacheGet,
+      cacheSet: config.cacheSet,
       customHeaders: {
         "Cohere-Version": "2022-12-06"
       },

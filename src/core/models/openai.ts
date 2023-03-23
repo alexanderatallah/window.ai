@@ -27,10 +27,8 @@ export function init(
       generationPath: "/completions",
       tokenLimit: OpenAIModels[modelId].contextLimit,
       debug: config.debug,
-      cacheGet: (...args) =>
-        config.cacheGet ? config.cacheGet(...args) : Promise.resolve(undefined),
-      cacheSet: (...args) =>
-        config.cacheSet ? config.cacheSet(...args) : Promise.resolve(undefined),
+      cacheGet: config.cacheGet,
+      cacheSet: config.cacheSet,
       transformForRequest: (req, meta) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { modelId, stop_sequences, modelProvider, ...optsToSend } = req

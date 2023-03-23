@@ -31,10 +31,8 @@ export function init(
       modelId,
       tokenLimit: TogetherModels[modelId].contextLimit,
       debug: config.debug,
-      cacheGet: (...args) =>
-        config.cacheGet ? config.cacheGet(...args) : Promise.resolve(undefined),
-      cacheSet: (...args) =>
-        config.cacheSet ? config.cacheSet(...args) : Promise.resolve(undefined),
+      cacheGet: config.cacheGet,
+      cacheSet: config.cacheSet,
       customHeaders: {
         "User-Agent": appName
       },

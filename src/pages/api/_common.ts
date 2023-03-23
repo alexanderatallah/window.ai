@@ -2,6 +2,7 @@ import { OAuth2Client } from "google-auth-library"
 import type { NextApiRequest } from "next"
 import Stripe from "stripe"
 
+import { init as initAlpacaTurbo } from "~/core/models/alpaca-turbo"
 import { init as initOpenAI } from "~/core/models/openai"
 
 const cache = {}
@@ -33,6 +34,8 @@ export const openai = initOpenAI(
     // stop_sequences: ['\n'],
   }
 )
+
+export const alpacaTurbo = initAlpacaTurbo()
 
 export function isAdmin(email: string) {
   return process.env.ADMIN_EMAILS?.split(",").includes(email)

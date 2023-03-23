@@ -17,13 +17,13 @@ export interface ModelConfig {
   debug?: boolean
   retries?: number
   quality?: "low" | "max" // defaults to 'max'
-  cacheGet: CacheGetter
-  cacheSet: CacheSetter
+  cacheGet?: CacheGetter
+  cacheSet?: CacheSetter
   transformForRequest: (
     prompt: RequestData,
     meta: RequestMetadata
   ) => Record<string, unknown>
-  transformResponse: (res: Record<string, any>) => string
+  transformResponse: (res: Record<string, any> | string) => string
 }
 
 export interface ModelOptions {
@@ -104,15 +104,18 @@ export class Model {
   }
 
   addDefaults(config: ModelConfig): Required<ModelConfig> {
-    return {
+    const opts: Required<ModelConfig> = {
       quality: "max",
       authPrefix: "Bearer ",
       retries: 3,
       tokenLimit: 4000,
       debug: true,
       customHeaders: {},
-      ...config
+      ...config,
+      cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
+      cacheSet: config.cacheSet || (() => Promise.resolve(undefined))
     }
+    return opts
   }
 
   log(...args: unknown[]): void {
