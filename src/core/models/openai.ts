@@ -5,10 +5,10 @@ export enum OpenAIModelId {
   Curie = "text-curie-001"
 }
 
-export const OpenAIModels = {
-  [OpenAIModelId.Davinci]: { contextLimit: 4000 },
-  [OpenAIModelId.Curie]: { contextLimit: 2048 }
-}
+// export const OpenAIModels = {
+//   [OpenAIModelId.Davinci]: { contextLimit: 4000 },
+//   [OpenAIModelId.Curie]: { contextLimit: 2048 }
+// }
 
 export function init(
   apiKey: string,

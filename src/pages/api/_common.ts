@@ -32,6 +32,7 @@ export const openai = initOpenAI(
     cacheSet
   },
   {
+    max_tokens: 256,
     presence_penalty: 0 // Using negative numbers causes 500s from davinci
     // stop_sequences: ['\n'],
   }

@@ -5,14 +5,14 @@ export enum TogetherModelId {
   GPT_NEOXT_20B_v1 = "together/gpt-neoxT-20B-chat-latest-HF"
 }
 
-export const TogetherModels = {
-  [TogetherModelId.GPT_JT_6B_v1]: {
-    contextLimit: 2048
-  },
-  [TogetherModelId.GPT_NEOXT_20B_v1]: {
-    contextLimit: 1024 // TODO check this
-  }
-}
+// export const TogetherModels = {
+//   [TogetherModelId.GPT_JT_6B_v1]: {
+//     contextLimit: 2048
+//   },
+//   [TogetherModelId.GPT_NEOXT_20B_v1]: {
+//     contextLimit: 1024 // TODO check this
+//   }
+// }
 
 export function init(
   apiKey: string,

@@ -1,4 +1,4 @@
-import axios, { AxiosAdapterConfig, AxiosInstance, AxiosResponse } from "axios"
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 import { Readable, Transform, TransformCallback } from "stream"
@@ -12,7 +12,6 @@ export interface ModelConfig {
   modelProvider: string
   modelId: string
   customHeaders?: Record<string, string>
-  tokenLimit?: number | null
   authPrefix?: string
   debug?: boolean
   retries?: number
@@ -36,7 +35,7 @@ export interface ModelOptions {
   user_identifier?: string | null
   max_tokens?: number
   stream?: boolean
-  adapter?: AxiosAdapterConfig | AxiosAdapterConfig[]
+  adapter?: AxiosRequestConfig["adapter"]
 }
 
 export type RequestPrompt = { prompt: string; suffix?: string }
@@ -76,12 +75,12 @@ export class Model {
     this.options = {
       timeout: 25000,
       user_identifier: null,
-      temperature: 0,
       frequency_penalty: 0,
       presence_penalty: 0,
-      top_p: 1,
-      stop_sequences: null,
-      max_tokens: 30,
+      temperature: 0, // OpenAI defaults to 1
+      top_p: 1, // OpenAI default, rec. not change unless temperature = 1
+      stop_sequences: null, // OpenAI default
+      max_tokens: 16, // OpenAI default
       stream: false,
       adapter: undefined,
       ...opts
@@ -111,7 +110,6 @@ export class Model {
       quality: "max",
       authPrefix: "Bearer ",
       retries: 3,
-      tokenLimit: null,
       debug: true,
       customHeaders: {},
       ...config,
@@ -228,6 +226,9 @@ export class Model {
     const promptSnippet = prompt.slice(0, 100)
     const payload = transformForRequest(request, opts)
     this.log(`STREAMING id ${id}: ${promptSnippet}...`, {
+      suffix: payload["suffix"],
+      max_tokens: payload["max_tokens"],
+      stop_sequences: payload["stop_sequences"],
       stream: payload["stream"]
     })
 

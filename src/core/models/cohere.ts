@@ -6,17 +6,17 @@ export enum CohereModelId {
   Medium = "medium"
 }
 
-export const CohereModels = {
-  [CohereModelId.XlargeNightly]: {
-    contextLimit: 2048
-  },
-  [CohereModelId.Xlarge]: {
-    contextLimit: 2048
-  },
-  [CohereModelId.Medium]: {
-    contextLimit: 2048
-  }
-}
+// export const CohereModels = {
+//   [CohereModelId.XlargeNightly]: {
+//     contextLimit: 2048
+//   },
+//   [CohereModelId.Xlarge]: {
+//     contextLimit: 2048
+//   },
+//   [CohereModelId.Medium]: {
+//     contextLimit: 2048
+//   }
+// }
 
 export function init(
   apiKey: string,
