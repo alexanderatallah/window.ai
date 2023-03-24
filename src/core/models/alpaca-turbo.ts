@@ -18,18 +18,19 @@ export function init(
       modelId,
       apiKey: null,
       baseUrl: "http://127.0.0.1:8000",
-      generationPath: "/ask_bot",
+      generationPath: "/completions",
+      streamPath: "/streams",
       debug: config.debug,
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
-      transformForRequest: (req, meta) => {
+      transformForRequest: (req) => {
         const { prompt } = req
         return {
-          question: prompt
+          prompt
         }
       },
       transformResponse: (res) => {
-        return res as string
+        return res["choices"][0]["text"]
       }
     },
     opts

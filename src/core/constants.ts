@@ -21,3 +21,5 @@ export interface CompletionResponse {
 export interface StreamResponse {
   text: string
 }
+
+export const IS_SERVER = typeof chrome === "undefined"

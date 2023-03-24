@@ -1,7 +1,7 @@
 import browser, { type Runtime } from "webextension-polyfill"
 
-import { post as postExternal, stream as streamExternal } from "~core/api"
-import { post as postLocal, stream as streamLocal } from "~core/api-local"
+import * as apiExternal from "~core/api"
+import * as apiLocal from "~core/api-local"
 import type {
   CompletionRequest,
   CompletionResponse,
@@ -25,12 +25,10 @@ async function handleRequest(event: any, port: Runtime.Port) {
 
   const req = request as CompletionRequest
 
-  const [stream, post] = isLocalhost(req)
-    ? [streamLocal, postLocal]
-    : [streamExternal, postExternal]
+  const api = isLocalhost(req) ? apiLocal : apiExternal
 
   if (req.shouldStream) {
-    const results = await stream<StreamResponse>("/api/model/stream", {
+    const results = await api.stream<StreamResponse>("/api/model/stream", {
       prompt: req.prompt
     })
 
@@ -39,7 +37,7 @@ async function handleRequest(event: any, port: Runtime.Port) {
       port.postMessage({ ...result, id })
     }
   } else {
-    const result = await post<CompletionResponse>("/api/model/complete", {
+    const result = await api.post<CompletionResponse>("/api/model/complete", {
       prompt: req.prompt
     })
 

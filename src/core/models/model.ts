@@ -3,11 +3,13 @@ import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 import { Readable, Transform, TransformCallback } from "stream"
 
+import { IS_SERVER } from "~core/constants"
 import { parseDataChunks } from "~core/utils"
 
 export interface ModelConfig {
   baseUrl: string
   generationPath: string
+  streamPath?: string
   apiKey: string
   modelProvider: string
   modelId: string
@@ -58,12 +60,6 @@ export type CacheSetter = (data: {
   completion: string
 }) => Promise<unknown>
 
-export enum StreamEvent {
-  Data = "data",
-  Error = "error",
-  End = "end"
-}
-
 export class Model {
   public api: AxiosInstance
   public config: Required<ModelConfig>
@@ -107,6 +103,7 @@ export class Model {
 
   addDefaults(config: ModelConfig): Required<ModelConfig> {
     const opts: Required<ModelConfig> = {
+      streamPath: config.generationPath,
       quality: "max",
       authPrefix: "Bearer ",
       retries: 3,
@@ -213,14 +210,13 @@ export class Model {
   async stream(
     { prompt, suffix }: RequestPrompt,
     requestOpts: ModelOptions = {}
-  ): Promise<Readable> {
+  ): Promise<Readable | ReadableStream> {
     const opts: Required<ModelOptions> = {
       ...this.options,
       ...requestOpts,
       stream: true
     }
-    const { transformResponse, transformForRequest, generationPath } =
-      this.config
+    const { transformResponse, transformForRequest, streamPath } = this.config
     const request = this.getRequestData({ prompt, suffix }, opts)
     const id = objectHash(request)
     const promptSnippet = prompt.slice(0, 100)
@@ -232,45 +228,82 @@ export class Model {
       stream: payload["stream"]
     })
 
-    let stream: Readable
+    let stream: Readable | ReadableStream
     try {
-      const response = await this.api.post<Readable>(generationPath, payload, {
-        timeout: opts.timeout,
-        responseType: "stream"
-      })
+      // TODO consolidate these all on client side
+      if (IS_SERVER) {
+        const response = await this.api.post<Readable>(streamPath, payload, {
+          timeout: opts.timeout,
+          responseType: "stream"
+        })
+        // Transform all data chunks using transformResponse
+        stream = response.data.pipe(
+          new Transform({
+            transform: (chunk, encoding, callback: TransformCallback) => {
+              const chunkStr: string = chunk.toString("utf8")
+              for (const chunkDataRes of parseDataChunks(chunkStr)) {
+                if (chunkDataRes === "[DONE]") {
+                  this.log("End:", chunkDataRes)
+                  callback(null, null)
+                } else if (!chunkDataRes) {
+                  const e = new Error(`Returned no data: ${chunkStr}`)
+                  this.error(e)
+                  callback(e, null)
+                } else {
+                  const chunkData = JSON.parse(chunkDataRes)
+                  const result = transformResponse(chunkData)
+                  if (!result) {
+                    const e = new Error(`Returned empty data: ${chunkDataRes}`)
+                    this.error(e)
+                    callback(e, null)
+                  } else {
+                    this.log("Result: ", result)
+                    callback(null, result)
+                  }
+                }
+              }
+            }
+          })
+        )
+      } else {
+        const response = await this.api.post<ReadableStream>(
+          streamPath,
+          payload,
+          {
+            timeout: opts.timeout,
+            responseType: "stream"
+          }
+        )
 
-      // Transform all data chunks using transformResponse
-      stream = response.data.pipe(
-        new Transform({
-          transform: (chunk, encoding, callback: TransformCallback) => {
-            const chunkStr: string = chunk.toString("utf8")
+        const transformStream = new TransformStream({
+          transform: (chunk, controller) => {
+            const chunkStr = new TextDecoder().decode(chunk)
             for (const chunkDataRes of parseDataChunks(chunkStr)) {
               if (chunkDataRes === "[DONE]") {
                 this.log("End:", chunkDataRes)
-                callback(null, null)
+                controller.close()
               } else if (!chunkDataRes) {
                 const e = new Error(`Returned no data: ${chunkStr}`)
                 this.error(e)
-                callback(e, null)
+                controller.error(e)
               } else {
                 const chunkData = JSON.parse(chunkDataRes)
                 const result = transformResponse(chunkData)
                 if (!result) {
                   const e = new Error(`Returned empty data: ${chunkDataRes}`)
                   this.error(e)
-                  callback(e, null)
+                  controller.error(e)
                 } else {
                   this.log("Result: ", result)
-                  callback(null, result)
+                  controller.enqueue(result)
                 }
               }
             }
           }
         })
-      )
 
-      // TODO handle these errors
-      // throw new Error("test")
+        stream = response.data.pipeThrough(transformStream)
+      }
     } catch (err: unknown) {
       const asResponse = err as { response: AxiosResponse }
       this.error(
@@ -279,12 +312,8 @@ export class Model {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         asResponse.response?.data || (err as Error).message
       )
-      if (stream) {
-        stream.emit("error", err as Error)
-      } else {
-        // TODO handle better along with complete()
-        throw err
-      }
+      // TODO handle better along with complete()
+      throw err
     }
     return stream
   }

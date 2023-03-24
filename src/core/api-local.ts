@@ -1,6 +1,7 @@
 import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 import type { Readable } from "stream"
 
+import type { StreamResponse } from "./constants"
 import { init as initAlpacaTurbo } from "./models/alpaca-turbo"
 import { log, parseDataChunks } from "./utils"
 
@@ -27,16 +28,16 @@ export async function post<T>(path: string, data: Request) {
 }
 
 // TODO
-export async function stream<T>(
+export async function stream(
   path: string,
   data: Request
-): Promise<AsyncGenerator<T>> {
+): Promise<AsyncGenerator<StreamResponse>> {
   const stream = await alpacaTurbo.stream({ prompt: data.prompt })
 
-  return readableStreamToGenerator<T>(stream)
+  return readableStreamToGenerator(stream)
 }
 
-async function* readableStreamToGenerator<T>(stream: Readable) {
+async function* readableStreamToGenerator(stream: ReadableStream) {
   const reader = stream.getReader()
   const decoder = new TextDecoder("utf-8")
   let lastValue: string
@@ -46,11 +47,12 @@ async function* readableStreamToGenerator<T>(stream: Readable) {
       if (done) {
         break
       }
-      lastValue = decoder.decode(value, { stream: true })
+      lastValue =
+        typeof value === "string" // True for browser (always true for local), false for Node.js
+          ? value
+          : decoder.decode(value, { stream: true })
       log("Got stream value: ", lastValue)
-      for (const data of parseDataChunks(lastValue)) {
-        yield JSON.parse(data) as T
-      }
+      yield { text: lastValue }
     }
   } catch (error) {
     console.error(error, lastValue)
