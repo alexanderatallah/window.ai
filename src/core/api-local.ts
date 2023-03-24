@@ -8,15 +8,11 @@ export const alpacaTurbo = initAlpacaTurbo(
   {
     quality: "low",
     debug: process.env.NODE_ENV !== "production"
-    // TODO local caching
-    // cacheGet,
-    // cacheSet
   },
   {
     // TODO consider switching from axios to fetch, since fetchAdapter
     // doesn't work in Node.js side
     adapter: fetchAdapter,
-    // TODO implement
     max_tokens: 512
   }
 )
