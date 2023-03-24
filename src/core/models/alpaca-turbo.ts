@@ -19,15 +19,11 @@ export function init(
       apiKey: null,
       baseUrl: "http://127.0.0.1:8000",
       generationPath: "/completions",
-      streamPath: "/streams",
       debug: config.debug,
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       transformForRequest: (req) => {
-        const { prompt } = req
-        return {
-          prompt
-        }
+        return req
       },
       transformResponse: (res) => {
         return res["choices"][0]["text"]
