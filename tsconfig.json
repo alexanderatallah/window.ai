@@ -1,18 +1,15 @@
 {
   "extends": "plasmo/templates/tsconfig.base",
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "include": [
     ".plasmo/index.d.ts",
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "tailwind.config.js"
   ],
   "compilerOptions": {
     "paths": {
-      "~*": [
-        "./src/*"
-      ]
+      "~*": ["./src/*"]
     },
     "baseUrl": "."
   }
