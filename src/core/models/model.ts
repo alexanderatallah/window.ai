@@ -281,7 +281,7 @@ export class Model {
             for (const chunkDataRes of parseDataChunks(chunkStr)) {
               if (chunkDataRes === "[DONE]") {
                 this.log("End:", chunkDataRes)
-                controller.close()
+                controller.terminate()
               } else if (!chunkDataRes) {
                 const e = new Error(`Returned no data: ${chunkStr}`)
                 this.error(e)
