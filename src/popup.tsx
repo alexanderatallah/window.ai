@@ -1,29 +1,42 @@
-import useSWR from "swr"
-
 import "./style.css"
 
-import { useState } from "react"
-import browser from "webextension-polyfill"
+import { NavProvider, useNav } from "~core/providers/nav"
+import { Home } from "~core/views/Home"
+import { Settings } from "~core/views/Settings"
 
-import { get, post } from "~core/api"
-import { Button } from "~core/components/Button"
-import { Skeleton } from "~core/components/Skeleton"
-import { Spinner } from "~core/components/Spinner"
-import type { CompletionResponse } from "~core/constants"
-import { Home } from "~core/pages/Home"
-import { UserInfoProvider, useUserInfo } from "~core/user-info"
-
-type PageType = "home" | "settings"
+const backgroundClass = "bg-slate-200 dark:bg-slate-800"
 
 function Popup() {
-  const [page, setPage] = useState("home" as PageType)
   return (
-    <main className="bg-slate-200 text-slate-900 p-0 leading-5 font-sans">
-      <UserInfoProvider>
-        <Home setPage={setPage} />
-        <Settings setPage={setPage} hide={page !== "settings"} />
-      </UserInfoProvider>
+    <main
+      className={
+        backgroundClass +
+        " text-slate-900 dark:text-slate-200" +
+        " p-0 leading-5 font-sans"
+      }>
+      <NavProvider>
+        <>
+          <Home />
+          <SettingsSlider />
+        </>
+      </NavProvider>
     </main>
+  )
+}
+
+function SettingsSlider() {
+  const { page } = useNav()
+  const shouldHide = page !== "settings"
+  return (
+    <div
+      className={
+        backgroundClass +
+        ` p-4 fixed top-0 left-0 right-0 bottom-0 transition-transform duration-200 ease-in-out ${
+          shouldHide ? "translate-x-full" : "translate-x-0"
+        }`
+      }>
+      <Settings />
+    </div>
   )
 }
 
