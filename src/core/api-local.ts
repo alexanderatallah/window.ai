@@ -1,9 +1,8 @@
 import fetchAdapter from "@vespaiach/axios-fetch-adapter"
-import type { Readable } from "stream"
 
 import type { StreamResponse } from "./constants"
 import { init as initAlpacaTurbo } from "./models/alpaca-turbo"
-import { log, parseDataChunks } from "./utils"
+import { log } from "./utils"
 
 export const alpacaTurbo = initAlpacaTurbo(
   {
