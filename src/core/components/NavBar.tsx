@@ -1,9 +1,13 @@
 import { NavView, useNav } from "~core/providers/nav"
 
+type Tab = { name: string; view: NavView }
 export function NavBar() {
   const { view, setView } = useNav()
 
-  const tabs = [{ name: "Activity", view: "activity" as NavView }]
+  const tabs: Tab[] = [
+    { name: "Activity", view: "activity" },
+    { name: "Apps", view: "apps" }
+  ]
   return (
     <div className="flex flex-row p-2">
       <div className="w-full flex flex-row">
@@ -26,7 +30,7 @@ export function NavBar() {
 
       <button
         type="button"
-        className="flex-none rounded-lg px-2 py-1 text-lg hover:bg-slate-300"
+        className="flex-none rounded-lg px-2 py-1 text-lg hover:bg-slate-300 dark:hover:bg-slate-700"
         onClick={() => setView("settings")}>
         ⚙️
       </button>
