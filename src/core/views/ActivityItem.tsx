@@ -1,9 +1,10 @@
 import { Logo } from "~core/components/pure/Logo"
+import { originManager } from "~core/managers/origin"
 import type { Transaction } from "~core/managers/transaction"
 import { formatDate } from "~core/utils"
 
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
-  const url = transaction.origin.domain + transaction.origin.path
+  const url = originManager.url(transaction.origin)
   return (
     <div className="pb-8">
       <div className="grid grid-cols-6">

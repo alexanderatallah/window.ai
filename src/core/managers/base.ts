@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from "react"
 import { Storage } from "@plasmohq/storage"
 import { useStorage } from "@plasmohq/storage/hook"
 
+import { log } from "~core/utils"
+
 const primaryIndexName = "ids"
 
 interface BaseModel {
@@ -34,7 +36,7 @@ export abstract class BaseManager<T extends BaseModel> {
   async save(obj: T): Promise<boolean> {
     const [warning, isNew] = await Promise.all([
       this.store.set(obj.id, obj),
-      this.indexBy(obj, obj.id, primaryIndexName)
+      this.indexBy(obj, null, primaryIndexName)
     ])
 
     if (warning) {
@@ -44,11 +46,15 @@ export abstract class BaseManager<T extends BaseModel> {
     return isNew
   }
 
-  // Index an object under a specified key
+  // Index an object under a specified key. If key is null, just uses the index name.
   // Returns true if the object was new and added to the index
   // O(<index size>) :(
-  async indexBy(obj: T, key: string, indexName: string): Promise<boolean> {
-    const index = `${indexName}-${key}`
+  async indexBy(
+    obj: T,
+    key: string | null,
+    indexName: string
+  ): Promise<boolean> {
+    const index = key ? `${indexName}-${key}` : indexName
     const ids = (await this.store.get<string[]>(index)) || []
 
     const isNew = !ids.includes(obj.id)
@@ -63,14 +69,14 @@ export abstract class BaseManager<T extends BaseModel> {
     return Promise.all(ids.map((id) => this.store.get<T>(id)))
   }
 
-  useObjects(pageSize = 20, indexNames = [primaryIndexName]) {
+  useObjects(pageSize = 20, indexName = primaryIndexName) {
     const [page, setPage] = useState<number>(0)
     const [pageMode, setPageMode] = useState<"paginate" | "append">("append")
     const [loading, setLoading] = useState<boolean>(true)
     const [objects, setObjects] = useState<T[]>([])
     const [itemIds] = useStorage<string[]>(
       {
-        key: indexNames.join("-"),
+        key: indexName,
         instance: this.store
       },
       (v) => (v === undefined ? [] : v)
@@ -88,11 +94,15 @@ export abstract class BaseManager<T extends BaseModel> {
       }
 
       fetcher()
-    }, [page, itemIds, pageSize])
+    }, [page, itemIds, pageSize, pageMode])
 
     const appendNextPage = useCallback(() => {
       setPageMode("append")
-      setPage((prev) => prev + 1)
+      setPage((prev) => {
+        const nextNage = prev + 1
+        log("Appending next page", nextNage)
+        return nextNage
+      })
     }, [])
 
     const goToPrevPage = useCallback(() => {

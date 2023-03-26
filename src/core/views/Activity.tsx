@@ -11,11 +11,11 @@ import { ActivityItem } from "./ActivityItem"
 
 export function Activity() {
   const [selectedTxn, selectTxn] = useState<Transaction | undefined>()
-  const { objects, loading, appendNextPage } = transactionManager.useObjects(20)
+  const { objects, loading, appendNextPage } = transactionManager.useObjects(7)
 
   const loaderRef = useRef<HTMLDivElement>(null)
 
-  useInfiniteScroll(loaderRef, appendNextPage)
+  useInfiniteScroll(loaderRef, appendNextPage, objects.length > 0)
 
   return (
     <div>

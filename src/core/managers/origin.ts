@@ -20,6 +20,17 @@ class OriginsManager extends BaseManager<Origin> {
       title
     }
   }
+
+  url(origin: Origin): string {
+    return origin.domain + origin.path
+  }
+
+  originDisplay(origin: Origin): string {
+    const url = origin.domain
+    const withoutProtocol = url.split("//")[1]
+    const withoutWWW = withoutProtocol.replace(/^www\./, "")
+    return withoutWWW
+  }
 }
 
 export const originManager = new OriginsManager()

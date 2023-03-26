@@ -28,7 +28,7 @@ function NavFrame() {
       <div className="flex-none">
         <NavBar />
       </div>
-      <div className="flex-auto relative overflow-y-auto">
+      <div className="flex-auto relative overflow-y-auto overflow-x-hidden">
         {view === "activity" && <Activity />}
         {view === "apps" && <Apps />}
       </div>
