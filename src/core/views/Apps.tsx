@@ -1,19 +1,35 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
 
 import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
+import { HorizontalMenu } from "~core/components/pure/HorizontalMenu"
 import { Logo } from "~core/components/pure/Logo"
 import { Skeleton } from "~core/components/pure/Skeleton"
 import { Origin, originManager } from "~core/managers/origin"
 
+type Filter = "my-apps" | "trending" | "all"
+
 export function Apps() {
   const { objects, loading, appendNextPage } = originManager.useObjects(20)
-
+  const [filter, setFilter] = useState<Filter>("my-apps")
   const loaderRef = useRef<HTMLDivElement>(null)
 
   useInfiniteScroll(loaderRef, appendNextPage, objects.length > 0)
 
   return (
     <div>
+      <HorizontalMenu<Filter>
+        className="absolute top-0 left-0 right-0"
+        items={[
+          { label: "My Apps", value: "my-apps" },
+          { label: "Trending", value: "trending" },
+          { label: "All", value: "all" }
+        ]}
+        currentItem={filter}
+        onItemSelect={(f) => setFilter(f)}
+      />
+
+      <div className="mb-8" />
+
       {objects.map((origin: Origin) => (
         <AppsRow
           key={origin.id}
@@ -53,31 +69,3 @@ function AppsRow({
     </div>
   )
 }
-
-// export function Apps() {
-//   return (
-//     <div className="flex-auto">
-//       <div className="flex flex-row flex-wrap justify-center">
-//         <div className="w-1/2 p-2">
-//           <div className="bg-slate-100 dark:bg-slate-700 rounded-lg p-4">
-//             <div className="flex flex-row">
-//               <div className="flex-none">
-//                 <img
-//                   className="w-12 h-12 rounded-full"
-//                   src="https://avatars.githubusercontent.com/u/10660468?s=460&u=3b2a3c2d4b0b0f9c8c8b0b8b8b8b8b8b8b8b8b8b&v=4"
-//                   alt="avatar"
-//                 />
-//               </div>
-//               <div className="flex-auto pl-4">
-//                 <div className="text-lg font-semibold">Dapplets</div>
-//                 <div className="text-sm text-slate-500 dark:text-slate-400">
-//                   dapplets
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }

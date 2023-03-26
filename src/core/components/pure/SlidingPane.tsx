@@ -20,7 +20,7 @@ export function SlidingPane({
       {onHide && (
         <button
           type="button"
-          className="fixed right-0 top-0 px-4 py-2 text-lg text-slate-500 hover:bg-slate-300 dark:hover:bg-slate-700"
+          className="fixed right-0 top-0 px-4 py-2 text-lg text-slate-500 bg-slate-200/80 dark:bg-slate-800/80 hover:bg-slate-300 dark:hover:bg-slate-700"
           onClick={onHide}>
           x
         </button>

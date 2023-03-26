@@ -16,7 +16,7 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
           <h1 className="text-lg font-bold">{transaction.origin.title}</h1>
           <h3 className="text-sm truncate text-slate-500">
             <a href={url} title={url} target="_blank">
-              {url}
+              {originManager.urlDisplay(transaction.origin)}
             </a>
           </h3>
         </div>

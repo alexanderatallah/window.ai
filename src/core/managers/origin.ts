@@ -31,6 +31,10 @@ class OriginsManager extends BaseManager<Origin> {
     const withoutWWW = withoutProtocol.replace(/^www\./, "")
     return withoutWWW
   }
+
+  urlDisplay(origin: Origin): string {
+    return this.originDisplay(origin) + origin.path
+  }
 }
 
 export const originManager = new OriginsManager()
