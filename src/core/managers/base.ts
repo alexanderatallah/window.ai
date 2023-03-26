@@ -46,6 +46,7 @@ export abstract class BaseManager<T extends BaseModel> {
 
   // Index an object under a specified key
   // Returns true if the object was new and added to the index
+  // O(<index size>) :(
   async indexBy(obj: T, key: string, indexName: string): Promise<boolean> {
     const index = `${indexName}-${key}`
     const ids = (await this.store.get<string[]>(index)) || []
@@ -64,6 +65,7 @@ export abstract class BaseManager<T extends BaseModel> {
 
   useObjects(pageSize = 20, indexNames = [primaryIndexName]) {
     const [page, setPage] = useState<number>(0)
+    const [pageMode, setPageMode] = useState<"paginate" | "append">("append")
     const [loading, setLoading] = useState<boolean>(true)
     const [objects, setObjects] = useState<T[]>([])
     const [itemIds] = useStorage<string[]>(
@@ -79,18 +81,27 @@ export abstract class BaseManager<T extends BaseModel> {
         setLoading(true)
         const pageTxnIds = itemIds.slice(pageSize * page, pageSize * (page + 1))
         const fetched = await this.fetchById(pageTxnIds)
-        setObjects(fetched)
+        const allObjects =
+          pageMode === "append" ? [...objects, ...fetched] : fetched
+        setObjects(allObjects)
         setLoading(false)
       }
 
       fetcher()
     }, [page, itemIds, pageSize])
 
+    const appendNextPage = useCallback(() => {
+      setPageMode("append")
+      setPage((prev) => prev + 1)
+    }, [])
+
     const goToPrevPage = useCallback(() => {
+      setPageMode("paginate")
       setPage((prev) => Math.max(prev - 1, 0))
     }, [])
 
     const goToNextPage = useCallback(() => {
+      setPageMode("paginate")
       setPage((prev) => prev + 1)
     }, [])
 
@@ -98,6 +109,7 @@ export abstract class BaseManager<T extends BaseModel> {
       loading,
       objects,
       page,
+      appendNextPage,
       goToPrevPage,
       goToNextPage
     }

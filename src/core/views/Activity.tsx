@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import React from "react"
 
+import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
 import { Logo } from "~core/components/pure/Logo"
 import { Skeleton } from "~core/components/pure/Skeleton"
 import { SlidingPane } from "~core/components/pure/SlidingPane"
@@ -10,11 +11,14 @@ import { ActivityItem } from "./ActivityItem"
 
 export function Activity() {
   const [selectedTxn, selectTxn] = useState<Transaction | undefined>()
-  const { objects, loading, page, goToPrevPage, goToNextPage } =
-    transactionManager.useObjects()
+  const { objects, loading, appendNextPage } = transactionManager.useObjects(20)
+
+  const loaderRef = useRef<HTMLDivElement>(null)
+
+  useInfiniteScroll(loaderRef, appendNextPage)
 
   return (
-    <div className="relative overflow-y-auto h-full">
+    <div>
       {objects.map((txn: Transaction) => (
         <ActivityRow
           key={txn.id}
@@ -23,7 +27,7 @@ export function Activity() {
         />
       ))}
 
-      {loading && <Skeleton />}
+      <div ref={loaderRef}>{loading && <Skeleton />}</div>
 
       <SlidingPane shown={!!selectedTxn} onHide={() => selectTxn(undefined)}>
         {selectedTxn && <ActivityItem transaction={selectedTxn} />}
@@ -41,15 +45,15 @@ function ActivityRow({
 }) {
   return (
     <div
-      className={`p-2 grid grid-cols-7 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700`}
+      className={`p-2 h-[4.5rem] grid grid-cols-7 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700`}
       onClick={onSelect}>
       <Logo
-        className="self-center mx-2 w-6 rounded-full"
+        className="self-start mx-2 my-1 w-5 rounded-full"
         faviconFor={transaction.origin.domain}
       />
       <div className="col-span-6">
         <div className="overflow-hidden truncate">{transaction.prompt}</div>
-        <div className="overflow-hidden truncate text-xs text-slate-600 dark:text-slate-500">
+        <div className="line-clamp-2 text-xs text-slate-600 dark:text-slate-500">
           {transaction.completion === undefined ? (
             <span className="italic">No response</span>
           ) : (

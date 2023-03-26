@@ -3,5 +3,5 @@ module.exports = {
   mode: "jit",
   darkMode: "media",
   content: ["./**/*.tsx"],
-  plugins: []
+  plugins: [require("@tailwindcss/line-clamp")]
 }

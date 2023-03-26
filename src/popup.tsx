@@ -11,7 +11,7 @@ function Popup() {
       className={
         "bg-slate-200 dark:bg-slate-800" +
         " text-slate-900 dark:text-slate-200" +
-        " md:mx-auto p-0 w-80 h-[30rem]" +
+        " md:mx-auto p-0 w-80 h-[32rem]" +
         " text-sm font-sans"
       }>
       <NavProvider>
@@ -28,7 +28,7 @@ function NavFrame() {
       <div className="flex-none">
         <NavBar />
       </div>
-      <div className="flex-auto">
+      <div className="flex-auto relative overflow-y-auto">
         {view === "activity" && <Activity />}
         {view === "apps" && <Apps />}
       </div>

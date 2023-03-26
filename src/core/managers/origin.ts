@@ -5,7 +5,6 @@ export interface Origin {
   domain: string
   path: string
   title: string
-  numTransactions?: number
 }
 
 class OriginsManager extends BaseManager<Origin> {
