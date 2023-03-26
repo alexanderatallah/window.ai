@@ -8,3 +8,8 @@ export function parseDataChunks(rawData: string): string[] {
   const lines = rawData.split("\n").filter((l) => l.startsWith("data: "))
   return lines.map((line) => line.split("data: ")[1]?.trim())
 }
+
+export function formatDate(timestampMs: number): string {
+  const date = new Date(timestampMs)
+  return date.toLocaleString()
+}

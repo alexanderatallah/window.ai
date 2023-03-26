@@ -1,20 +1,19 @@
 import "./style.css"
 
+import { NavBar } from "~core/components/NavBar"
+import { SlidingPane } from "~core/components/pure/SlidingPane"
+import { BACKGROUND_CLASS } from "~core/constants"
 import { NavProvider, useNav } from "~core/providers/nav"
 import { Activity } from "~core/views/Activity"
 import { Settings } from "~core/views/Settings"
-
-import { NavBar } from "./core/components/NavBar"
-
-const backgroundClass = "bg-slate-200 dark:bg-slate-800"
 
 function Popup() {
   return (
     <main
       className={
-        backgroundClass +
+        BACKGROUND_CLASS +
         " text-slate-900 dark:text-slate-200" +
-        " md:container md:mx-auto p-0 h-96" +
+        " md:mx-auto p-0 w-80 h-[30rem]" +
         " text-sm font-sans"
       }>
       <NavProvider>
@@ -27,17 +26,15 @@ function Popup() {
 function NavFrame() {
   const { view } = useNav()
   return (
-    <div>
-      <NavBar />
-      <Activity />
-      <div
-        className={
-          backgroundClass +
-          ` p-4 fixed top-0 left-0 right-0 bottom-0 transition-transform duration-200 ease-in-out ${
-            view !== "settings" ? "translate-x-full" : "translate-x-0"
-          }`
-        }>
-        <Settings />
+    <div className="relative flex flex-col h-full">
+      <div className="flex-none">
+        <NavBar />
+      </div>
+      <div className="flex-auto">
+        <Activity />
+        <SlidingPane shown={view === "settings"}>
+          <Settings />
+        </SlidingPane>
       </div>
     </div>
   )

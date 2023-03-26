@@ -23,3 +23,5 @@ export interface StreamResponse {
 }
 
 export const IS_SERVER = typeof chrome === "undefined"
+
+export const BACKGROUND_CLASS = "bg-slate-200 dark:bg-slate-800"
