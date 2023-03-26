@@ -16,25 +16,11 @@ export function Activity() {
   return (
     <div className="relative overflow-y-auto h-full">
       {objects.map((txn: Transaction) => (
-        <div
+        <ActivityRow
           key={txn.id}
-          className={`p-2 grid grid-cols-7 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700`}
-          onClick={() => selectTxn(txn)}>
-          <Logo
-            className="self-center mx-2 w-6 rounded-full"
-            faviconFor={txn.origin.domain}
-          />
-          <div className="col-span-6">
-            <div className="overflow-hidden truncate">{txn.prompt}</div>
-            <div className="overflow-hidden truncate text-xs text-slate-600 dark:text-slate-500">
-              {txn.completion === undefined ? (
-                <span className="italic">No response</span>
-              ) : (
-                txn.completion
-              )}
-            </div>
-          </div>
-        </div>
+          transaction={txn}
+          onSelect={() => selectTxn(txn)}
+        />
       ))}
 
       {loading && <Skeleton />}
@@ -42,6 +28,35 @@ export function Activity() {
       <SlidingPane shown={!!selectedTxn} onHide={() => selectTxn(undefined)}>
         {selectedTxn && <ActivityItem transaction={selectedTxn} />}
       </SlidingPane>
+    </div>
+  )
+}
+
+function ActivityRow({
+  transaction,
+  onSelect
+}: {
+  transaction: Transaction
+  onSelect: () => void
+}) {
+  return (
+    <div
+      className={`p-2 grid grid-cols-7 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700`}
+      onClick={onSelect}>
+      <Logo
+        className="self-center mx-2 w-6 rounded-full"
+        faviconFor={transaction.origin.domain}
+      />
+      <div className="col-span-6">
+        <div className="overflow-hidden truncate">{transaction.prompt}</div>
+        <div className="overflow-hidden truncate text-xs text-slate-600 dark:text-slate-500">
+          {transaction.completion === undefined ? (
+            <span className="italic">No response</span>
+          ) : (
+            transaction.completion
+          )}
+        </div>
+      </div>
     </div>
   )
 }

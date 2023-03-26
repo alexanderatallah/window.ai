@@ -34,7 +34,7 @@ export abstract class BaseManager<T extends BaseModel> {
   async save(obj: T): Promise<boolean> {
     const [warning, isNew] = await Promise.all([
       this.store.set(obj.id, obj),
-      this.index([primaryIndexName], obj.id)
+      this.indexBy(obj, obj.id, primaryIndexName)
     ])
 
     if (warning) {
@@ -44,15 +44,15 @@ export abstract class BaseManager<T extends BaseModel> {
     return isNew
   }
 
-  // Index a value under a joint index name
-  // Returns true if the value was new and added to the joint index
-  async index<V>(indexNames: string[], value: V): Promise<boolean> {
-    const indexName = indexNames.join("-")
-    const values = (await this.store.get<V[]>(indexName)) || []
+  // Index an object under a specified key
+  // Returns true if the object was new and added to the index
+  async indexBy(obj: T, key: string, indexName: string): Promise<boolean> {
+    const index = `${indexName}-${key}`
+    const ids = (await this.store.get<string[]>(index)) || []
 
-    const isNew = !values.includes(value)
+    const isNew = !ids.includes(obj.id)
     if (isNew) {
-      await this.store.set(indexName, [value, ...values])
+      await this.store.set(index, [obj.id, ...ids])
     }
 
     return isNew

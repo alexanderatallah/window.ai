@@ -33,7 +33,7 @@ class TransactionsManager extends BaseManager<Transaction> {
     if (isNew && txn.origin) {
       await Promise.all([
         originManager.save(txn.origin),
-        this.index([originIndexName, txn.origin.id], txn.id)
+        this.indexBy(txn, txn.origin.id, originIndexName)
       ])
     }
 
