@@ -1,4 +1,4 @@
-import { Model, ModelConfig, ModelOptions } from "./model"
+import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum AlpacaModelId {
   GGML_7B = "7B/ggml-model-q4_0.bin",
@@ -8,7 +8,7 @@ export enum AlpacaModelId {
 export function init(
   config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">> = {},
-  opts: ModelOptions = {}
+  opts: RequestOptions = {}
 ): Model {
   const modelId =
     config.quality === "max" ? AlpacaModelId.GGML_30B : AlpacaModelId.GGML_7B

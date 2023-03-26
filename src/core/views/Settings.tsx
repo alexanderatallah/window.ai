@@ -1,21 +1,29 @@
+import { useState } from "react"
 import useSWR from "swr"
 
 import { get, post } from "~core/api"
+import { Button } from "~core/components/pure/Button"
+import { Spinner } from "~core/components/pure/Spinner"
 import type { CompletionResponse } from "~core/constants"
+import { useNav } from "~core/providers/nav"
 import { UserInfoProvider, useUserInfo } from "~core/providers/user-info"
 
 export function Settings() {
+  const { setView } = useNav()
   return (
     <UserInfoProvider>
-      <div className="text-2xl font-bold">Settings</div>
-      <div className="text-sm text-slate-500">
-        <EmailShowcase />
-      </div>
-      <div className="mt-4">
-        <div className="text-lg font-bold">Premium features</div>
+      <div className="h-auto">
+        <div className="text-2xl font-bold">Settings</div>
         <div className="text-sm text-slate-500">
-          <PremiumFeatureButton />
+          <EmailShowcase />
         </div>
+        <div className="mt-4">
+          <div className="text-lg font-bold">Premium features</div>
+          <div className="text-sm text-slate-500">
+            <PremiumFeatureButton />
+          </div>
+        </div>
+        <Button onClick={() => setView("activity")}>Save</Button>
       </div>
     </UserInfoProvider>
   )
@@ -33,6 +41,7 @@ const EmailShowcase = () => {
 
 const PremiumFeatureButton = () => {
   const userInfo = useUserInfo()
+  const [loading, setLoading] = useState(false)
 
   const { data, error } = useSWR<{ active: boolean }>(
     `/api/check-subscription`,
@@ -76,15 +85,18 @@ const PremiumFeatureButton = () => {
   }
 
   return (
-    <button
+    <Button
       onClick={async (e) => {
+        setLoading(true)
         const data = await post<CompletionResponse>("/api/model/complete", {
           prompt: "The quick brown fox"
         })
-
-        alert(data.completion)
-      }}>
-      The quick brown fox...
-    </button>
+        setLoading(false)
+        alert(data.text)
+      }}
+      disabled={loading}
+      className="bg-slate-300">
+      The quick brown fox... {loading && <Spinner />}
+    </Button>
   )
 }

@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@plasmohq/prettier-plugin-sort-imports': 3.6.3
   '@plasmohq/rps': ^1.8.4
+  '@plasmohq/storage': ^1.3.1
   '@types/chrome': ^0.0.224
   '@types/node': 18.15.3
   '@types/react': 18.0.28
@@ -29,6 +30,7 @@ specifiers:
   webextension-polyfill: ^0.10.0
 
 dependencies:
+  '@plasmohq/storage': 1.3.1_react@18.2.0
   '@types/chrome': 0.0.224
   '@types/webextension-polyfill': 0.10.0
   '@vespaiach/axios-fetch-adapter': github.com/alexanderatallah/axios-fetch-adapter/03671bf450ecfd74ed6272fc27ce27c8bcb41afd_axios@1.3.4
@@ -2253,6 +2255,18 @@ packages:
       read-pkg: 7.1.0
       shell-quote: 1.8.0
     dev: true
+
+  /@plasmohq/storage/1.3.1_react@18.2.0:
+    resolution: {integrity: sha512-K+EsksYrpBBnI3ZgWhNKJoKfjCzyEOrhZOC6oxzU9p7iKhvpQOIELY8JlFmc+sUnof+Ta6XwMvLJnxhrlcXt8w==}
+    peerDependencies:
+      react: ^16.8.6 || ^17 || ^18
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dependencies:
+      pify: 6.1.0
+      react: 18.2.0
+    dev: false
 
   /@pnpm/config.env-replace/1.0.0:
     resolution: {integrity: sha512-ZVPVDi1E8oeXlYqkGRtX0CkzLTwE2zt62bjWaWKaAvI8NZqHzlMvGeSNDpW+JB3+aKanYb4UETJOF1/CxGPemA==}
@@ -4789,6 +4803,11 @@ packages:
     engines: {node: '>=6'}
     dev: false
     optional: true
+
+  /pify/6.1.0:
+    resolution: {integrity: sha512-KocF8ve28eFjjuBKKGvzOBGzG8ew2OqOOSxTTZhirkzH7h3BI1vyzqlR0qbfcDBve1Yzo3FVlWUAtCRrbVN8Fw==}
+    engines: {node: '>=14.16'}
+    dev: false
 
   /pirates/4.0.5:
     resolution: {integrity: sha512-8V9+HQPupnaXMA23c5hvl69zXvTwTzyAYasnkb0Tts4XvO4CliqONMOnvlq26rkhLC3nWDFBJf73LU1e1VZLaQ==}

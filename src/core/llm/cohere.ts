@@ -1,4 +1,4 @@
-import { Model, ModelConfig, ModelOptions } from "./model"
+import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum CohereModelId {
   XlargeNightly = "command-xlarge-nightly",
@@ -22,7 +22,7 @@ export function init(
   apiKey: string,
   config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
-  options: ModelOptions
+  options: RequestOptions
 ) {
   const modelId =
     config.quality === "low"

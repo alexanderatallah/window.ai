@@ -1,14 +1,14 @@
 import { createProvider } from "puro"
 import { useContext, useState } from "react"
 
-export type NavPage = "home" | "settings"
+export type NavView = "activity" | "settings"
 
 const useNavProvider = () => {
-  const [page, setPage] = useState<NavPage>("home")
+  const [view, setView] = useState<NavView>("activity")
 
   return {
-    page,
-    setPage
+    view,
+    setView
   }
 }
 

@@ -1,4 +1,4 @@
-import { Model, ModelConfig, ModelOptions } from "./model"
+import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum TogetherModelId {
   GPT_JT_6B_v1 = "Together-gpt-JT-6B-v1",
@@ -19,7 +19,7 @@ export function init(
   appName: string,
   config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
-  options: ModelOptions
+  options: RequestOptions
 ) {
   const modelId = TogetherModelId.GPT_NEOXT_20B_v1
   return new Model(

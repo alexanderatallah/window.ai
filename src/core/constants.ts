@@ -1,4 +1,4 @@
-import type { ModelConfig } from "./models/model"
+import type { Transaction } from "./models/transaction"
 
 export const PORT_NAME = "web41"
 
@@ -9,13 +9,13 @@ export enum ContentMessageType {
 }
 
 export interface CompletionRequest {
-  prompt: string
+  transaction: Transaction
   shouldStream?: boolean
   isLocal?: boolean
 }
 
 export interface CompletionResponse {
-  completion: string
+  text: string
 }
 
 export interface StreamResponse {

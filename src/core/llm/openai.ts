@@ -1,4 +1,4 @@
-import { Model, ModelConfig, ModelOptions } from "./model"
+import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum OpenAIModelId {
   Davinci = "text-davinci-003",
@@ -14,7 +14,7 @@ export function init(
   apiKey: string,
   config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
-  opts: ModelOptions
+  opts: RequestOptions
 ): Model {
   const modelId =
     config.quality === "low" ? OpenAIModelId.Curie : OpenAIModelId.Davinci
@@ -26,6 +26,7 @@ export function init(
       baseUrl: "https://api.openai.com/v1",
       generationPath: "/completions",
       debug: config.debug,
+      endOfStreamSentinel: "[DONE]",
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       transformForRequest: (req, meta) => {

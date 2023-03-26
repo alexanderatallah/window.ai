@@ -1,7 +1,7 @@
 import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 
-import type { StreamResponse } from "./constants"
-import { init as initAlpacaTurbo } from "./models/alpaca-turbo"
+import type { CompletionResponse, StreamResponse } from "./constants"
+import { init as initAlpacaTurbo } from "./llm/alpaca-turbo"
 import { log } from "./utils"
 
 export const alpacaTurbo = initAlpacaTurbo(
@@ -19,21 +19,24 @@ export const alpacaTurbo = initAlpacaTurbo(
 
 type Request = { prompt: string }
 
-export async function post<T>(path: string, data: Request) {
-  const completion = await alpacaTurbo.complete({
+export async function post(
+  path: string,
+  data: Request
+): Promise<CompletionResponse> {
+  const result = await alpacaTurbo.complete({
     prompt: data.prompt
   })
-  return { success: true, completion }
+  return { text: result }
 }
 
-// TODO
 export async function stream(
   path: string,
   data: Request
 ): Promise<AsyncGenerator<StreamResponse>> {
   const stream = await alpacaTurbo.stream({ prompt: data.prompt })
 
-  return readableStreamToGenerator(stream)
+  // TODO fix typing or consolidate all to browser calls
+  return readableStreamToGenerator(stream as ReadableStream)
 }
 
 async function* readableStreamToGenerator(stream: ReadableStream) {

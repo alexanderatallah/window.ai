@@ -7,6 +7,10 @@ import type {
   CompletionResponse,
   StreamResponse
 } from "~core/constants"
+import {
+  fetchTransactionsById,
+  saveTransaction
+} from "~core/models/transaction"
 import { log } from "~core/utils"
 
 export {}
@@ -24,25 +28,37 @@ async function handleRequest(event: any, port: Runtime.Port) {
   const { id, request } = event
 
   const req = request as CompletionRequest
+  const txn = req.transaction
+
+  // Save the incomplete txn
+  await saveTransaction(txn)
 
   const api = isLocalhost(req) ? apiLocal : apiExternal
 
+  let reply = ""
   if (req.shouldStream) {
     const results = await api.stream<StreamResponse>("/api/model/stream", {
-      prompt: req.prompt
+      prompt: txn.prompt
     })
 
     for await (const result of results) {
       console.info("Got result: ", result)
       port.postMessage({ ...result, id })
+      reply += result.text
     }
   } else {
     const result = await api.post<CompletionResponse>("/api/model/complete", {
-      prompt: req.prompt
+      prompt: txn.prompt
     })
 
     port.postMessage({ ...result, id })
+    reply = result.text
   }
+
+  // Update the completion with the reply
+  txn.completion = reply
+  const res = await saveTransaction(txn)
+  await fetchTransactionsById([txn.id])
 }
 
 function isLocalhost(req: CompletionRequest): boolean {

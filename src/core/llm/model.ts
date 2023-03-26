@@ -18,6 +18,7 @@ export interface ModelConfig {
   debug?: boolean
   retries?: number
   quality?: "low" | "max" // defaults to 'max'
+  endOfStreamSentinel?: string
   cacheGet?: CacheGetter
   cacheSet?: CacheSetter
   transformForRequest: (
@@ -27,7 +28,7 @@ export interface ModelConfig {
   transformResponse: (res: Record<string, any> | string) => string
 }
 
-export interface ModelOptions {
+export interface RequestOptions {
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
@@ -43,13 +44,13 @@ export interface ModelOptions {
 export type RequestPrompt = { prompt: string; suffix?: string }
 
 export type RequestData = Omit<
-  Required<ModelOptions>,
+  Required<RequestOptions>,
   "user_identifier" | "timeout" | "adapter"
 > &
   Pick<Required<ModelConfig>, "modelId" | "modelProvider"> &
   RequestPrompt
 
-export type RequestMetadata = Pick<ModelOptions, "user_identifier">
+export type RequestMetadata = Pick<RequestOptions, "user_identifier">
 
 // TODO cache statistics and log probs etc
 export type CacheGetter = (id: string) => Promise<string | null | undefined>
@@ -63,9 +64,9 @@ export type CacheSetter = (data: {
 export class Model {
   public api: AxiosInstance
   public config: Required<ModelConfig>
-  public options: Required<ModelOptions>
+  public options: Required<RequestOptions>
 
-  constructor(config: ModelConfig, opts: ModelOptions = {}) {
+  constructor(config: ModelConfig, opts: RequestOptions = {}) {
     // Defaults
     this.config = this.addDefaults(config)
     this.options = {
@@ -109,6 +110,7 @@ export class Model {
       retries: 3,
       debug: true,
       customHeaders: {},
+      endOfStreamSentinel: undefined,
       ...config,
       cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
       cacheSet: config.cacheSet || (() => Promise.resolve(undefined))
@@ -130,7 +132,7 @@ export class Model {
 
   getRequestData(
     { prompt, suffix }: RequestPrompt,
-    opts: Required<ModelOptions>
+    opts: Required<RequestOptions>
   ): RequestData {
     return {
       modelId: this.config.modelId,
@@ -149,9 +151,9 @@ export class Model {
 
   async complete(
     { prompt, suffix }: RequestPrompt,
-    requestOpts: ModelOptions = {}
+    requestOpts: RequestOptions = {}
   ): Promise<string> {
-    const opts: Required<ModelOptions> = {
+    const opts: Required<RequestOptions> = {
       ...this.options,
       ...requestOpts
     }
@@ -209,9 +211,9 @@ export class Model {
 
   async stream(
     { prompt, suffix }: RequestPrompt,
-    requestOpts: ModelOptions = {}
+    requestOpts: RequestOptions = {}
   ): Promise<Readable | ReadableStream> {
-    const opts: Required<ModelOptions> = {
+    const opts: Required<RequestOptions> = {
       ...this.options,
       ...requestOpts,
       stream: true
@@ -242,7 +244,7 @@ export class Model {
             transform: (chunk, encoding, callback: TransformCallback) => {
               const chunkStr: string = chunk.toString("utf8")
               for (const chunkDataRes of parseDataChunks(chunkStr)) {
-                if (chunkDataRes === "[DONE]") {
+                if (chunkDataRes === this.config.endOfStreamSentinel) {
                   this.log("End:", chunkDataRes)
                   callback(null, null)
                 } else if (!chunkDataRes) {
@@ -279,7 +281,7 @@ export class Model {
           transform: (chunk, controller) => {
             const chunkStr = new TextDecoder().decode(chunk)
             for (const chunkDataRes of parseDataChunks(chunkStr)) {
-              if (chunkDataRes === "[DONE]") {
+              if (chunkDataRes === this.config.endOfStreamSentinel) {
                 this.log("End:", chunkDataRes)
                 controller.terminate()
               } else if (!chunkDataRes) {

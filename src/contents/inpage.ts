@@ -8,6 +8,7 @@ import {
   PORT_NAME,
   StreamResponse
 } from "~core/constants"
+import { makeTransaction } from "~core/models/transaction"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -21,19 +22,19 @@ export const Web41 = {
 
   async getCompletion(prompt: string): Promise<string> {
     const requestId = _relayRequest<CompletionRequest>({
-      prompt,
+      transaction: makeTransaction(prompt),
       isLocal: Web41._isLocal
     })
     return new Promise((resolve) => {
       _onRelayResponse<CompletionResponse>(requestId, (res) =>
-        resolve(res.completion)
+        resolve(res.text)
       )
     })
   },
 
   streamCompletion(prompt: string): string {
     return _relayRequest<CompletionRequest>({
-      prompt,
+      transaction: makeTransaction(prompt),
       shouldStream: true,
       isLocal: Web41._isLocal
     })
