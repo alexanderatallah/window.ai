@@ -1,8 +1,14 @@
+import { useState } from "react"
+
 import { NavView, useNav } from "~core/providers/nav"
+import { Settings } from "~core/views/Settings"
+
+import { SlidingPane } from "./pure/SlidingPane"
 
 type Tab = { name: string; view: NavView }
 export function NavBar() {
   const { view, setView } = useNav()
+  const [shouldShowSettings, setShouldShowSettings] = useState(false)
 
   const tabs: Tab[] = [
     { name: "Activity", view: "activity" },
@@ -31,9 +37,13 @@ export function NavBar() {
       <button
         type="button"
         className="flex-none rounded-lg px-2 py-1 text-lg hover:bg-slate-300 dark:hover:bg-slate-700"
-        onClick={() => setView("settings")}>
+        onClick={() => setShouldShowSettings(true)}>
         ⚙️
       </button>
+
+      <SlidingPane shown={shouldShowSettings}>
+        <Settings onSave={() => setShouldShowSettings(false)} />
+      </SlidingPane>
     </div>
   )
 }

@@ -5,11 +5,9 @@ import { get, post } from "~core/api"
 import { Button } from "~core/components/pure/Button"
 import { Spinner } from "~core/components/pure/Spinner"
 import type { CompletionResponse } from "~core/constants"
-import { useNav } from "~core/providers/nav"
 import { UserInfoProvider, useUserInfo } from "~core/providers/user-info"
 
-export function Settings() {
-  const { setView } = useNav()
+export function Settings({ onSave }: { onSave: () => void }) {
   return (
     <UserInfoProvider>
       <div className="h-auto">
@@ -23,7 +21,7 @@ export function Settings() {
             <PremiumFeatureButton />
           </div>
         </div>
-        <Button onClick={() => setView("activity")}>Save</Button>
+        <Button onClick={onSave}>Save</Button>
       </div>
     </UserInfoProvider>
   )
