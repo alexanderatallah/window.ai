@@ -27,9 +27,6 @@ export type CompletionResponse =
   | {
       error: ErrorCode | string
     }
-  | {
-      nextRequestId: RequestId
-    }
 
 export type StreamResponse =
   | {
@@ -37,6 +34,9 @@ export type StreamResponse =
     }
   | {
       error: ErrorCode | string
+    }
+  | {
+      nextRequestId: RequestId
     }
 
 export const IS_SERVER = typeof chrome === "undefined"

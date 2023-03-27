@@ -2,8 +2,8 @@ import * as apiExternal from "~core/api"
 import * as apiLocal from "~core/api-local"
 import { CompletionRequest, ErrorCode, RequestId } from "~core/constants"
 import { transactionManager } from "~core/managers/transaction"
-import { Extension, type Port } from "~core/platforms/extension"
 import { log } from "~core/utils"
+import { Extension, type Port } from "~platforms/extension"
 
 export {}
 

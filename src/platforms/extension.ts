@@ -14,21 +14,23 @@ export const Extension = {
     return browser.runtime.connect({ name })
   },
 
-  async openTab(options) {
+  // Copied over mostly from MetaMask:
+
+  async openTab(options: browser.Tabs.CreateCreatePropertiesType) {
     const newTab = await browser.tabs.create(options)
     return newTab
   },
 
-  async openWindow(options) {
+  async openWindow(options: browser.Windows.CreateCreateDataType) {
     const newWindow = await browser.windows.create(options)
     return newWindow
   },
 
-  async focusWindow(windowId) {
+  async focusWindow(windowId: number) {
     await browser.windows.update(windowId, { focused: true })
   },
 
-  async updateWindowPosition(windowId, left, top) {
+  async updateWindowPosition(windowId: number, left: number, top: number) {
     await browser.windows.update(windowId, { left, top })
   },
 
@@ -42,7 +44,7 @@ export const Extension = {
     browser.windows.remove(windowDetails.id)
   },
 
-  addOnRemovedListener(listener) {
+  addOnRemovedListener(listener: (windowId: number) => void) {
     browser.windows.onRemoved.addListener(listener)
   },
 
@@ -61,12 +63,12 @@ export const Extension = {
     return tab
   },
 
-  async switchToTab(tabId) {
+  async switchToTab(tabId: number) {
     const tab = await browser.tabs.update(tabId, { highlighted: true })
     return tab
   },
 
-  async closeTab(tabId) {
+  async closeTab(tabId: number) {
     await browser.tabs.remove(tabId)
   }
 }

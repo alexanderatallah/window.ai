@@ -2,7 +2,6 @@ import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 
 import type { Response } from "~pages/api/_common"
 
-import type { StreamResponse } from "./constants"
 import { init as initAlpacaTurbo } from "./llm/alpaca-turbo"
 import { log } from "./utils"
 

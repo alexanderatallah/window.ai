@@ -15,8 +15,11 @@ const api = axios.create({
   adapter: fetchAdapter
 })
 
-export async function get(path: string, params?: object): Promise<Response> {
-  const res = await api.get<Response>(path, {
+export async function get<T = Response>(
+  path: string,
+  params?: object
+): Promise<T> {
+  const res = await api.get<T>(path, {
     params,
     headers: {
       Authorization: `Bearer ${await getAccessToken()}`
@@ -24,8 +27,11 @@ export async function get(path: string, params?: object): Promise<Response> {
   })
   return res.data
 }
-export async function post(path: string, data?: object): Promise<Response> {
-  const res = await api.post<Response>(path, data, {
+export async function post<T = Response>(
+  path: string,
+  data?: object
+): Promise<T> {
+  const res = await api.post<T>(path, data, {
     headers: {
       Authorization: `Bearer ${await getAccessToken()}`
     }
@@ -33,10 +39,10 @@ export async function post(path: string, data?: object): Promise<Response> {
   return res.data
 }
 
-export async function stream(
+export async function stream<T = Response>(
   path: string,
   data?: object
-): Promise<AsyncGenerator<Response>> {
+): Promise<AsyncGenerator<T>> {
   const res = await api.post<ReadableStream>(path, data, {
     headers: {
       Authorization: `Bearer ${await getAccessToken()}`
@@ -44,7 +50,7 @@ export async function stream(
     responseType: "stream"
   })
 
-  return readableStreamToGenerator<Response>(res.data)
+  return readableStreamToGenerator<T>(res.data)
 }
 
 async function* readableStreamToGenerator<T>(stream: ReadableStream) {

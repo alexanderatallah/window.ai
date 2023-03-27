@@ -90,7 +90,9 @@ const PremiumFeatureButton = () => {
           prompt: "The quick brown fox"
         })
         setLoading(false)
-        alert(data.text)
+        if ("text" in data) {
+          alert(data.text)
+        }
       }}
       disabled={loading}
       className="bg-slate-300">

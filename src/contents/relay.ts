@@ -1,8 +1,8 @@
 import type { PlasmoCSConfig } from "plasmo"
 
 import { ContentMessageType, PORT_NAME } from "~core/constants"
-import { Extension, type Port } from "~core/platforms/extension"
 import { log } from "~core/utils"
+import { Extension, type Port } from "~platforms/extension"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],

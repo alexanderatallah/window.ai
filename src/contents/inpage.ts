@@ -59,7 +59,7 @@ export const Web41 = {
       isLocal: Web41._isLocal
     })
     return new Promise((resolve, reject) => {
-      _onRelayResponse<CompletionResponse>(requestId, (res) => {
+      _onRelayResponse<StreamResponse>(requestId, (res) => {
         if ("error" in res) {
           reject(res.error)
         } else if ("nextRequestId" in res) {
@@ -84,8 +84,10 @@ export const Web41 = {
     _onRelayResponse<StreamResponse>(requestId, (res) => {
       if ("error" in res) {
         handler(null, res.error)
-      } else {
+      } else if ("text" in res) {
         handler(res.text, null)
+      } else {
+        // TODO: Handle this case or subtype StreamResponse
       }
     })
   }
