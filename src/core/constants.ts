@@ -8,15 +8,24 @@ export enum ContentMessageType {
   Cancel = "cancel"
 }
 
+export type RequestId = string
+
 export interface CompletionRequest {
   transaction: Transaction
   shouldStream?: boolean
   isLocal?: boolean
 }
 
-export interface CompletionResponse {
-  text: string
-}
+export type CompletionResponse =
+  | {
+      text: string
+    }
+  | {
+      error: string
+    }
+  | {
+      nextRequestId: RequestId
+    }
 
 export interface StreamResponse {
   text: string

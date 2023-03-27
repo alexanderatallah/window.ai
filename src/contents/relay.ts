@@ -1,7 +1,7 @@
 import type { PlasmoCSConfig } from "plasmo"
-import browser, { type Runtime } from "webextension-polyfill"
 
 import { ContentMessageType, PORT_NAME } from "~core/constants"
+import { Extension, type Port } from "~core/platforms/extension"
 import { log } from "~core/utils"
 
 export const config: PlasmoCSConfig = {
@@ -9,10 +9,10 @@ export const config: PlasmoCSConfig = {
   run_at: "document_start"
 }
 
-let _portSingleton: Runtime.Port | undefined = undefined
-function getPort(shouldReinitialize = false): Runtime.Port {
+let _portSingleton: Port | undefined = undefined
+function getPort(shouldReinitialize = false): Port {
   if (!_portSingleton || shouldReinitialize) {
-    _portSingleton = browser.runtime.connect({ name: PORT_NAME })
+    _portSingleton = Extension.connectToPort(PORT_NAME)
     _portSingleton.onDisconnect.addListener(() => {
       log("Disconnected from port")
     })

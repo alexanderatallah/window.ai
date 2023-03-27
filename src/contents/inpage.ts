@@ -6,6 +6,7 @@ import {
   CompletionResponse,
   ContentMessageType,
   PORT_NAME,
+  RequestId,
   StreamResponse
 } from "~core/constants"
 import { Origin, originManager } from "~core/managers/origin"
@@ -26,10 +27,20 @@ export const Web41 = {
       transaction: transactionManager.init(prompt, Web41.origin()),
       isLocal: Web41._isLocal
     })
-    return new Promise((resolve) => {
-      _onRelayResponse<CompletionResponse>(requestId, (res) =>
-        resolve(res.text)
-      )
+    return new Promise((resolve, reject) => {
+      _onRelayResponse<CompletionResponse>(requestId, (res) => {
+        if ("error" in res) {
+          reject(res.error)
+        } else if ("text" in res) {
+          resolve(res.text)
+        } else {
+          reject(
+            new Error(
+              `Unexpected response: no text found in ${JSON.stringify(res)}`
+            )
+          )
+        }
+      })
     })
   },
 
@@ -41,25 +52,43 @@ export const Web41 = {
     )
   },
 
-  streamCompletion(prompt: string): string {
-    return _relayRequest<CompletionRequest>({
+  async streamCompletion(prompt: string): Promise<RequestId> {
+    const requestId = _relayRequest<CompletionRequest>({
       transaction: transactionManager.init(prompt, Web41.origin()),
       shouldStream: true,
       isLocal: Web41._isLocal
+    })
+    return new Promise((resolve, reject) => {
+      _onRelayResponse<CompletionResponse>(requestId, (res) => {
+        if ("error" in res) {
+          reject(res.error)
+        } else if ("nextRequestId" in res) {
+          resolve(res.nextRequestId)
+        } else {
+          reject(
+            new Error(
+              `Unexpected response: no request ID found in ${JSON.stringify(
+                res
+              )}`
+            )
+          )
+        }
+      })
     })
   },
 
   addListener(requestId: string, handler: (res: string) => unknown) {
     _onRelayResponse<StreamResponse>(requestId, (res) => handler(res.text))
-  },
-
-  cancel(requestId: string) {
-    _cancel(requestId)
   }
+
+  // TODO: Implement cancel
+  // cancel(requestId: string) {
+  //   _cancel(requestId)
+  // }
 }
 
-function _relayRequest<T>(request: T): string {
-  const requestId = uuidv4()
+function _relayRequest<T>(request: T): RequestId {
+  const requestId = uuidv4() as RequestId
   window.postMessage(
     {
       type: ContentMessageType.Request,
@@ -72,18 +101,21 @@ function _relayRequest<T>(request: T): string {
   return requestId
 }
 
-function _cancel(requestId: string) {
-  window.postMessage(
-    {
-      type: ContentMessageType.Cancel,
-      id: requestId,
-      portName: PORT_NAME
-    },
-    "*"
-  )
-}
+// function _cancel(requestId: RequestId) {
+//   window.postMessage(
+//     {
+//       type: ContentMessageType.Cancel,
+//       id: requestId,
+//       portName: PORT_NAME
+//     },
+//     "*"
+//   )
+// }
 
-function _onRelayResponse<T>(requestId: string, handler: (data: T) => unknown) {
+function _onRelayResponse<T>(
+  requestId: RequestId,
+  handler: (data: T) => unknown
+) {
   window.addEventListener(
     "message",
     (event) => {
