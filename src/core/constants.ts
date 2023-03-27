@@ -8,6 +8,10 @@ export enum ContentMessageType {
   Cancel = "cancel"
 }
 
+export enum ErrorCode {
+  PermissionDenied = "PERMISSION_DENIED"
+}
+
 export type RequestId = string
 
 export interface CompletionRequest {
@@ -21,14 +25,18 @@ export type CompletionResponse =
       text: string
     }
   | {
-      error: string
+      error: ErrorCode | string
     }
   | {
       nextRequestId: RequestId
     }
 
-export interface StreamResponse {
-  text: string
-}
+export type StreamResponse =
+  | {
+      text: string
+    }
+  | {
+      error: ErrorCode | string
+    }
 
 export const IS_SERVER = typeof chrome === "undefined"

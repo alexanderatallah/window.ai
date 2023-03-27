@@ -77,8 +77,17 @@ export const Web41 = {
     })
   },
 
-  addListener(requestId: string, handler: (res: string) => unknown) {
-    _onRelayResponse<StreamResponse>(requestId, (res) => handler(res.text))
+  addListener(
+    requestId: string,
+    handler: (res: string | null, error: string | null) => unknown
+  ) {
+    _onRelayResponse<StreamResponse>(requestId, (res) => {
+      if ("error" in res) {
+        handler(null, res.error)
+      } else {
+        handler(res.text, null)
+      }
+    })
   }
 
   // TODO: Implement cancel

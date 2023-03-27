@@ -18,11 +18,15 @@ export type Request = {
   prompt: unknown
 }
 
-export type Response = {
-  success: boolean
-  text?: string
-  error?: string
-}
+export type Response =
+  | {
+      success: true
+      text: string
+    }
+  | {
+      success: false
+      error: string
+    }
 
 export const openai = initOpenAI(
   process.env.OPENAI_API_KEY,

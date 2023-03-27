@@ -9,6 +9,7 @@ export interface Transaction {
   prompt: string
   origin: Origin
   completion?: string
+  error?: string
 }
 
 const originIndexName = "byOrigin"

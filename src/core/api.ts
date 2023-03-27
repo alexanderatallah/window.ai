@@ -1,6 +1,8 @@
 import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 import axios from "axios"
 
+import type { Response } from "~pages/api/_common"
+
 import { getAccessToken } from "./access-token"
 import { log, parseDataChunks } from "./utils"
 
@@ -13,8 +15,8 @@ const api = axios.create({
   adapter: fetchAdapter
 })
 
-export async function get<T>(path: string, params?: object) {
-  const res = await api.get<T>(path, {
+export async function get(path: string, params?: object): Promise<Response> {
+  const res = await api.get<Response>(path, {
     params,
     headers: {
       Authorization: `Bearer ${await getAccessToken()}`
@@ -22,8 +24,8 @@ export async function get<T>(path: string, params?: object) {
   })
   return res.data
 }
-export async function post<T>(path: string, data?: object) {
-  const res = await api.post<T>(path, data, {
+export async function post(path: string, data?: object): Promise<Response> {
+  const res = await api.post<Response>(path, data, {
     headers: {
       Authorization: `Bearer ${await getAccessToken()}`
     }
@@ -31,10 +33,10 @@ export async function post<T>(path: string, data?: object) {
   return res.data
 }
 
-export async function stream<T>(
+export async function stream(
   path: string,
   data?: object
-): Promise<AsyncGenerator<T>> {
+): Promise<AsyncGenerator<Response>> {
   const res = await api.post<ReadableStream>(path, data, {
     headers: {
       Authorization: `Bearer ${await getAccessToken()}`
@@ -42,7 +44,7 @@ export async function stream<T>(
     responseType: "stream"
   })
 
-  return readableStreamToGenerator<T>(res.data)
+  return readableStreamToGenerator<Response>(res.data)
 }
 
 async function* readableStreamToGenerator<T>(stream: ReadableStream) {
