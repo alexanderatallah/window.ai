@@ -1,6 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import { ContentMessageType, PORT_NAME } from "~core/constants"
+import { ContentMessageType, PortName } from "~core/constants"
 import { log } from "~core/utils"
 import { Extension, type Port } from "~platforms/extension"
 
@@ -12,27 +12,28 @@ export const config: PlasmoCSConfig = {
 let _portSingleton: Port | undefined = undefined
 function getPort(shouldReinitialize = false): Port {
   if (!_portSingleton || shouldReinitialize) {
-    _portSingleton = Extension.connectToPort(PORT_NAME)
-    _portSingleton.onDisconnect.addListener(() => {
-      log("Disconnected from port")
-    })
+    _portSingleton = Extension.connectToPort(PortName.Window)
   }
   return _portSingleton
 }
 
 // Handle responses from background script
-getPort().onMessage.addListener((msg) => {
-  const { id, ...response } = msg
-  window.postMessage(
-    {
-      type: ContentMessageType.Response,
-      portName: PORT_NAME,
-      id,
-      response
-    },
-    "*"
-  )
-})
+Extension.addPortListener(
+  PortName.Window,
+  (msg) => {
+    const { id, ...response } = msg
+    window.postMessage(
+      {
+        type: ContentMessageType.Response,
+        portName: PortName.Window,
+        id,
+        response
+      },
+      "*"
+    )
+  },
+  getPort()
+)
 
 function postPortMessage(data: unknown) {
   try {
@@ -48,7 +49,7 @@ window.addEventListener("message", (event) => {
   const { source, data } = event
 
   // We only accept messages our window and port
-  if (source !== window || data?.portName !== PORT_NAME) {
+  if (source !== window || data?.portName !== PortName.Window) {
     return
   }
 

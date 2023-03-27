@@ -5,7 +5,7 @@ import {
   CompletionRequest,
   CompletionResponse,
   ContentMessageType,
-  PORT_NAME,
+  PortName,
   RequestId,
   StreamResponse
 } from "~core/constants"
@@ -104,7 +104,7 @@ function _relayRequest<T>(request: T): RequestId {
     {
       type: ContentMessageType.Request,
       id: requestId,
-      portName: PORT_NAME,
+      portName: PortName.Window,
       request
     },
     "*"
@@ -133,7 +133,7 @@ function _onRelayResponse<T>(
       const { source, data } = event
 
       // We only accept messages our window and port
-      if (source !== window || data?.portName !== PORT_NAME) {
+      if (source !== window || data?.portName !== PortName.Window) {
         return
       }
 

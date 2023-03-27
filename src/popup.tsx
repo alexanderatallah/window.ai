@@ -6,6 +6,12 @@ import { Activity } from "~core/views/Activity"
 import { Apps } from "~core/views/Apps"
 
 function Popup() {
+  // const queryString = window.location.search
+  // const urlParams = new URLSearchParams(queryString)
+  // if (urlParams.get("notification")) {
+  //   return <Notification data={urlParams.get("notification")} />
+  // }
+
   return (
     <main
       className={

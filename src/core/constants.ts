@@ -1,6 +1,21 @@
 import type { Transaction } from "./managers/transaction"
 
-export const PORT_NAME = "web41"
+export enum PortName {
+  Window = "window",
+  Permission = "permission"
+}
+
+export interface PortRequest {
+  [PortName.Window]: { id: RequestId; request: CompletionRequest }
+  [PortName.Permission]: { request: CompletionRequest }
+}
+
+export interface PortResponse {
+  [PortName.Window]: { success: boolean }
+  [PortName.Permission]: { success: boolean }
+}
+
+export type PortEvent = PortRequest | PortResponse
 
 export enum ContentMessageType {
   Request = "request",

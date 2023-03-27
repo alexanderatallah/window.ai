@@ -1,37 +1,46 @@
 import * as apiExternal from "~core/api"
 import * as apiLocal from "~core/api-local"
-import { CompletionRequest, ErrorCode, RequestId } from "~core/constants"
+import {
+  CompletionRequest,
+  ErrorCode,
+  PortName,
+  PortRequest,
+  RequestId
+} from "~core/constants"
 import { transactionManager } from "~core/managers/transaction"
 import { log } from "~core/utils"
 import { Extension, type Port } from "~platforms/extension"
 
+const NOTIFICATION_HEIGHT = 600
+const NOTIFICATION_WIDTH = 320
+
 export {}
 
 log("Background script loaded")
-Extension.addPortListener((port: Port) => {
-  log("Background received connection: ", port)
 
-  port.onMessage.addListener(handleRequest)
-})
+Extension.addPortListener(PortName.Window, handleWindowRequest)
 
-async function handleRequest(event: any, port: Port) {
+async function handleWindowRequest(
+  event: PortRequest[PortName.Window],
+  port: Port
+) {
   log("Background received message: ", event, port)
 
   const { id, request } = event
-  const req = request as CompletionRequest
 
-  const permitted = await requestPermission(req, port, id)
-  if (!permitted) {
+  const permit = await requestPermission(request)
+  if (permit.error) {
+    port.postMessage({ ...permit, id })
     return
   }
 
-  const txn = req.transaction
+  const txn = request.transaction
   // Save the incomplete txn
   await transactionManager.save(txn)
 
-  const api = isLocalhost(req) ? apiLocal : apiExternal
+  const api = isLocalhost(request) ? apiLocal : apiExternal
 
-  if (req.shouldStream) {
+  if (request.shouldStream) {
     const replies = []
     const errors = []
 
@@ -68,14 +77,18 @@ async function handleRequest(event: any, port: Port) {
   await transactionManager.save(txn)
 }
 
-async function requestPermission(
-  req: CompletionRequest,
-  port: Port,
-  id: RequestId
-): Promise<boolean> {
-  const result = { error: ErrorCode.PermissionDenied }
-  port.postMessage({ ...result, id })
-  return false
+async function requestPermission(request: CompletionRequest) {
+  const window = await Extension.openPopup(
+    NOTIFICATION_WIDTH,
+    NOTIFICATION_HEIGHT
+  )
+  const permissionResult = await Extension.sendMessage(
+    { request },
+    PortName.Permission,
+    window.tabs[0].id
+  )
+
+  return permissionResult
 }
 
 function isLocalhost(req: CompletionRequest): boolean {
