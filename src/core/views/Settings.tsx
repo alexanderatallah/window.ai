@@ -6,6 +6,8 @@ import { Button } from "~core/components/pure/Button"
 import { Spinner } from "~core/components/pure/Spinner"
 import type { CompletionResponse } from "~core/constants"
 import { UserInfoProvider, useUserInfo } from "~core/providers/user-info"
+import { isOk, unwrap } from "~core/utils/result-monad"
+import { Response } from "~pages/api/_common"
 
 export function Settings({ onSave }: { onSave: () => void }) {
   return (
@@ -41,10 +43,10 @@ const PremiumFeatureButton = () => {
   const userInfo = useUserInfo()
   const [loading, setLoading] = useState(false)
 
-  const { data, error } = useSWR<{ active: boolean }>(
-    `/api/check-subscription`,
-    (url) => get<{ active: boolean }>(url)
+  const { data, error } = useSWR(`/api/check-subscription`, (url) =>
+    get<Response<{ active: boolean }>>(url).then(unwrap).then(unwrap)
   )
+  console.info("Subscription", data, error)
   const isSubscribed = !error && data?.active
 
   if (!isSubscribed) {
@@ -68,8 +70,10 @@ const PremiumFeatureButton = () => {
                     `${
                       process.env.PLASMO_PUBLIC_STRIPE_LINK
                     }?client_reference_id=${
-                      userInfo.id
-                    }&prefilled_email=${encodeURIComponent(userInfo?.email)}`,
+                      userInfo?.id || ""
+                    }&prefilled_email=${encodeURIComponent(
+                      userInfo?.email || ""
+                    )}`,
                     "_blank"
                   )
                 }
@@ -86,12 +90,12 @@ const PremiumFeatureButton = () => {
     <Button
       onClick={async (e) => {
         setLoading(true)
-        const data = await post<CompletionResponse>("/api/model/complete", {
+        const res = await post<CompletionResponse>("/api/model/complete", {
           prompt: "The quick brown fox"
         })
         setLoading(false)
-        if ("text" in data) {
-          alert(data.text)
+        if (isOk(res)) {
+          alert(res.data)
         }
       }}
       disabled={loading}

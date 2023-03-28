@@ -1,7 +1,7 @@
 import { Logo } from "~core/components/pure/Logo"
 import { originManager } from "~core/managers/origin"
 import type { Transaction } from "~core/managers/transaction"
-import { formatDate } from "~core/utils"
+import { formatDate } from "~core/utils/utils"
 
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)

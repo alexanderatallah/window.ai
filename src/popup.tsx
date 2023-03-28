@@ -21,7 +21,9 @@ function Popup() {
       {port.data ? (
         <PermissionRequest
           data={port.data}
-          onResult={(permitted) => port.send({ id: port.data.id, permitted })}
+          onResult={(permitted) =>
+            port.data.id && port.send({ id: port.data.id, permitted })
+          }
         />
       ) : (
         <NavProvider>

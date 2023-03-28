@@ -6,7 +6,7 @@ import type {
   PortRequest,
   PortResponse
 } from "~core/constants"
-import { log } from "~core/utils"
+import { log } from "~core/utils/utils"
 
 export type Port = browser.Runtime.Port
 export const Extension = {
@@ -87,8 +87,8 @@ export const Extension = {
     try {
       const lastFocused = await Extension.getLastFocusedWindow()
       // Position window in top right corner of lastFocused window.
-      top = lastFocused.top
-      left = lastFocused.left + (lastFocused.width - width)
+      top = lastFocused.top || 0
+      left = (lastFocused.left || 0) + ((lastFocused.width || width) - width)
     } catch (_) {
       // The following properties are more than likely 0, due to being
       // opened from the background chrome process for the extension that
@@ -113,7 +113,7 @@ export const Extension = {
 
     // According to MetaMask codebase, Firefox currently ignores left/top for create,
     // but it works for update
-    if (popup.left !== left && popup.state !== "fullscreen") {
+    if (popup.id && popup.left !== left && popup.state !== "fullscreen") {
       await Extension.updateWindowPosition(popup.id, left, top)
     }
     // pass new created popup window id to appController setter
@@ -160,6 +160,9 @@ export const Extension = {
 
   async closeCurrentWindow() {
     const windowDetails = await browser.windows.getCurrent()
+    if (!windowDetails.id) {
+      return
+    }
     browser.windows.remove(windowDetails.id)
   },
 

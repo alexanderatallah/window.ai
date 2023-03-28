@@ -11,6 +11,7 @@ import {
 } from "~core/constants"
 import { Origin, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
+import { isOk } from "~core/utils/result-monad"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -29,10 +30,10 @@ export const Web41 = {
     })
     return new Promise((resolve, reject) => {
       _onRelayResponse<CompletionResponse>(requestId, (res) => {
-        if ("error" in res) {
-          reject(res.error)
+        if (isOk(res)) {
+          resolve(res.data)
         } else {
-          resolve(res.text)
+          reject(res.error)
         }
       })
     })
@@ -54,10 +55,10 @@ export const Web41 = {
     })
     return new Promise((resolve, reject) => {
       _onRelayResponse<StreamResponse>(requestId, (res) => {
-        if ("error" in res) {
-          reject(res.error)
-        } else {
+        if (isOk(res)) {
           resolve(requestId)
+        } else {
+          reject(res.error)
         }
       })
     })
@@ -68,10 +69,10 @@ export const Web41 = {
     handler: (result: string | null, error: string | null) => unknown
   ) {
     _onRelayResponse<StreamResponse>(requestId, (result) => {
-      if ("error" in result) {
-        handler(null, result.error)
+      if (isOk(result)) {
+        handler(result.data, null)
       } else {
-        handler(result.text, null)
+        handler(null, result.error)
       }
     })
   }

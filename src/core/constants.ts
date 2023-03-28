@@ -1,4 +1,5 @@
 import type { Transaction } from "./managers/transaction"
+import type { Result } from "./utils/result-monad"
 
 export enum PortName {
   Window = "window",
@@ -11,10 +12,15 @@ export interface PortRequest {
 }
 
 export interface PortResponse {
-  [PortName.Window]: { id: RequestId; response: CompletionResponse }
+  [PortName.Window]:
+    | { id: RequestId; response: CompletionResponse }
+    | { id?: RequestId; error: ErrorCode.InvalidRequest }
   [PortName.Permission]:
     | { id: RequestId; request: CompletionRequest }
-    | { id: RequestId; error: ErrorCode }
+    | {
+        id?: RequestId
+        error: ErrorCode.InvalidRequest | ErrorCode.RequestNotFound
+      }
 }
 
 export type PortEvent = PortRequest | PortResponse
@@ -26,8 +32,10 @@ export enum ContentMessageType {
 }
 
 export enum ErrorCode {
+  NotAuthenticated = "NOT_AUTHENTICATED",
   PermissionDenied = "PERMISSION_DENIED",
-  RequestNotFound = "REQUEST_NOT_FOUND"
+  RequestNotFound = "REQUEST_NOT_FOUND",
+  InvalidRequest = "INVALID_REQUEST"
 }
 
 export type RequestId = string
@@ -38,20 +46,9 @@ export interface CompletionRequest {
   isLocal?: boolean
 }
 
-export type CompletionResponse =
-  | {
-      text: string
-    }
-  | {
-      error: ErrorCode | string
-    }
+export type CompletionResponse = Result<string, ErrorCode>
 
-export type StreamResponse =
-  | {
-      text: string
-    }
-  | {
-      error: ErrorCode | string
-    }
+export type StreamResponse = Result<string, ErrorCode>
 
-export const IS_SERVER = typeof chrome === "undefined"
+export const IS_SERVER =
+  typeof process !== "undefined" && process?.versions?.node

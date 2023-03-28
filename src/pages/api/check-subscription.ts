@@ -1,16 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { getSubsciption, getUserInfo, isAdmin } from "./_common"
+import { ErrorCode } from "~core/constants"
+import { err, ok } from "~core/utils/result-monad"
+
+import { Response, getSubsciption, getUserInfo, isAdmin } from "./_common"
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<Response<{ active: boolean }>>
 ) {
-  try {
-    if (req.method !== "GET") {
-      throw new Error("Invalid request method")
-    }
+  if (req.method !== "GET") {
+    res.status(400).json(err(ErrorCode.InvalidRequest))
+  }
 
+  try {
     const userInfo = await getUserInfo(req.headers.authorization)
 
     let active = false
@@ -21,8 +24,9 @@ export default async function handler(
       active = subscription?.status === "active"
     }
 
-    return res.status(200).json({ active })
+    return res.status(200).json(ok({ active }))
   } catch (error) {
-    return res.status(401).json({ success: false, error: error.message })
+    console.error("Error checking subscription: ", error)
+    return res.status(401).json(err(ErrorCode.NotAuthenticated))
   }
 }

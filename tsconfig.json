@@ -8,6 +8,9 @@
     "tailwind.config.js"
   ],
   "compilerOptions": {
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
       "~*": ["./src/*"]
     },

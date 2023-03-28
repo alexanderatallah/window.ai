@@ -2,7 +2,9 @@ import { createProvider } from "puro"
 import { useContext, useEffect, useState } from "react"
 
 const useUserInfoProvider = () => {
-  const [userInfo, setUserInfo] = useState<chrome.identity.UserInfo>(null)
+  const [userInfo, setUserInfo] = useState<chrome.identity.UserInfo | null>(
+    null
+  )
 
   useEffect(() => {
     chrome.identity.getProfileUserInfo((data) => {

@@ -4,7 +4,7 @@ import objectHash from "object-hash"
 import { Readable, Transform, TransformCallback } from "stream"
 
 import { IS_SERVER } from "~core/constants"
-import { parseDataChunks } from "~core/utils"
+import { parseDataChunks } from "~core/utils/utils"
 
 export interface ModelConfig {
   baseUrl: string

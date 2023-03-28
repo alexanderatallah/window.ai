@@ -2,31 +2,26 @@ import { OAuth2Client } from "google-auth-library"
 import type { NextApiRequest } from "next"
 import Stripe from "stripe"
 
-import type { CacheGetter, CacheSetter } from "~core/llm/model"
+import type { ErrorCode } from "~core/constants"
+import type { CacheGetter, CacheSetter, RequestData } from "~core/llm/model"
 import { init as initOpenAI } from "~core/llm/openai"
+import type { Result } from "~core/utils/result-monad"
 
 // Basic in-memory cache. TODO replace w Redis
-const cache = {}
-const cacheGet: CacheGetter = async (key) => cache[key]?.completion
-const cacheSet: CacheSetter = async (data) => (cache[data.id] = data)
+const cache = new Map<string, { completion: string }>()
+const cacheGet: CacheGetter = async (key) => cache.get(key)?.completion
+const cacheSet: CacheSetter = async (data) => cache.set(data.id, data)
 
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY, {
   apiVersion: "2022-11-15"
 })
 
-export type Request = {
-  prompt: unknown
-}
+export type Request = { prompt: string }
 
-export type Response =
-  | {
-      success: true
-      text: string
-    }
-  | {
-      success: false
-      error: string
-    }
+export type Response<DataType = string, ErrorType = ErrorCode> = Result<
+  DataType,
+  ErrorType
+>
 
 export const openai = initOpenAI(
   process.env.OPENAI_API_KEY,

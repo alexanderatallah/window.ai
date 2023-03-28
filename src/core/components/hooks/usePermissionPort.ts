@@ -13,8 +13,9 @@ export function usePermissionPort() {
   useEffect(() => {
     if (window.location.search) {
       const urlParams = new URLSearchParams(window.location.search)
-      if (urlParams.get("requestId")) {
-        send({ id: urlParams.get("requestId") })
+      const requestId = urlParams.get("requestId")
+      if (requestId) {
+        send({ id: requestId })
       }
     }
   }, [])

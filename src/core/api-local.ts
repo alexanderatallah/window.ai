@@ -3,7 +3,8 @@ import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 import type { Response } from "~pages/api/_common"
 
 import { init as initAlpacaTurbo } from "./llm/alpaca-turbo"
-import { log } from "./utils"
+import { err, ok } from "./utils/result-monad"
+import { log } from "./utils/utils"
 
 export const alpacaTurbo = initAlpacaTurbo(
   {
@@ -20,27 +21,43 @@ export const alpacaTurbo = initAlpacaTurbo(
 
 type Request = { prompt: string }
 
-export async function post(path: string, data: Request): Promise<Response> {
-  const result = await alpacaTurbo.complete({
-    prompt: data.prompt
-  })
-  return { text: result, success: true }
+export async function post(
+  path: string,
+  data: Request
+): Promise<Response<string, string>> {
+  try {
+    const result = await alpacaTurbo.complete({
+      prompt: data.prompt
+    })
+    return ok(result)
+  } catch (error) {
+    return err(`${error}`)
+  }
 }
 
 export async function stream(
   path: string,
   data: Request
-): Promise<AsyncGenerator<Response>> {
-  const stream = await alpacaTurbo.stream({ prompt: data.prompt })
+): Promise<AsyncGenerator<Response<string, string>>> {
+  try {
+    const stream = await alpacaTurbo.stream({ prompt: data.prompt })
 
-  // TODO fix typing or consolidate all to browser calls
-  return readableStreamToGenerator(stream as ReadableStream)
+    // TODO fix typing or consolidate all to browser calls
+    return readableStreamToGenerator(stream as ReadableStream)
+  } catch (error) {
+    async function* generator() {
+      yield err(`${error}`)
+    }
+    return generator()
+  }
 }
 
-async function* readableStreamToGenerator(stream: ReadableStream) {
+async function* readableStreamToGenerator(
+  stream: ReadableStream
+): AsyncGenerator<Response<string, string>> {
   const reader = stream.getReader()
   const decoder = new TextDecoder("utf-8")
-  let lastValue: string
+  let lastValue: string | undefined = undefined
   try {
     while (true) {
       const { done, value } = await reader.read()
@@ -52,11 +69,11 @@ async function* readableStreamToGenerator(stream: ReadableStream) {
           ? value
           : decoder.decode(value, { stream: true })
       log("Got stream value: ", lastValue)
-      yield { text: lastValue, success: true } as Response
+      yield ok(lastValue)
     }
   } catch (error) {
-    console.error(error, lastValue)
-    yield { error: error, success: false } as Response
+    console.error("Streaming error: ", error, lastValue)
+    yield err(`${error}`)
   } finally {
     reader.releaseLock()
   }

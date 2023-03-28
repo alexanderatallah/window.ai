@@ -1,4 +1,4 @@
-import { log } from "~core/utils"
+import { log } from "~core/utils/utils"
 
 export {}
 

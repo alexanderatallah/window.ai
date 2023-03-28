@@ -1,7 +1,7 @@
 import type { PlasmoCSConfig } from "plasmo"
 
 import { ContentMessageType, PortName, PortResponse } from "~core/constants"
-import { log } from "~core/utils"
+import { log } from "~core/utils/utils"
 import { Extension, type Port } from "~platforms/extension"
 
 export const config: PlasmoCSConfig = {
@@ -15,6 +15,10 @@ const windowPort = Extension.connectToPort(PortName.Window)
 Extension.addPortListener<PortName.Window, PortResponse>(
   PortName.Window,
   (msg) => {
+    if (!("response" in msg)) {
+      // TODO handle invalid requests
+      return
+    }
     const { id, response } = msg
     window.postMessage(
       {

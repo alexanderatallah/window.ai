@@ -2,14 +2,16 @@ import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
 import * as apiExternal from "~core/api"
 import * as apiLocal from "~core/api-local"
-import type {
+import {
   CompletionRequest,
+  ErrorCode,
   PortName,
   PortRequest,
   PortResponse
 } from "~core/constants"
 import { transactionManager } from "~core/managers/transaction"
-import { log } from "~core/utils"
+import { isErr, isOk } from "~core/utils/result-monad"
+import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
 
@@ -19,12 +21,17 @@ const handler: PlasmoMessaging.PortHandler<
 > = async (req, res) => {
   log("Background received message: ", req)
 
+  if (!req.body) {
+    return res.send({
+      error: ErrorCode.InvalidRequest
+    })
+  }
+
   const { id, request } = req.body
 
   const permit = await requestPermission(request, id)
-  if ("error" in permit) {
-    res.send({ response: permit, id })
-    return
+  if (isErr(permit)) {
+    return res.send({ response: permit, id })
   }
 
   const txn = request.transaction
@@ -42,11 +49,11 @@ const handler: PlasmoMessaging.PortHandler<
     })
 
     for await (const result of results) {
-      console.info("Got result: ", result)
-      res.send({ response: result, id })
-      if ("text" in result) {
-        replies.push(result.text)
+      if (isOk(result)) {
+        res.send({ response: result, id })
+        replies.push(result.data)
       } else {
+        res.send({ response: result, id })
         errors.push(result.error)
       }
     }
@@ -58,10 +65,11 @@ const handler: PlasmoMessaging.PortHandler<
       prompt: txn.prompt
     })
 
-    res.send({ response: result, id })
-    if ("text" in result) {
-      txn.completion = result.text
+    if (isOk(result)) {
+      res.send({ response: result, id })
+      txn.completion = result.data
     } else {
+      res.send({ response: result, id })
       txn.error = result.error
     }
   }

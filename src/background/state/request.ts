@@ -19,8 +19,8 @@ export class RequestState<RequestType, ResponseType> {
   }
 
   complete(id: RequestId, result: ResponseType): void {
-    const request = this.map.get(id)
-    this.completionListeners.get(id).forEach((listener) => {
+    const { request, listeners } = this._assertAndGetRequest(id)
+    listeners.forEach((listener) => {
       listener(request, result)
     })
     this.map.delete(id)
@@ -35,16 +35,33 @@ export class RequestState<RequestType, ResponseType> {
     id: RequestId,
     listener: (v: RequestType, data: ResponseType) => void
   ): void {
-    this.completionListeners.get(id).push(listener)
+    const { listeners } = this._assertAndGetRequest(id)
+    listeners.push(listener)
   }
 
   removeCompletionListener(
     id: RequestId,
     listener: (v: RequestType, data: ResponseType) => void
   ): void {
+    const { listeners } = this._assertAndGetRequest(id)
     this.completionListeners.set(
       id,
-      this.completionListeners.get(id).filter((l) => l !== listener)
+      listeners.filter((l) => l !== listener)
     )
+  }
+
+  _assertAndGetRequest(id: RequestId): {
+    request: RequestType
+    listeners: Array<(v: RequestType, data: ResponseType) => void>
+  } {
+    const request = this.map.get(id)
+    if (!request) {
+      throw new Error("Request not found")
+    }
+    const listeners = this.completionListeners.get(id)
+    if (!listeners) {
+      throw new Error("Listeners not found")
+    }
+    return { request, listeners }
   }
 }

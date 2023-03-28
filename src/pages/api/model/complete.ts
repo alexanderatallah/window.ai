@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
+import { ErrorCode } from "~core/constants"
+import { err, ok } from "~core/utils/result-monad"
+
 import { Request, Response, authenticate, openai } from "../_common"
 
 export default async function handler(
@@ -9,7 +12,8 @@ export default async function handler(
   try {
     await authenticate(req)
   } catch (error) {
-    return res.status(401).json({ success: false, error: error.message })
+    console.error("Error authenticating: ", error)
+    return res.status(401).json(err(ErrorCode.NotAuthenticated))
   }
 
   const body = req.body as Request
@@ -20,5 +24,5 @@ export default async function handler(
   const text = await openai.complete({
     prompt: body.prompt
   })
-  return res.status(200).json({ success: true, text })
+  return res.status(200).json(ok(text))
 }
