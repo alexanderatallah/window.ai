@@ -116,18 +116,6 @@ export const Extension = {
     if (popup.left !== left && popup.state !== "fullscreen") {
       await Extension.updateWindowPosition(popup.id, left, top)
     }
-
-    Extension.addOnRemovedListener((windowId) => {
-      if (windowId === popup.id) {
-        // TODO
-        // this._setCurrentPopupId(undefined);
-        // this._popupId = undefined;
-        // this.emit(NOTIFICATION_MANAGER_EVENTS.POPUP_CLOSED, {
-        //   automaticallyClosed: this._popupAutomaticallyClosed,
-        // });
-        // this._popupAutomaticallyClosed = undefined;
-      }
-    })
     // pass new created popup window id to appController setter
     // and store the id to private variable this._popupId for future access
     // this._setCurrentPopupId(popup.id)
@@ -175,8 +163,14 @@ export const Extension = {
     browser.windows.remove(windowDetails.id)
   },
 
-  addOnRemovedListener(listener: (windowId: number) => void) {
-    browser.windows.onRemoved.addListener(listener)
+  addOnRemovedListener(windowId: number, handler: () => void) {
+    const onRemovedListener = (removedWindowId: number) => {
+      if (removedWindowId === windowId) {
+        browser.windows.onRemoved.removeListener(onRemovedListener)
+        handler()
+      }
+    }
+    browser.windows.onRemoved.addListener(onRemovedListener)
   },
 
   async getAllWindows() {

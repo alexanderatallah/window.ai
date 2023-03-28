@@ -1,11 +1,11 @@
 import type { RequestId } from "~core/constants"
 
-export class RequestState<Request, CompletionData> {
-  private map: Map<RequestId, Request>
+export class RequestState<RequestType, ResponseType> {
+  private map: Map<RequestId, RequestType>
   // These fire when items are removed from the map
   private completionListeners: Map<
     RequestId,
-    Array<(v: Request, data: CompletionData) => void>
+    Array<(v: RequestType, data: ResponseType) => void>
   >
 
   constructor() {
@@ -13,12 +13,12 @@ export class RequestState<Request, CompletionData> {
     this.completionListeners = new Map()
   }
 
-  start(id: RequestId, request: Request): void {
+  start(id: RequestId, request: RequestType): void {
     this.map.set(id, request)
     this.completionListeners.set(id, [])
   }
 
-  complete(id: RequestId, result: CompletionData): void {
+  complete(id: RequestId, result: ResponseType): void {
     const request = this.map.get(id)
     this.completionListeners.get(id).forEach((listener) => {
       listener(request, result)
@@ -27,20 +27,20 @@ export class RequestState<Request, CompletionData> {
     this.completionListeners.delete(id)
   }
 
-  get(id: RequestId): Request | undefined {
+  get(id: RequestId): RequestType | undefined {
     return this.map.get(id)
   }
 
   addCompletionListener(
     id: RequestId,
-    listener: (v: Request, data: CompletionData) => void
+    listener: (v: RequestType, data: ResponseType) => void
   ): void {
     this.completionListeners.get(id).push(listener)
   }
 
   removeCompletionListener(
     id: RequestId,
-    listener: (v: Request, data: CompletionData) => void
+    listener: (v: RequestType, data: ResponseType) => void
   ): void {
     this.completionListeners.set(
       id,

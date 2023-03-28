@@ -31,14 +31,8 @@ export const Web41 = {
       _onRelayResponse<CompletionResponse>(requestId, (res) => {
         if ("error" in res) {
           reject(res.error)
-        } else if ("text" in res) {
-          resolve(res.text)
         } else {
-          reject(
-            new Error(
-              `Unexpected response: no text found in ${JSON.stringify(res)}`
-            )
-          )
+          resolve(res.text)
         }
       })
     })
@@ -62,16 +56,8 @@ export const Web41 = {
       _onRelayResponse<StreamResponse>(requestId, (res) => {
         if ("error" in res) {
           reject(res.error)
-        } else if ("nextRequestId" in res) {
-          resolve(res.nextRequestId)
         } else {
-          reject(
-            new Error(
-              `Unexpected response: no request ID found in ${JSON.stringify(
-                res
-              )}`
-            )
-          )
+          resolve(requestId)
         }
       })
     })
@@ -79,15 +65,13 @@ export const Web41 = {
 
   addListener(
     requestId: string,
-    handler: (res: string | null, error: string | null) => unknown
+    handler: (result: string | null, error: string | null) => unknown
   ) {
-    _onRelayResponse<StreamResponse>(requestId, (res) => {
-      if ("error" in res) {
-        handler(null, res.error)
-      } else if ("text" in res) {
-        handler(res.text, null)
+    _onRelayResponse<StreamResponse>(requestId, (result) => {
+      if ("error" in result) {
+        handler(null, result.error)
       } else {
-        // TODO: Handle this case or subtype StreamResponse
+        handler(result.text, null)
       }
     })
   }

@@ -52,7 +52,21 @@ export async function requestPermission(
     NOTIFICATION_HEIGHT,
     { requestId }
   )
+
+  Extension.addOnRemovedListener(window.id, () => {
+    if (permissionState.get(requestId)) {
+      // User closed window without responding, so assume
+      // no permission granted
+      permissionState.complete(requestId, {
+        id: requestId,
+        permitted: false
+      })
+    }
+    // Otherwise, it's being programmatically closed, so we don't need to do anything
+  })
+
   permissionState.start(requestId, request)
+
   return new Promise<{ error: ErrorCode } | { success: true }>(
     (resolve, reject) => {
       permissionState.addCompletionListener(
@@ -68,6 +82,8 @@ export async function requestPermission(
           try {
             await Extension.closeWindow(window.id)
           } catch (e) {
+            // User may have closed the window manually, but something else might have,
+            // so propagate the error
             reject(e)
           }
         }
