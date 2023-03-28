@@ -7,7 +7,7 @@ import { Spinner } from "~core/components/pure/Spinner"
 import type { CompletionResponse } from "~core/constants"
 import { UserInfoProvider, useUserInfo } from "~core/providers/user-info"
 import { isOk, unwrap } from "~core/utils/result-monad"
-import { Response } from "~pages/api/_common"
+import type { Response } from "~pages/api/_common"
 
 export function Settings({ onSave }: { onSave: () => void }) {
   return (
@@ -44,7 +44,7 @@ const PremiumFeatureButton = () => {
   const [loading, setLoading] = useState(false)
 
   const { data, error } = useSWR(`/api/check-subscription`, (url) =>
-    get<Response<{ active: boolean }>>(url).then(unwrap).then(unwrap)
+    get<{ active: boolean }>(url).then(unwrap)
   )
   console.info("Subscription", data, error)
   const isSubscribed = !error && data?.active
