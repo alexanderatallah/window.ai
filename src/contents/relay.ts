@@ -1,6 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import { ContentMessageType, PortName } from "~core/constants"
+import { ContentMessageType, PortName, PortResponse } from "~core/constants"
 import { log } from "~core/utils"
 import { Extension, type Port } from "~platforms/extension"
 
@@ -9,19 +9,13 @@ export const config: PlasmoCSConfig = {
   run_at: "document_start"
 }
 
-let _portSingleton: Port | undefined = undefined
-function getPort(shouldReinitialize = false): Port {
-  if (!_portSingleton || shouldReinitialize) {
-    _portSingleton = Extension.connectToPort(PortName.Window)
-  }
-  return _portSingleton
-}
+const windowPort = Extension.connectToPort(PortName.Window)
 
 // Handle responses from background script
-Extension.addPortListener(
+Extension.addPortListener<PortName.Window, PortResponse>(
   PortName.Window,
   (msg) => {
-    const { id, ...response } = msg
+    const { id, response } = msg
     window.postMessage(
       {
         type: ContentMessageType.Response,
@@ -32,17 +26,8 @@ Extension.addPortListener(
       "*"
     )
   },
-  getPort()
+  windowPort
 )
-
-function postPortMessage(data: unknown) {
-  try {
-    getPort().postMessage(data)
-  } catch (e) {
-    log("Error posting message to port. Retrying ", e)
-    getPort(true).postMessage(data)
-  }
-}
 
 // Handle requests from content script
 window.addEventListener("message", (event) => {
@@ -59,7 +44,7 @@ window.addEventListener("message", (event) => {
     case ContentMessageType.Request:
     case ContentMessageType.Cancel:
       log(`Relay received ${type}: `, data)
-      postPortMessage(data)
+      Extension.sendMessage(data, windowPort)
       break
     case ContentMessageType.Response:
       // Handled by inpage script

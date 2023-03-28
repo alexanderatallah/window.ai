@@ -7,12 +7,14 @@ export enum PortName {
 
 export interface PortRequest {
   [PortName.Window]: { id: RequestId; request: CompletionRequest }
-  [PortName.Permission]: { request: CompletionRequest }
+  [PortName.Permission]: { id: RequestId; permitted?: boolean }
 }
 
 export interface PortResponse {
-  [PortName.Window]: { success: boolean }
-  [PortName.Permission]: { success: boolean }
+  [PortName.Window]: { id: RequestId; response: CompletionResponse }
+  [PortName.Permission]:
+    | { id: RequestId; request: CompletionRequest }
+    | { id: RequestId; error: ErrorCode }
 }
 
 export type PortEvent = PortRequest | PortResponse
@@ -24,7 +26,8 @@ export enum ContentMessageType {
 }
 
 export enum ErrorCode {
-  PermissionDenied = "PERMISSION_DENIED"
+  PermissionDenied = "PERMISSION_DENIED",
+  RequestNotFound = "REQUEST_NOT_FOUND"
 }
 
 export type RequestId = string

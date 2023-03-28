@@ -28,6 +28,9 @@ export const Extension = {
     })
   },
 
+  // NOTE: Passing in a tabId is tricky to get right,
+  // because sometimes the tab is not ready to receive port connections,
+  // and sometimes there's nothing listening on the other end yet
   connectToPort(name: PortName, tabId?: number): Port {
     const port = tabId
       ? browser.tabs.connect(tabId, { name })
@@ -51,25 +54,24 @@ export const Extension = {
     })
   },
 
-  // NOTE: This is currently implemented as a one-time port, to reduce extension API
-  // dependencies, but might be more efficient using tabs.sendMessage
-  async sendMessage<T extends PortName>(
-    message: PortRequest[T],
-    portName: T,
-    tabId?: number
-  ): Promise<PortResponse[T]> {
-    const port = Extension.connectToPort(portName, tabId)
-    port.postMessage(message)
-
-    const result = await Extension.getPortMessage<T, PortResponse>(port)
-
-    port.disconnect()
-    return result
+  sendMessage<PN extends PortName, PE extends PortEvent>(
+    data: PE[PN],
+    port: Port
+  ) {
+    port.postMessage({ body: data })
+    // TODO see if try/catch is necessary here:
+    // try {
+    //     getPort().postMessage({ body: data })
+    //   } catch (e) {
+    //     log("Error posting message to port. Retrying ", e)
+    //     getPort(true).postMessage({ body: data })
+    //   }
   },
 
   async openPopup(
     width: number,
-    height: number
+    height: number,
+    params?: Record<string, string>
   ): Promise<browser.Windows.Window> {
     // this._popupId = currentPopupId;
     // this._setCurrentPopupId = setCurrentPopupId;
@@ -96,8 +98,12 @@ export const Extension = {
       left = Math.max(screenX + (outerWidth - width), 0)
     }
 
+    const queryString = params
+      ? "?" + new URLSearchParams(params).toString()
+      : ""
+
     const popup = await Extension.openWindow({
-      url: "popup.html",
+      url: "popup.html" + queryString,
       type: "popup",
       width,
       height,
@@ -129,7 +135,7 @@ export const Extension = {
     return popup
   },
 
-  // Warning: Methods below copied over mostly from MetaMask. Not all methods used yet.
+  // Warning: Not all methods below are used yet or tested
 
   reload() {
     browser.runtime.reload()
@@ -158,6 +164,10 @@ export const Extension = {
   async getLastFocusedWindow() {
     const windowObject = await browser.windows.getLastFocused()
     return windowObject
+  },
+
+  async closeWindow(windowId: number) {
+    return browser.windows.remove(windowId)
   },
 
   async closeCurrentWindow() {
@@ -191,5 +201,25 @@ export const Extension = {
 
   async closeTab(tabId: number) {
     await browser.tabs.remove(tabId)
+  },
+
+  // Waits for a tab to be loaded
+  async _waitForTabReady(tabId: number): Promise<void> {
+    const tab = await browser.tabs.get(tabId)
+    if (tab.status === "complete") {
+      return
+    }
+    return new Promise((resolve) => {
+      const onTabUpdated = (
+        updatedTabId: number,
+        changeInfo: browser.Tabs.OnUpdatedChangeInfoType
+      ) => {
+        if (updatedTabId === tabId && changeInfo.status === "complete") {
+          browser.tabs.onUpdated.removeListener(onTabUpdated)
+          resolve()
+        }
+      }
+      browser.tabs.onUpdated.addListener(onTabUpdated)
+    })
   }
 }
