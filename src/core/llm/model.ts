@@ -18,7 +18,7 @@ export interface ModelConfig {
   debug?: boolean
   retries?: number
   quality?: "low" | "max" // defaults to 'max'
-  endOfStreamSentinel?: string
+  endOfStreamSentinel?: string | null
   cacheGet?: CacheGetter
   cacheSet?: CacheSetter
   transformForRequest: (
@@ -38,7 +38,7 @@ export interface RequestOptions {
   user_identifier?: string | null
   max_tokens?: number
   stream?: boolean
-  adapter?: AxiosRequestConfig["adapter"]
+  adapter?: AxiosRequestConfig["adapter"] | null
 }
 
 export type RequestPrompt = { prompt: string; suffix?: string }
@@ -79,7 +79,7 @@ export class Model {
       stop_sequences: null, // OpenAI default
       max_tokens: 16, // OpenAI default
       stream: false,
-      adapter: undefined,
+      adapter: null,
       ...opts
     }
     // Create API client
@@ -90,7 +90,7 @@ export class Model {
         Authorization: `${this.config.authPrefix}${config.apiKey}`,
         ...this.config.customHeaders
       },
-      adapter: this.options.adapter
+      adapter: this.options.adapter || undefined
     })
     axiosRetry(this.api, {
       retries: this.config.retries,
@@ -110,7 +110,7 @@ export class Model {
       retries: 3,
       debug: true,
       customHeaders: {},
-      endOfStreamSentinel: undefined,
+      endOfStreamSentinel: null,
       ...config,
       cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
       cacheSet: config.cacheSet || (() => Promise.resolve(undefined))

@@ -12,6 +12,10 @@ const cache = new Map<string, { completion: string }>()
 const cacheGet: CacheGetter = async (key) => cache.get(key)?.completion
 const cacheSet: CacheSetter = async (data) => cache.set(data.id, data)
 
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("Missing OPENAI_API_KEY")
+}
+
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY, {
   apiVersion: "2022-11-15"
 })
@@ -97,10 +101,6 @@ export const getSubsciption = async (
   const subscriptionResp = await stripe.subscriptions.list({
     customer: customer.id
   })
-
-  if (subscriptionResp.data.length === 0) {
-    throw new Error(`No subscription found for customer id ${customer.id}`)
-  }
 
   return subscriptionResp.data[0]
 }

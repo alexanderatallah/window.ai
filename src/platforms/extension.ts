@@ -1,23 +1,19 @@
 import browser from "webextension-polyfill"
 
-import type {
-  PortEvent,
-  PortName,
-  PortRequest,
-  PortResponse
-} from "~core/constants"
+import type { PortEvent, PortName } from "~core/constants"
 import { log } from "~core/utils/utils"
 
 export type Port = browser.Runtime.Port
 export const Extension = {
+  // Listen to incoming messages from a specific port name.
+  // If we already have a preexisting port, just add the listener.
+  // Then this method primarily helps with typing.
   addPortListener<PN extends PortName, PE extends PortEvent>(
     name: PN,
     listener: (message: PE[PN], port: Port) => void,
     port?: Port
   ) {
     if (port) {
-      // We have a preexisting port, so just add the listener.
-      // This method primarily helps with typing
       port.onMessage.addListener(listener)
       return
     }

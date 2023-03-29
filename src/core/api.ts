@@ -3,7 +3,7 @@ import axios from "axios"
 
 import type { Response } from "~pages/api/_common"
 
-import { getAccessToken } from "./utils/access-token"
+import { getChromeAccessToken } from "./utils/access-token"
 import { Err, err } from "./utils/result-monad"
 import { log, parseDataChunks } from "./utils/utils"
 
@@ -21,10 +21,12 @@ export async function get<T = string>(
   params?: object
 ): Promise<Response<T> | Err<string>> {
   try {
+    const accessToken = await getChromeAccessToken()
+
     const res = await api.get<Response<T>>(path, {
       params,
       headers: {
-        Authorization: `Bearer ${await getAccessToken()}`
+        Authorization: `Bearer ${accessToken}`
       }
     })
     return res.data
@@ -37,9 +39,11 @@ export async function post<T = string>(
   data?: object
 ): Promise<Response<T> | Err<string>> {
   try {
+    const accessToken = await getChromeAccessToken()
+
     const res = await api.post<Response<T>>(path, data, {
       headers: {
-        Authorization: `Bearer ${await getAccessToken()}`
+        Authorization: `Bearer ${accessToken}`
       }
     })
     return res.data
@@ -53,9 +57,11 @@ export async function stream<T = string>(
   data?: object
 ): Promise<AsyncGenerator<Response<T>> | AsyncGenerator<Err<string>>> {
   try {
+    const accessToken = await getChromeAccessToken()
+
     const res = await api.post<ReadableStream<Response<T>>>(path, data, {
       headers: {
-        Authorization: `Bearer ${await getAccessToken()}`
+        Authorization: `Bearer ${accessToken}`
       },
       responseType: "stream"
     })
