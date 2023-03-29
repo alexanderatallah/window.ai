@@ -13,7 +13,7 @@ export interface PortRequest {
 
 export interface PortResponse {
   [PortName.Window]:
-    | { id: RequestId; response: CompletionResponse }
+    | { id: RequestId; response: CompletionResponse | StreamResponse }
     | { id?: RequestId; error: ErrorCode.InvalidRequest }
   [PortName.Permission]:
     | { id: RequestId; request: CompletionRequest }
@@ -46,9 +46,10 @@ export interface CompletionRequest {
   isLocal?: boolean
 }
 
-export type CompletionResponse = Result<string, ErrorCode>
+// TODO make error code more restrictive
+export type CompletionResponse = Result<string, ErrorCode | string>
 
-export type StreamResponse = Result<string, ErrorCode>
+export type StreamResponse = CompletionResponse
 
 export const IS_SERVER =
   typeof process !== "undefined" && process?.versions?.node

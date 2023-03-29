@@ -16,10 +16,11 @@ export default async function handler(
     return res.status(401).json(err(ErrorCode.NotAuthenticated))
   }
 
-  const body = req.body as Request
-  if (typeof body.prompt !== "string") {
-    throw new Error("Invalid prompt: " + req.body)
+  if (typeof req.body.prompt !== "string") {
+    return res.status(400).json(err(ErrorCode.InvalidRequest))
   }
+
+  const body = req.body as Request
 
   const text = await openai.complete({
     prompt: body.prompt

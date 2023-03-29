@@ -32,22 +32,25 @@ const handler: PlasmoMessaging.PortHandler<
   }
 
   const { id, permitted } = req.body
-  if (permitted === undefined) {
-    const request = permissionState.get(id)
-    if (request) {
-      res.send({
-        id,
-        request
-      })
-    } else {
-      res.send({
-        id,
-        error: ErrorCode.RequestNotFound
-      })
-    }
-  } else {
+  if (permitted !== undefined) {
+    // We're completing a request, no response needed
     permissionState.complete(id, req.body)
+    return
   }
+
+  const request = permissionState.get(id)
+  if (!request) {
+    return res.send({
+      id,
+      error: ErrorCode.RequestNotFound
+    })
+  }
+
+  // We're starting a request, so send the request to the extension UI
+  res.send({
+    id,
+    request
+  })
 }
 
 export async function requestPermission(

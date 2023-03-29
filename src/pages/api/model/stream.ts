@@ -3,6 +3,7 @@ import { Transform, TransformCallback } from "stream"
 
 import { ErrorCode, StreamResponse } from "~core/constants"
 import { err, ok } from "~core/utils/result-monad"
+import { isReadable } from "~core/utils/utils"
 
 import { Request, Response, authenticate, openai } from "../_common"
 
@@ -18,8 +19,9 @@ export default async function handler(
   }
 
   if (typeof req.body.prompt !== "string") {
-    throw new Error("Invalid prompt: " + req.body)
+    return res.status(400).json(err(ErrorCode.InvalidRequest))
   }
+
   const body = req.body as Request
 
   const stream = await openai.stream({
@@ -29,6 +31,10 @@ export default async function handler(
   res.setHeader("Content-Type", "text/event-stream")
   res.setHeader("Content-Encoding", "none") // Required
   res.setHeader("Connection", "keep-alive")
+
+  if (!isReadable(stream)) {
+    throw new Error("Stream is not readable. This must be run in Node.js.")
+  }
 
   stream
     .pipe(

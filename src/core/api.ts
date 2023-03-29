@@ -4,7 +4,7 @@ import axios from "axios"
 import type { Response } from "~pages/api/_common"
 
 import { getAccessToken } from "./utils/access-token"
-import { err, ok } from "./utils/result-monad"
+import { Err, err } from "./utils/result-monad"
 import { log, parseDataChunks } from "./utils/utils"
 
 const api = axios.create({
@@ -19,9 +19,9 @@ const api = axios.create({
 export async function get<T = string>(
   path: string,
   params?: object
-): Promise<Response<T, string>> {
+): Promise<Response<T> | Err<string>> {
   try {
-    const res = await api.get<Response<T, string>>(path, {
+    const res = await api.get<Response<T>>(path, {
       params,
       headers: {
         Authorization: `Bearer ${await getAccessToken()}`
@@ -35,9 +35,9 @@ export async function get<T = string>(
 export async function post<T = string>(
   path: string,
   data?: object
-): Promise<Response<T, string>> {
+): Promise<Response<T> | Err<string>> {
   try {
-    const res = await api.post<Response<T, string>>(path, data, {
+    const res = await api.post<Response<T>>(path, data, {
       headers: {
         Authorization: `Bearer ${await getAccessToken()}`
       }
@@ -51,16 +51,16 @@ export async function post<T = string>(
 export async function stream<T = string>(
   path: string,
   data?: object
-): Promise<AsyncGenerator<Response<T, string>>> {
+): Promise<AsyncGenerator<Response<T>> | AsyncGenerator<Err<string>>> {
   try {
-    const res = await api.post<ReadableStream>(path, data, {
+    const res = await api.post<ReadableStream<Response<T>>>(path, data, {
       headers: {
         Authorization: `Bearer ${await getAccessToken()}`
       },
       responseType: "stream"
     })
 
-    return readableStreamToGenerator<Response<T, string>>(res.data)
+    return readableStreamToGenerator<Response<T>>(res.data)
   } catch (error) {
     async function* generator() {
       yield err(`${error}`)
@@ -86,8 +86,8 @@ async function* readableStreamToGenerator<T>(stream: ReadableStream) {
       }
     }
   } catch (error) {
-    console.error(error, lastValue)
-    yield err(`${error}`)
+    // This is an unknown error, so propagate it
+    throw error
   } finally {
     reader.releaseLock()
   }

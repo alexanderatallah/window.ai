@@ -46,7 +46,6 @@ const PremiumFeatureButton = () => {
   const { data, error } = useSWR(`/api/check-subscription`, (url) =>
     get<{ active: boolean }>(url).then(unwrap)
   )
-  console.info("Subscription", data, error)
   const isSubscribed = !error && data?.active
 
   if (!isSubscribed) {

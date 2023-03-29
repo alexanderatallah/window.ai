@@ -1,3 +1,5 @@
+import type { Readable } from "stream"
+
 export function log(...args: unknown[]) {
   if (process.env.NODE_ENV === "development") {
     console.log(...args)
@@ -16,4 +18,10 @@ export function formatDate(timestampMs: number): string {
 
 export function assertNever(value: never): never {
   throw new Error(`Unexpected value: ${value}`)
+}
+
+export function isReadable(
+  stream: Readable | ReadableStream
+): stream is Readable {
+  return (stream as Readable).read !== undefined
 }

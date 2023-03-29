@@ -73,7 +73,7 @@ async function* readableStreamToGenerator(
     }
   } catch (error) {
     console.error("Streaming error: ", error, lastValue)
-    yield err(`${error}`)
+    throw error
   } finally {
     reader.releaseLock()
   }
