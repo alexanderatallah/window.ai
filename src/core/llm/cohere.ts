@@ -51,12 +51,11 @@ export function init(
         }
       },
       transformResponse: (res) => {
-        return res["generations"]
-          ? // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            res["generations"][0]["text"]
-          : res["text"]
-          ? // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            res["text"]
+        const anyRes = res as any
+        return anyRes["generations"]
+          ? anyRes["generations"][0]["text"]
+          : anyRes["text"]
+          ? anyRes["text"]
           : null
       }
     },

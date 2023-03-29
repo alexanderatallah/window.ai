@@ -16,7 +16,6 @@ export function init(
     {
       modelProvider: "alpaca",
       modelId,
-      apiKey: null,
       baseUrl: "http://127.0.0.1:8000",
       generationPath: "/completions",
       debug: config.debug,
@@ -26,7 +25,8 @@ export function init(
         return req
       },
       transformResponse: (res) => {
-        return res["choices"][0]["text"]
+        const anyRes = res as any
+        return anyRes["choices"][0]["text"]
       }
     },
     opts

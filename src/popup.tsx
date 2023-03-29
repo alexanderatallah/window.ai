@@ -37,7 +37,7 @@ function Popup() {
 function NavFrame() {
   const { view } = useNav()
   return (
-    <div className="relative flex flex-col h-full">
+    <div className="flex flex-col h-full">
       <div className="flex-none">
         <NavBar />
       </div>

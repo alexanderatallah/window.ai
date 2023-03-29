@@ -10,7 +10,7 @@ export interface ModelConfig {
   baseUrl: string
   generationPath: string
   streamPath?: string
-  apiKey: string
+  apiKey?: string | null
   modelProvider: string
   modelId: string
   customHeaders?: Record<string, string>
@@ -25,18 +25,18 @@ export interface ModelConfig {
     prompt: RequestData,
     meta: RequestMetadata
   ) => Record<string, unknown>
-  transformResponse: (res: Record<string, any> | string) => string
+  transformResponse: (res: unknown) => string
 }
 
 export interface RequestOptions {
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
-  stop_sequences?: string | string[] | null
+  stop_sequences?: string[]
   temperature?: number
   timeout?: number
   user_identifier?: string | null
-  max_tokens?: number
+  max_tokens?: number | null
   stream?: boolean
   adapter?: AxiosRequestConfig["adapter"] | null
 }
@@ -76,8 +76,8 @@ export class Model {
       presence_penalty: 0,
       temperature: 0, // OpenAI defaults to 1
       top_p: 1, // OpenAI default, rec. not change unless temperature = 1
-      stop_sequences: null, // OpenAI default
-      max_tokens: 16, // OpenAI default
+      stop_sequences: [], // OpenAI default
+      max_tokens: 16, // OpenAI default, low for safety
       stream: false,
       adapter: null,
       ...opts
@@ -104,6 +104,7 @@ export class Model {
 
   addDefaults(config: ModelConfig): Required<ModelConfig> {
     const opts: Required<ModelConfig> = {
+      apiKey: null,
       streamPath: config.generationPath,
       quality: "max",
       authPrefix: "Bearer ",

@@ -9,7 +9,7 @@ export function PermissionRequest({
 }) {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-auto relative overflow-y-auto overflow-x-hidden">
+      <div className="flex-auto overflow-y-auto overflow-x-hidden">
         <div className="flex flex-col items-center justify-center h-full">
           <div className="flex flex-col items-center justify-center">
             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-900">

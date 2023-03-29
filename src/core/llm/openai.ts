@@ -30,7 +30,6 @@ export function init(
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       transformForRequest: (req, meta) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { modelId, stop_sequences, modelProvider, ...optsToSend } = req
         return {
           ...optsToSend,
@@ -40,8 +39,8 @@ export function init(
         }
       },
       transformResponse: (res) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return res["choices"][0]["text"]
+        const anyRes = res as any
+        return anyRes["choices"][0]["text"]
       }
     },
     opts

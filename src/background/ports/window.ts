@@ -38,6 +38,7 @@ const handler: PlasmoMessaging.PortHandler<
   // Save the incomplete txn
   await transactionManager.save(txn)
 
+  // TODO consolidate API
   const api = isLocalhost(request) ? apiLocal : apiExternal
 
   if (request.shouldStream) {

@@ -3,14 +3,18 @@ import type { NextApiRequest } from "next"
 import Stripe from "stripe"
 
 import type { ErrorCode } from "~core/constants"
+import { init as initCohere } from "~core/llm/cohere"
 import type { CacheGetter, CacheSetter, RequestData } from "~core/llm/model"
 import { init as initOpenAI } from "~core/llm/openai"
+import { init as initTogether } from "~core/llm/together"
 import type { Result } from "~core/utils/result-monad"
 
 // Basic in-memory cache. TODO replace w Redis
 const cache = new Map<string, { completion: string }>()
 const cacheGet: CacheGetter = async (key) => cache.get(key)?.completion
 const cacheSet: CacheSetter = async (data) => cache.set(data.id, data)
+
+export const DEFAULT_MAX_TOKENS = 256
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("Missing OPENAI_API_KEY")
@@ -36,8 +40,39 @@ export const openai = initOpenAI(
     cacheSet
   },
   {
-    max_tokens: 256,
+    max_tokens: DEFAULT_MAX_TOKENS,
     presence_penalty: 0 // Using negative numbers causes 500s from davinci
+    // stop_sequences: ['\n'],
+  }
+)
+
+export const together = initTogether(
+  process.env.TOGETHER_API_KEY || "",
+  "Web41",
+  {
+    quality: "max", // TODO this currently 500s
+    debug: process.env.NODE_ENV !== "production",
+    cacheGet,
+    cacheSet
+  },
+  {
+    max_tokens: DEFAULT_MAX_TOKENS,
+    temperature: 0.8
+    // stop_sequences: ['\n'],
+  }
+)
+
+export const cohere = initCohere(
+  process.env.COHERE_API_KEY || "",
+  {
+    quality: "max",
+    debug: process.env.NODE_ENV !== "production",
+    cacheGet,
+    cacheSet
+  },
+  {
+    max_tokens: DEFAULT_MAX_TOKENS,
+    temperature: 0.9
     // stop_sequences: ['\n'],
   }
 )

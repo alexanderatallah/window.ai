@@ -3,7 +3,14 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import { ErrorCode } from "~core/constants"
 import { err, ok } from "~core/utils/result-monad"
 
-import { Request, Response, authenticate, openai } from "../_common"
+import {
+  Request,
+  Response,
+  authenticate,
+  cohere,
+  openai,
+  together
+} from "../_common"
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,7 +29,7 @@ export default async function handler(
 
   const body = req.body as Request
 
-  const text = await openai.complete({
+  const text = await together.complete({
     prompt: body.prompt
   })
   return res.status(200).json(ok(text))

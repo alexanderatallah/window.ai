@@ -2,7 +2,7 @@ import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum TogetherModelId {
   GPT_JT_6B_v1 = "Together-gpt-JT-6B-v1",
-  GPT_NEOXT_20B_v1 = "together/gpt-neoxT-20B-chat-latest-HF"
+  GPT_NEOXT_20B_v1 = "gpt-neoxt-chat-20b-v0.15-hf"
 }
 
 // export const TogetherModels = {
@@ -21,12 +21,15 @@ export function init(
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
 ) {
-  const modelId = TogetherModelId.GPT_NEOXT_20B_v1
+  const modelId =
+    config.quality === "max"
+      ? TogetherModelId.GPT_NEOXT_20B_v1
+      : TogetherModelId.GPT_JT_6B_v1
   return new Model(
     {
       modelProvider: "together",
       apiKey,
-      baseUrl: "https://staging.together.xyz/api",
+      baseUrl: "https://api.together.xyz",
       generationPath: "/inference",
       modelId,
       debug: config.debug,
@@ -39,7 +42,6 @@ export function init(
         const {
           modelId,
           prompt,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           modelProvider,
           stop_sequences,
           ...optsToSend
@@ -47,15 +49,13 @@ export function init(
         return {
           ...optsToSend,
           model: modelId,
-          stop: stop_sequences,
-          prompt: "User: " + prompt
+          stop: ["\n<human>", ...stop_sequences],
+          prompt: "<human>: " + prompt
         }
       },
       transformResponse: (res) => {
-        return res["output"]
-          ? // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            res["output"]["choices"][0]["text"]
-          : null
+        const anyRes = res as any
+        return anyRes["output"] ? anyRes["output"]["choices"][0]["text"] : null
       }
     },
     options

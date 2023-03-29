@@ -46,10 +46,13 @@ export interface CompletionRequest {
   isLocal?: boolean
 }
 
-// TODO make error code more restrictive
 export type CompletionResponse = Result<string, ErrorCode | string>
 
 export type StreamResponse = CompletionResponse
 
 export const IS_SERVER =
   typeof process !== "undefined" && process?.versions?.node
+
+// TODO keep in sync with Popup.tsx tailwind classes
+export const POPUP_HEIGHT = 512
+export const POPUP_WIDTH = 320

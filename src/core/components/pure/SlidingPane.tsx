@@ -13,7 +13,7 @@ export function SlidingPane({
     <div
       className={
         "bg-slate-200 dark:bg-slate-800" +
-        ` p-4 z-10 absolute top-0 left-0 right-0 bottom-0 transition-transform duration-200 ease-in-out ${
+        ` p-4 z-10 fixed top-0 left-0 right-0 bottom-0 transition-transform duration-200 ease-in-out ${
           !shown ? "translate-x-full" : "translate-x-0"
         }`
       }>

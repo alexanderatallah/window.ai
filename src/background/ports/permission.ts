@@ -4,6 +4,8 @@ import { RequestState } from "~background/state/request"
 import {
   CompletionRequest,
   ErrorCode,
+  POPUP_HEIGHT,
+  POPUP_WIDTH,
   PortName,
   PortRequest,
   PortResponse
@@ -11,9 +13,6 @@ import {
 import { Result, err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import { Extension } from "~platforms/extension"
-
-const NOTIFICATION_HEIGHT = 600
-const NOTIFICATION_WIDTH = 320
 
 const permissionState = new RequestState<
   CompletionRequest,
@@ -57,11 +56,9 @@ export async function requestPermission(
   request: CompletionRequest,
   requestId: string
 ) {
-  const window = await Extension.openPopup(
-    NOTIFICATION_WIDTH,
-    NOTIFICATION_HEIGHT,
-    { requestId }
-  )
+  const window = await Extension.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
+    requestId
+  })
 
   if (window.id) {
     Extension.addOnRemovedListener(window.id, () => {
