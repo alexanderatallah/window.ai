@@ -232,7 +232,8 @@ export class Model {
 
     let stream: Readable | ReadableStream
     try {
-      // TODO consolidate these all on client side
+      // HACK due to Node.js not matching browser APIs
+      // TODO consolidate onto the browser only?
       if (IS_SERVER) {
         const response = await this.api.post<Readable>(streamPath, payload, {
           timeout: opts.timeout,
@@ -242,28 +243,11 @@ export class Model {
         stream = response.data.pipe(
           new Transform({
             transform: (chunk, encoding, callback: TransformCallback) => {
-              const chunkStr: string = chunk.toString("utf8")
-              for (const chunkDataRes of parseDataChunks(chunkStr)) {
-                if (chunkDataRes === this.config.endOfStreamSentinel) {
-                  this.log("End:", chunkDataRes)
-                  callback(null, null)
-                } else if (!chunkDataRes) {
-                  const e = new Error(`Returned no data: ${chunkStr}`)
-                  this.error(e)
-                  callback(e, null)
-                } else {
-                  const chunkData = JSON.parse(chunkDataRes)
-                  const result = transformResponse(chunkData)
-                  if (!result) {
-                    const e = new Error(`Returned empty data: ${chunkDataRes}`)
-                    this.error(e)
-                    callback(e, null)
-                  } else {
-                    this.log("Result: ", result)
-                    callback(null, result)
-                  }
-                }
-              }
+              this._executeTransform(chunk, transformResponse, {
+                onEnd: () => callback(null, null),
+                onError: (err) => callback(err, null),
+                onResult: (result) => callback(null, result)
+              })
             }
           })
         )
@@ -279,28 +263,11 @@ export class Model {
 
         const transformStream = new TransformStream({
           transform: (chunk, controller) => {
-            const chunkStr = new TextDecoder().decode(chunk)
-            for (const chunkDataRes of parseDataChunks(chunkStr)) {
-              if (chunkDataRes === this.config.endOfStreamSentinel) {
-                this.log("End:", chunkDataRes)
-                controller.terminate()
-              } else if (!chunkDataRes) {
-                const e = new Error(`Returned no data: ${chunkStr}`)
-                this.error(e)
-                controller.error(e)
-              } else {
-                const chunkData = JSON.parse(chunkDataRes)
-                const result = transformResponse(chunkData)
-                if (!result) {
-                  const e = new Error(`Returned empty data: ${chunkDataRes}`)
-                  this.error(e)
-                  controller.error(e)
-                } else {
-                  this.log("Result: ", result)
-                  controller.enqueue(result)
-                }
-              }
-            }
+            this._executeTransform(chunk, transformResponse, {
+              onEnd: () => controller.terminate(),
+              onError: (err) => controller.error(err),
+              onResult: (result) => controller.enqueue(result)
+            })
           }
         })
 
@@ -318,5 +285,42 @@ export class Model {
       throw err
     }
     return stream
+  }
+
+  private _executeTransform(
+    chunk: BufferSource,
+    transformResponse: (responseData: Record<string, any>) => string,
+    {
+      onEnd,
+      onError,
+      onResult
+    }: {
+      onEnd: () => void
+      onError: (err: Error) => void
+      onResult: (result: string) => void
+    }
+  ) {
+    const chunkStr = new TextDecoder().decode(chunk)
+    for (const chunkDataRes of parseDataChunks(chunkStr)) {
+      if (chunkDataRes === this.config.endOfStreamSentinel) {
+        this.log("End:", chunkDataRes)
+        onEnd()
+      } else if (!chunkDataRes) {
+        const e = new Error(`Returned no data: ${chunkStr}`)
+        this.error(e)
+        onError(e)
+      } else {
+        const chunkData = JSON.parse(chunkDataRes)
+        const result = transformResponse(chunkData)
+        if (!result) {
+          const e = new Error(`Returned empty data: ${chunkDataRes}`)
+          this.error(e)
+          onError(e)
+        } else {
+          this.log("Result: ", result)
+          onResult(result)
+        }
+      }
+    }
   }
 }

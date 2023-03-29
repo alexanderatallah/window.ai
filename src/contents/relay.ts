@@ -17,7 +17,7 @@ Extension.addPortListener<PortName.Window, PortResponse>(
   (msg) => {
     if (!("response" in msg)) {
       // TODO handle invalid requests
-      return
+      throw `Invalid request: ${msg}`
     }
     const { id, response } = msg
     window.postMessage(

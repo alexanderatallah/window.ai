@@ -11,7 +11,7 @@ import {
 } from "~core/constants"
 import { Origin, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
-import { isOk } from "~core/utils/result-monad"
+import { Result, isOk } from "~core/utils/result-monad"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -29,11 +29,33 @@ export const Web41 = {
       isLocal: Web41._isLocal
     })
     return new Promise((resolve, reject) => {
-      _onRelayResponse<CompletionResponse>(requestId, (res) => {
+      _addRequestListener<CompletionResponse>(requestId, (res) => {
         if (isOk(res)) {
           resolve(res.data)
         } else {
           reject(res.error)
+        }
+      })
+    })
+  },
+
+  async streamCompletion(
+    prompt: string,
+    handler: (result: string | null, error: string | null) => unknown
+  ): Promise<RequestId> {
+    const requestId = _relayRequest<CompletionRequest>({
+      transaction: transactionManager.init(prompt, Web41.origin()),
+      shouldStream: true,
+      isLocal: Web41._isLocal
+    })
+    return new Promise((resolve, reject) => {
+      _addRequestListener<StreamResponse>(requestId, (res) => {
+        if (isOk(res)) {
+          resolve(requestId)
+          handler(res.data, null)
+        } else {
+          reject(res.error)
+          handler(null, res.error)
         }
       })
     })
@@ -45,36 +67,6 @@ export const Web41 = {
       window.location.pathname,
       window.document.title
     )
-  },
-
-  async streamCompletion(prompt: string): Promise<RequestId> {
-    const requestId = _relayRequest<CompletionRequest>({
-      transaction: transactionManager.init(prompt, Web41.origin()),
-      shouldStream: true,
-      isLocal: Web41._isLocal
-    })
-    return new Promise((resolve, reject) => {
-      _onRelayResponse<StreamResponse>(requestId, (res) => {
-        if (isOk(res)) {
-          resolve(requestId)
-        } else {
-          reject(res.error)
-        }
-      })
-    })
-  },
-
-  addListener(
-    requestId: string,
-    handler: (result: string | null, error: string | null) => unknown
-  ) {
-    _onRelayResponse<StreamResponse>(requestId, (result) => {
-      if (isOk(result)) {
-        handler(result.data, null)
-      } else {
-        handler(null, result.error)
-      }
-    })
   }
 
   // TODO: Implement cancel
@@ -108,28 +100,39 @@ function _relayRequest<T>(request: T): RequestId {
 //   )
 // }
 
-function _onRelayResponse<T>(
+// TODO figure out how to reclaim memory
+const _requestListeners = new Map<RequestId, Set<(data: any) => void>>()
+
+function _addRequestListener<T extends Result<any, string>>(
   requestId: RequestId,
-  handler: (data: T) => unknown
+  handler: (data: T) => void
 ) {
-  window.addEventListener(
-    "message",
-    (event) => {
-      const { source, data } = event
-
-      // We only accept messages our window and port
-      if (source !== window || data?.portName !== PortName.Window) {
-        return
-      }
-
-      if (data?.type === ContentMessageType.Response && data.id === requestId) {
-        // log("Inject script received response: ", data);
-        handler(data.response)
-      }
-    },
-    false
-  )
+  const handlerSet =
+    _requestListeners.get(requestId) || new Set<(data: T) => void>()
+  handlerSet.add(handler)
+  _requestListeners.set(requestId, handlerSet)
 }
+
+window.addEventListener(
+  "message",
+  (event) => {
+    const { source, data } = event
+
+    // We only accept messages our window and port
+    if (source !== window || data?.portName !== PortName.Window) {
+      return
+    }
+
+    if (data?.type === ContentMessageType.Response) {
+      const handlers = _requestListeners.get(data.id)
+      if (!handlers) {
+        throw `No handlers found for request ${data.id}`
+      }
+      handlers.forEach((h) => h(data.response))
+    }
+  },
+  false
+)
 
 declare global {
   interface Window {
