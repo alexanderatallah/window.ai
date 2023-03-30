@@ -1,16 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { ErrorCode } from "~core/constants"
+import { LLM } from "~core/managers/config"
 import { err, ok } from "~core/utils/result-monad"
 
-import {
-  Request,
-  Response,
-  authenticate,
-  cohere,
-  openai,
-  together
-} from "../_common"
+import { Request, Response, authenticate, externalModels } from "../_common"
 
 export default async function handler(
   req: NextApiRequest,
@@ -27,10 +21,23 @@ export default async function handler(
     return res.status(400).json(err(ErrorCode.InvalidRequest))
   }
 
-  const body = req.body as Request
+  const modelId = req.body.modelId || LLM.GPT3
+  const model = externalModels[modelId as keyof typeof externalModels]
 
-  const text = await together.complete({
-    prompt: body.prompt
-  })
+  if (!model) {
+    return res.status(400).json(err(ErrorCode.InvalidRequest))
+  }
+
+  const body = req.body as Request
+  // TODO use req.body.modelUrl too
+
+  const text = await model.complete(
+    {
+      prompt: body.prompt
+    },
+    {
+      apiKey: body.apiKey
+    }
+  )
   return res.status(200).json(ok(text))
 }

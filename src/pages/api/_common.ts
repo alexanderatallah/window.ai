@@ -7,6 +7,7 @@ import { init as initCohere } from "~core/llm/cohere"
 import type { CacheGetter, CacheSetter, RequestData } from "~core/llm/model"
 import { init as initOpenAI } from "~core/llm/openai"
 import { init as initTogether } from "~core/llm/together"
+import { LLM } from "~core/managers/config"
 import type { Result } from "~core/utils/result-monad"
 
 // Basic in-memory cache. TODO replace w Redis
@@ -16,15 +17,16 @@ const cacheSet: CacheSetter = async (data) => cache.set(data.id, data)
 
 export const DEFAULT_MAX_TOKENS = 256
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("Missing OPENAI_API_KEY")
-}
-
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY, {
   apiVersion: "2022-11-15"
 })
 
-export type Request = { prompt: string }
+export type Request = {
+  prompt: string
+  apiKey?: string
+  modelId?: LLM
+  modelUrl?: string
+}
 
 export type Response<DataType = string, ErrorType = ErrorCode> = Result<
   DataType,
@@ -32,7 +34,6 @@ export type Response<DataType = string, ErrorType = ErrorCode> = Result<
 >
 
 export const openai = initOpenAI(
-  process.env.OPENAI_API_KEY,
   {
     quality: "max",
     debug: process.env.NODE_ENV !== "production",
@@ -40,6 +41,7 @@ export const openai = initOpenAI(
     cacheSet
   },
   {
+    // apiKey: process.env.OPENAI_API_KEY,
     max_tokens: DEFAULT_MAX_TOKENS,
     presence_penalty: 0 // Using negative numbers causes 500s from davinci
     // stop_sequences: ['\n'],
@@ -47,7 +49,6 @@ export const openai = initOpenAI(
 )
 
 export const together = initTogether(
-  process.env.TOGETHER_API_KEY || "",
   "Web41",
   {
     quality: "max", // TODO this currently 500s
@@ -63,7 +64,6 @@ export const together = initTogether(
 )
 
 export const cohere = initCohere(
-  process.env.COHERE_API_KEY || "",
   {
     quality: "max",
     debug: process.env.NODE_ENV !== "production",
@@ -71,11 +71,18 @@ export const cohere = initCohere(
     cacheSet
   },
   {
+    apiKey: process.env.COHERE_API_KEY,
     max_tokens: DEFAULT_MAX_TOKENS,
     temperature: 0.9
     // stop_sequences: ['\n'],
   }
 )
+
+export const externalModels = {
+  [LLM.GPT3]: openai,
+  [LLM.Cohere]: cohere,
+  [LLM.GPTNeo]: together
+}
 
 export function isAdmin(email: string) {
   return process.env.ADMIN_EMAILS?.split(",").includes(email)

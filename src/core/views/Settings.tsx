@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import useSWR from "swr"
 
 import { get, post } from "~core/api"
@@ -7,25 +7,45 @@ import { Dropdown } from "~core/components/pure/Dropdown"
 import { Input } from "~core/components/pure/Input"
 import { Spinner } from "~core/components/pure/Spinner"
 import { Text } from "~core/components/pure/Text"
+import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
-import { CompletionResponse, LLM } from "~core/constants"
-import { Config, configManager } from "~core/managers/config"
+import type { CompletionResponse } from "~core/constants"
+import {
+  Config,
+  DefaultCompletionURL,
+  LLM,
+  LLMLabels,
+  configManager
+} from "~core/managers/config"
 import { UserInfoProvider, useUserInfo } from "~core/providers/user-info"
 import { isOk, unwrap } from "~core/utils/result-monad"
 
 export function Settings() {
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false)
   const [selectedLLM, selectLLM] = useState<LLM>(LLM.GPT3)
+  const [apiKey, setApiKey] = useState("")
+  const [url, setUrl] = useState("")
+  const [config, setConfig] = useState<Config | undefined>()
 
-  const { object } = configManager.useObject(selectedLLM)
-  const config = object
-  const [apiKeyValue, setApiKeyValue] = useState(config?.apiKey)
+  useEffect(() => {
+    configManager.get(selectedLLM).then((c) => {
+      const config = c || configManager.init(selectedLLM)
+      setConfig(config)
+    })
+  }, [selectedLLM])
+
+  useEffect(() => {
+    setApiKey(config?.apiKey || "")
+    setUrl(config?.completionUrl || "")
+  }, [config])
 
   async function saveAll() {
+    if (!config) {
+      return
+    }
     return configManager.save({
-      ...(config || {}),
-      id: selectedLLM,
-      apiKey: apiKeyValue
+      ...config,
+      apiKey: apiKey
     })
   }
 
@@ -36,26 +56,58 @@ export function Settings() {
       </Text>
       <div className="my-4">
         <Text size="xs" strength="dim">
-          Configure custom model settings here. If you don't add any API keys,
-          you may be prompted to later, depending on your usage.
+          Configure your models here. API keys are optional and only stored in
+          your browser.{" "}
+          <Tooltip
+            content={
+              <p>
+                You will be able to make some requests for free with each model,
+                in a set time period.
+              </p>
+            }>
+            Learn more
+          </Tooltip>
+          .
         </Text>
       </div>
       <Well>
-        <Dropdown choices={Object.values(LLM)} onSelect={selectLLM}>
-          {selectedLLM}
+        <Dropdown<LLM>
+          choices={Object.values(LLM)}
+          onSelect={(v) => selectLLM(v)}>
+          {LLMLabels[selectedLLM]}
         </Dropdown>
 
-        <div className="mt-2 py-6 px-1 rounded-md">
+        <hr className="-mx-6 my-6 border-slate-600 shadow-md" />
+
+        <div className="">
           {selectedLLM !== LLM.Local && (
-            <div className="">
+            <>
               <Input
                 placeholder="API Key"
-                value={apiKeyValue || ""}
-                onChange={(val) => setApiKeyValue(val)}
+                value={apiKey || ""}
+                onChange={(val) => setApiKey(val)}
                 onBlur={saveAll}
               />
-            </div>
+              <div className="font-medium mt-6">Advanced</div>
+            </>
           )}
+          <div className="">
+            <Input
+              placeholder="URL"
+              type="url"
+              name="completion-url"
+              value={url || DefaultCompletionURL[selectedLLM]}
+              onChange={(val) => setUrl(val)}
+              onBlur={saveAll}
+            />
+            <label
+              htmlFor={"completion-url"}
+              className="block text-xs font-medium opacity-60 mt-2">
+              {selectedLLM === LLM.Local
+                ? "Use any URL, including localhost!"
+                : "Optionally use this to set a proxy. Only change if you know what you're doing."}
+            </label>
+          </div>
         </div>
         {/* <div className="mt-4">
           <Button

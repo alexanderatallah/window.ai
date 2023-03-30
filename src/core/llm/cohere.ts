@@ -19,7 +19,6 @@ export enum CohereModelId {
 // }
 
 export function init(
-  apiKey: string,
   config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
@@ -32,7 +31,6 @@ export function init(
     {
       ...config,
       modelProvider: "cohere",
-      apiKey,
       baseUrl: "https://api.cohere.ai",
       generationPath: "/generate",
       authPrefix: "BEARER ",

@@ -6,9 +6,9 @@ export enum AlpacaModelId {
 }
 
 export function init(
-  config: Pick<ModelConfig, "quality" | "debug"> &
+  config: Pick<ModelConfig, "quality" | "debug" | "adapter"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">> = {},
-  opts: RequestOptions = {}
+  opts: RequestOptions
 ): Model {
   const modelId =
     config.quality === "max" ? AlpacaModelId.GGML_30B : AlpacaModelId.GGML_7B

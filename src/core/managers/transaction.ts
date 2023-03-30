@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid"
 
 import { BaseManager } from "./base"
+import type { LLM } from "./config"
 import { Origin, originManager } from "./origin"
 
 export interface Transaction {
@@ -8,6 +9,7 @@ export interface Transaction {
   timestamp: number
   prompt: string
   origin: Origin
+  model?: LLM
   completion?: string
   error?: string
 }

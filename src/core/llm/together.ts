@@ -16,7 +16,6 @@ export enum TogetherModelId {
 // }
 
 export function init(
-  apiKey: string,
   appName: string,
   config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
@@ -29,7 +28,6 @@ export function init(
   return new Model(
     {
       modelProvider: "together",
-      apiKey,
       baseUrl: "https://api.together.xyz",
       generationPath: "/inference",
       modelId,

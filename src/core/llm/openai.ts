@@ -2,7 +2,8 @@ import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum OpenAIModelId {
   Davinci = "text-davinci-003",
-  Curie = "text-curie-001"
+  Curie = "text-curie-001",
+  Codex = "code-davinci-002"
 }
 
 // export const OpenAIModels = {
@@ -11,7 +12,6 @@ export enum OpenAIModelId {
 // }
 
 export function init(
-  apiKey: string,
   config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
@@ -22,7 +22,6 @@ export function init(
     {
       modelProvider: "openai",
       modelId,
-      apiKey,
       baseUrl: "https://api.openai.com/v1",
       generationPath: "/completions",
       debug: config.debug,
@@ -35,7 +34,7 @@ export function init(
           ...optsToSend,
           model: modelId,
           user: meta.user_identifier || undefined,
-          stop: stop_sequences
+          stop: stop_sequences.length ? stop_sequences : undefined
         }
       },
       transformResponse: (res) => {

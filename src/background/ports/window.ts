@@ -9,9 +9,11 @@ import {
   PortRequest,
   PortResponse
 } from "~core/constants"
-import { transactionManager } from "~core/managers/transaction"
+import { LLM, configManager } from "~core/managers/config"
+import { Transaction, transactionManager } from "~core/managers/transaction"
 import { isErr, isOk } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
+import type { Request } from "~pages/api/_common"
 
 import { requestPermission } from "./permission"
 
@@ -40,14 +42,13 @@ const handler: PlasmoMessaging.PortHandler<
 
   // TODO consolidate API
   const api = isLocalhost(request) ? apiLocal : apiExternal
+  const requestData = await makeRequestData(txn)
 
   if (request.shouldStream) {
     const replies = []
     const errors = []
 
-    const results = await api.stream("/api/model/stream", {
-      prompt: txn.prompt
-    })
+    const results = await api.stream("/api/model/stream", requestData)
 
     for await (const result of results) {
       if (isOk(result)) {
@@ -62,9 +63,7 @@ const handler: PlasmoMessaging.PortHandler<
     txn.completion = replies.join("") || undefined
     txn.error = errors.join("") || undefined
   } else {
-    const result = await api.post("/api/model/complete", {
-      prompt: txn.prompt
-    })
+    const result = await api.post("/api/model/complete", requestData)
 
     if (isOk(result)) {
       res.send({ response: result, id })
@@ -86,6 +85,17 @@ function isLocalhost(req: CompletionRequest): boolean {
   // const parsed = new URL(url)
   // return parsed.hostname === "localhost" || parsed.hostname.startsWith("127.")
   return !!req.isLocal
+}
+
+async function makeRequestData(txn: Transaction): Promise<Request> {
+  const config = await configManager.get(LLM.GPT3)
+
+  return {
+    prompt: txn.prompt,
+    modelId: txn.model,
+    modelUrl: config?.completionUrl,
+    apiKey: config?.apiKey
+  }
 }
 
 export default handler

@@ -9,17 +9,17 @@ import { log } from "./utils/utils"
 export const alpacaTurbo = initAlpacaTurbo(
   {
     quality: "low",
-    debug: process.env.NODE_ENV !== "production"
+    debug: process.env.NODE_ENV !== "production",
+    adapter: fetchAdapter
   },
   {
     // TODO consider switching from axios to fetch, since fetchAdapter
     // doesn't work in Node.js side
-    adapter: fetchAdapter,
     max_tokens: 512
   }
 )
 
-type Request = { prompt: string }
+type Request = { prompt: string; apiKey?: string }
 
 export async function post(
   path: string,

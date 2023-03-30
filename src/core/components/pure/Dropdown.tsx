@@ -1,14 +1,14 @@
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid"
 import { useState } from "react"
 
-export function Dropdown({
+export function Dropdown<T extends string>({
   children,
   choices,
   onSelect
 }: {
   children: React.ReactNode
-  choices: string[]
-  onSelect: (choice: string) => void
+  choices: T[]
+  onSelect: (choice: T) => void
 }) {
   const [isOpen, setIsOpen] = useState(false)
 

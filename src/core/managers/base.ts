@@ -32,8 +32,8 @@ export abstract class BaseManager<T extends BaseModel> {
 
   abstract init(...args: unknown[]): T
 
-  async get(id: string): Promise<T> {
-    return this.store.get<T>(id)
+  async get(id: string): Promise<T | undefined> {
+    return this.store.get<T | undefined>(id)
   }
 
   async save(obj: T): Promise<boolean> {
@@ -83,6 +83,8 @@ export abstract class BaseManager<T extends BaseModel> {
     }
   }
 
+  // Note that this doesn't listen to changes of the contents of each object.
+  // Just the indexName
   useObjects(pageSize = 20, indexName = primaryIndexName) {
     const [page, _setPage] = useState<number>(0)
     const [_pageMode, _setPageMode] = useState<"paginate" | "append">("append")

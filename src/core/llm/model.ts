@@ -10,7 +10,6 @@ export interface ModelConfig {
   baseUrl: string
   generationPath: string
   streamPath?: string
-  apiKey?: string | null
   modelProvider: string
   modelId: string
   customHeaders?: Record<string, string>
@@ -29,6 +28,7 @@ export interface ModelConfig {
 }
 
 export interface RequestOptions {
+  apiKey?: string | null
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
@@ -45,7 +45,7 @@ export type RequestPrompt = { prompt: string; suffix?: string }
 
 export type RequestData = Omit<
   Required<RequestOptions>,
-  "user_identifier" | "timeout" | "adapter"
+  "user_identifier" | "timeout" | "apiKey" | "adapter"
 > &
   Pick<Required<ModelConfig>, "modelId" | "modelProvider"> &
   RequestPrompt
@@ -70,6 +70,7 @@ export class Model {
     // Defaults
     this.config = this.addDefaults(config)
     this.options = {
+      apiKey: null,
       timeout: 25000,
       user_identifier: null,
       frequency_penalty: 0,
@@ -87,7 +88,6 @@ export class Model {
       baseURL: this.config.baseUrl,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `${this.config.authPrefix}${config.apiKey}`,
         ...this.config.customHeaders
       },
       adapter: this.options.adapter || undefined
@@ -104,7 +104,6 @@ export class Model {
 
   addDefaults(config: ModelConfig): Required<ModelConfig> {
     const opts: Required<ModelConfig> = {
-      apiKey: null,
       streamPath: config.generationPath,
       quality: "max",
       authPrefix: "Bearer ",
@@ -131,7 +130,7 @@ export class Model {
     }
   }
 
-  getRequestData(
+  getRequestIdentifierData(
     { prompt, suffix }: RequestPrompt,
     opts: Required<RequestOptions>
   ): RequestData {
@@ -158,7 +157,7 @@ export class Model {
       ...this.options,
       ...requestOpts
     }
-    const request = this.getRequestData({ prompt, suffix }, opts)
+    const request = this.getRequestIdentifierData({ prompt, suffix }, opts)
     const id = objectHash(request)
     const promptSnippet = prompt.slice(0, 100)
     const cached = await this.config.cacheGet(id)
@@ -177,7 +176,12 @@ export class Model {
       const response = await this.api.post(
         this.config.generationPath,
         payload,
-        { timeout: opts.timeout }
+        {
+          timeout: opts.timeout,
+          headers: {
+            Authorization: `${this.config.authPrefix}${opts.apiKey}`
+          }
+        }
       )
       responseData = response.data
     } catch (err: unknown) {
@@ -220,7 +224,7 @@ export class Model {
       stream: true
     }
     const { transformResponse, transformForRequest, streamPath } = this.config
-    const request = this.getRequestData({ prompt, suffix }, opts)
+    const request = this.getRequestIdentifierData({ prompt, suffix }, opts)
     const id = objectHash(request)
     const promptSnippet = prompt.slice(0, 100)
     const payload = transformForRequest(request, opts)
@@ -238,7 +242,10 @@ export class Model {
       if (IS_SERVER) {
         const response = await this.api.post<Readable>(streamPath, payload, {
           timeout: opts.timeout,
-          responseType: "stream"
+          responseType: "stream",
+          headers: {
+            Authorization: `${this.config.authPrefix}${opts.apiKey}`
+          }
         })
         // Transform all data chunks using transformResponse
         stream = response.data.pipe(
@@ -258,7 +265,10 @@ export class Model {
           payload,
           {
             timeout: opts.timeout,
-            responseType: "stream"
+            responseType: "stream",
+            headers: {
+              Authorization: `${this.config.authPrefix}${opts.apiKey}`
+            }
           }
         )
 
