@@ -7,7 +7,7 @@ export interface Origin {
   title: string
 }
 
-class OriginsManager extends BaseManager<Origin> {
+class OriginManager extends BaseManager<Origin> {
   constructor() {
     super("origins")
   }
@@ -37,4 +37,4 @@ class OriginsManager extends BaseManager<Origin> {
   }
 }
 
-export const originManager = new OriginsManager()
+export const originManager = new OriginManager()

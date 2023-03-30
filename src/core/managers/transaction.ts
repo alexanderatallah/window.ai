@@ -14,7 +14,7 @@ export interface Transaction {
 
 const originIndexName = "byOrigin"
 
-class TransactionsManager extends BaseManager<Transaction> {
+class TransactionManager extends BaseManager<Transaction> {
   constructor() {
     super("transactions")
   }
@@ -42,4 +42,4 @@ class TransactionsManager extends BaseManager<Transaction> {
   }
 }
 
-export const transactionManager = new TransactionsManager()
+export const transactionManager = new TransactionManager()

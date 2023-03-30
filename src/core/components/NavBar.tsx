@@ -41,8 +41,10 @@ export function NavBar() {
         ⚙️
       </button>
 
-      <SlidingPane shown={shouldShowSettings}>
-        <Settings onSave={() => setShouldShowSettings(false)} />
+      <SlidingPane
+        shown={shouldShowSettings}
+        onHide={() => setShouldShowSettings(false)}>
+        <Settings />
       </SlidingPane>
     </div>
   )

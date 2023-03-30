@@ -4,6 +4,7 @@ import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
 import { HorizontalMenu } from "~core/components/pure/HorizontalMenu"
 import { Logo } from "~core/components/pure/Logo"
 import { Skeleton } from "~core/components/pure/Skeleton"
+import { Text } from "~core/components/pure/Text"
 import { Origin, originManager } from "~core/managers/origin"
 
 type Filter = "my-apps" | "trending" | "all"
@@ -59,12 +60,10 @@ function AppsRow({
         faviconFor={origin.domain}
       />
       <div className="col-span-6">
-        <div className="overflow-hidden truncate">
-          {originManager.originDisplay(origin)}
-        </div>
-        <div className="line-clamp-2 text-xs text-slate-600 dark:text-slate-500">
+        <Text truncate>{originManager.originDisplay(origin)}</Text>
+        <Text lines={2} size="xs" strength="dim">
           {origin.title} {originManager.url(origin)}
-        </div>
+        </Text>
       </div>
     </div>
   )

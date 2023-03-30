@@ -3,43 +3,111 @@ import useSWR from "swr"
 
 import { get, post } from "~core/api"
 import { Button } from "~core/components/pure/Button"
+import { Dropdown } from "~core/components/pure/Dropdown"
+import { Input } from "~core/components/pure/Input"
 import { Spinner } from "~core/components/pure/Spinner"
-import type { CompletionResponse } from "~core/constants"
+import { Text } from "~core/components/pure/Text"
+import { Well } from "~core/components/pure/Well"
+import { CompletionResponse, LLM } from "~core/constants"
+import { Config, configManager } from "~core/managers/config"
 import { UserInfoProvider, useUserInfo } from "~core/providers/user-info"
 import { isOk, unwrap } from "~core/utils/result-monad"
-import type { Response } from "~pages/api/_common"
 
-export function Settings({ onSave }: { onSave: () => void }) {
+export function Settings() {
+  const [loading, setLoading] = useState(false)
+  const [selectedLLM, selectLLM] = useState<LLM>(LLM.GPT3)
+
+  const { object } = configManager.useObject(selectedLLM)
+  const config = object
+  const [apiKeyValue, setApiKeyValue] = useState(config?.apiKey)
+
+  async function saveAll() {
+    return configManager.save({
+      ...(config || {}),
+      id: selectedLLM,
+      apiKey: apiKeyValue
+    })
+  }
+
   return (
-    <UserInfoProvider>
-      <div className="h-auto">
-        <div className="text-2xl font-bold">Settings</div>
-        <div className="text-sm text-slate-500">
-          <EmailShowcase />
-        </div>
-        <div className="mt-4">
-          <div className="text-lg font-bold">Premium features</div>
-          <div className="text-sm text-slate-500">
-            <PremiumFeatureButton />
-          </div>
-        </div>
-        <Button onClick={onSave}>Save</Button>
+    <div className="flex flex-col">
+      <Text size="lg" strength="bold">
+        Settings
+      </Text>
+      <div className="my-4">
+        <Text size="xs" strength="dim">
+          Configure custom model settings here. If you don't add any API keys,
+          you may be prompted to later, depending on your usage.
+        </Text>
       </div>
-    </UserInfoProvider>
-  )
-}
+      <Well>
+        <Dropdown choices={Object.values(LLM)} onSelect={selectLLM}>
+          {selectedLLM}
+        </Dropdown>
 
-const EmailShowcase = () => {
-  const userInfo = useUserInfo()
-
-  return (
-    <div>
-      Your email is: <b>{userInfo?.email}</b>
+        <div className="mt-2 py-6 px-1 rounded-md">
+          {selectedLLM !== LLM.Local && (
+            <div className="">
+              <Input
+                placeholder="API Key"
+                value={apiKeyValue || ""}
+                onChange={(val) => setApiKeyValue(val)}
+                onBlur={saveAll}
+              />
+            </div>
+          )}
+        </div>
+        {/* <div className="mt-4">
+          <Button
+            wide
+            onClick={async () => {
+              setLoading(true)
+              await saveAll()
+              setLoading(false)
+            }}
+            loading={loading}>
+            Save
+          </Button>
+        </div> */}
+      </Well>
     </div>
   )
 }
 
-const PremiumFeatureButton = () => {
+//
+//
+//
+// Delete the components below once we decide on Stripe
+
+function DEP_Settings({ onSave }: { onSave: () => void }) {
+  return (
+    <UserInfoProvider>
+      <Text size="lg" strength="bold">
+        Settings
+      </Text>
+      <PersonalInfo />
+      <div className="mt-4">
+        <div className="font-bold">Premium features</div>
+        <div className="text-sm text-slate-500">
+          <StripeGatedButton />
+        </div>
+      </div>
+      <Button onClick={onSave}>Save</Button>
+    </UserInfoProvider>
+  )
+}
+
+const PersonalInfo = () => {
+  const userInfo = useUserInfo()
+
+  return (
+    <Text strength="dim">
+      Email: <b>{userInfo?.email}</b>
+    </Text>
+  )
+}
+
+const StripeGatedButton = () => {
   const userInfo = useUserInfo()
   const [loading, setLoading] = useState(false)
 

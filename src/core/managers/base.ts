@@ -13,9 +13,12 @@ interface BaseModel {
 export abstract class BaseManager<T extends BaseModel> {
   protected store: Storage
 
-  constructor(name: string) {
+  constructor(
+    name: string,
+    area: "sync" | "local" | "managed" | "session" = "local"
+  ) {
     this.store = new Storage({
-      area: "local"
+      area
     })
     this.store.setNamespace(`${name}-`)
 
@@ -69,12 +72,23 @@ export abstract class BaseManager<T extends BaseModel> {
     return Promise.all(ids.map((id) => this.store.get<T>(id)))
   }
 
+  useObject(id: string) {
+    const [object, setObject] = useStorage<T | undefined>({
+      key: id,
+      instance: this.store
+    })
+    return {
+      object,
+      setObject
+    }
+  }
+
   useObjects(pageSize = 20, indexName = primaryIndexName) {
-    const [page, setPage] = useState<number>(0)
-    const [pageMode, setPageMode] = useState<"paginate" | "append">("append")
-    const [loading, setLoading] = useState<boolean>(true)
-    const [objects, setObjects] = useState<T[]>([])
-    const [itemIds] = useStorage<string[]>(
+    const [page, _setPage] = useState<number>(0)
+    const [_pageMode, _setPageMode] = useState<"paginate" | "append">("append")
+    const [loading, _setLoading] = useState<boolean>(true)
+    const [objects, _setObjects] = useState<T[]>([])
+    const [_itemIds] = useStorage<string[]>(
       {
         key: indexName,
         instance: this.store
@@ -84,21 +98,24 @@ export abstract class BaseManager<T extends BaseModel> {
 
     useEffect(() => {
       const fetcher = async () => {
-        setLoading(true)
-        const pageTxnIds = itemIds.slice(pageSize * page, pageSize * (page + 1))
+        _setLoading(true)
+        const pageTxnIds = _itemIds.slice(
+          pageSize * page,
+          pageSize * (page + 1)
+        )
         const fetched = await this.fetchById(pageTxnIds)
         const allObjects =
-          pageMode === "append" ? [...objects, ...fetched] : fetched
-        setObjects(allObjects)
-        setLoading(false)
+          _pageMode === "append" ? [...objects, ...fetched] : fetched
+        _setObjects(allObjects)
+        _setLoading(false)
       }
 
       fetcher()
-    }, [page, itemIds, pageSize, pageMode])
+    }, [page, _itemIds, pageSize, _pageMode])
 
     const appendNextPage = useCallback(() => {
-      setPageMode("append")
-      setPage((prev) => {
+      _setPageMode("append")
+      _setPage((prev) => {
         const nextNage = prev + 1
         log("Appending next page", nextNage)
         return nextNage
@@ -106,13 +123,13 @@ export abstract class BaseManager<T extends BaseModel> {
     }, [])
 
     const goToPrevPage = useCallback(() => {
-      setPageMode("paginate")
-      setPage((prev) => Math.max(prev - 1, 0))
+      _setPageMode("paginate")
+      _setPage((prev) => Math.max(prev - 1, 0))
     }, [])
 
     const goToNextPage = useCallback(() => {
-      setPageMode("paginate")
-      setPage((prev) => prev + 1)
+      _setPageMode("paginate")
+      _setPage((prev) => prev + 1)
     }, [])
 
     return {

@@ -6,6 +6,13 @@ export enum PortName {
   Permission = "permission"
 }
 
+export enum LLM {
+  GPT3 = "OpenAI: GPT-3",
+  GPTNeo = "Together: GPT Neo",
+  Cohere = "Cohere",
+  Local = "Local"
+}
+
 export interface PortRequest {
   [PortName.Window]: { id: RequestId; request: CompletionRequest }
   [PortName.Permission]: { id: RequestId; permitted?: boolean }

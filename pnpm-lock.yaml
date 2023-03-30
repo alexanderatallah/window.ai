@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@heroicons/react': ^2.0.16
   '@plasmohq/messaging': ^0.1.6
   '@plasmohq/prettier-plugin-sort-imports': 3.6.3
   '@plasmohq/rps': ^1.8.4
@@ -34,6 +35,7 @@ specifiers:
   webextension-polyfill: ^0.10.0
 
 dependencies:
+  '@heroicons/react': 2.0.16_react@18.2.0
   '@plasmohq/messaging': 0.1.6_react@18.2.0
   '@plasmohq/storage': 1.3.1_react@18.2.0
   '@types/chrome': 0.0.224
@@ -743,6 +745,14 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       cross-spawn: 7.0.3
+    dev: false
+
+  /@heroicons/react/2.0.16_react@18.2.0:
+    resolution: {integrity: sha512-x89rFxH3SRdYaA+JCXwfe+RkE1SFTo9GcOkZettHer71Y3T7V+ogKmfw5CjTazgS3d0ClJ7p1NA+SP7VQLQcLw==}
+    peerDependencies:
+      react: '>= 16'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@jridgewell/gen-mapping/0.1.1:

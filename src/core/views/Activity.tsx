@@ -5,6 +5,7 @@ import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
 import { Logo } from "~core/components/pure/Logo"
 import { Skeleton } from "~core/components/pure/Skeleton"
 import { SlidingPane } from "~core/components/pure/SlidingPane"
+import { Text } from "~core/components/pure/Text"
 import { Transaction, transactionManager } from "~core/managers/transaction"
 
 import { ActivityItem } from "./ActivityItem"
@@ -52,14 +53,14 @@ function ActivityRow({
         faviconFor={transaction.origin.domain}
       />
       <div className="col-span-6">
-        <div className="overflow-hidden truncate">{transaction.prompt}</div>
-        <div className="line-clamp-2 text-xs text-slate-600 dark:text-slate-500">
+        <Text truncate>{transaction.prompt}</Text>
+        <Text lines={2} size="xs" strength="dim">
           {transaction.completion === undefined ? (
             <span className="italic">No response</span>
           ) : (
             transaction.completion
           )}
-        </div>
+        </Text>
       </div>
     </div>
   )
