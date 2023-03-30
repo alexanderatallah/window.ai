@@ -1,3 +1,5 @@
+import { Storage } from "@plasmohq/storage"
+
 import { BaseManager } from "./base"
 
 export enum LLM {
@@ -28,8 +30,15 @@ export interface Config {
 }
 
 class ConfigManager extends BaseManager<Config> {
+  protected defaultConfig: Storage
+
   constructor() {
     super("configs")
+
+    this.defaultConfig = new Storage({
+      area: "local"
+    })
+    this.defaultConfig.setNamespace(`configs-default-`)
   }
 
   init(id: LLM): Config {
@@ -37,6 +46,18 @@ class ConfigManager extends BaseManager<Config> {
       id,
       completionUrl: DefaultCompletionURL[id]
     }
+  }
+
+  async setDefault(id: LLM) {
+    await this.defaultConfig.set("id", id)
+  }
+
+  async getDefault(): Promise<Config | undefined> {
+    const id = (await this.defaultConfig.get("id")) as LLM | undefined
+    if (!id) {
+      return undefined
+    }
+    return (await this.get(id)) || this.init(id)
   }
 }
 

@@ -61,7 +61,7 @@ function AppsRow({
       />
       <div className="col-span-6">
         <Text truncate>{originManager.originDisplay(origin)}</Text>
-        <Text lines={2} size="xs" strength="dim">
+        <Text lines={2} size="xs" dimming="less">
           {origin.title} {originManager.url(origin)}
         </Text>
       </div>

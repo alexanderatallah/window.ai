@@ -9,13 +9,13 @@ import { log } from "./utils/utils"
 export const alpacaTurbo = initAlpacaTurbo(
   {
     quality: "low",
-    debug: process.env.NODE_ENV !== "production",
-    adapter: fetchAdapter
+    debug: process.env.NODE_ENV !== "production"
   },
   {
     // TODO consider switching from axios to fetch, since fetchAdapter
     // doesn't work in Node.js side
-    max_tokens: 512
+    max_tokens: 512,
+    adapter: fetchAdapter
   }
 )
 

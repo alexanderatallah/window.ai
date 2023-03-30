@@ -2,10 +2,12 @@ import { ChevronUpDownIcon } from "@heroicons/react/24/solid"
 import { useState } from "react"
 
 export function Dropdown<T extends string>({
+  styled = false,
   children,
   choices,
   onSelect
 }: {
+  styled?: boolean
   children: React.ReactNode
   choices: T[]
   onSelect: (choice: T) => void
@@ -16,7 +18,12 @@ export function Dropdown<T extends string>({
     <div>
       <button
         type="button"
-        className="inline-flex justify-center w-full rounded-md border border-indigo-300 shadow-sm px-4 py-2 bg-indigo-100 text-sm font-medium text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className={
+          "inline-flex justify-center w-full rounded-md px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 " +
+          (styled
+            ? "border shadow-sm bg-indigo-100 text-indigo-700 hover:bg-indigo-200 border-indigo-300 focus:ring-indigo-500"
+            : "")
+        }
         id="options-menu"
         aria-haspopup="true"
         aria-expanded="true"

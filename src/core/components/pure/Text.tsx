@@ -2,7 +2,7 @@ import React from "react"
 
 type Size = "lg" | "xs"
 
-type Strength = "bold" | "dim" | "dimmer" | "italic"
+type Strength = "bold" | "medium" | "italic"
 
 // Note: this component should not include a className prop - the
 // point is to add consistency to the text styles.
@@ -10,6 +10,7 @@ type Strength = "bold" | "dim" | "dimmer" | "italic"
 export function Text({
   size,
   strength,
+  dimming,
   align,
   truncate,
   lines,
@@ -17,23 +18,27 @@ export function Text({
 }: {
   size?: Size
   strength?: Strength
+  dimming?: "less" | "more"
   align?: "left" | "center" | "right"
   truncate?: boolean
   lines?: 1 | 2 | 3
   children: React.ReactNode
 }) {
   return (
-    <p
+    <div
       className={
         (size === "lg" ? "text-lg " : size === "xs" ? "text-xs " : " ") +
         (strength === "bold"
           ? "font-bold "
-          : strength === "dim"
-          ? "text-slate-500 dark:text-slate-400 "
-          : strength === "dimmer"
-          ? "opacity-30 hover:opacity-70 "
+          : strength === "medium"
+          ? "font-medium "
           : strength === "italic"
           ? "italic "
+          : " ") +
+        (dimming === "less"
+          ? "text-slate-500 dark:text-slate-400 "
+          : dimming === "more"
+          ? "text-slate-400 dark:text-slate-300 "
           : " ") +
         (truncate ? "truncate " : "") +
         (lines === 1
@@ -52,6 +57,6 @@ export function Text({
           : "")
       }>
       {children}
-    </p>
+    </div>
   )
 }

@@ -17,13 +17,13 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
           <Text size="lg" strength="bold">
             {transaction.origin.title}
           </Text>
-          <Text strength="dim" truncate>
+          <Text dimming="less" truncate>
             <a href={url} title={url} target="_blank">
               {originManager.urlDisplay(transaction.origin)}
             </a>
           </Text>
           <div className="mt-2">
-            <Text strength="dimmer" size="xs" truncate>
+            <Text dimming="more" size="xs" truncate>
               {formatDate(transaction.timestamp)}
             </Text>
           </div>

@@ -54,7 +54,7 @@ function ActivityRow({
       />
       <div className="col-span-6">
         <Text truncate>{transaction.prompt}</Text>
-        <Text lines={2} size="xs" strength="dim">
+        <Text lines={2} size="xs" dimming="less">
           {transaction.completion === undefined ? (
             <span className="italic">No response</span>
           ) : (
