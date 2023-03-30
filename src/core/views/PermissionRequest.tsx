@@ -1,4 +1,8 @@
+import { useEffect } from "react"
+
 import type { PortName, PortResponse } from "~core/constants"
+import { configManager } from "~core/managers/config"
+import { useNav } from "~core/providers/nav"
 
 export function PermissionRequest({
   data,
@@ -7,6 +11,24 @@ export function PermissionRequest({
   data: PortResponse[PortName.Permission]
   onResult: (response: boolean) => void
 }) {
+  const { setSettingsShown } = useNav()
+  const model = "error" in data ? undefined : data.request.transaction.model
+
+  useEffect(() => {
+    async function checkConfig() {
+      const config = model
+        ? await configManager.getOrInit(model)
+        : await configManager.getDefault()
+      if (configManager.isIncomplete(config)) {
+        setSettingsShown(true)
+        console.warn("yep")
+      } else {
+        console.warn("nope")
+      }
+    }
+    checkConfig()
+  }, [model])
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-auto overflow-y-auto overflow-x-hidden">

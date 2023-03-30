@@ -48,14 +48,26 @@ class ConfigManager extends BaseManager<Config> {
     }
   }
 
+  isIncomplete(config: Config): boolean {
+    return !config.completionUrl || (config.id === LLM.GPT3 && !config.apiKey)
+  }
+
+  async getOrInit(id: LLM) {
+    const config = await this.get(id)
+    if (config) {
+      return config
+    }
+    return this.init(id)
+  }
+
   async setDefault(id: LLM) {
     await this.defaultConfig.set("id", id)
   }
 
-  async getDefault(): Promise<Config | undefined> {
+  async getDefault(): Promise<Config> {
     const id = (await this.defaultConfig.get("id")) as LLM | undefined
     if (!id) {
-      return undefined
+      return this.init(LLM.GPT3)
     }
     return (await this.get(id)) || this.init(id)
   }

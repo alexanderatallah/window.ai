@@ -5,10 +5,13 @@ export type NavView = "activity" | "apps"
 
 const useNavProvider = () => {
   const [view, setView] = useState<NavView>("activity")
+  const [settingsShown, setSettingsShown] = useState(false)
 
   return {
     view,
-    setView
+    settingsShown,
+    setView,
+    setSettingsShown
   }
 }
 

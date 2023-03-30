@@ -43,7 +43,6 @@ export type RequestId = string
 export interface CompletionRequest {
   transaction: Transaction
   shouldStream?: boolean
-  isLocal?: boolean
 }
 
 export type CompletionResponse = Result<string, ErrorCode | string>

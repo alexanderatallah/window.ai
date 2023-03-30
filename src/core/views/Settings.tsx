@@ -24,11 +24,12 @@ import { isOk, unwrap } from "~core/utils/result-monad"
 
 export function Settings() {
   // const [loading, setLoading] = useState(false)
-  const [selectedModel, setSelectedModel] = useState<LLM>(LLM.GPT3)
+  const uiDefaultModel = LLM.GPT3
+  const [selectedModel, setSelectedModel] = useState<LLM>(uiDefaultModel)
   const [apiKey, setApiKey] = useState("")
   const [url, setUrl] = useState("")
   const [config, setConfig] = useState<Config | undefined>()
-  const [defaultModel, setDefaultModel] = useState<LLM>(LLM.GPT3)
+  const [defaultModel, setDefaultModel] = useState<LLM>(uiDefaultModel)
 
   useEffect(() => {
     configManager.get(selectedModel).then((c) => {
@@ -39,10 +40,8 @@ export function Settings() {
 
   useEffect(() => {
     configManager.getDefault().then((c) => {
-      if (c) {
-        setDefaultModel(c.id)
-        setSelectedModel(c.id)
-      }
+      setDefaultModel(c.id)
+      setSelectedModel(c.id)
     })
   }, [])
 

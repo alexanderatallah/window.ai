@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 export function Accordion({
   children,
@@ -10,7 +10,12 @@ export function Accordion({
   title: string
   initiallyOpened?: boolean
 }) {
-  const [isOpen, setIsOpen] = useState(initiallyOpened)
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    setIsOpen(initiallyOpened)
+  }, [initiallyOpened])
+
   return (
     <div>
       <button

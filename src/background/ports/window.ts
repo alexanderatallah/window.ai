@@ -40,9 +40,9 @@ const handler: PlasmoMessaging.PortHandler<
   // Save the incomplete txn
   await transactionManager.save(txn)
 
-  // TODO consolidate API
-  const api = isLocalhost(request) ? apiLocal : apiExternal
   const requestData = await makeRequestData(txn)
+  // TODO consolidate API
+  const api = isLocalhost(requestData) ? apiLocal : apiExternal
 
   if (request.shouldStream) {
     const replies = []
@@ -77,22 +77,18 @@ const handler: PlasmoMessaging.PortHandler<
   // Update the completion with the reply
   await transactionManager.save(txn)
 }
-function isLocalhost(req: CompletionRequest): boolean {
-  // TODO check url etc instead, after API consolidated
-  // if (!url) {
-  //   return false
-  // }
-  // const parsed = new URL(url)
-  // return parsed.hostname === "localhost" || parsed.hostname.startsWith("127.")
-  return !!req.isLocal
+
+function isLocalhost(requestData: Request) {
+  return requestData.modelId === LLM.Local
 }
 
 async function makeRequestData(txn: Transaction): Promise<Request> {
   const config = await configManager.get(LLM.GPT3)
+  const modelId = txn.model || (await configManager.getDefault()).id
 
   return {
     prompt: txn.prompt,
-    modelId: txn.model,
+    modelId,
     modelUrl: config?.completionUrl,
     apiKey: config?.apiKey
   }
