@@ -10,12 +10,14 @@ type Strength = "bold" | "dim" | "dimmer" | "italic"
 export function Text({
   size,
   strength,
+  align,
   truncate,
   lines,
   children
 }: {
   size?: Size
   strength?: Strength
+  align?: "left" | "center" | "right"
   truncate?: boolean
   lines?: 1 | 2 | 3
   children: React.ReactNode
@@ -40,6 +42,13 @@ export function Text({
           ? `line-clamp-2 `
           : lines === 3
           ? `line-clamp-3 `
+          : "") +
+        (align === "left"
+          ? "text-left "
+          : align === "center"
+          ? "text-center "
+          : align === "right"
+          ? "text-right "
           : "")
       }>
       {children}

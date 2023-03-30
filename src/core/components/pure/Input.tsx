@@ -34,7 +34,7 @@ export function Input({
           onBlur={(e) => onBlur && onBlur(e.target.value)}
           placeholder={placeholder}
           required={required}
-          className="mt-2 w-full px-4 py-2 bg-slate-200 rounded-md shadow-sm text-slate-900 focus:border-indigo-300 focus:ring focus:ring-indigo-200 required:border-red-500 focus:ring-opacity-50"
+          className="mt-2 w-full px-4 py-2 border dark:bg-slate-200 rounded-md shadow-sm text-slate-900 focus:border-indigo-300 focus:ring focus:ring-indigo-200 required:border-red-500 focus:ring-opacity-50"
         />
         {loading && <Spinner className="absolute right-0" />}
       </div>

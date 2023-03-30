@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import useSWR from "swr"
 
 import { get, post } from "~core/api"
+import { Accordion } from "~core/components/pure/Accordion"
 import { Button } from "~core/components/pure/Button"
 import { Dropdown } from "~core/components/pure/Dropdown"
 import { Input } from "~core/components/pure/Input"
@@ -52,18 +53,18 @@ export function Settings() {
   return (
     <div className="flex flex-col">
       <Text size="lg" strength="bold">
-        Settings
+        Configuration
       </Text>
       <div className="my-4">
         <Text size="xs" strength="dim">
-          Configure your models here. API keys are optional and only stored in
-          your browser.{" "}
+          Change your model settings here. API keys are only stored in your
+          browser.{" "}
           <Tooltip
             content={
-              <p>
-                You will be able to make some requests for free with each model,
-                in a set time period.
-              </p>
+              <span>
+                An API key is required for external models like OpenAI, but not
+                for ones running locally on your computer.
+              </span>
             }>
             Learn more
           </Tooltip>
@@ -77,21 +78,19 @@ export function Settings() {
           {LLMLabels[selectedLLM]}
         </Dropdown>
 
-        <hr className="-mx-6 my-6 border-slate-600 shadow-md" />
+        <hr className="-mx-6 my-6 border-slate-300 dark:border-slate-600 shadow-md" />
 
         <div className="">
           {selectedLLM !== LLM.Local && (
-            <>
-              <Input
-                placeholder="API Key"
-                value={apiKey || ""}
-                onChange={(val) => setApiKey(val)}
-                onBlur={saveAll}
-              />
-              <div className="font-medium mt-6">Advanced</div>
-            </>
+            <Input
+              placeholder="API Key"
+              value={apiKey || ""}
+              onChange={(val) => setApiKey(val)}
+              onBlur={saveAll}
+            />
           )}
-          <div className="">
+          <div className="mt-3"></div>
+          <Accordion title="Advanced">
             <Input
               placeholder="URL"
               type="url"
@@ -107,20 +106,8 @@ export function Settings() {
                 ? "Use any URL, including localhost!"
                 : "Optionally use this to set a proxy. Only change if you know what you're doing."}
             </label>
-          </div>
+          </Accordion>
         </div>
-        {/* <div className="mt-4">
-          <Button
-            wide
-            onClick={async () => {
-              setLoading(true)
-              await saveAll()
-              setLoading(false)
-            }}
-            loading={loading}>
-            Save
-          </Button>
-        </div> */}
       </Well>
     </div>
   )

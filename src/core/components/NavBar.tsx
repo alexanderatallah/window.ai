@@ -1,5 +1,7 @@
-import { useState } from "react"
+import { WrenchScrewdriverIcon } from "@heroicons/react/24/solid"
+import { useEffect, useState } from "react"
 
+import { transactionManager } from "~core/managers/transaction"
 import { NavView, useNav } from "~core/providers/nav"
 import { Settings } from "~core/views/Settings"
 
@@ -8,11 +10,18 @@ import { SlidingPane } from "./pure/SlidingPane"
 type Tab = { name: string; view: NavView }
 export function NavBar() {
   const { view, setView } = useNav()
-  const [shouldShowSettings, setShouldShowSettings] = useState(false)
+  const { objects } = transactionManager.useObjects(1)
+  const doTransactionsExist = objects.length > 0
+  const [shouldShowSettings, setShouldShowSettings] = useState(true)
+
+  useEffect(() => {
+    // This logic allows us to default the settings page on for first-time users
+    setShouldShowSettings(!doTransactionsExist)
+  }, [doTransactionsExist])
 
   const tabs: Tab[] = [
-    { name: "Activity", view: "activity" },
-    { name: "Apps", view: "apps" }
+    { name: "Activity", view: "activity" }
+    // { name: "Apps", view: "apps" }
   ]
   return (
     <div className="flex flex-row p-2">
@@ -36,14 +45,17 @@ export function NavBar() {
 
       <button
         type="button"
-        className="flex-none rounded-lg px-2 py-1 text-lg hover:bg-slate-300 dark:hover:bg-slate-700"
+        className="flex-none rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-300 dark:hover:bg-slate-700"
         onClick={() => setShouldShowSettings(true)}>
-        ⚙️
+        <WrenchScrewdriverIcon className="h-5 w-5" />
       </button>
 
       <SlidingPane
         shown={shouldShowSettings}
-        onHide={() => setShouldShowSettings(false)}>
+        animated={shouldShowSettings}
+        onHide={
+          doTransactionsExist ? () => setShouldShowSettings(false) : undefined
+        }>
         <Settings />
       </SlidingPane>
     </div>

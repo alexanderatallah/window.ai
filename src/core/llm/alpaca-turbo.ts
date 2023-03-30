@@ -6,7 +6,7 @@ export enum AlpacaModelId {
 }
 
 export function init(
-  config: Pick<ModelConfig, "quality" | "debug" | "adapter"> &
+  config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">> = {},
   opts: RequestOptions
 ): Model {
