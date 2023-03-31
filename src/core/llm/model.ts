@@ -6,10 +6,13 @@ import { Readable, Transform, TransformCallback } from "stream"
 import { IS_SERVER } from "~core/constants"
 import { parseDataChunks } from "~core/utils/utils"
 
+export type ChatMessage = {
+  role: "system" | "user" | "assistant"
+  content: string
+}
+
 export interface ModelConfig {
   baseUrl: string
-  generationPath: string
-  streamPath?: string
   modelProvider: string
   modelId: string
   customHeaders?: Record<string, string>
@@ -20,8 +23,9 @@ export interface ModelConfig {
   endOfStreamSentinel?: string | null
   cacheGet?: CacheGetter
   cacheSet?: CacheSetter
+  getPath: (request: RequestData) => string
   transformForRequest: (
-    prompt: RequestData,
+    request: RequestData,
     meta: RequestMetadata
   ) => Record<string, unknown>
   transformResponse: (res: unknown) => string
@@ -41,7 +45,9 @@ export interface RequestOptions {
   adapter?: AxiosRequestConfig["adapter"] | null
 }
 
-export type RequestPrompt = { prompt: string; suffix?: string }
+export type RequestPrompt =
+  | { prompt: string; suffix?: string }
+  | { messages: ChatMessage[] }
 
 export type RequestData = Omit<
   Required<RequestOptions>,
@@ -104,7 +110,6 @@ export class Model {
 
   addDefaults(config: ModelConfig): Required<ModelConfig> {
     const opts: Required<ModelConfig> = {
-      streamPath: config.generationPath,
       quality: "max",
       authPrefix: "Bearer ",
       retries: 3,
@@ -131,7 +136,7 @@ export class Model {
   }
 
   getRequestIdentifierData(
-    { prompt, suffix }: RequestPrompt,
+    requestPrompt: RequestPrompt,
     opts: Required<RequestOptions>
   ): RequestData {
     return {
@@ -150,16 +155,16 @@ export class Model {
   }
 
   async complete(
-    { prompt, suffix }: RequestPrompt,
+    requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
   ): Promise<string> {
     const opts: Required<RequestOptions> = {
       ...this.options,
       ...requestOpts
     }
-    const request = this.getRequestIdentifierData({ prompt, suffix }, opts)
+    const request = this.getRequestIdentifierData(requestPrompt, opts)
     const id = objectHash(request)
-    const promptSnippet = prompt.slice(0, 100)
+    const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
     const cached = await this.config.cacheGet(id)
     if (cached) {
       this.log(`\nCACHE HIT for id ${id}: ${promptSnippet}...`)
@@ -173,16 +178,12 @@ export class Model {
     })
     let responseData: Record<string, any>
     try {
-      const response = await this.api.post(
-        this.config.generationPath,
-        payload,
-        {
-          timeout: opts.timeout,
-          headers: {
-            Authorization: `${this.config.authPrefix}${opts.apiKey}`
-          }
+      const response = await this.api.post(this._getPath(request), payload, {
+        timeout: opts.timeout,
+        headers: {
+          Authorization: `${this.config.authPrefix}${opts.apiKey}`
         }
-      )
+      })
       responseData = response.data
     } catch (err: unknown) {
       const asResponse = err as any
@@ -215,7 +216,7 @@ export class Model {
   }
 
   async stream(
-    { prompt, suffix }: RequestPrompt,
+    requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
   ): Promise<Readable | ReadableStream> {
     const opts: Required<RequestOptions> = {
@@ -223,10 +224,10 @@ export class Model {
       ...requestOpts,
       stream: true
     }
-    const { transformResponse, transformForRequest, streamPath } = this.config
-    const request = this.getRequestIdentifierData({ prompt, suffix }, opts)
+    const { transformResponse, transformForRequest } = this.config
+    const request = this.getRequestIdentifierData(requestPrompt, opts)
     const id = objectHash(request)
-    const promptSnippet = prompt.slice(0, 100)
+    const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
     const payload = transformForRequest(request, opts)
     this.log(`STREAMING id ${id}: ${promptSnippet}...`, {
       suffix: payload["suffix"],
@@ -240,13 +241,17 @@ export class Model {
       // HACK due to Node.js not matching browser APIs
       // TODO consolidate onto the browser only?
       if (IS_SERVER) {
-        const response = await this.api.post<Readable>(streamPath, payload, {
-          timeout: opts.timeout,
-          responseType: "stream",
-          headers: {
-            Authorization: `${this.config.authPrefix}${opts.apiKey}`
+        const response = await this.api.post<Readable>(
+          this._getPath(request),
+          payload,
+          {
+            timeout: opts.timeout,
+            responseType: "stream",
+            headers: {
+              Authorization: `${this.config.authPrefix}${opts.apiKey}`
+            }
           }
-        })
+        )
         // Transform all data chunks using transformResponse
         stream = response.data.pipe(
           new Transform({
@@ -261,7 +266,7 @@ export class Model {
         )
       } else {
         const response = await this.api.post<ReadableStream>(
-          streamPath,
+          this._getPath(request),
           payload,
           {
             timeout: opts.timeout,

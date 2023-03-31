@@ -9,52 +9,35 @@ export const config: PlasmoCSConfig = {
   run_at: "document_start"
 }
 
-const ports = {
+type PublicPort = PortName.Completion | PortName.Model
+
+const ports: Record<PublicPort, Port> = {
   [PortName.Completion]: Extension.connectToPort(PortName.Completion),
   [PortName.Model]: Extension.connectToPort(PortName.Model)
 }
 
-// Handle responses from background script
-Extension.addPortListener<PortName.Completion, PortResponse>(
-  PortName.Completion,
-  (msg) => {
-    if (!("response" in msg)) {
-      // TODO handle invalid requests
-      throw `Invalid request: ${msg}`
-    }
-    const { id, response } = msg
-    window.postMessage(
-      {
-        type: ContentMessageType.Response,
-        portName: PortName.Completion,
-        id,
-        response
-      },
-      "*"
-    )
-  },
-  ports[PortName.Completion]
-)
-
-Extension.addPortListener<PortName.Model, PortResponse>(
-  PortName.Model,
-  (msg) => {
-    if (!("response" in msg)) {
-      // TODO handle invalid requests
-      throw `Invalid request: ${msg}`
-    }
-    const { id, response } = msg
-    window.postMessage(
-      {
-        type: ContentMessageType.Response,
-        portName: PortName.Model,
-        id,
-        response
-      },
-      "*"
-    )
-  },
-  ports[PortName.Model]
+;(Object.keys(ports) as PublicPort[]).forEach((portName) =>
+  // Handle responses from background script
+  Extension.addPortListener<typeof portName, PortResponse>(
+    portName,
+    (msg) => {
+      if (!("response" in msg)) {
+        // TODO handle invalid requests
+        throw `Invalid request: ${msg}`
+      }
+      const { id, response } = msg
+      window.postMessage(
+        {
+          type: ContentMessageType.Response,
+          portName,
+          id,
+          response
+        },
+        "*"
+      )
+    },
+    ports[portName]
+  )
 )
 
 // Handle requests from content script
@@ -62,7 +45,9 @@ window.addEventListener("message", (event) => {
   const { source, data } = event
 
   // We only accept messages our window and a port
-  if (source !== window || !data.portName) {
+
+  const port = ports[data.portName as PublicPort]
+  if (source !== window || !port) {
     return
   }
 
@@ -72,10 +57,7 @@ window.addEventListener("message", (event) => {
     case ContentMessageType.Request:
     case ContentMessageType.Cancel:
       log(`Relay received ${type}: `, data)
-      Extension.sendMessage(
-        data,
-        ports[data.portName as PortName.Model | PortName.Completion]
-      )
+      Extension.sendMessage(data, port)
       break
     case ContentMessageType.Response:
       // Handled by inpage script
