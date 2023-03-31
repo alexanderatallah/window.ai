@@ -23,7 +23,8 @@ export function init(
       modelProvider: "openai",
       modelId,
       baseUrl: "https://api.openai.com/v1",
-      generationPath: "/completions",
+      getPath: (req) =>
+        "messages" in req ? "/chat/completions" : "/completions",
       debug: config.debug,
       endOfStreamSentinel: "[DONE]",
       cacheGet: config.cacheGet,

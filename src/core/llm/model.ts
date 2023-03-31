@@ -140,10 +140,9 @@ export class Model {
     opts: Required<RequestOptions>
   ): RequestData {
     return {
+      ...requestPrompt,
       modelId: this.config.modelId,
       modelProvider: this.config.modelProvider,
-      prompt,
-      suffix,
       temperature: opts.temperature,
       top_p: opts.top_p,
       frequency_penalty: opts.frequency_penalty,
@@ -158,6 +157,14 @@ export class Model {
     requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
   ): Promise<string> {
+    const {
+      transformForRequest,
+      getPath,
+      cacheGet,
+      cacheSet,
+      transformResponse,
+      authPrefix
+    } = this.config
     const opts: Required<RequestOptions> = {
       ...this.options,
       ...requestOpts
@@ -165,12 +172,12 @@ export class Model {
     const request = this.getRequestIdentifierData(requestPrompt, opts)
     const id = objectHash(request)
     const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
-    const cached = await this.config.cacheGet(id)
+    const cached = await cacheGet(id)
     if (cached) {
       this.log(`\nCACHE HIT for id ${id}: ${promptSnippet}...`)
       return cached
     }
-    const payload = this.config.transformForRequest(request, opts)
+    const payload = transformForRequest(request, opts)
     this.log(`COMPLETING id ${id}: ${promptSnippet}...`, {
       suffix: payload["suffix"],
       max_tokens: payload["max_tokens"],
@@ -178,10 +185,10 @@ export class Model {
     })
     let responseData: Record<string, any>
     try {
-      const response = await this.api.post(this._getPath(request), payload, {
+      const response = await this.api.post(getPath(request), payload, {
         timeout: opts.timeout,
         headers: {
-          Authorization: `${this.config.authPrefix}${opts.apiKey}`
+          Authorization: `${authPrefix}${opts.apiKey}`
         }
       })
       responseData = response.data
@@ -197,7 +204,7 @@ export class Model {
     }
 
     this.log("RESPONSE for id " + id)
-    const result = this.config.transformResponse(responseData)
+    const result = transformResponse(responseData)
     if (!result) {
       const e = new Error(
         `Returned an empty result: ${JSON.stringify(responseData)}`
@@ -206,7 +213,7 @@ export class Model {
       throw e
     }
 
-    await this.config.cacheSet({
+    await cacheSet({
       id,
       prompt: request,
       completion: result
@@ -224,7 +231,8 @@ export class Model {
       ...requestOpts,
       stream: true
     }
-    const { transformResponse, transformForRequest } = this.config
+    const { transformResponse, transformForRequest, authPrefix, getPath } =
+      this.config
     const request = this.getRequestIdentifierData(requestPrompt, opts)
     const id = objectHash(request)
     const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
@@ -242,13 +250,13 @@ export class Model {
       // TODO consolidate onto the browser only?
       if (IS_SERVER) {
         const response = await this.api.post<Readable>(
-          this._getPath(request),
+          getPath(request),
           payload,
           {
             timeout: opts.timeout,
             responseType: "stream",
             headers: {
-              Authorization: `${this.config.authPrefix}${opts.apiKey}`
+              Authorization: `${authPrefix}${opts.apiKey}`
             }
           }
         )
@@ -266,13 +274,13 @@ export class Model {
         )
       } else {
         const response = await this.api.post<ReadableStream>(
-          this._getPath(request),
+          getPath(request),
           payload,
           {
             timeout: opts.timeout,
             responseType: "stream",
             headers: {
-              Authorization: `${this.config.authPrefix}${opts.apiKey}`
+              Authorization: `${authPrefix}${opts.apiKey}`
             }
           }
         )
