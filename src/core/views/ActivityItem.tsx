@@ -35,12 +35,20 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
       </div> */}
 
       <p className="mt-6">
-        <span className="font-bold">Prompt:</span> {transaction.prompt}
+        <b>Prompt:</b> {transaction.prompt}
       </p>
 
       <p className="mt-4">
-        <span className="font-bold">Response:</span> {transaction.completion}
+        <b>Response:</b>{" "}
+        {transaction.completion ||
+          (!transaction.error && <span className="italic">Pending</span>)}
       </p>
+
+      {transaction.error && (
+        <div className="mt-4 text-red-300 ">
+          <b>Error:</b> {transaction.error}
+        </div>
+      )}
     </div>
   )
 }

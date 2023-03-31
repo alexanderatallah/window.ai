@@ -1,3 +1,4 @@
+import { BeakerIcon } from "@heroicons/react/24/solid"
 import { useRef, useState } from "react"
 import React from "react"
 
@@ -27,6 +28,24 @@ export function Activity() {
           onSelect={() => selectTxn(txn)}
         />
       ))}
+
+      {objects.length === 0 && !loading && (
+        <div className="flex flex-col p-8">
+          <Text size="lg" align="center" strength="medium">
+            No activity yet
+          </Text>
+          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+            Join the{" "}
+            <a
+              className="dark:text-white"
+              href="https://discord.gg/vDAvbuySYv"
+              target="_blank">
+              Discord
+            </a>{" "}
+            server to explore window.ai apps.
+          </p>
+        </div>
+      )}
 
       <div ref={loaderRef}>{loading && <Skeleton />}</div>
 

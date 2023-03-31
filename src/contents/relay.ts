@@ -9,11 +9,14 @@ export const config: PlasmoCSConfig = {
   run_at: "document_start"
 }
 
-const windowPort = Extension.connectToPort(PortName.Window)
+const ports = {
+  [PortName.Completion]: Extension.connectToPort(PortName.Completion),
+  [PortName.Model]: Extension.connectToPort(PortName.Model)
+}
 
 // Handle responses from background script
-Extension.addPortListener<PortName.Window, PortResponse>(
-  PortName.Window,
+Extension.addPortListener<PortName.Completion, PortResponse>(
+  PortName.Completion,
   (msg) => {
     if (!("response" in msg)) {
       // TODO handle invalid requests
@@ -23,22 +26,43 @@ Extension.addPortListener<PortName.Window, PortResponse>(
     window.postMessage(
       {
         type: ContentMessageType.Response,
-        portName: PortName.Window,
+        portName: PortName.Completion,
         id,
         response
       },
       "*"
     )
   },
-  windowPort
+  ports[PortName.Completion]
+)
+
+Extension.addPortListener<PortName.Model, PortResponse>(
+  PortName.Model,
+  (msg) => {
+    if (!("response" in msg)) {
+      // TODO handle invalid requests
+      throw `Invalid request: ${msg}`
+    }
+    const { id, response } = msg
+    window.postMessage(
+      {
+        type: ContentMessageType.Response,
+        portName: PortName.Model,
+        id,
+        response
+      },
+      "*"
+    )
+  },
+  ports[PortName.Model]
 )
 
 // Handle requests from content script
 window.addEventListener("message", (event) => {
   const { source, data } = event
 
-  // We only accept messages our window and port
-  if (source !== window || data?.portName !== PortName.Window) {
+  // We only accept messages our window and a port
+  if (source !== window || !data.portName) {
     return
   }
 
@@ -48,7 +72,10 @@ window.addEventListener("message", (event) => {
     case ContentMessageType.Request:
     case ContentMessageType.Cancel:
       log(`Relay received ${type}: `, data)
-      Extension.sendMessage(data, windowPort)
+      Extension.sendMessage(
+        data,
+        ports[data.portName as PortName.Model | PortName.Completion]
+      )
       break
     case ContentMessageType.Response:
       // Handled by inpage script

@@ -5,10 +5,13 @@ import {
   CompletionRequest,
   CompletionResponse,
   ContentMessageType,
+  ModelRequest,
+  ModelResponse,
   PortName,
   RequestId,
   StreamResponse
 } from "~core/constants"
+import type { LLM } from "~core/managers/config"
 import { Origin, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import { Result, isOk } from "~core/utils/result-monad"
@@ -20,10 +23,10 @@ export const config: PlasmoCSConfig = {
   // run_at: "document_start" // This causes some Next.js pages (e.g. Plasmo docs) to break
 }
 
-export const Web41 = {
+export const WindowAI = {
   async getCompletion(prompt: string): Promise<string> {
-    const requestId = _relayRequest<CompletionRequest>({
-      transaction: transactionManager.init(prompt, Web41.origin())
+    const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
+      transaction: transactionManager.init(prompt, _getPageOrigin())
     })
     return new Promise((resolve, reject) => {
       _addRequestListener<CompletionResponse>(requestId, (res) => {
@@ -40,8 +43,8 @@ export const Web41 = {
     prompt: string,
     handler: (result: string | null, error: string | null) => unknown
   ): Promise<RequestId> {
-    const requestId = _relayRequest<CompletionRequest>({
-      transaction: transactionManager.init(prompt, Web41.origin()),
+    const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
+      transaction: transactionManager.init(prompt, _getPageOrigin()),
       shouldStream: true
     })
     return new Promise((resolve, reject) => {
@@ -57,27 +60,35 @@ export const Web41 = {
     })
   },
 
-  origin(): Origin {
-    return originManager.init(
-      window.location.origin,
-      window.location.pathname,
-      window.document.title
-    )
+  async getCurrentModel(): Promise<LLM> {
+    const requestId = _relayRequest<ModelRequest>(PortName.Model, {})
+    return new Promise((resolve, reject) => {
+      _addRequestListener<ModelResponse>(requestId, (res) => {
+        if (isOk(res)) {
+          resolve(res.data)
+        } else {
+          reject(res.error)
+        }
+      })
+    })
   }
-
-  // TODO: Implement cancel
-  // cancel(requestId: string) {
-  //   _cancel(requestId)
-  // }
 }
 
-function _relayRequest<T>(request: T): RequestId {
+function _getPageOrigin(): Origin {
+  return originManager.init(
+    window.location.origin,
+    window.location.pathname,
+    window.document.title
+  )
+}
+
+function _relayRequest<T>(portName: PortName, request: T): RequestId {
   const requestId = uuidv4() as RequestId
   window.postMessage(
     {
       type: ContentMessageType.Request,
       id: requestId,
-      portName: PortName.Window,
+      portName,
       request
     },
     "*"
@@ -114,8 +125,8 @@ window.addEventListener(
   (event) => {
     const { source, data } = event
 
-    // We only accept messages our window and port
-    if (source !== window || data?.portName !== PortName.Window) {
+    // We only accept messages our window and a port
+    if (source !== window || !data.portName) {
       return
     }
 
@@ -132,7 +143,7 @@ window.addEventListener(
 
 declare global {
   interface Window {
-    ai: typeof Web41
+    ai: typeof WindowAI
   }
 }
-window.ai = Web41
+window.ai = WindowAI

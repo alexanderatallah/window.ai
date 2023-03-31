@@ -1,9 +1,5 @@
 import React from "react"
 
-type Size = "lg" | "xs"
-
-type Strength = "bold" | "medium" | "italic"
-
 // Note: this component should not include a className prop - the
 // point is to add consistency to the text styles.
 // Surround it by another one if you need to add a className.
@@ -16,8 +12,8 @@ export function Text({
   lines,
   children
 }: {
-  size?: Size
-  strength?: Strength
+  size?: "lg" | "xs"
+  strength?: "bold" | "medium" | "italic"
   dimming?: "less" | "more"
   align?: "left" | "center" | "right"
   truncate?: boolean

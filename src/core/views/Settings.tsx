@@ -105,7 +105,7 @@ export function Settings() {
         <Well>
           <div className="-my-3">
             <Text strength="medium" dimming="less">
-              Model settings
+              All model settings
             </Text>
           </div>
           <Splitter />

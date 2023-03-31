@@ -2,13 +2,7 @@ import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
 import * as apiExternal from "~core/api"
 import * as apiLocal from "~core/api-local"
-import {
-  CompletionRequest,
-  ErrorCode,
-  PortName,
-  PortRequest,
-  PortResponse
-} from "~core/constants"
+import { ErrorCode, PortName, PortRequest, PortResponse } from "~core/constants"
 import { LLM, configManager } from "~core/managers/config"
 import { Transaction, transactionManager } from "~core/managers/transaction"
 import { isErr, isOk } from "~core/utils/result-monad"
@@ -18,8 +12,8 @@ import type { Request } from "~pages/api/_common"
 import { requestPermission } from "./permission"
 
 const handler: PlasmoMessaging.PortHandler<
-  PortRequest[PortName.Window],
-  PortResponse[PortName.Window]
+  PortRequest[PortName.Completion],
+  PortResponse[PortName.Completion]
 > = async (req, res) => {
   log("Background received message: ", req)
 

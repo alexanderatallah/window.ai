@@ -21,9 +21,6 @@ export function PermissionRequest({
         : await configManager.getDefault()
       if (configManager.isIncomplete(config)) {
         setSettingsShown(true)
-        console.warn("yep")
-      } else {
-        console.warn("nope")
       }
     }
     checkConfig()
