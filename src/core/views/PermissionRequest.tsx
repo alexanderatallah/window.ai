@@ -19,9 +19,8 @@ export function PermissionRequest({
       const config = model
         ? await configManager.getOrInit(model)
         : await configManager.getDefault()
-      if (configManager.isIncomplete(config)) {
-        setSettingsShown(true)
-      }
+
+      setSettingsShown(configManager.isIncomplete(config))
     }
     checkConfig()
   }, [model])
