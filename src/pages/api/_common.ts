@@ -84,6 +84,10 @@ export const externalModels = {
   [LLM.GPTNeo]: together
 }
 
+export const streamableModels = {
+  [LLM.GPT3]: openai
+}
+
 export function isAdmin(email: string) {
   return process.env.ADMIN_EMAILS?.split(",").includes(email)
 }

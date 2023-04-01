@@ -49,7 +49,10 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   isIncomplete(config: Config): boolean {
-    return !config.completionUrl || (config.id === LLM.GPT3 && !config.apiKey)
+    return (
+      !config.completionUrl ||
+      (![LLM.Local, LLM.GPTNeo].includes(config.id) && !config.apiKey)
+    )
   }
 
   async getOrInit(id: LLM) {

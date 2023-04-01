@@ -41,15 +41,25 @@ export function init(
         const {
           modelId,
           prompt,
+          messages,
           modelProvider,
           stop_sequences,
           ...optsToSend
         } = req
+        const fullPrompt =
+          prompt !== undefined
+            ? `<human>: ${prompt}`
+            : messages
+                ?.map(
+                  (m) =>
+                    `${m.role === "user" ? "<human>" : "<bot>"}: ${m.content}`
+                )
+                .join("\n")
         return {
           ...optsToSend,
           model: modelId,
           stop: ["\n<human>", ...stop_sequences],
-          prompt: "<human>: " + prompt
+          prompt: fullPrompt + "\n<bot>: "
         }
       },
       transformResponse: (res) => {

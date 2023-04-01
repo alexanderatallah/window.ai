@@ -40,10 +40,28 @@ export function init(
         "Cohere-Version": "2022-12-06"
       },
       transformForRequest: (req) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { modelId, top_p, modelProvider, ...optsToSend } = req
+        const {
+          modelId,
+          prompt,
+          messages,
+          top_p,
+          modelProvider,
+          stop_sequences,
+          ...optsToSend
+        } = req
+        const fullPrompt =
+          prompt !== undefined
+            ? `<human>: ${prompt}`
+            : messages
+                ?.map(
+                  (m) =>
+                    `${m.role === "user" ? "<human>" : "<bot>"}: ${m.content}`
+                )
+                .join("\n")
         return {
           ...optsToSend,
+          stop_sequences: ["\n<human>", ...stop_sequences],
+          prompt: fullPrompt + "\n<bot>: ",
           model: modelId,
           p: top_p
         }

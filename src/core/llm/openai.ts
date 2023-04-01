@@ -48,6 +48,10 @@ export function init(
           const delta: Partial<ChatMessage> = anyRes["choices"][0]["delta"]
           return delta.content || ""
         }
+        if ("message" in anyRes["choices"][0]) {
+          const message: ChatMessage = anyRes["choices"][0]["message"]
+          return message.content
+        }
         return anyRes["choices"][0]["text"]
       }
     },

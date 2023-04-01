@@ -2,10 +2,17 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import { Transform, TransformCallback } from "stream"
 
 import { ErrorCode } from "~core/constants"
+import { LLM } from "~core/managers/config"
 import { err, ok } from "~core/utils/result-monad"
 import { isReadable } from "~core/utils/utils"
 
-import { Request, Response, authenticate, openai } from "../_common"
+import {
+  Request,
+  Response,
+  authenticate,
+  openai,
+  streamableModels
+} from "../_common"
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,9 +25,16 @@ export default async function handler(
     return res.status(401).json(err(ErrorCode.NotAuthenticated))
   }
 
+  const modelId = req.body.modelId || LLM.GPT3
+  const model = streamableModels[modelId as keyof typeof streamableModels]
+
+  if (!model) {
+    return res.status(400).json(err(ErrorCode.InvalidRequest))
+  }
+
   const body = req.body as Request
 
-  const stream = await openai.stream(body.input, {
+  const stream = await model.stream(body.input, {
     apiKey: body.apiKey
   })
 
