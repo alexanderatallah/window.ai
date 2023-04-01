@@ -1,7 +1,12 @@
-import { useEffect } from "react"
+import { KeyIcon } from "@heroicons/react/24/solid"
+import { useEffect, useState } from "react"
 
+import { Accordion } from "~core/components/pure/Accordion"
+import { Button } from "~core/components/pure/Button"
+import { Text } from "~core/components/pure/Text"
 import type { PortName, PortResponse } from "~core/constants"
-import { configManager } from "~core/managers/config"
+import { LLM, LLMLabels, configManager } from "~core/managers/config"
+import { originManager } from "~core/managers/origin"
 import { useNav } from "~core/providers/nav"
 
 export function PermissionRequest({
@@ -12,74 +17,63 @@ export function PermissionRequest({
   onResult: (response: boolean) => void
 }) {
   const { setSettingsShown } = useNav()
-  const model = "error" in data ? undefined : data.request.transaction.model
+  const requestedModel =
+    "error" in data ? undefined : data.request.transaction.model
+  const [model, setModel] = useState<LLM | undefined>(requestedModel)
 
   useEffect(() => {
     async function checkConfig() {
-      const config = model
-        ? await configManager.getOrInit(model)
+      const config = requestedModel
+        ? await configManager.getOrInit(requestedModel)
         : await configManager.getDefault()
+      setModel(config.id)
       if (configManager.isIncomplete(config)) {
         setSettingsShown(true)
       }
     }
     checkConfig()
-  }, [model])
+  }, [requestedModel])
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-auto overflow-y-auto overflow-x-hidden">
-        <div className="flex flex-col items-center justify-center h-full">
-          <div className="flex flex-col items-center justify-center">
-            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-900">
-              <svg
-                className="w-8 h-8 text-slate-900 dark:text-slate-100"
-                fill="currentColor"
-                viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 2a8 8 0 00-8 8 8 8 0 0016 0 8 8 0 00-8-8zm0 14a6 6 0 110-12 6 6 0 010 12z"
-                  clipRule="evenodd"
-                />
-                <path
-                  fillRule="evenodd"
-                  d="M10 6a1 1 0 00-1 1v4a1 1 0 002 0V7a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-                <path
-                  fillRule="evenodd"
-                  d="M10 13a1 1 0 100-2 1 1 0 000 2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="mt-4 text-center">
-              <h1 className="text-lg font-medium">Permission Request</h1>
-              {"request" in data ? (
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                  This app is requesting permission to access your account:
-                  {JSON.stringify(data.request)}
-                </p>
-              ) : (
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                  Error: {data.error}
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col items-center justify-center mt-8 space-y-4">
-            <button
-              className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-900 border border-transparent rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
-              onClick={() => onResult(true)}>
-              Allow
-            </button>
-            <button
-              className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-900 border border-transparent rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
-              onClick={() => onResult(false)}>
-              Deny
-            </button>
-          </div>
+    // TODO figure out why hfull doesn't work
+    <div className="flex flex-col h-[92%]">
+      <div className="flex-auto flex flex-col overflow-y-auto overflow-x-hidden items-center justify-center">
+        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-900">
+          <KeyIcon className="w-8 h-8 text-slate-500 dark:text-slate-400" />
         </div>
+        <div className="mt-4 text-center flex flex-col items-center w-full">
+          <Text size="lg" strength="medium">
+            Permission Request
+          </Text>
+          {"request" in data ? (
+            <>
+              <Text dimming="more" size="lg">
+                {originManager.originDisplay(data.request.transaction.origin)}
+              </Text>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                This app is requesting permission to access{" "}
+                {model ? LLMLabels[model] : "your model"}
+              </p>
+              <Accordion title="View Request">
+                <code className="text-xs">
+                  {JSON.stringify(data.request.transaction.input, null, 2)}
+                </code>
+              </Accordion>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              Error: {data.error}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 mx-4">
+        <Button appearance="secondary" onClick={() => onResult(false)}>
+          Deny
+        </Button>
+        <Button appearance="primary" onClick={() => onResult(true)}>
+          Allow
+        </Button>
       </div>
     </div>
   )

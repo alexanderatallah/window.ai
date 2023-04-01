@@ -10,7 +10,7 @@ export enum LLM {
 }
 
 export const LLMLabels = {
-  [LLM.GPT3]: "OpenAI: GPT-3",
+  [LLM.GPT3]: "OpenAI: GPT-3.5",
   [LLM.GPTNeo]: "Together: GPT Neo",
   [LLM.Cohere]: "Cohere",
   [LLM.Local]: "Local"
