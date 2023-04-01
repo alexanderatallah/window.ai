@@ -1,7 +1,8 @@
 import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 
-import type { Response } from "~pages/api/_common"
+import type { Request, Response } from "~pages/api/_common"
 
+import { ErrorCode } from "./constants"
 import { init as initAlpacaTurbo } from "./llm/alpaca-turbo"
 import { err, ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
@@ -19,15 +20,16 @@ export const alpacaTurbo = initAlpacaTurbo(
   }
 )
 
-type Request = { prompt: string; apiKey?: string }
-
 export async function post(
   path: string,
   data: Request
 ): Promise<Response<string, string>> {
   try {
+    if (!("prompt" in data.input)) {
+      throw ErrorCode.InvalidRequest
+    }
     const result = await alpacaTurbo.complete({
-      prompt: data.prompt
+      prompt: data.input.prompt
     })
     return ok(result)
   } catch (error) {
@@ -40,7 +42,10 @@ export async function stream(
   data: Request
 ): Promise<AsyncGenerator<Response<string, string>>> {
   try {
-    const stream = await alpacaTurbo.stream({ prompt: data.prompt })
+    if (!("prompt" in data.input)) {
+      throw ErrorCode.InvalidRequest
+    }
+    const stream = await alpacaTurbo.stream({ prompt: data.input.prompt })
 
     // TODO fix typing or consolidate all to browser calls
     return readableStreamToGenerator(stream as ReadableStream)

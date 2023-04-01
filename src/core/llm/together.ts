@@ -29,8 +29,8 @@ export function init(
     {
       modelProvider: "together",
       baseUrl: "https://api.together.xyz",
-      generationPath: "/inference",
-      modelId,
+      getPath: () => "/inference",
+      getModelId: () => modelId,
       debug: config.debug,
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,

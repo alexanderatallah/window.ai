@@ -2,10 +2,17 @@ import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
 import * as apiExternal from "~core/api"
 import * as apiLocal from "~core/api-local"
-import { ErrorCode, PortName, PortRequest, PortResponse } from "~core/constants"
+import {
+  ErrorCode,
+  Input,
+  Output,
+  PortName,
+  PortRequest,
+  PortResponse
+} from "~core/constants"
 import { LLM, configManager } from "~core/managers/config"
 import { Transaction, transactionManager } from "~core/managers/transaction"
-import { isErr, isOk } from "~core/utils/result-monad"
+import { isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import type { Request } from "~pages/api/_common"
 
@@ -46,7 +53,8 @@ const handler: PlasmoMessaging.PortHandler<
 
     for await (const result of results) {
       if (isOk(result)) {
-        res.send({ response: result, id })
+        const output = getOutput(txn.input, result.data)
+        res.send({ response: ok(output), id })
         replies.push(result.data)
       } else {
         res.send({ response: result, id })
@@ -54,14 +62,17 @@ const handler: PlasmoMessaging.PortHandler<
       }
     }
 
-    txn.completion = replies.join("") || undefined
+    txn.output = replies.length
+      ? getOutput(txn.input, replies.join(""))
+      : undefined
     txn.error = errors.join("") || undefined
   } else {
     const result = await api.post("/api/model/complete", requestData)
 
     if (isOk(result)) {
-      res.send({ response: result, id })
-      txn.completion = result.data
+      const output = getOutput(txn.input, result.data)
+      res.send({ response: ok(output), id })
+      txn.output = output
     } else {
       res.send({ response: result, id })
       txn.error = result.error
@@ -76,12 +87,18 @@ function isLocalhost(requestData: Request) {
   return requestData.modelId === LLM.Local
 }
 
+function getOutput(input: Input, result: string): Output {
+  return "messages" in input
+    ? { message: { role: "assistant", content: result } }
+    : { text: result }
+}
+
 async function makeRequestData(txn: Transaction): Promise<Request> {
   const config = await configManager.get(LLM.GPT3)
   const modelId = txn.model || (await configManager.getDefault()).id
 
   return {
-    prompt: txn.prompt,
+    input: txn.input,
     modelId,
     modelUrl: config?.completionUrl,
     apiKey: config?.apiKey

@@ -1,9 +1,11 @@
-import { Model, ModelConfig, RequestOptions } from "./model"
+import { ChatMessage, Model, ModelConfig, RequestOptions } from "./model"
 
 export enum OpenAIModelId {
   Davinci = "text-davinci-003",
   Curie = "text-curie-001",
-  Codex = "code-davinci-002"
+  Codex = "code-davinci-002",
+  GPT3_5_Turbo = "gpt-3.5-turbo",
+  GPT4 = "gpt-4"
 }
 
 // export const OpenAIModels = {
@@ -16,12 +18,14 @@ export function init(
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
 ): Model {
-  const modelId =
+  const completionModelId =
     config.quality === "low" ? OpenAIModelId.Curie : OpenAIModelId.Davinci
+  const chatModelId = OpenAIModelId.GPT3_5_Turbo
+  // config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
   return new Model(
     {
       modelProvider: "openai",
-      modelId,
+      getModelId: (req) => (req.messages ? chatModelId : completionModelId),
       baseUrl: "https://api.openai.com/v1",
       getPath: (req) =>
         "messages" in req ? "/chat/completions" : "/completions",
@@ -40,6 +44,10 @@ export function init(
       },
       transformResponse: (res) => {
         const anyRes = res as any
+        if ("delta" in anyRes["choices"][0]) {
+          const delta: Partial<ChatMessage> = anyRes["choices"][0]["delta"]
+          return delta.content || ""
+        }
         return anyRes["choices"][0]["text"]
       }
     },

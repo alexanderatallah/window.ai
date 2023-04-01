@@ -2,9 +2,9 @@ import { OAuth2Client } from "google-auth-library"
 import type { NextApiRequest } from "next"
 import Stripe from "stripe"
 
-import type { ErrorCode } from "~core/constants"
+import type { ErrorCode, Input } from "~core/constants"
 import { init as initCohere } from "~core/llm/cohere"
-import type { CacheGetter, CacheSetter, RequestData } from "~core/llm/model"
+import type { CacheGetter, CacheSetter } from "~core/llm/model"
 import { init as initOpenAI } from "~core/llm/openai"
 import { init as initTogether } from "~core/llm/together"
 import { LLM } from "~core/managers/config"
@@ -22,7 +22,7 @@ const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY, {
 })
 
 export type Request = {
-  prompt: string
+  input: Input
   apiKey?: string
   modelId?: LLM
   modelUrl?: string

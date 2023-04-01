@@ -32,9 +32,9 @@ export function init(
       ...config,
       modelProvider: "cohere",
       baseUrl: "https://api.cohere.ai",
-      generationPath: "/generate",
+      getPath: () => "/generate",
       authPrefix: "BEARER ",
-      modelId,
+      getModelId: () => modelId,
       debug: config.debug,
       customHeaders: {
         "Cohere-Version": "2022-12-06"

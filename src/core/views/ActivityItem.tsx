@@ -1,7 +1,7 @@
 import { Logo } from "~core/components/pure/Logo"
 import { Text } from "~core/components/pure/Text"
 import { originManager } from "~core/managers/origin"
-import type { Transaction } from "~core/managers/transaction"
+import { Transaction, transactionManager } from "~core/managers/transaction"
 import { formatDate } from "~core/utils/utils"
 
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
@@ -35,12 +35,12 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
       </div> */}
 
       <p className="mt-6">
-        <b>Prompt:</b> {transaction.prompt}
+        <b>Prompt:</b> {transactionManager.formatInput(transaction)}
       </p>
 
       <p className="mt-4">
         <b>Response:</b>{" "}
-        {transaction.completion ||
+        {transactionManager.formatOutput(transaction) ||
           (!transaction.error && <span className="italic">Pending</span>)}
       </p>
 

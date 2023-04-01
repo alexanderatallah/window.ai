@@ -15,14 +15,14 @@ export function init(
   return new Model(
     {
       modelProvider: "alpaca",
-      modelId,
+      getModelId: () => modelId,
       baseUrl: "http://127.0.0.1:8000",
-      generationPath: "/completions",
+      getPath: () => "/completions",
       debug: config.debug,
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       transformForRequest: (req) => {
-        return req
+        return req as Record<string, any>
       },
       transformResponse: (res) => {
         const anyRes = res as any

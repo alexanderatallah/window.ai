@@ -5,7 +5,7 @@ import { useEffect } from "react"
 import { NavBar } from "~core/components/NavBar"
 import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { SlidingPane } from "~core/components/pure/SlidingPane"
-import { transactionManager } from "~core/managers/transaction"
+import { configManager } from "~core/managers/config"
 import { NavProvider, useNav } from "~core/providers/nav"
 import { Activity } from "~core/views/Activity"
 import { Apps } from "~core/views/Apps"
@@ -31,13 +31,17 @@ function Popup() {
 function NavFrame() {
   const port = usePermissionPort()
   const { view, setSettingsShown, settingsShown } = useNav()
-  const { objects } = transactionManager.useObjects(1)
-  const doTransactionsExist = objects.length > 0
 
   useEffect(() => {
-    // This logic allows us to default the settings page on for first-time users
-    setSettingsShown(!doTransactionsExist)
-  }, [doTransactionsExist])
+    async function checkConfig() {
+      const config = await configManager.getDefault()
+      if (configManager.isIncomplete(config)) {
+        // This logic allows us to default the settings page on for first-time users
+        setSettingsShown(true)
+      }
+    }
+    checkConfig()
+  }, [])
 
   return (
     <div className="h-full">
@@ -62,9 +66,7 @@ function NavFrame() {
       <SlidingPane
         shown={settingsShown}
         animated={settingsShown}
-        onHide={
-          doTransactionsExist ? () => setSettingsShown(false) : undefined
-        }>
+        onHide={() => setSettingsShown(false)}>
         <Settings />
       </SlidingPane>
     </div>

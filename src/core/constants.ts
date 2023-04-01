@@ -1,6 +1,23 @@
+import type { ChatMessage } from "./llm/model"
 import type { LLM } from "./managers/config"
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
+
+export type Input =
+  | {
+      prompt: string
+    }
+  | {
+      messages: ChatMessage[]
+    }
+
+export type Output =
+  | {
+      text: string
+    }
+  | {
+      message: ChatMessage
+    }
 
 export enum PortName {
   Completion = "completion",
@@ -16,7 +33,7 @@ export interface PortRequest {
 
 export interface PortResponse {
   [PortName.Completion]:
-    | { id: RequestId; response: CompletionResponse | StreamResponse }
+    | { id: RequestId; response: CompletionResponse }
     | { id?: RequestId; error: ErrorCode.InvalidRequest }
   [PortName.Permission]:
     | { id: RequestId; request: CompletionRequest }
@@ -50,8 +67,7 @@ export type CompletionRequest = {
   transaction: Transaction
   shouldStream?: boolean
 }
-export type CompletionResponse = Result<string, ErrorCode | string>
-export type StreamResponse = CompletionResponse
+export type CompletionResponse = Result<Output, ErrorCode | string>
 
 export type ModelRequest = {}
 export type ModelResponse = Result<LLM, ErrorCode>

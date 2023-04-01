@@ -63,6 +63,8 @@ function ActivityRow({
   transaction: Transaction
   onSelect: () => void
 }) {
+  const input = transactionManager.formatInput(transaction)
+  const output = transactionManager.formatOutput(transaction)
   return (
     <div
       className={`p-2 h-[4.5rem] grid grid-cols-7 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700`}
@@ -72,12 +74,12 @@ function ActivityRow({
         faviconFor={transaction.origin.domain}
       />
       <div className="col-span-6">
-        <Text truncate>{transaction.prompt}</Text>
+        <Text truncate>{input}</Text>
         <Text lines={2} size="xs" dimming="less">
-          {transaction.completion === undefined ? (
+          {output === undefined ? (
             <span className="italic">No response</span>
           ) : (
-            transaction.completion
+            output
           )}
         </Text>
       </div>

@@ -14,7 +14,7 @@ export type ChatMessage = {
 export interface ModelConfig {
   baseUrl: string
   modelProvider: string
-  modelId: string
+  getModelId?: (request: RequestData) => string | null
   customHeaders?: Record<string, string>
   authPrefix?: string
   debug?: boolean
@@ -28,11 +28,13 @@ export interface ModelConfig {
     request: RequestData,
     meta: RequestMetadata
   ) => Record<string, unknown>
+  // TODO use Output instead of string?
   transformResponse: (res: unknown) => string
 }
 
 export interface RequestOptions {
   apiKey?: string | null
+  modelId?: string | null
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
@@ -45,15 +47,18 @@ export interface RequestOptions {
   adapter?: AxiosRequestConfig["adapter"] | null
 }
 
-export type RequestPrompt =
-  | { prompt: string; suffix?: string }
-  | { messages: ChatMessage[] }
+type RequestPromptBasic = { prompt: string; suffix?: string }
+type RequestPromptChat = { messages: ChatMessage[] }
+
+export interface RequestPrompt
+  extends Partial<RequestPromptBasic>,
+    Partial<RequestPromptChat> {}
 
 export type RequestData = Omit<
   Required<RequestOptions>,
   "user_identifier" | "timeout" | "apiKey" | "adapter"
 > &
-  Pick<Required<ModelConfig>, "modelId" | "modelProvider"> &
+  Pick<Required<ModelConfig>, "modelProvider"> &
   RequestPrompt
 
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
@@ -76,6 +81,7 @@ export class Model {
     // Defaults
     this.config = this.addDefaults(config)
     this.options = {
+      modelId: null,
       apiKey: null,
       timeout: 25000,
       user_identifier: null,
@@ -104,10 +110,6 @@ export class Model {
     })
   }
 
-  get identifier(): string {
-    return `${this.config.modelProvider}.${this.config.modelId}`
-  }
-
   addDefaults(config: ModelConfig): Required<ModelConfig> {
     const opts: Required<ModelConfig> = {
       quality: "max",
@@ -116,6 +118,7 @@ export class Model {
       debug: true,
       customHeaders: {},
       endOfStreamSentinel: null,
+      getModelId: (request: RequestData) => request.modelId || null,
       ...config,
       cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
       cacheSet: config.cacheSet || (() => Promise.resolve(undefined))
@@ -125,13 +128,13 @@ export class Model {
 
   log(...args: unknown[]): void {
     if (this.config.debug) {
-      console.log(`[MODEL ${this.identifier}]: `, ...args)
+      console.log(`[MODEL ${this.config.modelProvider}]: `, ...args)
     }
   }
 
   error(...args: unknown[]): void {
     if (this.config.debug) {
-      console.error(`[MODEL ${this.identifier}]: `, ...args)
+      console.error(`[MODEL ${this.config.modelProvider}]: `, ...args)
     }
   }
 
@@ -139,9 +142,9 @@ export class Model {
     requestPrompt: RequestPrompt,
     opts: Required<RequestOptions>
   ): RequestData {
-    return {
+    const ret: RequestData = {
       ...requestPrompt,
-      modelId: this.config.modelId,
+      modelId: null,
       modelProvider: this.config.modelProvider,
       temperature: opts.temperature,
       top_p: opts.top_p,
@@ -151,6 +154,8 @@ export class Model {
       max_tokens: opts.max_tokens,
       stream: opts.stream
     }
+    ret.modelId = this.config.getModelId(ret)
+    return ret
   }
 
   async complete(
@@ -179,6 +184,7 @@ export class Model {
     }
     const payload = transformForRequest(request, opts)
     this.log(`COMPLETING id ${id}: ${promptSnippet}...`, {
+      modelId: request.modelId,
       suffix: payload["suffix"],
       max_tokens: payload["max_tokens"],
       stop_sequences: payload["stop_sequences"]
@@ -238,6 +244,7 @@ export class Model {
     const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
     const payload = transformForRequest(request, opts)
     this.log(`STREAMING id ${id}: ${promptSnippet}...`, {
+      modelId: request.modelId,
       suffix: payload["suffix"],
       max_tokens: payload["max_tokens"],
       stop_sequences: payload["stop_sequences"],
@@ -325,26 +332,31 @@ export class Model {
     }
   ) {
     const chunkStr = new TextDecoder().decode(chunk)
+    let fullResult = ""
     for (const chunkDataRes of parseDataChunks(chunkStr)) {
       if (chunkDataRes === this.config.endOfStreamSentinel) {
         this.log("End:", chunkDataRes)
         onEnd()
+        return
       } else if (!chunkDataRes) {
         const e = new Error(`Returned no data: ${chunkStr}`)
         this.error(e)
         onError(e)
+        return
       } else {
         const chunkData = JSON.parse(chunkDataRes)
         const result = transformResponse(chunkData)
-        if (!result) {
+        if (typeof result !== "string") {
           const e = new Error(`Returned empty data: ${chunkDataRes}`)
           this.error(e)
           onError(e)
+          return
         } else {
           this.log("Result: ", result)
-          onResult(result)
+          fullResult += result
         }
       }
     }
+    onResult(fullResult)
   }
 }

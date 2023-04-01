@@ -5,11 +5,12 @@ import {
   CompletionRequest,
   CompletionResponse,
   ContentMessageType,
+  Input,
   ModelRequest,
   ModelResponse,
+  Output,
   PortName,
-  RequestId,
-  StreamResponse
+  RequestId
 } from "~core/constants"
 import type { LLM } from "~core/managers/config"
 import { Origin, originManager } from "~core/managers/origin"
@@ -23,38 +24,31 @@ export const config: PlasmoCSConfig = {
   // run_at: "document_start" // This causes some Next.js pages (e.g. Plasmo docs) to break
 }
 
+export interface CompletionOptions {
+  // If specified, partial updates will be streamed to this handler as they become available,
+  // and only the first partial update will be returned by the Promise.
+  onStreamResult?: (result: Output | null, error: string | null) => unknown
+}
+
 export const WindowAI = {
-  async getCompletion(prompt: string): Promise<string> {
+  async getCompletion(
+    input: Input,
+    options: CompletionOptions = {}
+  ): Promise<Output> {
+    const { onStreamResult } = _validateOptions(options)
+    const shouldStream = !!onStreamResult
     const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
-      transaction: transactionManager.init(prompt, _getPageOrigin())
+      transaction: transactionManager.init(input, _getPageOrigin()),
+      shouldStream
     })
     return new Promise((resolve, reject) => {
       _addRequestListener<CompletionResponse>(requestId, (res) => {
         if (isOk(res)) {
           resolve(res.data)
+          onStreamResult && onStreamResult(res.data, null)
         } else {
           reject(res.error)
-        }
-      })
-    })
-  },
-
-  async streamCompletion(
-    prompt: string,
-    handler: (result: string | null, error: string | null) => unknown
-  ): Promise<RequestId> {
-    const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
-      transaction: transactionManager.init(prompt, _getPageOrigin()),
-      shouldStream: true
-    })
-    return new Promise((resolve, reject) => {
-      _addRequestListener<StreamResponse>(requestId, (res) => {
-        if (isOk(res)) {
-          resolve(requestId)
-          handler(res.data, null)
-        } else {
-          reject(res.error)
-          handler(null, res.error)
+          onStreamResult && onStreamResult(null, res.error)
         }
       })
     })
@@ -72,6 +66,16 @@ export const WindowAI = {
       })
     })
   }
+}
+
+function _validateOptions(options: CompletionOptions): CompletionOptions {
+  if (
+    typeof options !== "object" ||
+    (options.onStreamResult && typeof options.onStreamResult !== "function")
+  ) {
+    throw new Error("Invalid options")
+  }
+  return options
 }
 
 function _getPageOrigin(): Origin {

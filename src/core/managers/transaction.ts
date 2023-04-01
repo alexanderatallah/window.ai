@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from "uuid"
 
+import type { Input, Output } from "~core/constants"
+
 import { BaseManager } from "./base"
 import type { LLM } from "./config"
 import { Origin, originManager } from "./origin"
@@ -7,10 +9,11 @@ import { Origin, originManager } from "./origin"
 export interface Transaction {
   id: string
   timestamp: number
-  prompt: string
   origin: Origin
+  input: Input
+
+  output?: Output
   model?: LLM
-  completion?: string
   error?: string
 }
 
@@ -21,12 +24,13 @@ class TransactionManager extends BaseManager<Transaction> {
     super("transactions")
   }
 
-  init(prompt: string, origin: Origin): Transaction {
+  init(input: Input, origin: Origin): Transaction {
+    this._validateInput(input)
     return {
       id: uuidv4(),
       origin,
       timestamp: Date.now(),
-      prompt
+      input
     }
   }
 
@@ -41,6 +45,41 @@ class TransactionManager extends BaseManager<Transaction> {
     }
 
     return isNew
+  }
+
+  formatInput(txn: Transaction): string {
+    // TODO deprecated, dev-only data
+    if (!("input" in txn)) {
+      return (txn as any).prompt
+    }
+    if ("prompt" in txn.input) {
+      return txn.input.prompt
+    }
+    return txn.input.messages.map((m) => `${m.role}: ${m.content}`).join("\n")
+  }
+
+  formatOutput(txn: Transaction): string | undefined {
+    // TODO deprecated, dev-only data
+    if (!("output" in txn)) {
+      return (txn as any).completion
+    }
+    if (!txn.output) {
+      return undefined
+    }
+    if ("text" in txn.output) {
+      return txn.output.text
+    }
+    const m = txn.output.message
+    return `${m.role}: ${m.content}`
+  }
+
+  _validateInput(input: Input): void {
+    if (
+      typeof input !== "object" ||
+      (!("prompt" in input) && !("messages" in input))
+    ) {
+      throw new Error("Invalid input")
+    }
   }
 }
 

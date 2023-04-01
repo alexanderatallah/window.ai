@@ -17,10 +17,6 @@ export default async function handler(
     return res.status(401).json(err(ErrorCode.NotAuthenticated))
   }
 
-  if (typeof req.body.prompt !== "string") {
-    return res.status(400).json(err(ErrorCode.InvalidRequest))
-  }
-
   const modelId = req.body.modelId || LLM.GPT3
   const model = externalModels[modelId as keyof typeof externalModels]
 
@@ -31,13 +27,8 @@ export default async function handler(
   const body = req.body as Request
   // TODO use req.body.modelUrl too
 
-  const text = await model.complete(
-    {
-      prompt: body.prompt
-    },
-    {
-      apiKey: body.apiKey
-    }
-  )
+  const text = await model.complete(body.input, {
+    apiKey: body.apiKey
+  })
   return res.status(200).json(ok(text))
 }
