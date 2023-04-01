@@ -3,16 +3,16 @@ import { Storage } from "@plasmohq/storage"
 import { BaseManager } from "./base"
 
 export enum LLM {
-  GPT3 = "openai/gpt3",
-  GPTNeo = "together/gpt-neo",
-  Cohere = "cohere",
+  GPT3 = "openai/gpt3.5",
+  GPTNeo = "together/gpt-neoxt-20B",
+  Cohere = "cohere/xlarge",
   Local = "local"
 }
 
 export const LLMLabels = {
   [LLM.GPT3]: "OpenAI: GPT-3.5",
-  [LLM.GPTNeo]: "Together: GPT Neo",
-  [LLM.Cohere]: "Cohere",
+  [LLM.GPTNeo]: "Together: GPT NeoXT 20B",
+  [LLM.Cohere]: "Cohere: Xlarge",
   [LLM.Local]: "Local"
 }
 
