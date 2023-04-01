@@ -1,6 +1,6 @@
 {
-  "name": "llmixer",
-  "displayName": "LLMixer",
+  "name": "window.ai",
+  "displayName": "window.ai",
   "version": "0.0.1",
   "description": "Use your own language models on the AI-enabled web",
   "author": "Alex Atallah <alexander.atallah@gmail.com>",
@@ -8,10 +8,8 @@
     "start": "next start",
     "dev": "run-p dev:*",
     "dev:plasmo": "plasmo dev",
-    "dev:next": "next dev --port 8472",
     "build": "run-p build:*",
-    "build:plasmo": "plasmo build",
-    "build:next": "next build"
+    "build:plasmo": "plasmo build"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.16",
@@ -22,15 +20,11 @@
     "@vespaiach/axios-fetch-adapter": "github:alexanderatallah/axios-fetch-adapter",
     "axios": "^1.3.4",
     "axios-retry": "^3.4.0",
-    "google-auth-library": "^8.7.0",
-    "next": "^13.2.4",
     "object-hash": "^3.0.0",
     "plasmo": "0.67.4",
     "puro": "^0.8.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "stripe": "^11.15.0",
-    "swr": "^2.1.0",
     "uuid": "^9.0.0",
     "webextension-polyfill": "^0.10.0"
   },
@@ -51,20 +45,13 @@
   },
   "manifest": {
     "host_permissions": [
-      "$PLASMO_PUBLIC_API_URI/*",
-      "https://*/*"
+      "file://*/*",
+      "https://*/*",
+      "http://*/*"
     ],
     "permissions": [
       "storage",
-      "scripting",
-      "identity",
-      "identity.email"
-    ],
-    "oauth2": {
-      "client_id": "$OAUTH_CLIENT_ID",
-      "scopes": [
-        "https://www.googleapis.com/auth/userinfo.email"
-      ]
-    }
+      "scripting"
+    ]
   }
 }

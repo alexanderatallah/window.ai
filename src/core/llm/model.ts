@@ -231,7 +231,7 @@ export class Model {
   async stream(
     requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
-  ): Promise<Readable | ReadableStream> {
+  ): Promise<ReadableStream<string>> {
     const opts: Required<RequestOptions> = {
       ...this.options,
       ...requestOpts,
@@ -251,59 +251,31 @@ export class Model {
       stream: payload["stream"]
     })
 
-    let stream: Readable | ReadableStream
+    let stream: ReadableStream<string>
     try {
-      // HACK due to Node.js not matching browser APIs
-      // TODO consolidate onto the browser only?
-      if (IS_SERVER) {
-        const response = await this.api.post<Readable>(
-          getPath(request),
-          payload,
-          {
-            timeout: opts.timeout,
-            responseType: "stream",
-            headers: {
-              Authorization: `${authPrefix}${opts.apiKey}`
-            }
+      const response = await this.api.post<ReadableStream<string>>(
+        getPath(request),
+        payload,
+        {
+          timeout: opts.timeout,
+          responseType: "stream",
+          headers: {
+            Authorization: `${authPrefix}${opts.apiKey}`
           }
-        )
-        // Transform all data chunks using transformResponse
-        stream = response.data.pipe(
-          new Transform({
-            transform: (chunk, encoding, callback: TransformCallback) => {
-              this._executeTransform(chunk, transformResponse, {
-                onEnd: () => callback(null, null),
-                onError: (err) => callback(err, null),
-                onResult: (result) => callback(null, result)
-              })
-            }
+        }
+      )
+
+      const transformStream = new TransformStream({
+        transform: (chunk, controller) => {
+          this._executeTransform(chunk, transformResponse, {
+            onEnd: () => controller.terminate(),
+            onError: (err) => controller.error(err),
+            onResult: (result) => controller.enqueue(result)
           })
-        )
-      } else {
-        const response = await this.api.post<ReadableStream>(
-          getPath(request),
-          payload,
-          {
-            timeout: opts.timeout,
-            responseType: "stream",
-            headers: {
-              Authorization: `${authPrefix}${opts.apiKey}`
-            }
-          }
-        )
+        }
+      })
 
-        const transformStream = new TransformStream({
-          transform: (chunk, controller) => {
-            this._executeTransform(chunk, transformResponse, {
-              onEnd: () => controller.terminate(),
-              onError: (err) => controller.error(err),
-              onResult: (result) => controller.enqueue(result)
-            })
-          }
-        })
-
-        stream = response.data.pipeThrough(transformStream)
-      }
+      stream = response.data.pipeThrough(transformStream)
     } catch (err: unknown) {
       const asResponse = err as { response: AxiosResponse }
       this.error(
