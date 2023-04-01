@@ -1,3 +1,5 @@
+import { messagesToPrompt } from "~core/utils/utils"
+
 import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum AlpacaModelId {
@@ -22,7 +24,17 @@ export function init(
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       transformForRequest: (req) => {
-        return req as Record<string, any>
+        const { prompt, messages, ...optsToSend } = req
+        const fullPrompt =
+          prompt !== undefined
+            ? prompt
+            : messages
+            ? messagesToPrompt(messages)
+            : undefined
+        return {
+          ...optsToSend,
+          prompt: fullPrompt
+        }
       },
       transformResponse: (res) => {
         const anyRes = res as any

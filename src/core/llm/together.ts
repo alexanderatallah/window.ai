@@ -1,3 +1,5 @@
+import { messagesToPrompt } from "~core/utils/utils"
+
 import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum TogetherModelId {
@@ -50,16 +52,13 @@ export function init(
           prompt !== undefined
             ? `<human>: ${prompt}`
             : messages
-                ?.map(
-                  (m) =>
-                    `${m.role === "user" ? "<human>" : "<bot>"}: ${m.content}`
-                )
-                .join("\n")
+            ? messagesToPrompt(messages)
+            : undefined
         return {
           ...optsToSend,
           model: modelId,
           stop: ["\n<human>", ...stop_sequences],
-          prompt: fullPrompt + "\n<bot>: "
+          prompt: fullPrompt
         }
       },
       transformResponse: (res) => {

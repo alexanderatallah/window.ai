@@ -1,3 +1,5 @@
+import { assertNever, messagesToPrompt } from "~core/utils/utils"
+
 import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum CohereModelId {
@@ -51,17 +53,14 @@ export function init(
         } = req
         const fullPrompt =
           prompt !== undefined
-            ? `<human>: ${prompt}`
+            ? prompt
             : messages
-                ?.map(
-                  (m) =>
-                    `${m.role === "user" ? "<human>" : "<bot>"}: ${m.content}`
-                )
-                .join("\n")
+            ? messagesToPrompt(messages)
+            : undefined
         return {
           ...optsToSend,
           stop_sequences: ["\n<human>", ...stop_sequences],
-          prompt: fullPrompt + "\n<bot>: ",
+          prompt: fullPrompt,
           model: modelId,
           p: top_p
         }

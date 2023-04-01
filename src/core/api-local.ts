@@ -25,12 +25,7 @@ export async function post(
   data: Request
 ): Promise<Response<string, string>> {
   try {
-    if (!("prompt" in data.input)) {
-      throw ErrorCode.InvalidRequest
-    }
-    const result = await alpacaTurbo.complete({
-      prompt: data.input.prompt
-    })
+    const result = await alpacaTurbo.complete(data.input)
     return ok(result)
   } catch (error) {
     return err(`${error}`)
@@ -42,10 +37,7 @@ export async function stream(
   data: Request
 ): Promise<AsyncGenerator<Response<string, string>>> {
   try {
-    if (!("prompt" in data.input)) {
-      throw ErrorCode.InvalidRequest
-    }
-    const stream = await alpacaTurbo.stream({ prompt: data.input.prompt })
+    const stream = await alpacaTurbo.stream(data.input)
 
     // TODO fix typing or consolidate all to browser calls
     return readableStreamToGenerator(stream as ReadableStream)
