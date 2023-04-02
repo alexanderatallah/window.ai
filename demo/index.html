@@ -88,6 +88,41 @@
             text-align: center;
             margin: 0.5rem;
         }
+
+        @keyframes loading {
+            0% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .loading-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #333;
+            animation: loading 1s infinite;
+        }
+
+        .loading-dot:not(:last-child) {
+            margin-right: 3px;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.25s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.5s;
+        }
     </style>
 </head>
 
@@ -134,16 +169,29 @@
         function addMessage(messageText, isSentByUser) {
             const message = document.createElement('div');
             message.classList.add('message');
-            message.innerHTML = `<div class="text ${isSentByUser ? 'sent' : 'received'}">${messageText}</div>`;
+
+            if (messageText === '') {
+                message.innerHTML = `
+            <div class="text ${isSentByUser ? 'sent' : 'received'}">
+                <span class="loading-dot"></span>
+                <span class="loading-dot"></span>
+                <span class="loading-dot"></span>
+            </div>`;
+            } else {
+                message.innerHTML = `<div class="text ${isSentByUser ? 'sent' : 'received'}">${messageText}</div>`;
+            }
+
             messagesContainer.appendChild(message);
 
             // Scroll to the bottom of the messages container
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            return message
+            return message;
         }
 
         async function getBotReply(userMessage) {
             console.log(window.ai)
+
+            let message = addMessage('', false);
 
             try {
                 messages.push({
@@ -156,7 +204,7 @@
 
                 messages.push(r.message)
 
-                addMessage(r.message.content, false);
+                message.innerHTML = `<div class="text received">${r.message.content}</div>`;
             } catch (e) {
                 console.error(e)
             }
