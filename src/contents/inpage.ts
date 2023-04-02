@@ -2,21 +2,23 @@ import type { PlasmoCSConfig } from "plasmo"
 import { v4 as uuidv4 } from "uuid"
 
 import {
-  CompletionOptions,
   CompletionRequest,
   CompletionResponse,
   ContentMessageType,
-  Input,
   ModelRequest,
   ModelResponse,
-  Output,
   PortName,
   RequestId
 } from "~core/constants"
-import type { LLM } from "~core/managers/config"
 import { Origin, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import { Result, isOk } from "~core/utils/result-monad"
+import type {
+  CompletionOptions,
+  Input,
+  ModelID,
+  Output
+} from "~public-interface"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -49,7 +51,7 @@ export const WindowAI = {
     })
   },
 
-  async getCurrentModel(): Promise<LLM> {
+  async getCurrentModel(): Promise<ModelID> {
     const requestId = _relayRequest<ModelRequest>(PortName.Model, {})
     return new Promise((resolve, reject) => {
       _addRequestListener<ModelResponse>(requestId, (res) => {
@@ -140,9 +142,4 @@ window.addEventListener(
   false
 )
 
-declare global {
-  interface Window {
-    ai: typeof WindowAI
-  }
-}
 window.ai = WindowAI

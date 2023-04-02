@@ -1,30 +1,25 @@
 import { Storage } from "@plasmohq/storage"
 
+import { ModelID } from "~public-interface"
+
 import { BaseManager } from "./base"
 
-export enum LLM {
-  GPT3 = "openai/gpt3.5",
-  GPTNeo = "together/gpt-neoxt-20B",
-  Cohere = "cohere/xlarge",
-  Local = "local"
-}
-
 export const LLMLabels = {
-  [LLM.GPT3]: "OpenAI: GPT-3.5",
-  [LLM.GPTNeo]: "Together: GPT NeoXT 20B",
-  [LLM.Cohere]: "Cohere: Xlarge",
-  [LLM.Local]: "Local"
+  [ModelID.GPT3]: "OpenAI: GPT-3.5",
+  [ModelID.GPTNeo]: "Together: GPT NeoXT 20B",
+  [ModelID.Cohere]: "Cohere: Xlarge",
+  [ModelID.Local]: "Local"
 }
 
 export const DefaultCompletionURL = {
-  [LLM.GPT3]: "https://api.openai.com/v1/completions",
-  [LLM.GPTNeo]: "https://api.together.xyz/inference",
-  [LLM.Cohere]: "https://api.cohere.ai/generate",
-  [LLM.Local]: "http://127.0.0.1:8000/completions"
+  [ModelID.GPT3]: "https://api.openai.com/v1/completions",
+  [ModelID.GPTNeo]: "https://api.together.xyz/inference",
+  [ModelID.Cohere]: "https://api.cohere.ai/generate",
+  [ModelID.Local]: "http://127.0.0.1:8000/completions"
 }
 
 export interface Config {
-  id: LLM
+  id: ModelID
   apiKey?: string
   completionUrl?: string
 }
@@ -41,7 +36,7 @@ class ConfigManager extends BaseManager<Config> {
     this.defaultConfig.setNamespace(`configs-default-`)
   }
 
-  init(id: LLM): Config {
+  init(id: ModelID): Config {
     return {
       id,
       completionUrl: DefaultCompletionURL[id]
@@ -51,11 +46,11 @@ class ConfigManager extends BaseManager<Config> {
   isIncomplete(config: Config): boolean {
     return (
       !config.completionUrl ||
-      (![LLM.Local, LLM.GPTNeo].includes(config.id) && !config.apiKey)
+      (![ModelID.Local, ModelID.GPTNeo].includes(config.id) && !config.apiKey)
     )
   }
 
-  async getOrInit(id: LLM) {
+  async getOrInit(id: ModelID) {
     const config = await this.get(id)
     if (config) {
       return config
@@ -63,14 +58,14 @@ class ConfigManager extends BaseManager<Config> {
     return this.init(id)
   }
 
-  async setDefault(id: LLM) {
+  async setDefault(id: ModelID) {
     await this.defaultConfig.set("id", id)
   }
 
   async getDefault(): Promise<Config> {
-    const id = (await this.defaultConfig.get("id")) as LLM | undefined
+    const id = (await this.defaultConfig.get("id")) as ModelID | undefined
     if (!id) {
-      return this.init(LLM.GPT3)
+      return this.init(ModelID.GPT3)
     }
     return (await this.get(id)) || this.init(id)
   }

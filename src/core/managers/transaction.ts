@@ -1,9 +1,13 @@
 import { v4 as uuidv4 } from "uuid"
 
-import type { CompletionOptions, Input, Output } from "~core/constants"
+import type {
+  CompletionOptions,
+  Input,
+  ModelID,
+  Output
+} from "~public-interface"
 
 import { BaseManager } from "./base"
-import type { LLM } from "./config"
 import { Origin, originManager } from "./origin"
 
 export interface Transaction {
@@ -15,7 +19,7 @@ export interface Transaction {
   temperature?: number
   maxTokens?: number
   stopSequences?: string[]
-  model?: LLM
+  model?: ModelID
 
   output?: Output
   error?: string

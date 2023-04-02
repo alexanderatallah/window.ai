@@ -1,6 +1,6 @@
 import type { Readable } from "stream"
 
-import type { ChatMessage } from "~core/llm/model"
+import type { ChatMessage } from "~public-interface"
 
 export function log(...args: unknown[]) {
   if (process.env.NODE_ENV === "development") {

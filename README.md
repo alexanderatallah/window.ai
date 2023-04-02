@@ -1,6 +1,58 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+# window.ai
 
-## Getting Started
+This is a browser extension that helps you use and explore zero-dependency, decentralized AI apps.
+
+- [window.ai](#windowai)
+  - [How it works](#how-it-works)
+    - [Demo: *TODO*](#demo-todo)
+    - [Installation](#installation)
+  - [How to build a decentralized app](#how-to-build-a-decentralized-app)
+  - [Contributing](#contributing)
+    - [Getting Started](#getting-started)
+    - [Making production build](#making-production-build)
+
+## How it works
+
+Users configure their keys and language models once in the extension; after that, any JavaScript app can request your permission to use them.
+
+It works with closed models like OpenAI's GPT-3.5 and GPT-4, along with open models like Alpaca that can [run locally](https://github.com/alexanderatallah/Alpaca-Turbo/blob/main/api.py)!
+
+### Demo: *TODO*
+
+### Installation
+
+This project is in beta and not on stores yet. For now, you can join the [#beta-testing channel on Discord](https://discord.gg/KBPhAPEJNj) to get access to a downloadable extension that you can load into Chrome.
+
+## How to build a decentralized app
+
+To leverage user-managed models in your app, simply call:
+
+```ts
+const output: Output = await window.ai.getCompletion(
+    input: Input,
+    options: CompletionOptions = {}
+  )
+```
+
+All public types can be viewed in [this file](/src/public-interface.ts). `Input` allows you to use both simple strings and [ChatML](https://github.com/openai/openai-python/blob/main/chatml.md). Example of streaming results to the console:
+
+```ts
+await ai.getCompletion({
+  messages: [{role: "system", content: "Who are you?"}]
+}, {
+  temperature: 1,
+  maxTokens: 800,
+  onStreamResult: (res) => console.log(res.message.content)
+})
+```
+
+---
+
+## Contributing
+
+This is a [Plasmo extension](https://docs.plasmo.com/) project.
+
+### Getting Started
 
 First, run the development server:
 
@@ -16,7 +68,7 @@ You can start editing the popup by modifying `popup.tsx`. It should auto-update 
 
 For further guidance, [visit our Documentation](https://docs.plasmo.com/)
 
-## Making production build
+### Making production build
 
 Run the following:
 
@@ -27,7 +79,3 @@ npm run build
 ```
 
 This should create a production bundle for your extension, ready to be zipped and published to the stores.
-
-## Submit to the webstores
-
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!

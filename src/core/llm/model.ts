@@ -3,11 +3,7 @@ import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 
 import { definedValues, parseDataChunks } from "~core/utils/utils"
-
-export type ChatMessage = {
-  role: "system" | "user" | "assistant"
-  content: string
-}
+import type { ChatMessage } from "~public-interface"
 
 export interface ModelConfig {
   baseUrl: string

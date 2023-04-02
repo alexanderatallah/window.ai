@@ -5,9 +5,10 @@ import { Accordion } from "~core/components/pure/Accordion"
 import { Button } from "~core/components/pure/Button"
 import { Text } from "~core/components/pure/Text"
 import type { PortName, PortResponse } from "~core/constants"
-import { LLM, LLMLabels, configManager } from "~core/managers/config"
+import { LLMLabels, configManager } from "~core/managers/config"
 import { originManager } from "~core/managers/origin"
 import { useNav } from "~core/providers/nav"
+import type { ModelID } from "~public-interface"
 
 export function PermissionRequest({
   data,
@@ -19,7 +20,7 @@ export function PermissionRequest({
   const { setSettingsShown } = useNav()
   const requestedModel =
     "error" in data ? undefined : data.request.transaction.model
-  const [model, setModel] = useState<LLM | undefined>(requestedModel)
+  const [model, setModel] = useState<ModelID | undefined>(requestedModel)
 
   useEffect(() => {
     async function checkConfig() {

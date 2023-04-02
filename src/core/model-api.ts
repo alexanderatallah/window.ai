@@ -4,9 +4,9 @@ import { init as initAlpacaTurbo } from "~core/llm/alpaca-turbo"
 import { init as initCohere } from "~core/llm/cohere"
 import { init as initOpenAI } from "~core/llm/openai"
 import { init as initTogether } from "~core/llm/together"
+import { ModelID } from "~public-interface"
 
-import { ErrorCode, Input } from "./constants"
-import { LLM } from "./managers/config"
+import { ErrorCode } from "./constants"
 import type { Transaction } from "./managers/transaction"
 import { Result, err, ok } from "./utils/result-monad"
 import { log, parseDataChunks } from "./utils/utils"
@@ -83,19 +83,19 @@ export const cohere = initCohere(
 )
 
 const modelInstances = {
-  [LLM.GPT3]: openai,
-  [LLM.Cohere]: cohere,
-  [LLM.GPTNeo]: together,
-  [LLM.Local]: alpacaTurbo
+  [ModelID.GPT3]: openai,
+  [ModelID.Cohere]: cohere,
+  [ModelID.GPTNeo]: together,
+  [ModelID.Local]: alpacaTurbo
 }
 
 const streamableModelInstances = {
-  [LLM.GPT3]: openai,
-  [LLM.Local]: alpacaTurbo
+  [ModelID.GPT3]: openai,
+  [ModelID.Local]: alpacaTurbo
 }
 
 export async function complete(data: Request): Promise<Result<string, string>> {
-  const modelId = data.model || LLM.GPT3
+  const modelId = data.model || ModelID.GPT3
   const model = modelInstances[modelId]
 
   if (!model) {
@@ -119,7 +119,7 @@ export async function stream(
   data: Request
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const modelId = data.model || LLM.GPT3
+    const modelId = data.model || ModelID.GPT3
     const model =
       streamableModelInstances[modelId as keyof typeof streamableModelInstances]
 
