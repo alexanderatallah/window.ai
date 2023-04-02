@@ -188,6 +188,10 @@
             return message;
         }
 
+        function updateMessage(messageElem, text) {
+            messageElem.innerHTML = `<div class="text received">${text}</div>`;
+        }
+
         async function getBotReply(userMessage) {
             console.log(window.ai)
 
@@ -204,7 +208,8 @@
 
                 messages.push(r.message)
 
-                message.innerHTML = `<div class="text received">${r.message.content}</div>`;
+                updateMessage(message, r.message.content)
+
             } catch (e) {
                 console.error(e)
             }
