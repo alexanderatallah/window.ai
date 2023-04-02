@@ -1,29 +1,28 @@
 # window.ai
 
-This is a browser extension that helps you use and explore zero-dependency, decentralized AI apps.
+This is a browser extension that helps you discover and use zero-dependency, possibly-decentralized AI apps.
+
+Demo: *TODO*
+
+**Table of Contents**
 
 - [window.ai](#windowai)
   - [How it works](#how-it-works)
-    - [Demo: *TODO*](#demo-todo)
-    - [Installation](#installation)
-  - [How to build a decentralized app](#how-to-build-a-decentralized-app)
+  - [Installation](#installation)
+  - [How to build a window.ai app](#how-to-build-a-windowai-app)
   - [Contributing](#contributing)
-    - [Getting Started](#getting-started)
-    - [Making production build](#making-production-build)
 
 ## How it works
 
-Users configure their keys and language models once in the extension; after that, any JavaScript app can request your permission to use them.
+Configure your keys and language models once in the extension; after that, any JavaScript app can request your permission to send a prompt to your chosen model(s).
 
 It works with closed models like OpenAI's GPT-3.5 and GPT-4, along with open models like Alpaca that can [run locally](https://github.com/alexanderatallah/Alpaca-Turbo/blob/main/api.py)!
 
-### Demo: *TODO*
-
-### Installation
+## Installation
 
 This project is in beta and not on stores yet. For now, you can join the [#beta-testing channel on Discord](https://discord.gg/KBPhAPEJNj) to get access to a downloadable extension that you can load into Chrome.
 
-## How to build a decentralized app
+## How to build a window.ai app
 
 To leverage user-managed models in your app, simply call:
 
@@ -53,11 +52,7 @@ await ai.getCompletion({
 
 ## Contributing
 
-This is a [Plasmo extension](https://docs.plasmo.com/) project.
-
-### Getting Started
-
-First, run the development server:
+This is a [Plasmo extension](https://docs.plasmo.com/) project. To run the development server:
 
 ```bash
 pnpm dev
@@ -71,7 +66,7 @@ You can start editing the popup by modifying `popup.tsx`. It should auto-update 
 
 For further guidance, [visit our Documentation](https://docs.plasmo.com/)
 
-### Making production build
+**Making production build**
 
 Run the following:
 
