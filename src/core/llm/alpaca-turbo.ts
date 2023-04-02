@@ -38,7 +38,7 @@ export function init(
       },
       transformResponse: (res) => {
         const anyRes = res as any
-        return anyRes["choices"][0]["text"]
+        return anyRes["choices"].map((c: any) => c["text"])
       }
     },
     opts

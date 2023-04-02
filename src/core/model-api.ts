@@ -22,7 +22,12 @@ const shouldDebugModels = process.env.NODE_ENV !== "production"
 
 export type Request = Pick<
   Transaction,
-  "model" | "input" | "temperature" | "maxTokens" | "stopSequences"
+  | "model"
+  | "input"
+  | "temperature"
+  | "maxTokens"
+  | "stopSequences"
+  | "numOutputs"
 > & {
   apiKey?: string
   modelUrl?: string
@@ -66,7 +71,7 @@ export const openai4 = initOpenAI(
 )
 
 export const together = initTogether(
-  "Web41",
+  "window.ai",
   {
     quality: "max", // TODO this currently 500s
     debug: shouldDebugModels
@@ -103,7 +108,9 @@ const modelInstances: { [K in ModelID]: Model } = {
 
 const streamableModels = new Set([ModelID.GPT3, ModelID.GPT4, ModelID.Local])
 
-export async function complete(data: Request): Promise<Result<string, string>> {
+export async function complete(
+  data: Request
+): Promise<Result<string[], string>> {
   const modelId = data.model || ModelID.GPT3
   const model = modelInstances[modelId]
 
@@ -116,7 +123,8 @@ export async function complete(data: Request): Promise<Result<string, string>> {
       apiKey: data.apiKey,
       max_tokens: data.maxTokens,
       temperature: data.temperature,
-      stop_sequences: data.stopSequences
+      stop_sequences: data.stopSequences,
+      num_generations: data.numOutputs
     })
     return ok(result)
   } catch (error) {
@@ -132,6 +140,11 @@ export async function stream(
     const model = streamableModels.has(modelId) && modelInstances[modelId]
 
     if (!model) {
+      throw ErrorCode.InvalidRequest
+    }
+
+    if (data.numOutputs && data.numOutputs > 1) {
+      // Can't stream multiple outputs
       throw ErrorCode.InvalidRequest
     }
 

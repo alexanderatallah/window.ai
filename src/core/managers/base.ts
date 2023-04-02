@@ -26,7 +26,7 @@ export abstract class BaseManager<T extends BaseModel> {
       typeof window !== "undefined" &&
       process.env.NODE_ENV === "development"
     ) {
-      ;(window as any)["Web41-" + name + "-store"] = this.store
+      ;(window as any)["window.ai-" + name + "-store"] = this.store
     }
   }
 

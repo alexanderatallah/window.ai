@@ -24,13 +24,16 @@ This project is in beta and not on stores yet. For now, you can join the [#beta-
 
 ## How to build a window.ai app
 
-To leverage user-managed models in your app, simply call:
+To leverage user-managed models in your app, simply call `await window.ai.getCompletion` with your prompt and options.
+
+Example:
 
 ```ts
-const output: Output = await window.ai.getCompletion(
-    input: Input,
-    options: CompletionOptions = {}
+const response: Output = await window.ai.getCompletion(
+    { messages: [{role: "user", content: "Who are you?"}] }: Input
   )
+
+console.log(response.message.content) // "I am an AI language model"
 ```
 
 All public types are documented in [this file](/src/public-interface.ts). `Input`, for example, allows you to use both simple strings and [ChatML](https://github.com/openai/openai-python/blob/main/chatml.md).
@@ -47,6 +50,8 @@ await ai.getCompletion({
   onStreamResult: (res) => console.log(res.message.content)
 })
 ```
+
+Note that `getCompletion` will return an array, `Output[]`, if you specify `numOutputs > 1`.
 
 ---
 

@@ -51,7 +51,7 @@ export type CompletionRequest = {
   transaction: Transaction
   shouldStream?: boolean
 }
-export type CompletionResponse = Result<Output, ErrorCode | string>
+export type CompletionResponse = Result<Output[], ErrorCode | string>
 
 export type ModelRequest = {}
 export type ModelResponse = Result<ModelID, ErrorCode>

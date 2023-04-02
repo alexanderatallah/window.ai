@@ -43,8 +43,8 @@ const handler: PlasmoMessaging.PortHandler<
 
     for await (const result of results) {
       if (isOk(result)) {
-        const output = getOutput(txn.input, result.data)
-        res.send({ response: ok(output), id })
+        const outputs = [getOutput(txn.input, result.data)]
+        res.send({ response: ok(outputs), id })
         replies.push(result.data)
       } else {
         res.send({ response: result, id })
@@ -52,17 +52,17 @@ const handler: PlasmoMessaging.PortHandler<
       }
     }
 
-    txn.output = replies.length
-      ? getOutput(txn.input, replies.join(""))
+    txn.outputs = replies.length
+      ? [getOutput(txn.input, replies.join(""))]
       : undefined
     txn.error = errors.join("") || undefined
   } else {
     const result = await modelApi.complete(requestData)
 
     if (isOk(result)) {
-      const output = getOutput(txn.input, result.data)
-      res.send({ response: ok(output), id })
-      txn.output = output
+      const outputs = result.data.map((d) => getOutput(txn.input, d))
+      res.send({ response: ok(outputs), id })
+      txn.outputs = outputs
     } else {
       res.send({ response: result, id })
       txn.error = result.error
@@ -80,7 +80,7 @@ function getOutput(input: Input, result: string): Output {
 }
 
 async function makeRequestData(txn: Transaction): Promise<modelApi.Request> {
-  const { input, stopSequences, maxTokens, temperature } = txn
+  const { input, stopSequences, maxTokens, temperature, numOutputs } = txn
   const model = txn.model || (await configManager.getDefault()).id
   const config = await configManager.get(model)
 
@@ -90,6 +90,7 @@ async function makeRequestData(txn: Transaction): Promise<modelApi.Request> {
     maxTokens,
     model,
     temperature,
+    numOutputs,
     modelUrl: config?.completionUrl,
     apiKey: config?.apiKey
   }

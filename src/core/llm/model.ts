@@ -22,8 +22,7 @@ export interface ModelConfig {
     request: RequestData,
     meta: RequestMetadata
   ) => Record<string, unknown>
-  // TODO use Output instead of string?
-  transformResponse: (res: unknown) => string
+  transformResponse: (res: unknown) => string[]
 }
 
 export interface RequestOptions {
@@ -33,6 +32,7 @@ export interface RequestOptions {
   presence_penalty?: number
   top_p?: number
   stop_sequences?: string[]
+  num_generations?: number
   temperature?: number
   timeout?: number
   user_identifier?: string | null
@@ -58,12 +58,12 @@ export type RequestData = Omit<
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
 
 // TODO cache statistics and log probs etc
-export type CacheGetter = (id: string) => Promise<string | null | undefined>
+export type CacheGetter = (id: string) => Promise<string[] | null | undefined>
 
 export type CacheSetter = (data: {
   id: string
   prompt: RequestData
-  completion: string
+  completion: string[]
 }) => Promise<unknown>
 
 export class Model {
@@ -84,6 +84,7 @@ export class Model {
       temperature: 0, // OpenAI defaults to 1
       top_p: 1, // OpenAI default, rec. not change unless temperature = 1
       stop_sequences: [], // OpenAI default
+      num_generations: 1,
       max_tokens: 16, // OpenAI default, low for safety
       stream: false,
       adapter: null,
@@ -145,6 +146,7 @@ export class Model {
       frequency_penalty: opts.frequency_penalty,
       presence_penalty: opts.presence_penalty,
       stop_sequences: opts.stop_sequences,
+      num_generations: opts.num_generations,
       max_tokens: opts.max_tokens,
       stream: opts.stream
     }
@@ -155,7 +157,7 @@ export class Model {
   async complete(
     requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
-  ): Promise<string> {
+  ): Promise<string[]> {
     const {
       transformForRequest,
       getPath,
@@ -188,7 +190,7 @@ export class Model {
       const response = await this.api.post(getPath(request), payload, {
         timeout: opts.timeout,
         headers: {
-          Authorization: `${authPrefix}${opts.apiKey}`
+          Authorization: `${authPrefix}${opts.apiKey || ""}`
         }
       })
       responseData = response.data
@@ -205,7 +207,7 @@ export class Model {
 
     this.log("RESPONSE for id " + id)
     const result = transformResponse(responseData)
-    if (!result) {
+    if (!result[0]) {
       const e = new Error(
         `Returned an empty result: ${JSON.stringify(responseData)}`
       )
@@ -254,7 +256,7 @@ export class Model {
           timeout: opts.timeout,
           responseType: "stream",
           headers: {
-            Authorization: `${authPrefix}${opts.apiKey}`
+            Authorization: `${authPrefix}${opts.apiKey || ""}`
           }
         }
       )
@@ -286,7 +288,7 @@ export class Model {
 
   private _executeTransform(
     chunk: BufferSource,
-    transformResponse: (responseData: Record<string, any>) => string,
+    transformResponse: (responseData: Record<string, any>) => string[],
     {
       onEnd,
       onError,
@@ -312,7 +314,7 @@ export class Model {
       } else {
         const chunkData = JSON.parse(chunkDataRes)
         const result = transformResponse(chunkData)
-        if (typeof result !== "string") {
+        if (!result[0]) {
           const e = new Error(`Returned empty data: ${chunkDataRes}`)
           this.error(e)
           onError(e)

@@ -67,10 +67,10 @@ export function init(
       transformResponse: (res) => {
         const anyRes = res as any
         return anyRes["generations"]
-          ? anyRes["generations"][0]["text"]
+          ? anyRes["generations"].map((g: any) => g["text"])
           : anyRes["text"]
-          ? anyRes["text"]
-          : null
+          ? [anyRes["text"]]
+          : []
       }
     },
     options

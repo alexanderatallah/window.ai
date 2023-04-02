@@ -31,9 +31,10 @@ export const WindowAI = {
   async getCompletion(
     input: Input,
     options: CompletionOptions = {}
-  ): Promise<Output> {
+  ): Promise<Output | Output[]> {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
+    const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
     const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
       transaction: transactionManager.init(input, _getPageOrigin(), options),
       shouldStream
@@ -41,8 +42,8 @@ export const WindowAI = {
     return new Promise((resolve, reject) => {
       _addRequestListener<CompletionResponse>(requestId, (res) => {
         if (isOk(res)) {
-          resolve(res.data)
-          onStreamResult && onStreamResult(res.data, null)
+          resolve(shouldReturnMultiple ? res.data : res.data[0])
+          onStreamResult && onStreamResult(res.data[0], null)
         } else {
           reject(res.error)
           onStreamResult && onStreamResult(null, res.error)
