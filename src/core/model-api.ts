@@ -7,6 +7,7 @@ import { init as initTogether } from "~core/llm/together"
 
 import { ErrorCode, Input } from "./constants"
 import { LLM } from "./managers/config"
+import type { Transaction } from "./managers/transaction"
 import { Result, err, ok } from "./utils/result-monad"
 import { log, parseDataChunks } from "./utils/utils"
 
@@ -18,10 +19,11 @@ import { log, parseDataChunks } from "./utils/utils"
 const DEFAULT_MAX_TOKENS = 256
 const shouldDebugModels = process.env.NODE_ENV !== "production"
 
-export type Request = {
-  input: Input
+export type Request = Pick<
+  Transaction,
+  "model" | "input" | "temperature" | "maxTokens" | "stopSequences"
+> & {
   apiKey?: string
-  modelId?: LLM
   modelUrl?: string
 }
 
@@ -93,7 +95,7 @@ const streamableModelInstances = {
 }
 
 export async function complete(data: Request): Promise<Result<string, string>> {
-  const modelId = data.modelId || LLM.GPT3
+  const modelId = data.model || LLM.GPT3
   const model = modelInstances[modelId]
 
   if (!model) {
@@ -102,7 +104,10 @@ export async function complete(data: Request): Promise<Result<string, string>> {
 
   try {
     const result = await model.complete(data.input, {
-      apiKey: data.apiKey
+      apiKey: data.apiKey,
+      max_tokens: data.maxTokens,
+      temperature: data.temperature,
+      stop_sequences: data.stopSequences
     })
     return ok(result)
   } catch (error) {
@@ -114,7 +119,7 @@ export async function stream(
   data: Request
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const modelId = data.modelId || LLM.GPT3
+    const modelId = data.model || LLM.GPT3
     const model =
       streamableModelInstances[modelId as keyof typeof streamableModelInstances]
 
@@ -123,7 +128,10 @@ export async function stream(
     }
 
     const stream = await model.stream(data.input, {
-      apiKey: data.apiKey
+      apiKey: data.apiKey,
+      max_tokens: data.maxTokens,
+      temperature: data.temperature,
+      stop_sequences: data.stopSequences
     })
     return readableStreamToGenerator(stream)
   } catch (error) {

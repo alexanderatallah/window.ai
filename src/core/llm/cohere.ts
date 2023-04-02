@@ -47,7 +47,6 @@ export function init(
           prompt,
           messages,
           top_p,
-          modelProvider,
           stop_sequences,
           ...optsToSend
         } = req

@@ -40,14 +40,7 @@ export function init(
         "User-Agent": appName
       },
       transformForRequest: (req) => {
-        const {
-          modelId,
-          prompt,
-          messages,
-          modelProvider,
-          stop_sequences,
-          ...optsToSend
-        } = req
+        const { modelId, prompt, messages, stop_sequences, ...optsToSend } = req
         const fullPrompt =
           prompt !== undefined
             ? `<human>: ${prompt}`

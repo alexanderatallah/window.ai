@@ -13,6 +13,21 @@ export function parseDataChunks(rawData: string): string[] {
   return lines.map((line) => line.split("data: ")[1]?.trim())
 }
 
+type RemoveUndefinedKeys<T> = {
+  [K in keyof T as T[K] extends undefined ? never : K]: T[K]
+}
+
+export function definedValues<T extends object>(
+  obj: T
+): RemoveUndefinedKeys<T> {
+  return Object.entries(obj)
+    .filter(([, value]) => value !== undefined)
+    .reduce(
+      (acc, [key, value]) => ({ ...acc, [key]: value }),
+      {} as RemoveUndefinedKeys<T>
+    )
+}
+
 export function messagesToPrompt(messages: ChatMessage[]): string {
   return (
     messages
