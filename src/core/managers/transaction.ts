@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 
-import type { Input, Output } from "~core/constants"
+import type { CompletionOptions, Input, Output } from "~core/constants"
 
 import { BaseManager } from "./base"
 import type { LLM } from "./config"
@@ -12,8 +12,12 @@ export interface Transaction {
   origin: Origin
   input: Input
 
-  output?: Output
+  temperature?: number
+  maxTokens?: number
+  stopSequences?: string[]
   model?: LLM
+
+  output?: Output
   error?: string
 }
 
@@ -24,13 +28,17 @@ class TransactionManager extends BaseManager<Transaction> {
     super("transactions")
   }
 
-  init(input: Input, origin: Origin): Transaction {
+  init(input: Input, origin: Origin, options: CompletionOptions): Transaction {
     this._validateInput(input)
+    const { temperature, maxTokens, stopSequences } = options
     return {
       id: uuidv4(),
       origin,
       timestamp: Date.now(),
-      input
+      input,
+      temperature,
+      maxTokens,
+      stopSequences
     }
   }
 
@@ -48,10 +56,6 @@ class TransactionManager extends BaseManager<Transaction> {
   }
 
   formatInput(txn: Transaction): string {
-    // TODO deprecated, dev-only data
-    if (!("input" in txn)) {
-      return (txn as any).prompt
-    }
     if ("prompt" in txn.input) {
       return txn.input.prompt
     }
@@ -59,10 +63,6 @@ class TransactionManager extends BaseManager<Transaction> {
   }
 
   formatOutput(txn: Transaction): string | undefined {
-    // TODO deprecated, dev-only data
-    if (!("output" in txn)) {
-      return (txn as any).completion
-    }
     if (!txn.output) {
       return undefined
     }

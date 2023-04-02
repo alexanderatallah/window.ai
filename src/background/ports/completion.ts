@@ -42,8 +42,8 @@ const handler: PlasmoMessaging.PortHandler<
   const requestData = await makeRequestData(txn)
 
   if (request.shouldStream) {
-    const replies = []
-    const errors = []
+    const replies: string[] = []
+    const errors: string[] = []
 
     const results = await modelApi.stream(requestData)
 
@@ -86,12 +86,16 @@ function getOutput(input: Input, result: string): Output {
 }
 
 async function makeRequestData(txn: Transaction): Promise<modelApi.Request> {
-  const config = await configManager.get(LLM.GPT3)
-  const modelId = txn.model || (await configManager.getDefault()).id
+  const { input, stopSequences, maxTokens, temperature } = txn
+  const model = txn.model || (await configManager.getDefault()).id
+  const config = await configManager.get(model)
 
   return {
-    input: txn.input,
-    modelId,
+    input,
+    stopSequences,
+    maxTokens,
+    model,
+    temperature,
     modelUrl: config?.completionUrl,
     apiKey: config?.apiKey
   }

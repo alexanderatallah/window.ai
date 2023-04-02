@@ -2,6 +2,7 @@ import type { PlasmoCSConfig } from "plasmo"
 import { v4 as uuidv4 } from "uuid"
 
 import {
+  CompletionOptions,
   CompletionRequest,
   CompletionResponse,
   ContentMessageType,
@@ -24,12 +25,6 @@ export const config: PlasmoCSConfig = {
   // run_at: "document_start" // This causes some Next.js pages (e.g. Plasmo docs) to break
 }
 
-export interface CompletionOptions {
-  // If specified, partial updates will be streamed to this handler as they become available,
-  // and only the first partial update will be returned by the Promise.
-  onStreamResult?: (result: Output | null, error: string | null) => unknown
-}
-
 export const WindowAI = {
   async getCompletion(
     input: Input,
@@ -38,7 +33,7 @@ export const WindowAI = {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
     const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
-      transaction: transactionManager.init(input, _getPageOrigin()),
+      transaction: transactionManager.init(input, _getPageOrigin(), options),
       shouldStream
     })
     return new Promise((resolve, reject) => {

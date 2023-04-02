@@ -10,6 +10,7 @@
     "dev:plasmo": "plasmo dev",
     "build": "run-p build:*",
     "build:plasmo": "plasmo build",
+    "package": "plasmo package",
     "demo": "npx http-server demo"
   },
   "dependencies": {

@@ -1,10 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
-import { Readable, Transform, TransformCallback } from "stream"
 
-import { IS_SERVER } from "~core/constants"
-import { parseDataChunks } from "~core/utils/utils"
+import { definedValues, parseDataChunks } from "~core/utils/utils"
 
 export type ChatMessage = {
   role: "system" | "user" | "assistant"
@@ -93,7 +91,7 @@ export class Model {
       max_tokens: 16, // OpenAI default, low for safety
       stream: false,
       adapter: null,
-      ...opts
+      ...definedValues(opts)
     }
     // Create API client
     this.api = axios.create({
@@ -119,7 +117,7 @@ export class Model {
       customHeaders: {},
       endOfStreamSentinel: null,
       getModelId: (request: RequestData) => request.modelId || null,
-      ...config,
+      ...definedValues(config),
       cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
       cacheSet: config.cacheSet || (() => Promise.resolve(undefined))
     }
@@ -172,7 +170,7 @@ export class Model {
     } = this.config
     const opts: Required<RequestOptions> = {
       ...this.options,
-      ...requestOpts
+      ...definedValues(requestOpts)
     }
     const request = this.getRequestIdentifierData(requestPrompt, opts)
     const id = objectHash(request)
@@ -234,7 +232,7 @@ export class Model {
   ): Promise<ReadableStream<string>> {
     const opts: Required<RequestOptions> = {
       ...this.options,
-      ...requestOpts,
+      ...definedValues(requestOpts),
       stream: true
     }
     const { transformResponse, transformForRequest, authPrefix, getPath } =
