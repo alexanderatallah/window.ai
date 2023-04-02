@@ -4,8 +4,6 @@ This is a browser extension that helps you discover and use zero-dependency, pos
 
 Demo: *TODO*
 
-**Table of Contents**
-
 - [window.ai](#windowai)
   - [How it works](#how-it-works)
   - [Installation](#installation)
