@@ -42,8 +42,8 @@ export interface CompletionOptions {
   // make the output more random, while lower values like 0.2 will make it more focused and deterministic.
   // Different models have different defaults.
   temperature?: number
-  // How many chat completion choices to generate for each input message. Defaults to 1.
-  // TODO n?: number
+  // How many completion choices to generate. Defaults to 1.
+  numOutputs?: number
   // The maximum number of tokens to generate in the chat completion. Defaults to infinity, but the
   // total length of input tokens and generated tokens is limited by the model's context length.
   maxTokens?: number

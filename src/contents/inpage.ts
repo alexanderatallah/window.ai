@@ -65,6 +65,7 @@ export const WindowAI = {
   }
 }
 
+// TODO better validation
 function _validateOptions(options: CompletionOptions): CompletionOptions {
   if (
     typeof options !== "object" ||

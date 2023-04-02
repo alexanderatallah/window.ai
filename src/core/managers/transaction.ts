@@ -20,8 +20,9 @@ export interface Transaction {
   maxTokens?: number
   stopSequences?: string[]
   model?: ModelID
+  numOutputs?: number
 
-  output?: Output
+  outputs?: Output[]
   error?: string
 }
 
@@ -34,7 +35,7 @@ class TransactionManager extends BaseManager<Transaction> {
 
   init(input: Input, origin: Origin, options: CompletionOptions): Transaction {
     this._validateInput(input)
-    const { temperature, maxTokens, stopSequences } = options
+    const { temperature, maxTokens, stopSequences, model, numOutputs } = options
     return {
       id: uuidv4(),
       origin,
@@ -42,7 +43,9 @@ class TransactionManager extends BaseManager<Transaction> {
       input,
       temperature,
       maxTokens,
-      stopSequences
+      stopSequences,
+      model,
+      numOutputs
     }
   }
 
