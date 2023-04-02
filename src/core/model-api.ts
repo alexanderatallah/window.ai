@@ -96,6 +96,8 @@ export async function complete(data: Request): Promise<Result<string, string>> {
   const modelId = data.modelId || LLM.GPT3
   const model = modelInstances[modelId]
 
+  log("model", modelId, model, data)
+
   if (!model) {
     return err(ErrorCode.InvalidRequest)
   }
