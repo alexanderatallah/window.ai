@@ -22,7 +22,8 @@ export function init(
 ): Model {
   const completionModelId =
     config.quality === "low" ? OpenAIModelId.Curie : OpenAIModelId.Davinci
-  const chatModelId = OpenAIModelId.GPT3_5_Turbo
+  const chatModelId =
+    config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
   // config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
   return new Model(
     {

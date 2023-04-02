@@ -7,9 +7,10 @@ import { init as initTogether } from "~core/llm/together"
 import { ModelID } from "~public-interface"
 
 import { ErrorCode } from "./constants"
+import type { Model } from "./llm/model"
 import type { Transaction } from "./managers/transaction"
 import { Result, err, ok } from "./utils/result-monad"
-import { log, parseDataChunks } from "./utils/utils"
+import { log } from "./utils/utils"
 
 // TODO configure basic in-memory lru cache
 // const cache = new Map<string, { completion: string }>()
@@ -40,17 +41,27 @@ export const alpacaTurbo = initAlpacaTurbo(
   }
 )
 
-export const openai = initOpenAI(
+export const openai3_5 = initOpenAI(
+  {
+    quality: "low",
+    debug: shouldDebugModels
+  },
+  {
+    adapter: fetchAdapter,
+    max_tokens: DEFAULT_MAX_TOKENS,
+    presence_penalty: 0 // Using negative numbers causes 500s from davinci
+  }
+)
+
+export const openai4 = initOpenAI(
   {
     quality: "max",
     debug: shouldDebugModels
   },
   {
     adapter: fetchAdapter,
-    // apiKey: process.env.OPENAI_API_KEY,
     max_tokens: DEFAULT_MAX_TOKENS,
     presence_penalty: 0 // Using negative numbers causes 500s from davinci
-    // stop_sequences: ['\n'],
   }
 )
 
@@ -82,17 +93,15 @@ export const cohere = initCohere(
   }
 )
 
-const modelInstances = {
-  [ModelID.GPT3]: openai,
+const modelInstances: { [K in ModelID]: Model } = {
+  [ModelID.GPT3]: openai3_5,
+  [ModelID.GPT4]: openai4,
   [ModelID.Cohere]: cohere,
   [ModelID.GPTNeo]: together,
   [ModelID.Local]: alpacaTurbo
 }
 
-const streamableModelInstances = {
-  [ModelID.GPT3]: openai,
-  [ModelID.Local]: alpacaTurbo
-}
+const streamableModels = new Set([ModelID.GPT3, ModelID.GPT4, ModelID.Local])
 
 export async function complete(data: Request): Promise<Result<string, string>> {
   const modelId = data.model || ModelID.GPT3
@@ -120,8 +129,7 @@ export async function stream(
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
     const modelId = data.model || ModelID.GPT3
-    const model =
-      streamableModelInstances[modelId as keyof typeof streamableModelInstances]
+    const model = streamableModels.has(modelId) && modelInstances[modelId]
 
     if (!model) {
       throw ErrorCode.InvalidRequest

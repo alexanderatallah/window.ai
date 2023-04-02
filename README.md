@@ -34,14 +34,17 @@ const output: Output = await window.ai.getCompletion(
   )
 ```
 
-All public types can be viewed in [this file](/src/public-interface.ts). `Input` allows you to use both simple strings and [ChatML](https://github.com/openai/openai-python/blob/main/chatml.md). Example of streaming results to the console:
+All public types are documented in [this file](/src/public-interface.ts). `Input`, for example, allows you to use both simple strings and [ChatML](https://github.com/openai/openai-python/blob/main/chatml.md).
+
+Example of streaming GPT-4 results to the console:
 
 ```ts
 await ai.getCompletion({
-  messages: [{role: "system", content: "Who are you?"}]
+  messages: [{role: "user", content: "Who are you?"}]
 }, {
-  temperature: 1,
+  temperature: 0.7,
   maxTokens: 800,
+  model: ModelID.GPT4,
   onStreamResult: (res) => console.log(res.message.content)
 })
 ```

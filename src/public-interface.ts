@@ -1,16 +1,21 @@
 import type { WindowAI } from "~contents/inpage"
 
+// window.ai is injected into every webpage, allowing apps to avoid having to
+// include scripts or hard-code network requests to use AI models.
 declare global {
   interface Window {
     ai: typeof WindowAI
   }
 }
 
+// ChatML is a simple markup language for chat messages. More available here:
+// https://github.com/openai/openai-python/blob/main/chatml.md
 export type ChatMessage = {
   role: "system" | "user" | "assistant"
   content: string
 }
 
+// Input allows you to specify either a prompt string or a list of chat messages.
 export type Input =
   | {
       prompt: string
@@ -19,6 +24,7 @@ export type Input =
       messages: ChatMessage[]
     }
 
+// Output can be either a string or a chat message.
 export type Output =
   | {
       text: string
@@ -27,13 +33,7 @@ export type Output =
       message: ChatMessage
     }
 
-export enum ModelID {
-  GPT3 = "openai/gpt3.5",
-  GPTNeo = "together/gpt-neoxt-20B",
-  Cohere = "cohere/xlarge",
-  Local = "local"
-}
-
+// CompletionOptions allows you to specify options for the completion request.
 export interface CompletionOptions {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
@@ -51,4 +51,14 @@ export interface CompletionOptions {
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: ModelID
+}
+
+// ModelID is an enum of the available models.
+// NOTE: this is an evolving standard, and may change in the future.
+export enum ModelID {
+  GPT3 = "openai/gpt3.5",
+  GPT4 = "openai/gpt4",
+  GPTNeo = "together/gpt-neoxt-20B",
+  Cohere = "cohere/xlarge",
+  Local = "local"
 }
