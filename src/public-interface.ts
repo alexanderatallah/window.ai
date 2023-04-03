@@ -24,7 +24,7 @@ export type Input =
       messages: ChatMessage[]
     }
 
-// Output can be either a string or a chat message.
+// Output can be either a string or a chat message, depending on which Input type you use.
 export type Output =
   | {
       text: string

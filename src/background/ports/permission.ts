@@ -3,7 +3,6 @@ import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 import { RequestState } from "~background/state/request"
 import {
   CompletionRequest,
-  ErrorCode,
   POPUP_HEIGHT,
   POPUP_WIDTH,
   PortName,
@@ -14,6 +13,7 @@ import { originManager } from "~core/managers/origin"
 import { Result, err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import { Extension } from "~platforms/extension"
+import { ErrorCode } from "~public-interface"
 
 const permissionState = new RequestState<
   CompletionRequest,
