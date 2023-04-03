@@ -10,19 +10,19 @@ import { Well } from "~core/components/pure/Well"
 import {
   Config,
   DefaultCompletionURL,
-  LLM,
   LLMLabels,
   configManager
 } from "~core/managers/config"
+import { ModelID } from "~public-interface"
 
 export function Settings() {
   // const [loading, setLoading] = useState(false)
-  const uiDefaultModel = LLM.GPT3
-  const [selectedModel, setSelectedModel] = useState<LLM>(uiDefaultModel)
+  const uiDefaultModel = ModelID.GPT3
+  const [selectedModel, setSelectedModel] = useState<ModelID>(uiDefaultModel)
   const [apiKey, setApiKey] = useState("")
   const [url, setUrl] = useState("")
   const [config, setConfig] = useState<Config | undefined>()
-  const [defaultModel, setDefaultModel] = useState<LLM>(uiDefaultModel)
+  const [defaultModel, setDefaultModel] = useState<ModelID>(uiDefaultModel)
 
   useEffect(() => {
     configManager.get(selectedModel).then((c) => {
@@ -53,7 +53,7 @@ export function Settings() {
     })
   }
 
-  const isLocalModel = selectedModel === LLM.Local
+  const isLocalModel = selectedModel === ModelID.Local
 
   return (
     <div className="flex flex-col">
@@ -83,9 +83,9 @@ export function Settings() {
           </Text>
         </div>
         <Splitter />
-        <Dropdown<LLM>
+        <Dropdown<ModelID>
           styled
-          choices={Object.values(LLM)}
+          choices={Object.values(ModelID)}
           onSelect={async (id) => {
             await configManager.setDefault(id)
             setDefaultModel(id)
@@ -102,8 +102,8 @@ export function Settings() {
             </Text>
           </div>
           <Splitter />
-          <Dropdown<LLM>
-            choices={Object.values(LLM)}
+          <Dropdown<ModelID>
+            choices={Object.values(ModelID)}
             onSelect={(v) => setSelectedModel(v)}>
             {LLMLabels[selectedModel]}
           </Dropdown>
@@ -130,7 +130,7 @@ export function Settings() {
               <label
                 htmlFor={"completion-url"}
                 className="block text-xs font-medium opacity-60 mt-2">
-                {selectedModel === LLM.Local
+                {selectedModel === ModelID.Local
                   ? "Use any URL, including localhost!"
                   : "Optionally use this to set a proxy. Only change if you know what you're doing."}
               </label>

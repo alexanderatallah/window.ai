@@ -1,19 +1,14 @@
 import { WrenchScrewdriverIcon } from "@heroicons/react/24/solid"
-import { useEffect } from "react"
 
-import { transactionManager } from "~core/managers/transaction"
 import { NavView, useNav } from "~core/providers/nav"
-import { Settings } from "~core/views/Settings"
-
-import { SlidingPane } from "./pure/SlidingPane"
 
 type Tab = { name: string; view: NavView }
 export function NavBar() {
   const { view, setView, setSettingsShown } = useNav()
 
   const tabs: Tab[] = [
-    { name: "Activity", view: "activity" }
-    // { name: "Apps", view: "apps" }
+    { name: "Activity", view: "activity" },
+    { name: "Apps", view: "apps" }
   ]
   return (
     <div className="flex flex-row p-2">

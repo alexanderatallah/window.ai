@@ -10,6 +10,7 @@ import {
   PortRequest,
   PortResponse
 } from "~core/constants"
+import { originManager } from "~core/managers/origin"
 import { Result, err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import { Extension } from "~platforms/extension"
@@ -56,6 +57,16 @@ export async function requestPermission(
   request: CompletionRequest,
   requestId: string
 ) {
+  const originData = request.transaction.origin
+  const origin = await originManager.getOrInit(
+    request.transaction.origin.id,
+    originData
+  )
+  if (origin.permissions === "allow") {
+    log("Permission granted by user settings: ", origin)
+    return ok(true)
+  }
+
   const window = await Extension.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
     requestId
   })

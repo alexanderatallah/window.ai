@@ -1,9 +1,10 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
-import { ErrorCode, PortName, PortRequest, PortResponse } from "~core/constants"
+import type { PortName, PortRequest, PortResponse } from "~core/constants"
 import { configManager } from "~core/managers/config"
 import { ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
+import { ErrorCode } from "~public-interface"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Model],

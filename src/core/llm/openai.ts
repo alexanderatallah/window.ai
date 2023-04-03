@@ -1,4 +1,6 @@
-import { ChatMessage, Model, ModelConfig, RequestOptions } from "./model"
+import type { ChatMessage } from "~public-interface"
+
+import { Model, ModelConfig, RequestOptions } from "./model"
 
 export enum OpenAIModelId {
   Davinci = "text-davinci-003",
@@ -20,7 +22,8 @@ export function init(
 ): Model {
   const completionModelId =
     config.quality === "low" ? OpenAIModelId.Curie : OpenAIModelId.Davinci
-  const chatModelId = OpenAIModelId.GPT3_5_Turbo
+  const chatModelId =
+    config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
   // config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
   return new Model(
     {
@@ -34,25 +37,30 @@ export function init(
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       transformForRequest: (req, meta) => {
-        const { modelId, stop_sequences, modelProvider, ...optsToSend } = req
+        const {
+          modelId,
+          stop_sequences,
+          num_generations,
+          modelProvider,
+          ...optsToSend
+        } = req
         return {
           ...optsToSend,
           model: modelId,
           user: meta.user_identifier || undefined,
-          stop: stop_sequences.length ? stop_sequences : undefined
+          stop: stop_sequences.length ? stop_sequences : undefined,
+          n: num_generations
         }
       },
       transformResponse: (res) => {
         const anyRes = res as any
-        if ("delta" in anyRes["choices"][0]) {
-          const delta: Partial<ChatMessage> = anyRes["choices"][0]["delta"]
-          return delta.content || ""
+        if ("text" in anyRes["choices"][0]) {
+          return anyRes["choices"].map((c: any) => c["text"])
         }
-        if ("message" in anyRes["choices"][0]) {
-          const message: ChatMessage = anyRes["choices"][0]["message"]
-          return message.content
-        }
-        return anyRes["choices"][0]["text"]
+        const messages: Partial<ChatMessage>[] = anyRes["choices"].map(
+          (c: any) => c["delta"] || c["message"]
+        )
+        return messages.map((m) => m.content)
       }
     },
     opts

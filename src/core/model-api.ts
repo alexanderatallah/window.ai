@@ -4,12 +4,12 @@ import { init as initAlpacaTurbo } from "~core/llm/alpaca-turbo"
 import { init as initCohere } from "~core/llm/cohere"
 import { init as initOpenAI } from "~core/llm/openai"
 import { init as initTogether } from "~core/llm/together"
+import { ErrorCode, ModelID } from "~public-interface"
 
-import { ErrorCode, Input } from "./constants"
-import { LLM } from "./managers/config"
+import type { Model } from "./llm/model"
 import type { Transaction } from "./managers/transaction"
 import { Result, err, ok } from "./utils/result-monad"
-import { log, parseDataChunks } from "./utils/utils"
+import { log } from "./utils/utils"
 
 // TODO configure basic in-memory lru cache
 // const cache = new Map<string, { completion: string }>()
@@ -21,7 +21,12 @@ const shouldDebugModels = process.env.NODE_ENV !== "production"
 
 export type Request = Pick<
   Transaction,
-  "model" | "input" | "temperature" | "maxTokens" | "stopSequences"
+  | "model"
+  | "input"
+  | "temperature"
+  | "maxTokens"
+  | "stopSequences"
+  | "numOutputs"
 > & {
   apiKey?: string
   modelUrl?: string
@@ -40,22 +45,32 @@ export const alpacaTurbo = initAlpacaTurbo(
   }
 )
 
-export const openai = initOpenAI(
+export const openai3_5 = initOpenAI(
+  {
+    quality: "low",
+    debug: shouldDebugModels
+  },
+  {
+    adapter: fetchAdapter,
+    max_tokens: DEFAULT_MAX_TOKENS,
+    presence_penalty: 0 // Using negative numbers causes 500s from davinci
+  }
+)
+
+export const openai4 = initOpenAI(
   {
     quality: "max",
     debug: shouldDebugModels
   },
   {
     adapter: fetchAdapter,
-    // apiKey: process.env.OPENAI_API_KEY,
     max_tokens: DEFAULT_MAX_TOKENS,
     presence_penalty: 0 // Using negative numbers causes 500s from davinci
-    // stop_sequences: ['\n'],
   }
 )
 
 export const together = initTogether(
-  "Web41",
+  "window.ai",
   {
     quality: "max", // TODO this currently 500s
     debug: shouldDebugModels
@@ -82,20 +97,20 @@ export const cohere = initCohere(
   }
 )
 
-const modelInstances = {
-  [LLM.GPT3]: openai,
-  [LLM.Cohere]: cohere,
-  [LLM.GPTNeo]: together,
-  [LLM.Local]: alpacaTurbo
+const modelInstances: { [K in ModelID]: Model } = {
+  [ModelID.GPT3]: openai3_5,
+  [ModelID.GPT4]: openai4,
+  [ModelID.Cohere]: cohere,
+  [ModelID.GPTNeo]: together,
+  [ModelID.Local]: alpacaTurbo
 }
 
-const streamableModelInstances = {
-  [LLM.GPT3]: openai,
-  [LLM.Local]: alpacaTurbo
-}
+const streamableModels = new Set([ModelID.GPT3, ModelID.GPT4, ModelID.Local])
 
-export async function complete(data: Request): Promise<Result<string, string>> {
-  const modelId = data.model || LLM.GPT3
+export async function complete(
+  data: Request
+): Promise<Result<string[], string>> {
+  const modelId = data.model || ModelID.GPT3
   const model = modelInstances[modelId]
 
   log("model", modelId, model, data)
@@ -109,7 +124,8 @@ export async function complete(data: Request): Promise<Result<string, string>> {
       apiKey: data.apiKey,
       max_tokens: data.maxTokens,
       temperature: data.temperature,
-      stop_sequences: data.stopSequences
+      stop_sequences: data.stopSequences,
+      num_generations: data.numOutputs
     })
     return ok(result)
   } catch (error) {
@@ -121,11 +137,15 @@ export async function stream(
   data: Request
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const modelId = data.model || LLM.GPT3
-    const model =
-      streamableModelInstances[modelId as keyof typeof streamableModelInstances]
+    const modelId = data.model || ModelID.GPT3
+    const model = streamableModels.has(modelId) && modelInstances[modelId]
 
     if (!model) {
+      throw ErrorCode.InvalidRequest
+    }
+
+    if (data.numOutputs && data.numOutputs > 1) {
+      // Can't stream multiple outputs
       throw ErrorCode.InvalidRequest
     }
 

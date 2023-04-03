@@ -2,21 +2,23 @@ import type { PlasmoCSConfig } from "plasmo"
 import { v4 as uuidv4 } from "uuid"
 
 import {
-  CompletionOptions,
   CompletionRequest,
   CompletionResponse,
   ContentMessageType,
-  Input,
   ModelRequest,
   ModelResponse,
-  Output,
   PortName,
   RequestId
 } from "~core/constants"
-import type { LLM } from "~core/managers/config"
-import { Origin, originManager } from "~core/managers/origin"
+import { OriginData, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import { Result, isOk } from "~core/utils/result-monad"
+import type {
+  CompletionOptions,
+  Input,
+  ModelID,
+  Output
+} from "~public-interface"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -29,18 +31,19 @@ export const WindowAI = {
   async getCompletion(
     input: Input,
     options: CompletionOptions = {}
-  ): Promise<Output> {
+  ): Promise<Output | Output[]> {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
+    const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
     const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
-      transaction: transactionManager.init(input, _getPageOrigin(), options),
+      transaction: transactionManager.init(input, _getOriginData(), options),
       shouldStream
     })
     return new Promise((resolve, reject) => {
       _addRequestListener<CompletionResponse>(requestId, (res) => {
         if (isOk(res)) {
-          resolve(res.data)
-          onStreamResult && onStreamResult(res.data, null)
+          resolve(shouldReturnMultiple ? res.data : res.data[0])
+          onStreamResult && onStreamResult(res.data[0], null)
         } else {
           reject(res.error)
           onStreamResult && onStreamResult(null, res.error)
@@ -49,7 +52,7 @@ export const WindowAI = {
     })
   },
 
-  async getCurrentModel(): Promise<LLM> {
+  async getCurrentModel(): Promise<ModelID> {
     const requestId = _relayRequest<ModelRequest>(PortName.Model, {})
     return new Promise((resolve, reject) => {
       _addRequestListener<ModelResponse>(requestId, (res) => {
@@ -63,6 +66,7 @@ export const WindowAI = {
   }
 }
 
+// TODO better validation
 function _validateOptions(options: CompletionOptions): CompletionOptions {
   if (
     typeof options !== "object" ||
@@ -73,8 +77,8 @@ function _validateOptions(options: CompletionOptions): CompletionOptions {
   return options
 }
 
-function _getPageOrigin(): Origin {
-  return originManager.init(
+function _getOriginData(): OriginData {
+  return originManager.getData(
     window.location.origin,
     window.location.pathname,
     window.document.title
@@ -140,9 +144,4 @@ window.addEventListener(
   false
 )
 
-declare global {
-  interface Window {
-    ai: typeof WindowAI
-  }
-}
 window.ai = WindowAI

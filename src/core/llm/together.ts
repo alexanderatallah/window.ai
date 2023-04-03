@@ -40,7 +40,21 @@ export function init(
         "User-Agent": appName
       },
       transformForRequest: (req) => {
-        const { modelId, prompt, messages, stop_sequences, ...optsToSend } = req
+        const {
+          modelId,
+          prompt,
+          messages,
+          stop_sequences,
+          num_generations,
+          modelProvider,
+          frequency_penalty,
+          presence_penalty,
+          max_tokens,
+          temperature,
+          top_p,
+          stream,
+          ...optsToSend
+        } = req
         const fullPrompt =
           prompt !== undefined
             ? `<human>: ${prompt}`
@@ -49,6 +63,9 @@ export function init(
             : undefined
         return {
           ...optsToSend,
+          max_tokens,
+          top_p,
+          temperature,
           model: modelId,
           stop: ["\n<human>", ...stop_sequences],
           prompt: fullPrompt
@@ -56,7 +73,9 @@ export function init(
       },
       transformResponse: (res) => {
         const anyRes = res as any
-        return anyRes["output"] ? anyRes["output"]["choices"][0]["text"] : null
+        return anyRes["output"]
+          ? anyRes["output"]["choices"].map((c: any) => c["text"])
+          : []
       }
     },
     options

@@ -26,7 +26,7 @@ export abstract class BaseManager<T extends BaseModel> {
       typeof window !== "undefined" &&
       process.env.NODE_ENV === "development"
     ) {
-      ;(window as any)["Web41-" + name + "-store"] = this.store
+      ;(window as any)["window.ai-" + name + "-store"] = this.store
     }
   }
 
@@ -34,6 +34,17 @@ export abstract class BaseManager<T extends BaseModel> {
 
   async get(id: string): Promise<T | undefined> {
     return this.store.get<T | undefined>(id)
+  }
+
+  async getOrInit(id: string, ...initArgs: unknown[]): Promise<T> {
+    const obj = await this.get(id)
+    if (obj) {
+      return obj
+    }
+    if (initArgs.length) {
+      return this.init(...initArgs)
+    }
+    return this.init(id)
   }
 
   async save(obj: T): Promise<boolean> {

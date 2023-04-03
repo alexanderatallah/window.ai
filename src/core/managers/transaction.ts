@@ -1,23 +1,28 @@
 import { v4 as uuidv4 } from "uuid"
 
-import type { CompletionOptions, Input, Output } from "~core/constants"
+import type {
+  CompletionOptions,
+  Input,
+  ModelID,
+  Output
+} from "~public-interface"
 
 import { BaseManager } from "./base"
-import type { LLM } from "./config"
-import { Origin, originManager } from "./origin"
+import { OriginData, originManager } from "./origin"
 
 export interface Transaction {
   id: string
   timestamp: number
-  origin: Origin
+  origin: OriginData
   input: Input
 
   temperature?: number
   maxTokens?: number
   stopSequences?: string[]
-  model?: LLM
+  model?: ModelID
+  numOutputs?: number
 
-  output?: Output
+  outputs?: Output[]
   error?: string
 }
 
@@ -28,9 +33,13 @@ class TransactionManager extends BaseManager<Transaction> {
     super("transactions")
   }
 
-  init(input: Input, origin: Origin, options: CompletionOptions): Transaction {
+  init(
+    input: Input,
+    origin: OriginData,
+    options: CompletionOptions
+  ): Transaction {
     this._validateInput(input)
-    const { temperature, maxTokens, stopSequences } = options
+    const { temperature, maxTokens, stopSequences, model, numOutputs } = options
     return {
       id: uuidv4(),
       origin,
@@ -38,17 +47,22 @@ class TransactionManager extends BaseManager<Transaction> {
       input,
       temperature,
       maxTokens,
-      stopSequences
+      stopSequences,
+      model,
+      numOutputs
     }
   }
 
   async save(txn: Transaction): Promise<boolean> {
     const isNew = await super.save(txn)
 
-    if (isNew && txn.origin) {
+    if (isNew) {
+      const originData = txn.origin
+      const newOrigin = originManager.init(originData)
+      const origin = await originManager.getOrInit(newOrigin.id, newOrigin)
       await Promise.all([
-        originManager.save(txn.origin),
-        this.indexBy(txn, txn.origin.id, originIndexName)
+        originManager.save(origin),
+        this.indexBy(txn, origin.id, originIndexName)
       ])
     }
 
@@ -63,14 +77,30 @@ class TransactionManager extends BaseManager<Transaction> {
   }
 
   formatOutput(txn: Transaction): string | undefined {
-    if (!txn.output) {
+    if (!txn.outputs) {
       return undefined
     }
-    if ("text" in txn.output) {
-      return txn.output.text
+    return txn.outputs
+      .map((t) => {
+        if ("text" in t) {
+          return t.text
+        }
+        return `${t.message.role}: ${t.message.content}`
+      })
+      .join("\n")
+  }
+
+  formatJSON(txn: Transaction): object {
+    const { input, temperature, maxTokens, stopSequences, model, numOutputs } =
+      txn
+    return {
+      input,
+      temperature,
+      maxTokens,
+      stopSequences,
+      model,
+      numOutputs
     }
-    const m = txn.output.message
-    return `${m.role}: ${m.content}`
   }
 
   _validateInput(input: Input): void {
