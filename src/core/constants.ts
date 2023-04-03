@@ -1,4 +1,4 @@
-import type { ModelID, Output } from "~public-interface"
+import type { ErrorCode, ModelID, Output } from "~public-interface"
 
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
@@ -36,13 +36,6 @@ export enum ContentMessageType {
   Request = "request",
   Response = "response",
   Cancel = "cancel"
-}
-
-export enum ErrorCode {
-  NotAuthenticated = "NOT_AUTHENTICATED",
-  PermissionDenied = "PERMISSION_DENIED",
-  RequestNotFound = "REQUEST_NOT_FOUND",
-  InvalidRequest = "INVALID_REQUEST"
 }
 
 export type RequestId = string

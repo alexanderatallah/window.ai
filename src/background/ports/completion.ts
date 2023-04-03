@@ -1,12 +1,12 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
-import { ErrorCode, PortName, PortRequest, PortResponse } from "~core/constants"
+import type { PortName, PortRequest, PortResponse } from "~core/constants"
 import { configManager } from "~core/managers/config"
 import { Transaction, transactionManager } from "~core/managers/transaction"
 import * as modelApi from "~core/model-api"
 import { isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
-import type { Input, Output } from "~public-interface"
+import { ErrorCode, Input, Output } from "~public-interface"
 
 import { requestPermission } from "./permission"
 

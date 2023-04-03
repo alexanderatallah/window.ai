@@ -62,3 +62,11 @@ export enum ModelID {
   Cohere = "cohere/xlarge",
   Local = "local"
 }
+
+// Error codes emitted by the extension API
+export enum ErrorCode {
+  NotAuthenticated = "NOT_AUTHENTICATED",
+  PermissionDenied = "PERMISSION_DENIED",
+  RequestNotFound = "REQUEST_NOT_FOUND",
+  InvalidRequest = "INVALID_REQUEST"
+}
