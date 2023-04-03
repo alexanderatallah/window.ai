@@ -8,12 +8,12 @@ import type {
 } from "~public-interface"
 
 import { BaseManager } from "./base"
-import { Origin, originManager } from "./origin"
+import { OriginData, originManager } from "./origin"
 
 export interface Transaction {
   id: string
   timestamp: number
-  origin: Origin
+  origin: OriginData
   input: Input
 
   temperature?: number
@@ -33,7 +33,11 @@ class TransactionManager extends BaseManager<Transaction> {
     super("transactions")
   }
 
-  init(input: Input, origin: Origin, options: CompletionOptions): Transaction {
+  init(
+    input: Input,
+    origin: OriginData,
+    options: CompletionOptions
+  ): Transaction {
     this._validateInput(input)
     const { temperature, maxTokens, stopSequences, model, numOutputs } = options
     return {
@@ -52,10 +56,13 @@ class TransactionManager extends BaseManager<Transaction> {
   async save(txn: Transaction): Promise<boolean> {
     const isNew = await super.save(txn)
 
-    if (isNew && txn.origin) {
+    if (isNew) {
+      const originData = txn.origin
+      const newOrigin = originManager.init(originData)
+      const origin = await originManager.getOrInit(newOrigin.id, newOrigin)
       await Promise.all([
-        originManager.save(txn.origin),
-        this.indexBy(txn, txn.origin.id, originIndexName)
+        originManager.save(origin),
+        this.indexBy(txn, origin.id, originIndexName)
       ])
     }
 

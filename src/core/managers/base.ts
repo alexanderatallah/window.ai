@@ -37,9 +37,9 @@ export abstract class BaseManager<T extends BaseModel> {
   }
 
   async getOrInit(id: string, ...initArgs: unknown[]): Promise<T> {
-    const config = await this.get(id)
-    if (config) {
-      return config
+    const obj = await this.get(id)
+    if (obj) {
+      return obj
     }
     if (initArgs.length) {
       return this.init(...initArgs)

@@ -10,7 +10,7 @@ import {
   PortName,
   RequestId
 } from "~core/constants"
-import { Origin, originManager } from "~core/managers/origin"
+import { OriginData, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import { Result, isOk } from "~core/utils/result-monad"
 import type {
@@ -35,9 +35,8 @@ export const WindowAI = {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
     const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
-    const origin = await _getPageOrigin()
     const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
-      transaction: transactionManager.init(input, origin, options),
+      transaction: transactionManager.init(input, _getOriginData(), options),
       shouldStream
     })
     return new Promise((resolve, reject) => {
@@ -78,10 +77,8 @@ function _validateOptions(options: CompletionOptions): CompletionOptions {
   return options
 }
 
-function _getPageOrigin(): Promise<Origin> {
-  const id = window.location.origin + window.location.pathname
-  return originManager.getOrInit(
-    id,
+function _getOriginData(): OriginData {
+  return originManager.getData(
     window.location.origin,
     window.location.pathname,
     window.document.title
