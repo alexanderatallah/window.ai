@@ -36,6 +36,17 @@ export abstract class BaseManager<T extends BaseModel> {
     return this.store.get<T | undefined>(id)
   }
 
+  async getOrInit(id: string, ...initArgs: unknown[]): Promise<T> {
+    const config = await this.get(id)
+    if (config) {
+      return config
+    }
+    if (initArgs.length) {
+      return this.init(...initArgs)
+    }
+    return this.init(id)
+  }
+
   async save(obj: T): Promise<boolean> {
     const [warning, isNew] = await Promise.all([
       this.store.set(obj.id, obj),

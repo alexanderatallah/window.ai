@@ -35,8 +35,9 @@ export const WindowAI = {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
     const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
+    const origin = await _getPageOrigin()
     const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
-      transaction: transactionManager.init(input, _getPageOrigin(), options),
+      transaction: transactionManager.init(input, origin, options),
       shouldStream
     })
     return new Promise((resolve, reject) => {
@@ -77,8 +78,10 @@ function _validateOptions(options: CompletionOptions): CompletionOptions {
   return options
 }
 
-function _getPageOrigin(): Origin {
-  return originManager.init(
+function _getPageOrigin(): Promise<Origin> {
+  const id = window.location.origin + window.location.pathname
+  return originManager.getOrInit(
+    id,
     window.location.origin,
     window.location.pathname,
     window.document.title

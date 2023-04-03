@@ -56,6 +56,11 @@ export async function requestPermission(
   request: CompletionRequest,
   requestId: string
 ) {
+  const origin = request.transaction.origin
+  if (origin.permissions === "allow") {
+    return ok(true)
+  }
+
   const window = await Extension.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
     requestId
   })

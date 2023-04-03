@@ -70,14 +70,30 @@ class TransactionManager extends BaseManager<Transaction> {
   }
 
   formatOutput(txn: Transaction): string | undefined {
-    if (!txn.output) {
+    if (!txn.outputs) {
       return undefined
     }
-    if ("text" in txn.output) {
-      return txn.output.text
+    return txn.outputs
+      .map((t) => {
+        if ("text" in t) {
+          return t.text
+        }
+        return `${t.message.role}: ${t.message.content}`
+      })
+      .join("\n")
+  }
+
+  formatJSON(txn: Transaction): object {
+    const { input, temperature, maxTokens, stopSequences, model, numOutputs } =
+      txn
+    return {
+      input,
+      temperature,
+      maxTokens,
+      stopSequences,
+      model,
+      numOutputs
     }
-    const m = txn.output.message
-    return `${m.role}: ${m.content}`
   }
 
   _validateInput(input: Input): void {

@@ -5,6 +5,7 @@ export interface Origin {
   domain: string
   path: string
   title: string
+  permissions: "allow" | "ask"
 }
 
 class OriginManager extends BaseManager<Origin> {
@@ -17,7 +18,8 @@ class OriginManager extends BaseManager<Origin> {
       id: origin + pathName,
       domain: origin,
       path: pathName,
-      title
+      title,
+      permissions: "ask"
     }
   }
 

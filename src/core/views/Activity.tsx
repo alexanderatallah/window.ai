@@ -2,6 +2,7 @@ import { BeakerIcon } from "@heroicons/react/24/solid"
 import { useRef, useState } from "react"
 import React from "react"
 
+import { NoActivity } from "~core/components/NoActivity"
 import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
 import { Logo } from "~core/components/pure/Logo"
 import { Skeleton } from "~core/components/pure/Skeleton"
@@ -29,23 +30,7 @@ export function Activity() {
         />
       ))}
 
-      {objects.length === 0 && !loading && (
-        <div className="flex flex-col p-8">
-          <Text size="lg" align="center" strength="medium">
-            No activity yet
-          </Text>
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
-            Join the{" "}
-            <a
-              className="dark:text-white"
-              href="https://discord.gg/vDAvbuySYv"
-              target="_blank">
-              Discord
-            </a>{" "}
-            server to explore window.ai apps.
-          </p>
-        </div>
-      )}
+      {objects.length === 0 && !loading && <NoActivity />}
 
       <div ref={loaderRef}>{loading && <Skeleton />}</div>
 

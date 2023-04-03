@@ -1,17 +1,23 @@
 import { useRef, useState } from "react"
 
+import { NoActivity } from "~core/components/NoActivity"
 import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
 import { HorizontalMenu } from "~core/components/pure/HorizontalMenu"
 import { Logo } from "~core/components/pure/Logo"
 import { Skeleton } from "~core/components/pure/Skeleton"
+import { SlidingPane } from "~core/components/pure/SlidingPane"
 import { Text } from "~core/components/pure/Text"
 import { Origin, originManager } from "~core/managers/origin"
+
+import { AppsItem } from "./AppsItem"
 
 type Filter = "my-apps" | "trending" | "all"
 
 export function Apps() {
   const { objects, loading, appendNextPage } = originManager.useObjects(20)
   const [filter, setFilter] = useState<Filter>("my-apps")
+  const [selectedApp, selectApp] = useState<Origin | undefined>()
+  const filteredApps = objects.filter((o) => filter === "my-apps")
   const loaderRef = useRef<HTMLDivElement>(null)
 
   useInfiniteScroll(loaderRef, appendNextPage, objects.length > 0)
@@ -22,8 +28,8 @@ export function Apps() {
         className="absolute top-0 left-0 right-0"
         items={[
           { label: "My Apps", value: "my-apps" },
-          { label: "Trending", value: "trending" },
-          { label: "All", value: "all" }
+          // { label: "Trending", value: "trending" },
+          { label: "All (coming soon)", value: "all" }
         ]}
         currentItem={filter}
         onItemSelect={(f) => setFilter(f)}
@@ -31,15 +37,21 @@ export function Apps() {
 
       <div className="mb-8" />
 
-      {objects.map((origin: Origin) => (
+      {filteredApps.map((origin: Origin) => (
         <AppsRow
           key={origin.id}
           origin={origin}
-          onSelect={() => window.open(originManager.url(origin), "_blank")}
+          onSelect={() => selectApp(origin)}
         />
       ))}
 
+      {filteredApps.length === 0 && !loading && <NoActivity />}
+
       <div ref={loaderRef}>{loading && <Skeleton />}</div>
+
+      <SlidingPane shown={!!selectedApp} onHide={() => selectApp(undefined)}>
+        {selectedApp && <AppsItem origin={selectedApp} />}
+      </SlidingPane>
     </div>
   )
 }
