@@ -52,14 +52,6 @@ class ConfigManager extends BaseManager<Config> {
     )
   }
 
-  async getOrInit(id: ModelID) {
-    const config = await this.get(id)
-    if (config) {
-      return config
-    }
-    return this.init(id)
-  }
-
   async setDefault(id: ModelID) {
     await this.defaultConfig.set("id", id)
   }

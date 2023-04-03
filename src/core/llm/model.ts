@@ -314,7 +314,7 @@ export class Model {
       } else {
         const chunkData = JSON.parse(chunkDataRes)
         const result = transformResponse(chunkData)
-        if (!result[0]) {
+        if (typeof result[0] !== "string") {
           const e = new Error(`Returned empty data: ${chunkDataRes}`)
           this.error(e)
           onError(e)

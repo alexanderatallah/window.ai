@@ -60,7 +60,7 @@ export function init(
         const messages: Partial<ChatMessage>[] = anyRes["choices"].map(
           (c: any) => c["delta"] || c["message"]
         )
-        return messages.map((m) => m.content)
+        return messages.map((m) => m.content || "")
       }
     },
     opts
