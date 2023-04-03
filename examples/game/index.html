@@ -65,18 +65,20 @@
     function handleGuess() {
         const guess = guessInput.value;
 
-        if (wordToGuess.includes(guess)) {
-            guessButton.disabled = true;
-            guessInput.disabled = true;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = '40px Arial';
-            ctx.fillText('You won!', canvas.width / 2 - 50, canvas.height / 2);
-        } else {
+        if (!wordToGuess.includes(guess)) {
             incorrectGuesses.push(guess)
         }
 
         guessInput.value = '';
         updateDisplay();
+
+        if (wordToGuess === guess) {
+            guessButton.disabled = true;
+            guessInput.disabled = true;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '40px Arial';
+            ctx.fillText('You won!', canvas.width / 2 - 50, canvas.height / 2);
+        }
     }
 
     function updateDisplay() {
