@@ -11,7 +11,7 @@
     "build": "run-p build:*",
     "build:plasmo": "plasmo build",
     "package": "plasmo package",
-    "demo": "npx http-server demo"
+    "example": "npx http-server examples"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.16",
