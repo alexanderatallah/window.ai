@@ -66,7 +66,6 @@ export const openai4 = initOpenAI(
 )
 
 export const together = initTogether(
-  "window.ai",
   {
     quality: "max", // TODO this currently 500s
     debug: shouldDebugModels

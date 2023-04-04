@@ -18,7 +18,6 @@ export enum TogetherModelId {
 // }
 
 export function init(
-  appName: string,
   config: Pick<ModelConfig, "quality" | "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
@@ -38,7 +37,7 @@ export function init(
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       customHeaders: {
-        "User-Agent": appName
+        "User-Agent": "window.ai/1.0"
       },
       transformForRequest: (req) => {
         const {
