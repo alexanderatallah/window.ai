@@ -144,4 +144,4 @@ window.addEventListener(
   false
 )
 
-window.ai = WindowAI
+window.ai = window.ai || WindowAI
