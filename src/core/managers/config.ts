@@ -20,6 +20,14 @@ export const DefaultCompletionURL: { [K in ModelID]: string } = {
   [ModelID.Local]: "http://127.0.0.1:8000/completions"
 }
 
+export const APIKeyURL: { [K in ModelID]: string | undefined } = {
+  [ModelID.GPT3]: "https://platform.openai.com/account/api-keys",
+  [ModelID.GPT4]: "https://platform.openai.com/account/api-keys",
+  [ModelID.GPTNeo]: undefined,
+  [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys",
+  [ModelID.Local]: undefined
+}
+
 export interface Config {
   id: ModelID
   apiKey?: string

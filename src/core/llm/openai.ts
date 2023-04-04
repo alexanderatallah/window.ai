@@ -60,6 +60,8 @@ export function init(
         const messages: Partial<ChatMessage>[] = anyRes["choices"].map(
           (c: any) => c["delta"] || c["message"]
         )
+        // We default to "" since the "assistant" role is initially sent
+        // with no content
         return messages.map((m) => m.content || "")
       }
     },

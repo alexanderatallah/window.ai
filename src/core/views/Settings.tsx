@@ -8,6 +8,7 @@ import { Text } from "~core/components/pure/Text"
 import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
 import {
+  APIKeyURL,
   Config,
   DefaultCompletionURL,
   LLMLabels,
@@ -118,6 +119,31 @@ export function Settings() {
               />
             )}
             <div className="mt-3"></div>
+            {APIKeyURL[selectedModel] && (
+              <Text dimming="less" size="xs">
+                {apiKey ? "Monitor your" : "Obtain an"} API key{" "}
+                <a
+                  href={APIKeyURL[selectedModel]}
+                  target="_blank"
+                  className="font-bold">
+                  here
+                </a>
+              </Text>
+            )}
+            {isLocalModel && (
+              <Text dimming="less" size="xs">
+                Set up Alpaca on your computer{" "}
+                <a
+                  href={
+                    "https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api"
+                  }
+                  target="_blank"
+                  className="font-bold">
+                  here
+                </a>
+                .
+              </Text>
+            )}
             <Accordion title="Advanced" initiallyOpened={isLocalModel}>
               <Input
                 placeholder="URL"
@@ -130,7 +156,7 @@ export function Settings() {
               <label
                 htmlFor={"completion-url"}
                 className="block text-xs font-medium opacity-60 mt-2">
-                {selectedModel === ModelID.Local
+                {isLocalModel
                   ? "Use any URL, including localhost!"
                   : "Optionally use this to set a proxy. Only change if you know what you're doing."}
               </label>

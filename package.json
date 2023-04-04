@@ -2,7 +2,7 @@
   "name": "window.ai",
   "displayName": "window.ai",
   "version": "0.0.1",
-  "description": "Use your own language models on the AI-enabled web",
+  "description": "Use your own AI models on the web",
   "author": "Alex Atallah <alexander.atallah@gmail.com>",
   "scripts": {
     "start": "next start",
