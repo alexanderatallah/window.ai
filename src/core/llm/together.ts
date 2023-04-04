@@ -30,6 +30,7 @@ export function init(
   return new Model(
     {
       modelProvider: "together",
+      isStreamable: false,
       baseUrl: "https://api.together.xyz",
       getPath: () => "/inference",
       getModelId: () => modelId,

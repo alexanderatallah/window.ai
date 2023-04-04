@@ -19,18 +19,14 @@ import { log } from "./utils/utils"
 const DEFAULT_MAX_TOKENS = 256
 const shouldDebugModels = process.env.NODE_ENV !== "production"
 
-export type Request = Pick<
-  Transaction,
-  | "model"
-  | "input"
-  | "temperature"
-  | "maxTokens"
-  | "stopSequences"
-  | "numOutputs"
-> & {
-  apiKey?: string
-  modelUrl?: string
-}
+export type Request = Pick<Required<Transaction>, "model"> &
+  Pick<
+    Transaction,
+    "input" | "temperature" | "maxTokens" | "stopSequences" | "numOutputs"
+  > & {
+    apiKey?: string
+    modelUrl?: string
+  }
 
 export const alpacaTurbo = initAlpacaTurbo(
   {
@@ -131,14 +127,18 @@ export async function complete(
   }
 }
 
+export function isStreamable(modelId: ModelID): boolean {
+  return modelInstances[modelId].config.isStreamable
+}
+
 export async function stream(
   data: Request
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
     const modelId = data.model || ModelID.GPT3
-    const model = streamableModels.has(modelId) && modelInstances[modelId]
+    const model = modelInstances[modelId]
 
-    if (!model) {
+    if (!model || !isStreamable(modelId)) {
       throw ErrorCode.InvalidRequest
     }
 

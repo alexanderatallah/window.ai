@@ -17,6 +17,7 @@ export function init(
   return new Model(
     {
       modelProvider: "alpaca",
+      isStreamable: true,
       getModelId: () => modelId,
       baseUrl: "http://127.0.0.1:8000",
       getPath: () => "/completions",

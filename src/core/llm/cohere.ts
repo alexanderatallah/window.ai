@@ -32,6 +32,7 @@ export function init(
   return new Model(
     {
       ...config,
+      isStreamable: false,
       modelProvider: "cohere",
       baseUrl: "https://api.cohere.ai",
       getPath: () => "/generate",

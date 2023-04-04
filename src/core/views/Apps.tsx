@@ -24,7 +24,7 @@ export function Apps() {
 
   return (
     <div>
-      <HorizontalMenu<Filter>
+      {/* <HorizontalMenu<Filter>
         className="absolute top-0 left-0 right-0"
         items={[
           { label: "My Apps", value: "my-apps" },
@@ -33,9 +33,9 @@ export function Apps() {
         ]}
         currentItem={filter}
         onItemSelect={(f) => setFilter(f)}
-      />
+      /> */}
 
-      <div className="mb-8" />
+      {/* <div className="mb-8" /> */}
 
       {filteredApps.map((origin: Origin) => (
         <AppsRow

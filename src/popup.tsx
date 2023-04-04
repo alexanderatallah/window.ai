@@ -6,6 +6,7 @@ import { NavBar } from "~core/components/NavBar"
 import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { SlidingPane } from "~core/components/pure/SlidingPane"
 import { configManager } from "~core/managers/config"
+import { ModelProvider } from "~core/providers/model"
 import { NavProvider, useNav } from "~core/providers/nav"
 import { Activity } from "~core/views/Activity"
 import { Apps } from "~core/views/Apps"
@@ -22,7 +23,9 @@ function Popup() {
         " text-sm font-sans"
       }>
       <NavProvider>
-        <NavFrame />
+        <ModelProvider>
+          <NavFrame />
+        </ModelProvider>
       </NavProvider>
     </main>
   )

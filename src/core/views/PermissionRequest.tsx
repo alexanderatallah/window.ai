@@ -9,6 +9,7 @@ import type { PortName, PortResponse } from "~core/constants"
 import { LLMLabels, configManager } from "~core/managers/config"
 import { originManager } from "~core/managers/origin"
 import { Transaction, transactionManager } from "~core/managers/transaction"
+import { useModel } from "~core/providers/model"
 import { useNav } from "~core/providers/nav"
 import type { ModelID } from "~public-interface"
 
@@ -58,16 +59,16 @@ export function PermissionRequest({
 
 function TransactionPermission({ transaction }: { transaction: Transaction }) {
   const { setSettingsShown } = useNav()
+  const { modelId, setModelId } = useModel()
   const { object, setObject } = originManager.useObject(transaction.origin.id)
   const requestedModel = transaction.model
-  const [model, setModel] = useState<ModelID | undefined>(requestedModel)
 
   useEffect(() => {
     async function checkConfig() {
       const config = requestedModel
         ? await configManager.getOrInit(requestedModel)
         : await configManager.getDefault()
-      setModel(config.id)
+      setModelId(config.id)
       if (configManager.isIncomplete(config)) {
         setSettingsShown(true)
       }
@@ -81,8 +82,7 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
         {originManager.originDisplay(transaction.origin)}
       </Text>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-        This app is requesting permission to access{" "}
-        {model ? LLMLabels[model] : "your model"}
+        This app is requesting permission to access {LLMLabels[modelId]}
       </p>
       <Accordion title="View Request">
         <code className="text-xs">

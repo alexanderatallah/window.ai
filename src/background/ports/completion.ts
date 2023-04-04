@@ -35,7 +35,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   const requestData = await makeRequestData(txn)
 
-  if (request.shouldStream) {
+  if (request.shouldStream && modelApi.isStreamable(requestData.model)) {
     const replies: string[] = []
     const errors: string[] = []
 

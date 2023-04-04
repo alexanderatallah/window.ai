@@ -14,28 +14,28 @@ import {
   LLMLabels,
   configManager
 } from "~core/managers/config"
+import { useModel } from "~core/providers/model"
 import { ModelID } from "~public-interface"
 
 export function Settings() {
   // const [loading, setLoading] = useState(false)
-  const uiDefaultModel = ModelID.GPT3
-  const [selectedModel, setSelectedModel] = useState<ModelID>(uiDefaultModel)
+  const { modelId, setModelId } = useModel()
   const [apiKey, setApiKey] = useState("")
   const [url, setUrl] = useState("")
   const [config, setConfig] = useState<Config | undefined>()
-  const [defaultModel, setDefaultModel] = useState<ModelID>(uiDefaultModel)
+  const [defaultModel, setDefaultModel] = useState<ModelID>(modelId)
 
   useEffect(() => {
-    configManager.get(selectedModel).then((c) => {
-      const config = c || configManager.init(selectedModel)
+    configManager.get(modelId).then((c) => {
+      const config = c || configManager.init(modelId)
       setConfig(config)
     })
-  }, [selectedModel])
+  }, [modelId])
 
   useEffect(() => {
     configManager.getDefault().then((c) => {
       setDefaultModel(c.id)
-      setSelectedModel(c.id)
+      setModelId(c.id)
     })
   }, [])
 
@@ -54,7 +54,7 @@ export function Settings() {
     })
   }
 
-  const isLocalModel = selectedModel === ModelID.Local
+  const isLocalModel = modelId === ModelID.Local
 
   return (
     <div className="flex flex-col">
@@ -90,7 +90,7 @@ export function Settings() {
           onSelect={async (id) => {
             await configManager.setDefault(id)
             setDefaultModel(id)
-            setSelectedModel(id)
+            setModelId(id)
           }}>
           {LLMLabels[defaultModel]}
         </Dropdown>
@@ -105,8 +105,8 @@ export function Settings() {
           <Splitter />
           <Dropdown<ModelID>
             choices={Object.values(ModelID)}
-            onSelect={(v) => setSelectedModel(v)}>
-            {LLMLabels[selectedModel]}
+            onSelect={(v) => setModelId(v)}>
+            {LLMLabels[modelId]}
           </Dropdown>
 
           <div className="">
@@ -119,11 +119,11 @@ export function Settings() {
               />
             )}
             <div className="mt-3"></div>
-            {APIKeyURL[selectedModel] && (
+            {APIKeyURL[modelId] && (
               <Text dimming="less" size="xs">
                 {apiKey ? "Monitor your" : "Obtain an"} API key{" "}
                 <a
-                  href={APIKeyURL[selectedModel]}
+                  href={APIKeyURL[modelId]}
                   target="_blank"
                   className="font-bold">
                   here
@@ -149,7 +149,7 @@ export function Settings() {
                 placeholder="URL"
                 type="url"
                 name="completion-url"
-                value={url || DefaultCompletionURL[selectedModel]}
+                value={url || DefaultCompletionURL[modelId]}
                 onChange={(val) => setUrl(val)}
                 onBlur={saveAll}
               />

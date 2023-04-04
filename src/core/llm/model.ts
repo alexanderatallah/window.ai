@@ -8,6 +8,7 @@ import type { ChatMessage } from "~public-interface"
 export interface ModelConfig {
   baseUrl: string
   modelProvider: string
+  isStreamable: boolean
   getModelId?: (request: RequestData) => string | null
   customHeaders?: Record<string, string>
   authPrefix?: string

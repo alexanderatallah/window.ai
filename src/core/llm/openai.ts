@@ -28,6 +28,7 @@ export function init(
   return new Model(
     {
       modelProvider: "openai",
+      isStreamable: true,
       getModelId: (req) => (req.messages ? chatModelId : completionModelId),
       baseUrl: "https://api.openai.com/v1",
       getPath: (req) =>
