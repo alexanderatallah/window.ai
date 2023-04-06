@@ -84,8 +84,8 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
         This app is requesting permission to access {LLMLabels[modelId]}
       </p>
-      <Accordion title="View Request">
-        <code className="text-xs">
+      <Accordion title="View Request" centered>
+        <code className="block text-left text-xs overflow-y-auto max-h-20 px-4">
           {JSON.stringify(transactionManager.formatJSON(transaction), null, 2)}
         </code>
       </Accordion>
