@@ -1,9 +1,10 @@
 import fetchAdapter from "@vespaiach/axios-fetch-adapter"
-import { init as initAlpacaTurbo } from "apps/extension/src/core/llm/alpaca-turbo"
-import { init as initCohere } from "apps/extension/src/core/llm/cohere"
-import { init as initOpenAI } from "apps/extension/src/core/llm/openai"
-import { init as initTogether } from "apps/extension/src/core/llm/together"
-import { ErrorCode, ModelID } from "apps/extension/src/public-interface"
+
+import { init as initAlpacaTurbo } from "~core/llm/alpaca-turbo"
+import { init as initCohere } from "~core/llm/cohere"
+import { init as initOpenAI } from "~core/llm/openai"
+import { init as initTogether } from "~core/llm/together"
+import { ErrorCode, ModelID } from "~public-interface"
 
 import type { Model } from "./llm/model"
 import type { Transaction } from "./managers/transaction"

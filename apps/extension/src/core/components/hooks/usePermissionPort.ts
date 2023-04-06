@@ -1,11 +1,8 @@
-import {
-  PortName,
-  PortRequest,
-  PortResponse
-} from "apps/extension/src/core/constants"
 import { useEffect } from "react"
 
 import { usePort } from "@plasmohq/messaging/hook"
+
+import { PortName, PortRequest, PortResponse } from "~core/constants"
 
 export function usePermissionPort() {
   const { data, send } = usePort<

@@ -1,6 +1,6 @@
-import { ModelID } from "apps/extension/src/public-interface"
-
 import { Storage } from "@plasmohq/storage"
+
+import { ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
 

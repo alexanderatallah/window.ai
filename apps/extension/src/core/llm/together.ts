@@ -1,4 +1,4 @@
-import { messagesToPrompt } from "apps/extension/src/core/utils/utils"
+import { messagesToPrompt } from "~core/utils/utils"
 
 import { Model, ModelConfig, RequestOptions } from "./model"
 

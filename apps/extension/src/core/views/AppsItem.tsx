@@ -1,9 +1,9 @@
-import { Dropdown } from "apps/extension/src/core/components/pure/Dropdown"
-import { Logo } from "apps/extension/src/core/components/pure/Logo"
-import { Splitter } from "apps/extension/src/core/components/pure/Splitter"
-import { Text } from "apps/extension/src/core/components/pure/Text"
-import { Well } from "apps/extension/src/core/components/pure/Well"
-import { Origin, originManager } from "apps/extension/src/core/managers/origin"
+import { Dropdown } from "~core/components/pure/Dropdown"
+import { Logo } from "~core/components/pure/Logo"
+import { Splitter } from "~core/components/pure/Splitter"
+import { Text } from "~core/components/pure/Text"
+import { Well } from "~core/components/pure/Well"
+import { Origin, originManager } from "~core/managers/origin"
 
 export function AppsItem({ origin }: { origin: Origin }) {
   const { object, setObject } = originManager.useObject(origin.id)

@@ -1,10 +1,11 @@
+import { v4 as uuidv4 } from "uuid"
+
 import type {
   CompletionOptions,
   Input,
   ModelID,
   Output
-} from "apps/extension/src/public-interface"
-import { v4 as uuidv4 } from "uuid"
+} from "~public-interface"
 
 import { BaseManager } from "./base"
 import { OriginData, originManager } from "./origin"

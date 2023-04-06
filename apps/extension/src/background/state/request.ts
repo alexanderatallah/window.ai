@@ -1,4 +1,4 @@
-import type { RequestId } from "apps/extension/src/core/constants"
+import type { RequestId } from "~core/constants"
 
 export class RequestState<RequestType, ResponseType> {
   private map: Map<RequestId, RequestType>

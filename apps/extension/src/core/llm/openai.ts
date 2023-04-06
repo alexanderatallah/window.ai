@@ -1,4 +1,4 @@
-import type { ChatMessage } from "apps/extension/src/public-interface"
+import type { ChatMessage } from "~public-interface"
 
 import { Model, ModelConfig, RequestOptions } from "./model"
 

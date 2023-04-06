@@ -1,16 +1,14 @@
 import { BeakerIcon } from "@heroicons/react/24/solid"
-import { NoActivity } from "apps/extension/src/core/components/NoActivity"
-import { useInfiniteScroll } from "apps/extension/src/core/components/hooks/useInfiniteScroll"
-import { Logo } from "apps/extension/src/core/components/pure/Logo"
-import { Skeleton } from "apps/extension/src/core/components/pure/Skeleton"
-import { SlidingPane } from "apps/extension/src/core/components/pure/SlidingPane"
-import { Text } from "apps/extension/src/core/components/pure/Text"
-import {
-  Transaction,
-  transactionManager
-} from "apps/extension/src/core/managers/transaction"
 import { useRef, useState } from "react"
 import React from "react"
+
+import { NoActivity } from "~core/components/NoActivity"
+import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
+import { Logo } from "~core/components/pure/Logo"
+import { Skeleton } from "~core/components/pure/Skeleton"
+import { SlidingPane } from "~core/components/pure/SlidingPane"
+import { Text } from "~core/components/pure/Text"
+import { Transaction, transactionManager } from "~core/managers/transaction"
 
 import { ActivityItem } from "./ActivityItem"
 

@@ -1,8 +1,3 @@
-import {
-  definedValues,
-  parseDataChunks
-} from "apps/extension/src/core/utils/utils"
-import { ChatMessage, ErrorCode } from "apps/extension/src/public-interface"
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -11,6 +6,9 @@ import axios, {
 } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
+
+import { definedValues, parseDataChunks } from "~core/utils/utils"
+import { ChatMessage, ErrorCode } from "~public-interface"
 
 export interface ModelConfig {
   baseUrl: string

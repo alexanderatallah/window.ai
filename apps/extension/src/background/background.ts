@@ -1,4 +1,4 @@
-import { log } from "apps/extension/src/core/utils/utils"
+import { log } from "~core/utils/utils"
 
 export {}
 

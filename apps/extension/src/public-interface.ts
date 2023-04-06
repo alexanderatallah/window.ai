@@ -1,4 +1,4 @@
-import type { WindowAI } from "apps/extension/src/contents/inpage"
+import type { WindowAI } from "~contents/inpage"
 
 // window.ai is injected into every webpage, allowing apps to avoid having to
 // include scripts or hard-code network requests to use AI models.

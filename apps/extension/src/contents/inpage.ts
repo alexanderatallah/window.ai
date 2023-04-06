@@ -1,3 +1,6 @@
+import type { PlasmoCSConfig } from "plasmo"
+import { v4 as uuidv4 } from "uuid"
+
 import {
   CompletionRequest,
   CompletionResponse,
@@ -6,21 +9,16 @@ import {
   ModelResponse,
   PortName,
   RequestId
-} from "apps/extension/src/core/constants"
-import {
-  OriginData,
-  originManager
-} from "apps/extension/src/core/managers/origin"
-import { transactionManager } from "apps/extension/src/core/managers/transaction"
-import { Result, isOk } from "apps/extension/src/core/utils/result-monad"
+} from "~core/constants"
+import { OriginData, originManager } from "~core/managers/origin"
+import { transactionManager } from "~core/managers/transaction"
+import { Result, isOk } from "~core/utils/result-monad"
 import type {
   CompletionOptions,
   Input,
   ModelID,
   Output
-} from "apps/extension/src/public-interface"
-import type { PlasmoCSConfig } from "plasmo"
-import { v4 as uuidv4 } from "uuid"
+} from "~public-interface"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],

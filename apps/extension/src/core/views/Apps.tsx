@@ -1,12 +1,13 @@
-import { NoActivity } from "apps/extension/src/core/components/NoActivity"
-import { useInfiniteScroll } from "apps/extension/src/core/components/hooks/useInfiniteScroll"
-import { HorizontalMenu } from "apps/extension/src/core/components/pure/HorizontalMenu"
-import { Logo } from "apps/extension/src/core/components/pure/Logo"
-import { Skeleton } from "apps/extension/src/core/components/pure/Skeleton"
-import { SlidingPane } from "apps/extension/src/core/components/pure/SlidingPane"
-import { Text } from "apps/extension/src/core/components/pure/Text"
-import { Origin, originManager } from "apps/extension/src/core/managers/origin"
 import { useRef, useState } from "react"
+
+import { NoActivity } from "~core/components/NoActivity"
+import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
+import { HorizontalMenu } from "~core/components/pure/HorizontalMenu"
+import { Logo } from "~core/components/pure/Logo"
+import { Skeleton } from "~core/components/pure/Skeleton"
+import { SlidingPane } from "~core/components/pure/SlidingPane"
+import { Text } from "~core/components/pure/Text"
+import { Origin, originManager } from "~core/managers/origin"
 
 import { AppsItem } from "./AppsItem"
 

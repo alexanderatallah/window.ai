@@ -1,4 +1,6 @@
-import { RequestState } from "apps/extension/src/background/state/request"
+import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
+
+import { RequestState } from "~background/state/request"
 import {
   CompletionRequest,
   POPUP_HEIGHT,
@@ -6,14 +8,12 @@ import {
   PortName,
   PortRequest,
   PortResponse
-} from "apps/extension/src/core/constants"
-import { originManager } from "apps/extension/src/core/managers/origin"
-import { Result, err, ok } from "apps/extension/src/core/utils/result-monad"
-import { log } from "apps/extension/src/core/utils/utils"
-import { Extension } from "apps/extension/src/platforms/extension"
-import { ErrorCode } from "apps/extension/src/public-interface"
-
-import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
+} from "~core/constants"
+import { originManager } from "~core/managers/origin"
+import { Result, err, ok } from "~core/utils/result-monad"
+import { log } from "~core/utils/utils"
+import { Extension } from "~platforms/extension"
+import { ErrorCode } from "~public-interface"
 
 const permissionState = new RequestState<
   CompletionRequest,

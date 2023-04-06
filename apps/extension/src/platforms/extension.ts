@@ -1,6 +1,7 @@
-import type { PortEvent, PortName } from "apps/extension/src/core/constants"
-import { log } from "apps/extension/src/core/utils/utils"
 import browser from "webextension-polyfill"
+
+import type { PortEvent, PortName } from "~core/constants"
+import { log } from "~core/utils/utils"
 
 export type Port = browser.Runtime.Port
 export const Extension = {

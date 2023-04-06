@@ -1,8 +1,9 @@
-import { log } from "apps/extension/src/core/utils/utils"
 import { useCallback, useEffect, useState } from "react"
 
 import { Storage } from "@plasmohq/storage"
 import { useStorage } from "@plasmohq/storage/hook"
+
+import { log } from "~core/utils/utils"
 
 const primaryIndexName = "ids"
 

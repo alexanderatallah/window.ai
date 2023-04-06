@@ -1,20 +1,21 @@
-import { Accordion } from "apps/extension/src/core/components/pure/Accordion"
-import { Dropdown } from "apps/extension/src/core/components/pure/Dropdown"
-import { Input } from "apps/extension/src/core/components/pure/Input"
-import { Splitter } from "apps/extension/src/core/components/pure/Splitter"
-import { Text } from "apps/extension/src/core/components/pure/Text"
-import Tooltip from "apps/extension/src/core/components/pure/Tooltip"
-import { Well } from "apps/extension/src/core/components/pure/Well"
+import { useEffect, useState } from "react"
+
+import { Accordion } from "~core/components/pure/Accordion"
+import { Dropdown } from "~core/components/pure/Dropdown"
+import { Input } from "~core/components/pure/Input"
+import { Splitter } from "~core/components/pure/Splitter"
+import { Text } from "~core/components/pure/Text"
+import Tooltip from "~core/components/pure/Tooltip"
+import { Well } from "~core/components/pure/Well"
 import {
   APIKeyURL,
   Config,
   DefaultCompletionURL,
   LLMLabels,
   configManager
-} from "apps/extension/src/core/managers/config"
-import { useModel } from "apps/extension/src/core/providers/model"
-import { ModelID } from "apps/extension/src/public-interface"
-import { useEffect, useState } from "react"
+} from "~core/managers/config"
+import { useModel } from "~core/providers/model"
+import { ModelID } from "~public-interface"
 
 export function Settings() {
   // const [loading, setLoading] = useState(false)

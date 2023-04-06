@@ -1,16 +1,17 @@
 import "./style.css"
 
-import { NavBar } from "apps/extension/src/core/components/NavBar"
-import { usePermissionPort } from "apps/extension/src/core/components/hooks/usePermissionPort"
-import { SlidingPane } from "apps/extension/src/core/components/pure/SlidingPane"
-import { configManager } from "apps/extension/src/core/managers/config"
-import { ModelProvider } from "apps/extension/src/core/providers/model"
-import { NavProvider, useNav } from "apps/extension/src/core/providers/nav"
-import { Activity } from "apps/extension/src/core/views/Activity"
-import { Apps } from "apps/extension/src/core/views/Apps"
-import { PermissionRequest } from "apps/extension/src/core/views/PermissionRequest"
-import { Settings } from "apps/extension/src/core/views/Settings"
 import { useEffect } from "react"
+
+import { NavBar } from "~core/components/NavBar"
+import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
+import { SlidingPane } from "~core/components/pure/SlidingPane"
+import { configManager } from "~core/managers/config"
+import { ModelProvider } from "~core/providers/model"
+import { NavProvider, useNav } from "~core/providers/nav"
+import { Activity } from "~core/views/Activity"
+import { Apps } from "~core/views/Apps"
+import { PermissionRequest } from "~core/views/PermissionRequest"
+import { Settings } from "~core/views/Settings"
 
 function Popup() {
   return (

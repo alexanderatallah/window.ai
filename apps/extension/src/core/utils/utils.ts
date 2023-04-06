@@ -1,5 +1,6 @@
-import type { ChatMessage } from "apps/extension/src/public-interface"
 import type { Readable } from "stream"
+
+import type { ChatMessage } from "~public-interface"
 
 export function log(...args: unknown[]) {
   if (process.env.NODE_ENV === "development") {

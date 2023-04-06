@@ -1,22 +1,17 @@
 import { KeyIcon } from "@heroicons/react/24/solid"
-import { Accordion } from "apps/extension/src/core/components/pure/Accordion"
-import { Button } from "apps/extension/src/core/components/pure/Button"
-import { Dropdown } from "apps/extension/src/core/components/pure/Dropdown"
-import { Text } from "apps/extension/src/core/components/pure/Text"
-import type { PortName, PortResponse } from "apps/extension/src/core/constants"
-import {
-  LLMLabels,
-  configManager
-} from "apps/extension/src/core/managers/config"
-import { originManager } from "apps/extension/src/core/managers/origin"
-import {
-  Transaction,
-  transactionManager
-} from "apps/extension/src/core/managers/transaction"
-import { useModel } from "apps/extension/src/core/providers/model"
-import { useNav } from "apps/extension/src/core/providers/nav"
-import type { ModelID } from "apps/extension/src/public-interface"
 import { useEffect, useState } from "react"
+
+import { Accordion } from "~core/components/pure/Accordion"
+import { Button } from "~core/components/pure/Button"
+import { Dropdown } from "~core/components/pure/Dropdown"
+import { Text } from "~core/components/pure/Text"
+import type { PortName, PortResponse } from "~core/constants"
+import { LLMLabels, configManager } from "~core/managers/config"
+import { originManager } from "~core/managers/origin"
+import { Transaction, transactionManager } from "~core/managers/transaction"
+import { useModel } from "~core/providers/model"
+import { useNav } from "~core/providers/nav"
+import type { ModelID } from "~public-interface"
 
 export function PermissionRequest({
   data,
