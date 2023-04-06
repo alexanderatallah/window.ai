@@ -4,10 +4,12 @@ import React, { useEffect, useState } from "react"
 export function Accordion({
   children,
   title,
-  initiallyOpened = false
+  initiallyOpened = false,
+  centered
 }: {
   children: React.ReactNode
   title: string
+  centered: boolean
   initiallyOpened?: boolean
 }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -17,7 +19,7 @@ export function Accordion({
   }, [initiallyOpened])
 
   return (
-    <div>
+    <div className={"flex flex-col " + (centered ? "items-center " : "")}>
       <button
         type="button"
         className="flex items-center py-2 text-left text-slate-500 dark:text-slate-400 focus:outline-none"
