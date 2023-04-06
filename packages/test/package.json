@@ -1,0 +1,12 @@
+{
+  "name": "test",
+  "scripts": {
+    "build": "echo building test",
+    "lint": "echo linting test",
+    "dev": "echo dev text"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
