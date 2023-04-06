@@ -11,6 +11,7 @@
     "lint": "FORCE_COLOR=1 turbo run lint",
     "test": "FORCE_COLOR=1 turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "package": "turbo run package",
     "publish-packages": "FORCE_COLOR=1 turbo run build lint test --filter @windowai/client && changeset version && changeset publish"
   },
   "engines": {

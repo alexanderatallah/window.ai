@@ -17,6 +17,7 @@
     },
     "start": {
       "cache": false
-    }
+    },
+    "package": {}
   }
 }
