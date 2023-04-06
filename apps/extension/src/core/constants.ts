@@ -1,5 +1,4 @@
-import type { ErrorCode, ModelID, Output } from "~public-interface"
-
+import type { ErrorCode, ModelID, Output } from "../public-interface"
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
 
