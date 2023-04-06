@@ -1,9 +1,14 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios"
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse
+} from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 
 import { definedValues, parseDataChunks } from "~core/utils/utils"
-import type { ChatMessage } from "~public-interface"
+import { ChatMessage, ErrorCode } from "~public-interface"
 
 export interface ModelConfig {
   baseUrl: string
@@ -204,14 +209,10 @@ export class Model {
       })
       responseData = response.data
     } catch (err: unknown) {
-      const asResponse = err as any
-      this.error(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
-        `ERROR ${asResponse.response?.statusText} for id ${id}:`,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        asResponse.response?.data || asResponse.message
-      )
-      throw err
+      const asResponse = err as AxiosError
+      const errMessage = `${asResponse.response?.status}: ${asResponse}`
+      this.error(errMessage + "\n" + asResponse.response?.data)
+      throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
     }
 
     this.log("RESPONSE for id " + id)
@@ -282,15 +283,10 @@ export class Model {
 
       stream = response.data.pipeThrough(transformStream)
     } catch (err: unknown) {
-      const asResponse = err as { response: AxiosResponse }
-      this.error(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
-        `ERROR ${asResponse.response?.statusText} for id ${id}:`,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        asResponse.response?.data || (err as Error).message
-      )
-      // TODO handle better along with complete()
-      throw err
+      const asResponse = err as AxiosError
+      const errMessage = `${asResponse.response?.status}: ${asResponse}`
+      this.error(errMessage + "\n" + asResponse.response?.data)
+      throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
     }
     return stream
   }

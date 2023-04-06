@@ -68,5 +68,6 @@ export enum ErrorCode {
   NotAuthenticated = "NOT_AUTHENTICATED",
   PermissionDenied = "PERMISSION_DENIED",
   RequestNotFound = "REQUEST_NOT_FOUND",
-  InvalidRequest = "INVALID_REQUEST"
+  InvalidRequest = "INVALID_REQUEST",
+  ModelRejectedRequest = "MODEL_REJECTED_REQUEST"
 }
