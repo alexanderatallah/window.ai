@@ -102,7 +102,15 @@ export class Model {
     })
     axiosRetry(this.api, {
       retries: this.config.retries,
-      retryDelay: exponentialDelay
+      retryDelay: exponentialDelay,
+      retryCondition: (error) => {
+        return (
+          axiosRetry.isNetworkError(error) ||
+          axiosRetry.isRetryableError(error) ||
+          error.code === "ECONNABORTED" ||
+          error.response?.status === 429
+        )
+      }
     })
   }
 
@@ -110,7 +118,7 @@ export class Model {
     const opts: Required<ModelConfig> = {
       quality: "max",
       authPrefix: "Bearer ",
-      retries: 3,
+      retries: 5,
       debug: true,
       customHeaders: {},
       endOfStreamSentinel: null,
