@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Static Chat App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" />
+    <style>
+        .chat {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .chat .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .chat .input {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .chat .input textarea {
+            flex: 1;
+            resize: none;
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+            border-color: black;
+            border-width: 2px;
+            /* border */
+        }
+
+        .chat .input button {
+            background-color: #4b5563;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+
+        .chat .message {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            max-width: 80%;
+        }
+
+        .chat .message img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .chat .message .text {
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .chat .message .text.sent {
+            background-color: #2563eb;
+            color: #fff;
+        }
+
+        .chat .message .text.received {
+            float: right;
+            background-color: #e2e8f0;
+            color: #2d3748;
+        }
+
+        #model-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0.5rem;
+        }
+
+        #welcome-message {
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 0.5rem;
+        }
+
+        @keyframes loading {
+            0% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .loading-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #333;
+            animation: loading 1s infinite;
+        }
+
+        .loading-dot:not(:last-child) {
+            margin-right: 3px;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.25s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat">
+        <div id="model-name">Current model: GPT-3</div>
+        <div id="welcome-message">Welcome to the window.ai demo</div>
+        <div class="messages"></div>
+        <div class="input">
+            <textarea placeholder="Type your message"></textarea>
+            <button>Send</button>
+        </div>
+    </div>
+    <script>
+        let messages = []
+        const messagesContainer = document.querySelector('.chat .messages');
+        const inputTextarea = document.querySelector('.chat .input textarea');
+        const sendButton = document.querySelector('.chat .input button');
+
+        inputTextarea.addEventListener('keydown', (event) => {
+            if (event.code === 'Enter' && !event.shiftKey) {
+                event.preventDefault()
+                const messageText = inputTextarea.value.trim();
+
+                if (messageText) {
+                    addMessage(messageText, true);
+                    getBotReply(messageText);
+                    inputTextarea.value = '';
+                }
+            }
+        })
+
+
+        sendButton.addEventListener('click', (event) => {
+            const messageText = inputTextarea.value.trim();
+
+            if (messageText) {
+                addMessage(messageText, true);
+                getBotReply(messageText);
+                inputTextarea.value = '';
+            }
+        });
+
+        function addMessage(messageText, isSentByUser) {
+            const message = document.createElement('div');
+            message.classList.add('message');
+
+            if (messageText === '') {
+                message.innerHTML = `
+            <div class="text ${isSentByUser ? 'sent' : 'received'}">
+                <span class="loading-dot"></span>
+                <span class="loading-dot"></span>
+                <span class="loading-dot"></span>
+            </div>`;
+            } else {
+                message.innerHTML = `<div class="text ${isSentByUser ? 'sent' : 'received'}">${messageText}</div>`;
+            }
+
+            messagesContainer.appendChild(message);
+
+            // Scroll to the bottom of the messages container
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return message;
+        }
+
+        function updateMessage(messageElem, text) {
+            messageElem.innerHTML = `<div class="text received">${text}</div>`;
+        }
+
+        async function getBotReply(userMessage) {
+            console.log(window.ai)
+
+            let message = addMessage('', false);
+
+            try {
+                messages.push({
+                    role: "user", content: userMessage
+                })
+
+                const r = await window.ai.getCompletion({
+                    messages
+                })
+
+                messages.push(r.message)
+
+                updateMessage(message, r.message.content)
+
+            } catch (e) {
+                console.error(e)
+            }
+        }
+
+        let currentModel = 'local'
+
+        function updateModelName(modelName) {
+            const modelNameElement = document.getElementById("model-name");
+            const originalText = modelNameElement.textContent;
+            modelNameElement.textContent = `Current model: ${modelName}`;
+
+            // Flash the element by changing its background color
+            modelNameElement.style.backgroundColor = "#ffcc00";
+            setTimeout(() => {
+                modelNameElement.style.backgroundColor = "transparent";
+            }, 500);
+        }
+
+
+        // listen for model changes
+        setInterval(async () => {
+            const currModel = await window.ai.getCurrentModel()
+            if (currentModel !== currModel) {
+                updateModelName(currModel)
+                currentModel = currModel
+            }
+        }, 1000)
+    </script>
+</body>
+
+</html>

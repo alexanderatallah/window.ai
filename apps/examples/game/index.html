@@ -1,0 +1,253 @@
+<html>
+
+<head>
+    <style>
+        #canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width=1000 height=800></canvas>
+    <br>
+    <input type="text" id="guessInput">
+    <button id="guessButton">Guess</button>
+    <button id="resetButton">New Word</button>
+
+    <br>
+    <p id="status"></p>
+</body>
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const guessInput = document.getElementById('guessInput');
+    const guessButton = document.getElementById('guessButton');
+    const status = document.getElementById('status');
+
+    let wordToGuess = 'example';
+
+    // get the word to guess from the server
+
+    async function getNewWord() {
+        const response = await window.ai.getCompletion({
+            messages: [{
+
+                role: 'user',
+                content: 'Im playing hangman an I need a new word to guess. Please just return a word.'
+            }]
+        },
+            {
+                temperature: 0.8,
+            }
+        )
+
+        wordToGuess = response.message.content
+    }
+
+
+    let incorrectGuesses = [];
+
+    const resetButton = document.getElementById('resetButton');
+
+    async function resetGame() {
+        await getNewWord()
+        console.log("NEW WORD IS", wordToGuess)
+        incorrectGuesses = [];
+        status.innerText = '';
+        guessButton.disabled = false;
+        guessInput.disabled = false;
+        updateDisplay();
+    }
+
+    resetButton.addEventListener('click', resetGame);
+
+    function handleGuess() {
+        const guess = guessInput.value;
+
+        if (!wordToGuess.includes(guess)) {
+            incorrectGuesses.push(guess)
+        }
+
+        guessInput.value = '';
+        updateDisplay();
+
+        if (wordToGuess === guess) {
+            guessButton.disabled = true;
+            guessInput.disabled = true;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '40px Arial';
+            ctx.fillText('You won!', canvas.width / 2 - 50, canvas.height / 2);
+        }
+    }
+
+    function updateDisplay() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the hangman
+        switch (incorrectGuesses.length) {
+            case 0:
+                break;
+            case 1:
+                drawPole();
+                break;
+            case 2:
+                drawPole();
+                drawBeam();
+                break;
+            case 3:
+                drawPole();
+                drawBeam();
+                drawRope();
+                break;
+            case 4:
+                drawPole();
+                drawBeam();
+                drawRope();
+                drawHead();
+                break;
+            case 5:
+                drawPole();
+                drawBeam();
+                drawRope();
+                drawHead();
+                drawBody();
+                break;
+            case 6:
+                drawPole();
+                drawBeam();
+                drawRope();
+                drawHead();
+                drawBody();
+                drawLeftArm();
+                break;
+            case 7:
+                drawPole();
+                drawBeam();
+                drawRope();
+                drawHead();
+                drawBody();
+                drawArms();
+                break;
+            case 8:
+                drawPole();
+                drawBeam();
+                drawRope();
+                drawHead();
+                drawBody();
+                drawArms();
+                drawLeftLeg();
+                break;
+            case 9:
+                drawPole();
+                drawBeam();
+                drawRope();
+                drawHead();
+                drawBody();
+                drawArms();
+                drawLegs();
+                break;
+        }
+
+        // Show the player's guesses
+        ctx.font = '20px Arial';
+        ctx.fillText(`Incorrect Guesses: ${incorrectGuesses.join(", ")}`, 700, 50);
+
+        // Show the correctly identified letters in the word to guess
+
+        // get the identified letters from the incorrectGuesses array
+        // in a new array of either the letter or a _
+        const wordDisplay = wordToGuess.split('').map(letter => {
+            if (incorrectGuesses.reduce((acc, g) => acc + g, '').includes(letter)) {
+                return letter;
+            } else {
+                return '_';
+            }
+        }).join(' ');
+        ctx.fillText(`Word: ${wordDisplay}`, 700, 100);
+
+
+        if (incorrectGuesses.length >= 9) {
+            status.innerText = `You lost! The word was "${wordToGuess}"`;
+            guessButton.disabled = true;
+            guessInput.disabled = true;
+        }
+    }
+
+    function drawPole() {
+        ctx.beginPath();
+        ctx.moveTo(50, 50);
+        ctx.lineTo(50, 350);
+        ctx.stroke();
+    }
+
+    function drawBeam() {
+        ctx.beginPath();
+        ctx.moveTo(50, 50);
+        ctx.lineTo(250, 50);
+        ctx.stroke();
+    }
+
+    function drawRope() {
+        ctx.beginPath();
+        ctx.moveTo(200, 50);
+        ctx.lineTo(200, 100);
+        ctx.stroke();
+    }
+
+    function drawHead() {
+        ctx.beginPath();
+        ctx.arc(200, 125, 25, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+
+    function drawBody() {
+        ctx.beginPath();
+        ctx.moveTo(200, 150);
+        ctx.lineTo(200, 250);
+        ctx.stroke();
+    }
+
+    function drawLeftArm() {
+        ctx.beginPath();
+        ctx.moveTo(200, 175);
+        ctx.lineTo(150, 200);
+        ctx.stroke();
+    }
+
+    function drawRightArm() {
+        ctx.beginPath();
+        ctx.moveTo(200, 175);
+        ctx.lineTo(250, 200);
+        ctx.stroke();
+    }
+
+    function drawArms() {
+        drawLeftArm();
+        drawRightArm();
+    }
+
+    function drawLeftLeg() {
+        ctx.beginPath();
+        ctx.moveTo(200, 250);
+        ctx.lineTo(150, 300);
+        ctx.stroke();
+    }
+
+    function drawRightLeg() {
+        ctx.beginPath();
+        ctx.moveTo(200, 250);
+        ctx.lineTo(250, 300);
+        ctx.stroke();
+    }
+
+    function drawLegs() {
+        drawLeftLeg();
+        drawRightLeg();
+    }
+
+    guessButton.addEventListener('click', handleGuess);
+    updateDisplay()
+</script>
+
+</html>
