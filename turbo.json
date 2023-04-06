@@ -9,8 +9,7 @@
     "lint": {
       "outputs": []
     },
-    "test": {
-    },
+    "test": {},
     "dev": {
       "cache": false,
       "persistent": true

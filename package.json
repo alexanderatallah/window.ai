@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "FORCE_COLOR=1 NODE_ENV=development turbo run build",
+    "build": "FORCE_COLOR=1 turbo run build",
     "dev": "FORCE_COLOR=1 turbo run dev --parallel",
     "lint": "FORCE_COLOR=1 turbo run lint",
     "test": "FORCE_COLOR=1 turbo run test",

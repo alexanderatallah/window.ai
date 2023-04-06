@@ -51,8 +51,7 @@ function Home() {
           <Tooltip content="While the extension is being tested and developed, please join the Discord to download the beta build and get notified about updates.">
             ⚠️
           </Tooltip>
-          , you can choose which model to use with apps built on window.ai —
-          demo below.
+          , you can choose which model to use with apps built on window.ai
         </Text>
       </section>
 
@@ -69,7 +68,7 @@ function Home() {
         <Section>
           <div className="w-full flex flex-col sm:flex-row justify-between items-center ">
             <div className="max-w-lg p-10 flex flex-col space-y-4">
-              <Text variant="h2">Take control of your AI models</Text>
+              <Text variant="h2">You control your AI</Text>
               <Text className="text-zinc-600">
                 The Window extension allows you to configure the models you use
                 on the web. You can choose from OpenAI, Together, Cohere, or
@@ -105,7 +104,7 @@ function Home() {
             className="flex-grow shadow-md m-12"
           />
           <div className="max-w-lg p-10 flex flex-col space-y-4">
-            <Text variant="h2">Save your History</Text>
+            <Text variant="h2">Save your history</Text>
             <Text className="text-zinc-600">
               The Window extension keeps a history of all the messages you send
               and receive. You can use this history to train your own AI models.
