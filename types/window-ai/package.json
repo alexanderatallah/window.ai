@@ -1,0 +1,14 @@
+{
+  "name": "window-ai",
+  "main": "index.d.ts",
+  "types": "index.d.ts",
+  "version": "1.0.0",
+  "description": "Types for window.ai",
+  "scripts": {},
+  "keywords": [],
+  "author": "Alex Atallah <alexander.atallah@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.3"
+  }
+}
