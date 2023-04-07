@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "description": "Window.ai API",
   "scripts": {
-    "publish": "npm publish --access public"
   },
   "keywords": [],
   "author": "Alex Atallah <alexander.atallah@gmail.com>",
