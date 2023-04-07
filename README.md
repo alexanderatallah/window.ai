@@ -76,6 +76,8 @@ As a developer, one of the primary reasons to use `window.ai` instead of API cal
 
 Plus, depending on what you make, you may have no need to make code changes when new models come out, like GPT-4, or when users need to switch between them.
 
+Lastly, now you can build **privacy-conscious apps** that just talk to the user's choice of model, and you have less liability for the model's output.
+
 ### Getting started
 
 To leverage user-managed models in your app, simply call `await window.ai.getCompletion` with your prompt and options.
