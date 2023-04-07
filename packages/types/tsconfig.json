@@ -2,7 +2,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "es2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -15,5 +19,10 @@
     "isolatedModules": true,
     "jsx": "preserve"
   },
-  "include": ["index.d.ts"]
+  "include": [
+    "index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

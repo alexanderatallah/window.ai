@@ -1,14 +1,14 @@
-import clsx from "clsx";
-import Balancer from "react-wrap-balancer";
+import clsx from "clsx"
+import Balancer from "react-wrap-balancer"
 
 // wrap Balancer to remove type errors :( - @TODO - fix this ugly hack
-const BalancerWrapper = (props: any) => <Balancer {...props} />;
+const BalancerWrapper = (props: any) => <Balancer {...props} />
 
-type ChatGPTAgent = "user" | "system" | "assistant";
+type ChatGPTAgent = "user" | "system" | "assistant"
 
 export interface ChatGPTMessage {
-  role: ChatGPTAgent;
-  content: string;
+  role: ChatGPTAgent
+  content: string
 }
 
 // loading placeholder animation for the chat line
@@ -31,7 +31,7 @@ export const LoadingChatLine = () => (
       </div>
     </div>
   </div>
-);
+)
 
 // util helper to convert new lines to <br /> tags
 const convertNewLines = (text: string) =>
@@ -40,20 +40,19 @@ const convertNewLines = (text: string) =>
       {line}
       <br />
     </span>
-  ));
+  ))
 
 export function ChatLine({ role = "assistant", content }: ChatGPTMessage) {
   if (!content) {
-    return null;
+    return null
   }
-  const formatteMessage = convertNewLines(content);
+  const formatteMessage = convertNewLines(content)
 
   return (
     <div
       className={
         role != "assistant" ? "float-right clear-both" : "float-left clear-both"
-      }
-    >
+      }>
       <BalancerWrapper>
         <div className="float-right mb-5 rounded-lg bg-white px-4 py-5 shadow-lg ring-1 ring-zinc-100 sm:px-6">
           <div className="flex space-x-3">
@@ -67,8 +66,7 @@ export function ChatLine({ role = "assistant", content }: ChatGPTMessage) {
                 className={clsx(
                   "text ",
                   role == "assistant" ? "font-semibold font- " : "text-gray-400"
-                )}
-              >
+                )}>
                 {formatteMessage}
               </p>
             </div>
@@ -76,5 +74,5 @@ export function ChatLine({ role = "assistant", content }: ChatGPTMessage) {
         </div>
       </BalancerWrapper>
     </div>
-  );
+  )
 }

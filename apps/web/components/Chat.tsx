@@ -3,7 +3,6 @@ import { Button } from "./Button"
 import { type ChatGPTMessage, ChatLine, LoadingChatLine } from "./ChatLine"
 import { useCookies } from "react-cookie"
 import { DISCORD_URL, DOWNLOAD_URL } from "./common"
-import * as ai from "window-ai"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
@@ -11,8 +10,8 @@ const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 export const initialMessages: ChatGPTMessage[] = [
   {
     role: "assistant",
-    content: "Hi! I am a friendly AI assistant. Ask me anything!",
-  },
+    content: "Hi! I am a friendly AI assistant. Ask me anything!"
+  }
 ]
 
 const InputMessage = ({ input, setInput, sendMessage }: any) => (
@@ -39,8 +38,7 @@ const InputMessage = ({ input, setInput, sendMessage }: any) => (
       onClick={() => {
         sendMessage(input)
         setInput("")
-      }}
-    >
+      }}>
       Say
     </Button>
   </div>
@@ -72,7 +70,7 @@ export function Chat() {
     setLoading(true)
     const newMessages = [
       ...messages,
-      { role: "user", content: message } as ChatGPTMessage,
+      { role: "user", content: message } as ChatGPTMessage
     ]
     setMessages(newMessages)
     const last10messages = newMessages.slice(-10) // remember last 10 messages
@@ -87,10 +85,10 @@ export function Chat() {
     try {
       await window.ai.getCompletion(
         {
-          messages: [...last10messages],
+          messages: [...last10messages]
         },
         {
-          onStreamResult: (result: any, error: any) => {
+          onStreamResult: (result, error) => {
             if (error) {
               throw error
             }
@@ -99,7 +97,7 @@ export function Chat() {
 
             //@ts-ignore
             setMessages([...allMsgs, { ...responseMsg }])
-          },
+          }
         }
       )
     } catch (e) {
@@ -118,8 +116,8 @@ export function Chat() {
         ...messages,
         {
           role: "assistant",
-          content: "Sorry, I had an error. Please try again later.",
-        },
+          content: "Sorry, I had an error. Please try again later."
+        }
       ])
 
       console.log(e)
@@ -168,8 +166,7 @@ export function Chat() {
           <div className="grid grid-cols-2 gap-6">
             <Button
               onClick={() => window.open(DISCORD_URL, "_blank")}
-              className=""
-            >
+              className="">
               Download the beta
             </Button>
             <Button
@@ -178,8 +175,7 @@ export function Chat() {
                   "https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked",
                   "_blank"
                 )
-              }
-            >
+              }>
               How to install
             </Button>
           </div>

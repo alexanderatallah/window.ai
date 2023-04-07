@@ -76,8 +76,7 @@ function Home() {
                 <Link
                   className="underline"
                   href="https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api"
-                  target="_blank"
-                >
+                  target="_blank">
                   running on your computer
                 </Link>{" "}
                 if you need privacy.
@@ -123,8 +122,7 @@ function Home() {
                 <Link
                   className="underline"
                   href={ANNOUNCEMENT_URL}
-                  target="_blank"
-                >
+                  target="_blank">
                   announcement
                 </Link>
               </Text>
