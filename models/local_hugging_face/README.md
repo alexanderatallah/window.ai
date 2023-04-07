@@ -52,6 +52,6 @@ def import_and_return_finbert_tone():
     return finbert, tokenizer, model_fn
 ```
 
-Note that each function returns a tuple of `(model, tokenizer, model_function)`, where model_function is called to get the inference.
+Note that each function returns a tuple of `(model, tokenizer, model_function)`, where model_function is called to get the inference. The `model_function` is usually copied directly from the examples provided on the Hugging Face model page.
 
 And that should be it!
