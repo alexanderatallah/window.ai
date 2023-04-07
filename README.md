@@ -15,19 +15,19 @@ Below, you'll find [features](#⭐️-main-features), [apps](#👀-find-apps), [
 ### 📺 Demo
 https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4
 
-### Contents
+### ℹ️ Contents
 
 - [Window: use your own AI models on the web](#window-use-your-own-ai-models-on-the-web)
     - [📺 Demo](#-demo)
-    - [Contents](#contents)
+    - [ℹ️ Contents](#ℹ️-contents)
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
   - [👀 Find apps](#-find-apps)
   - [📄 Docs](#-docs)
-    - [❔ Why should I build with this?](#-why-should-i-build-with-this)
-    - [🧑‍💻 Getting started](#-getting-started)
-    - [✏️ Reference](#️-reference)
+    - [Why should I build with this?](#why-should-i-build-with-this)
+    - [Getting started](#getting-started)
+    - [Reference](#reference)
   - [🧠 Local model setup](#-local-model-setup)
     - [Server API Spec](#server-api-spec)
     - [Demo comparing Alpaca with GPT-4](#demo-comparing-alpaca-with-gpt-4)
@@ -35,11 +35,11 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 
 ## ⭐️ Main features
 
-- 🛠️ Configure all your API keys in one place and forget about them. They are *only* stored locally.
+- **Configure keys**: set all your API keys in one place and forget about them. They are *only* stored locally.
 
-- 🧠 Use external, proxied, and local models of your choice.
+- **User-controlled models**: use external, proxied, and local models of your choice.
 
-- 💾 Save your prompt history across apps (maybe train your own models with it).
+- **Save your prompt history** across apps (maybe train your own models with it).
 
 ## ⚙️ How it works
 
@@ -70,13 +70,13 @@ Better ways of doing this are coming soon, but today, you can use the [Discord #
 
 This section shows why and how to get started, followed by a reference of `window.ai` methods.
 
-### ❔ Why should I build with this?
+### Why should I build with this?
 
 As a developer, one of the primary reasons to use `window.ai` instead of API calls is **reducing your infrastructure burden**. No more model API costs, timeouts, rate limiting, and server billing time.
 
 Plus, depending on what you make, you may have no need to make code changes when new models come out, like GPT-4, or when users need to switch between them.
 
-### 🧑‍💻 Getting started
+### Getting started
 
 To leverage user-managed models in your app, simply call `await window.ai.getCompletion` with your prompt and options.
 
@@ -107,7 +107,7 @@ await ai.getCompletion({
 
 Note that `getCompletion` will return an array, `Output[]`, if you specify `numOutputs > 1`.
 
-### ✏️ Reference
+### Reference
 
 Better version coming soon. In the meantime, all public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). There are just two functions in the library:
 
