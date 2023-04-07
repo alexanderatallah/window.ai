@@ -3,7 +3,7 @@ import { FC, memo, useState } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import {
   oneDark,
-  oneLight,
+  oneLight
 } from "react-syntax-highlighter/dist/cjs/styles/prism"
 
 interface languageMap {
@@ -33,7 +33,7 @@ export const programmingLanguages: languageMap = {
   shell: ".sh",
   sql: ".sql",
   html: ".html",
-  css: ".css",
+  css: ".css"
   // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
 }
 
@@ -77,8 +77,7 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
         <div className="flex items-center">
           <button
             className="flex gap-1.5 items-center rounded bg-none p-1 text-xs text-white group-hover:text-black"
-            onClick={copyToClipboard}
-          >
+            onClick={copyToClipboard}>
             {isCopied ? <IconCheck size={18} /> : <IconClipboard size={18} />}
             {isCopied ? "Copied!" : "Copy code"}
           </button>
@@ -87,8 +86,7 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
       <SyntaxHighlighter
         language={language}
         style={oneLight}
-        customStyle={{ margin: 0 }}
-      >
+        customStyle={{ margin: 0 }}>
         {value}
       </SyntaxHighlighter>
     </div>
