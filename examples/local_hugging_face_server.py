@@ -1,9 +1,10 @@
 """Example server definition for deploying Huggingface models to a local endpoint.
 Sets up the /completions endpoint which (broadly) conforms to what's described
 in the link below.
-https://alexatallah.notion.site/RFC-LLM-API-Standard-c8f15d24bd2f4ab98b656f08cdc1c4fb#e891724fc18f4524a970aca2379e8985
-Main thing to note is the `import_and_return` functions which download the
-Huggingface model and returns the necessary components to use it.
+https://github.com/alexanderatallah/window.ai#-local-model-setup
+
+Main thing to note in this file is the `import_and_return` functions which download the
+Huggingface model and return the necessary components to use it.
 This connector function is stored in the `CONNECTED_MODELS` dictionary.
 """
 from flask import Flask, jsonify, request
