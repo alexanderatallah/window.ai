@@ -3,12 +3,7 @@ import { Chat } from "../components/Chat"
 import { CodeBlock } from "../components/CodeBlock"
 import Link from "next/link"
 import Image from "next/image"
-import {
-  ANNOUNCEMENT_URL,
-  DISCORD_URL,
-  DOWNLOAD_URL,
-  GITHUB_URL,
-} from "../components/common"
+import { ANNOUNCEMENT_URL, DISCORD_URL, GITHUB_URL } from "../components/common"
 import Tooltip from "../components/Tooltip"
 import { Button } from "../components/Button"
 

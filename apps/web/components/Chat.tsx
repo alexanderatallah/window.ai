@@ -3,6 +3,7 @@ import { Button } from "./Button"
 import { type ChatGPTMessage, ChatLine, LoadingChatLine } from "./ChatLine"
 import { useCookies } from "react-cookie"
 import { DISCORD_URL, DOWNLOAD_URL } from "./common"
+import * as ai from "window-ai"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
