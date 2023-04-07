@@ -88,7 +88,7 @@ export function Chat() {
           messages: [...last10messages]
         },
         {
-          onStreamResult: (result: any, error: any) => {
+          onStreamResult: (result, error) => {
             if (error) {
               throw error
             }
