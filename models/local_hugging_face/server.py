@@ -14,14 +14,19 @@ from transformers import pipeline
 
 app = Flask(__name__)
 
+"""Model names, to not duplicate."""
+ALLENAI_INSTRUCT3B_MODEL = "allenai/tk-instruct-3b-def"
+FINBERT_TONE_MODEL = "yiyanghkust/finbert-tone"
+
+
 
 """Connector functions."""
 
 def import_and_return_tk_instruct_3b_def():
     """Example import function for Huggingface model. Returns model, tokenizer,
     and code for running the model."""
-    tokenizer = AutoTokenizer.from_pretrained("allenai/tk-instruct-3b-def")
-    model = AutoModelForSeq2SeqLM.from_pretrained("allenai/tk-instruct-3b-def")
+    tokenizer = AutoTokenizer.from_pretrained(ALLENAI_INSTRUCT3B_MODEL)
+    model = AutoModelForSeq2SeqLM.from_pretrained(ALLENAI_INSTRUCT3B_MODEL)
 
     def model_fn(model, string, tokenizer):
         input_ids = tokenizer.encode(string, return_tensors="pt")
@@ -34,8 +39,8 @@ def import_and_return_tk_instruct_3b_def():
 
 def import_and_return_finbert_tone():
     """Imports https://huggingface.co/yiyanghkust/finbert-tone."""
-    finbert = BertForSequenceClassification.from_pretrained('yiyanghkust/finbert-tone', num_labels=3)
-    tokenizer = BertTokenizer.from_pretrained('yiyanghkust/finbert-tone')
+    finbert = BertForSequenceClassification.from_pretrained(FINBERT_TONE_MODEL, num_labels=3)
+    tokenizer = BertTokenizer.from_pretrained(FINBERT_TONE_MODEL)
 
     def model_fn(model, string, tokenizer):
         nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
@@ -46,8 +51,8 @@ def import_and_return_finbert_tone():
 
 
 CONNECTED_MODELS = {
-    "allenai/tk-instruct-3b-def": import_and_return_tk_instruct_3b_def,
-    "yiyanghkust/finbert-tone": import_and_return_finbert_tone,
+    ALLENAI_INSTRUCT3B_MODEL: import_and_return_tk_instruct_3b_def,
+    FINBERT_TONE_MODEL: import_and_return_finbert_tone,
 }
 
 
@@ -58,7 +63,7 @@ def completions():
     """The completions endpoint."""
     # Get the request data.
     data = request.get_json()
-    model = data.get("model", "yiyanghkust/finbert-tone")
+    model = data.get("model", FINBERT_TONE_MODEL)
     prompt = data["prompt"]
     # max_tokens = data["max_tokens"]  # Unused.
     # temperature = data["temperature"]  # Unused.
