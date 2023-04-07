@@ -10,7 +10,7 @@ Window is a browser extension that lets you use model-polymorphic AI apps.
 
 More about why this was made [here](https://twitter.com/xanderatallah/status/1643356106670981122).
 
-Below, you'll find [features](#⭐️-main-features), [apps](#👀-find-apps), [docs](#📄-docs), and local model [demo & setup](#🧠-local-model-setup).
+Below, you'll find out [how to install](#📥-installation), [how to find apps](#👀-find-apps), [how to make apps](#📄-docs), and [how to connect custom models](#🧠-local-model-setup).
 
 ### 📺 Demo
 https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4
@@ -58,7 +58,7 @@ It works with these models:
 
 ## 📥 Installation
 
-This project is in beta and not on stores yet. For now, you can join the [#beta-testing channel on Discord](https://discord.gg/KBPhAPEJNj) to get access to a downloadable extension that you can load into Chrome.
+This extension is in **beta** and not on stores yet. For now, you can join the [#beta-testing channel on Discord](https://discord.gg/KBPhAPEJNj) to get access to a downloadable extension that you can load into Chrome.
 
 ## 👀 Find apps
 
@@ -130,13 +130,9 @@ window.ai.getCompletion(
 
 ## 🧠 Local model setup
 
+You can configure any local model to work with Window-compatible apps by writing a simple HTTP server.
 
-You can configure any local model to work with Window by writing a compatible server!
-
-The Window extension has been tested with [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) running locally behind a simple HTTP server.
-
-Here are instructions for setting up an Alpaca server locally with FastAPI and Uvicorn: [Alpaca Turbo](https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api).
-
+Here are instructions for setting up an [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) server locally with FastAPI and Uvicorn: [Alpaca Turbo](https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api).
 
 ### Server API Spec
 
