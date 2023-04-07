@@ -2,11 +2,11 @@
 
 [![](https://dcbadge.vercel.app/api/server/KBPhAPEJNj?style=flat)](https://discord.gg/KBPhAPEJNj)
 
-Window is a browser extension that lets you use model-polymorphic AI apps.
+Window AI is an extension that lets you configure AI models in one place and use them on the web.
 
-- **For developers**: free from API costs and limits - just use the injected `window.ai` library
+- **For developers**: easily make multi-model apps free from API costs and limits - just use the injected `window.ai` library. Even make decentralized AI apps.
   
-- **For users**: use your preferred model, whether it's external (like OpenAI), proxied, or local, to protect privacy.
+- **For users**: all your model setup in one place. Use your preferred model, whether it's external (like OpenAI), proxied, or local, to protect privacy.
 
 More about why this was made [here](https://twitter.com/xanderatallah/status/1643356106670981122).
 
@@ -72,11 +72,11 @@ This section shows why and how to get started, followed by a reference of `windo
 
 ### Why should I build with this?
 
-As a developer, one of the primary reasons to use `window.ai` instead of API calls is **reducing your infrastructure burden**. No more model API costs, timeouts, rate limiting, and server billing time.
+**Infrastructure burden**: No more model API costs, timeouts, rate limiting. Reduced server billing time.
 
-Plus, depending on what you make, you may have no need to make code changes when new models come out, like GPT-4, or when users need to switch between them.
+**Easily go multi-model**. Integrate once, and then let Window handle model upgrades and support for other providers.
 
-Lastly, now you can build **privacy-conscious apps** that just talk to the user's choice of model, and you have less liability for the model's output.
+**Privacy**: Now you can build privacy-conscious apps that just talk to the user's choice of model, and you have less liability for the model's output.
 
 ### Getting started
 
@@ -111,7 +111,7 @@ Note that `getCompletion` will return an array, `Output[]`, if you specify `numO
 
 ### Reference
 
-Better version coming soon. In the meantime, all public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). There are just two functions in the library:
+Better version of this section coming. In the meantime, all public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). There are just two functions in the library:
 
 **Current model**: get the user's currently preferred model ID.
 ```ts
