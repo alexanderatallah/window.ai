@@ -10,6 +10,8 @@ Window is a browser extension that lets you use model-polymorphic AI apps.
 
 More about why this was made [here](https://twitter.com/xanderatallah/status/1643356106670981122).
 
+Below, you'll find 
+
 ### 📺 Demo
 https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4
 
@@ -28,15 +30,16 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
     - [✏️ Reference](#️-reference)
   - [🧠 Local model setup](#-local-model-setup)
     - [Server API Spec](#server-api-spec)
+    - [Demo comparing Alpaca with GPT-4](#demo-comparing-alpaca-with-gpt-4)
   - [🤝 Contributing](#-contributing)
 
 ## ⭐️ Main features
 
-- 🛠️ Configure all your API keys in one place and forget about them
+- 🛠️ Configure all your API keys in one place and forget about them. They are *only* stored locally.
 
-- 🧠 Use external, proxied, and local models of your choice
+- 🧠 Use external, proxied, and local models of your choice.
 
-- 💾 Save your prompt history across apps (maybe train your own models with it)
+- 💾 Save your prompt history across apps (maybe train your own models with it).
 
 ## ⚙️ How it works
 
@@ -50,7 +53,7 @@ It works with these models:
 
 - OpenAI's [GPT-3.5 and GPT-4](https://platform.openai.com/)
 - Together's [GPT NeoXT 20B](https://github.com/togethercomputer/OpenChatKit/blob/main/docs/GPT-NeoXT-Chat-Base-20B.md)
-- [CohereAI](https://dashboard.cohere.ai/).
+- Cohere [Xlarge](https://dashboard.cohere.ai/)
 - Open models, like Alpaca, that can run locally (see [how](#🧠-local-model-setup)).
 
 ## 📥 Installation
@@ -159,6 +162,12 @@ This endpoint accepts a request body containing the following parameters:
 This endpoint should return an object that looks like: `{ "choices": Array<{ text: string }`.
 
 More WIP thinking [here](https://alexatallah.notion.site/RFC-LLM-API-Standard-c8f15d24bd2f4ab98b656f08cdc1c4fb).
+
+### Demo comparing Alpaca with GPT-4
+
+[Demo context](https://twitter.com/xanderatallah/status/1643356112073129985)
+
+https://user-images.githubusercontent.com/1011391/230620781-57b8ffdb-4081-488c-b059-0daca5806b5a.mp4
 
 ## 🤝 Contributing
 
