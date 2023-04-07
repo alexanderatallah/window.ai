@@ -1,10 +1,12 @@
-# window.ai
+# Window
 
-This is a browser extension that helps you discover and use zero-dependency, possibly-decentralized AI apps.
+Use your own AI models on the web.
+
+Window is a browser extension that helps you discover and use zero-dependency, possibly-decentralized AI apps.
 
 Demo: *TODO*
 
-- [window.ai](#windowai)
+- [Window](#window)
   - [How it works](#how-it-works)
   - [Installation](#installation)
   - [How to build a window.ai app](#how-to-build-a-windowai-app)
