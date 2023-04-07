@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Local Hugging Face Models</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+	<h1>Local Hugging Face Models</h1>
+	<form id="completions-form" action="http://localhost:8000/completions" method="POST">
+		<label for="model">Model:</label>
+		<select id="model" name="model">
+			<option value="yiyanghkust/finbert-tone">Finbert Tone</option>
+			<option value="allenai/tk-instruct-3b-def">AllenAI Instruct 3B</option>
+		</select>
+		<br><br>
+
+		<label for="prompt">Prompt:</label>
+		<br><br>
+		<textarea id="prompt" name="prompt" required></textarea><br>
+		<br><br>
+		<button type="submit">Generate Completions</button>
+	</form>
+
+	<br><br>
+	<div id="completions-results"></div>
+
+	<script>
+		// Get the form element and the model and prompt input elements
+		const form = document.getElementById('completions-form');
+		const modelInput = document.getElementById('model');
+		const promptInput = document.getElementById('prompt');
+
+		async function handleSubmit(event) {
+		  // Prevent the default behavior of the form submission (i.e. page reload)
+		  event.preventDefault();
+
+		  // Get the model and prompt values from the input elements
+		  const modelValue = modelInput.value;
+		  const promptValue = promptInput.value;
+
+		  // Get the active model from the window.ai API 
+		  await window.ai.getCurrentModel();
+
+		  // Get completions from the window.ai API
+		  const completion = await window.ai.getCompletion(
+			  {prompt: promptValue}
+		  );
+
+		  const completionsResults = document.getElementById('completions-results');
+		  completionsResults.textContent = JSON.stringify(completion, null, 2);
+		}
+
+		form.addEventListener('submit', handleSubmit);
+	</script>
+</body>
+</html>
