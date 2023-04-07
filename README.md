@@ -2,9 +2,9 @@
 
 [![](https://dcbadge.vercel.app/api/server/KBPhAPEJNj?style=flat)](https://discord.gg/KBPhAPEJNj)
 
-Window AI is an extension that lets you configure AI models in one place and use them on the web.
+Window AI is a browser extension that lets you configure AI models in one place and use them on the web.
 
-- **For developers**: easily make multi-model apps free from API costs and limits - just use the injected `window.ai` library. Even make decentralized AI apps.
+- **For developers**: easily make multi-model apps free from API costs and limits - just use the injected `window.ai` library. Even make decentralized apps.
   
 - **For users**: all your model setup in one place. Use your preferred model, whether it's external (like OpenAI), proxied, or local, to protect privacy.
 
@@ -43,7 +43,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 
 ## ⚙️ How it works
 
-1. You configure your keys and models just once (see [demo](#📺-demo) above).
+1. You configure your keys and models just once in the extension (see [demo](#📺-demo) above).
 
 2. Apps can request permission to send prompts to your chosen model via the injected `window.ai` library (see the simple [docs](#📄-docs)).
 
@@ -144,7 +144,6 @@ Here are instructions for setting up an [Alpaca](https://github.com/tatsu-lab/st
 
 This endpoint accepts a request body containing the following parameters:
 
-- `model`: A string identifier for the model type to use.
 - `prompt`: The prompt(s) to generate completions for, encoded as a `string`. OR you can use ChatML format via `messages`:
 - `messages` an array of `ChatMessage`s.
 - `max_tokens`: The maximum number of tokens to generate in the completion.
@@ -157,7 +156,11 @@ This endpoint accepts a request body containing the following parameters:
 
 **Return value:**
 
-This endpoint should return an object that looks like: `{ "choices": Array<{ text: string }`.
+This endpoint should return an object that looks like:
+
+```ts
+{ choices: Array<{ text: string }> }
+```
 
 More WIP thinking [here](https://alexatallah.notion.site/RFC-LLM-API-Standard-c8f15d24bd2f4ab98b656f08cdc1c4fb).
 
