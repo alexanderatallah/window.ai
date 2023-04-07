@@ -30,6 +30,7 @@
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
+    "eslint-config-custom": "workspace:*",
     "@plasmohq/prettier-plugin-sort-imports": "3.6.3",
     "@plasmohq/rps": "^1.8.4",
     "@tailwindcss/line-clamp": "^0.4.2",
