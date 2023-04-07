@@ -23,9 +23,9 @@
     "react-wrap-balancer": "^0.1.5"
   },
   "devDependencies": {
+    "@types/window.ai": "workspace:*",
     "@types/node": "^17.0.45",
     "@types/react": "latest",
-    "window-ai": "workspace:^",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.36.0",
     "eslint-config-next": "^12.3.4",

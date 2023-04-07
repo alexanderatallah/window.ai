@@ -1,10 +1,11 @@
 {
-  "name": "window-ai",
-  "main": "index.d.ts",
+  "name": "@types/window.ai",
   "types": "index.d.ts",
   "version": "1.0.0",
-  "description": "Types for window.ai",
-  "scripts": {},
+  "description": "Window.ai API",
+  "scripts": {
+    "publish": "npm publish --access public"
+  },
   "keywords": [],
   "author": "Alex Atallah <alexander.atallah@gmail.com>",
   "license": "MIT",
