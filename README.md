@@ -10,16 +10,16 @@ Window is a browser extension that lets you use model-polymorphic AI apps.
 
 More about why this was made [here](https://twitter.com/xanderatallah/status/1643356106670981122).
 
-Below, you'll find 
+Below, you'll find [features](#⭐️-main-features), [apps](#👀-find-apps), [docs](#📄-docs), and local model [demo & setup](#🧠-local-model-setup).
 
 ### 📺 Demo
 https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4
 
-### ℹ️ Contents
+### Contents
 
 - [Window: use your own AI models on the web](#window-use-your-own-ai-models-on-the-web)
     - [📺 Demo](#-demo)
-    - [ℹ️ Contents](#ℹ️-contents)
+    - [Contents](#contents)
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
