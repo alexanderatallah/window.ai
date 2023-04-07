@@ -91,5 +91,3 @@ declare global {
 }
 
 export {} // This is necessary for module augmentation
-
-window.ai.getCompletion
