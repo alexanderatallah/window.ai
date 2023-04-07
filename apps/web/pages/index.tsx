@@ -7,6 +7,7 @@ import {
   ANNOUNCEMENT_URL,
   DISCORD_URL,
   DOWNLOAD_URL,
+  GITHUB_URL,
 } from "../components/common"
 import Tooltip from "../components/Tooltip"
 import { Button } from "../components/Button"
@@ -51,7 +52,11 @@ function Home() {
           <Tooltip content="While the extension is being tested and developed, please join the Discord to download the beta build and get notified about updates.">
             ⚠️
           </Tooltip>
-          , you can choose which model to use with apps built on window.ai
+          , you can choose which model to use with apps{" "}
+          <Link className="underline" href={GITHUB_URL} target="_blank">
+            built on window.ai
+          </Link>
+          .
         </Text>
       </section>
 
@@ -126,6 +131,12 @@ function Home() {
                   target="_blank"
                 >
                   announcement
+                </Link>
+              </Text>
+              <Text className="text-zinc-600">
+                Check out the{" "}
+                <Link className="underline" href={GITHUB_URL} target="_blank">
+                  docs
                 </Link>
               </Text>
               <Button onClick={() => window.open(DISCORD_URL, "_blank")}>
