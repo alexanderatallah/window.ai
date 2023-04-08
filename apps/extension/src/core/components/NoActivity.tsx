@@ -11,7 +11,8 @@ export function NoActivity() {
         <a
           className="text-indigo-800 font-medium dark:text-white"
           href="https://discord.gg/vDAvbuySYv"
-          target="_blank">
+          target="_blank"
+          rel="noreferrer">
           Discord server
         </a>{" "}
         to explore window.ai apps.
