@@ -55,6 +55,7 @@ export function Settings() {
   }
 
   const isLocalModel = modelId === ModelID.Local
+  const isOpenAI = modelId === ModelID.GPT3 || modelId === ModelID.GPT4
 
   return (
     <div className="flex flex-col">
@@ -68,8 +69,12 @@ export function Settings() {
           <Tooltip
             content={
               <span>
-                An API key is required for external models like OpenAI, but not
-                for ones running locally on your computer.
+                An API key is required for the OpenAI and Cohere models, but not
+                for Together or Local (running on your computer).
+                <br />
+                <br />
+                For OpenAI, you must have a paid account, otherwise your key
+                will be rate-limited excessively.
               </span>
             }>
             Learn more
@@ -125,9 +130,24 @@ export function Settings() {
                 <a
                   href={APIKeyURL[modelId]}
                   target="_blank"
-                  className="font-bold">
+                  className="font-bold"
+                  rel="noreferrer">
                   here
                 </a>
+                .
+              </Text>
+            )}
+            {isOpenAI && (
+              <Text dimming="less" size="xs">
+                Note: you must be on a{" "}
+                <a
+                  href={"https://platform.openai.com/account/billing/overview"}
+                  target="_blank"
+                  className="font-bold"
+                  rel="noreferrer">
+                  paid account
+                </a>
+                .
               </Text>
             )}
             {isLocalModel && (
@@ -138,7 +158,8 @@ export function Settings() {
                     "https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api"
                   }
                   target="_blank"
-                  className="font-bold">
+                  className="font-bold"
+                  rel="noreferrer">
                   here
                 </a>
                 .

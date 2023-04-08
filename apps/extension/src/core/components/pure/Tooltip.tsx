@@ -24,9 +24,9 @@ export function Tooltip({
       onMouseLeave={hideTooltip}>
       {children}
       {visible && (
-        <div className="absolute z-10 left-1/2 transform -translate-x-1/2 top-full mt-2 p-3  w-52 bg-slate-900 text-slate-100 text-xs rounded-md shadow-lg">
+        <span className="absolute z-10 left-1/2 transform -translate-x-1/2 top-full mt-2 p-3 w-52 bg-slate-900 text-slate-100 text-xs rounded-md shadow-lg">
           {content}
-        </div>
+        </span>
       )}
     </span>
   )

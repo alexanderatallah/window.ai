@@ -9,7 +9,7 @@ export function Accordion({
 }: {
   children: React.ReactNode
   title: string
-  centered: boolean
+  centered?: boolean
   initiallyOpened?: boolean
 }) {
   const [isOpen, setIsOpen] = useState(false)
