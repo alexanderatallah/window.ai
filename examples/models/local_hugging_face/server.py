@@ -63,7 +63,7 @@ def completions():
     """The completions endpoint."""
     # Get the request data.
     data = request.get_json()
-    model = data.get("model", FINBERT_TONE_MODEL)
+    model = data.get("model", FINBERT_TONE_MODEL)  # Change this if you want to use a different model.
     prompt = data["prompt"]
     # max_tokens = data["max_tokens"]  # Unused.
     # temperature = data["temperature"]  # Unused.

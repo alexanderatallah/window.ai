@@ -21,7 +21,6 @@
 	<script>
 		// Get the form element and the model and prompt input elements
 		const form = document.getElementById('completions-form');
-		const modelInput = document.getElementById('model');
 		const promptInput = document.getElementById('prompt');
 
 		async function handleSubmit(event) {
@@ -29,7 +28,6 @@
 		  event.preventDefault();
 
 		  // Get the model and prompt values from the input elements
-		  const modelValue = modelInput.value;
 		  const promptValue = promptInput.value;
 
 		  // Get the active model from the window.ai API 
