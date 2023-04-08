@@ -65,9 +65,10 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   async getDefault(): Promise<Config> {
-    const id = (await this.defaultConfig.get("id")) as ModelID | undefined
+    let id = (await this.defaultConfig.get("id")) as ModelID | undefined
     if (!id) {
-      return this.init(ModelID.GPT3)
+      id = ModelID.GPT3
+      await this.setDefault(id)
     }
     return (await this.get(id)) || this.init(id)
   }
