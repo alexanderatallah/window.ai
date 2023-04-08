@@ -8,13 +8,6 @@
 <body>
 	<h1>Local Hugging Face Models</h1>
 	<form id="completions-form" action="http://localhost:8000/completions" method="POST">
-		<label for="model">Model:</label>
-		<select id="model" name="model">
-			<option value="yiyanghkust/finbert-tone">Finbert Tone</option>
-			<option value="allenai/tk-instruct-3b-def">AllenAI Instruct 3B</option>
-		</select>
-		<br><br>
-
 		<label for="prompt">Prompt:</label>
 		<br><br>
 		<textarea id="prompt" name="prompt" required></textarea><br>
