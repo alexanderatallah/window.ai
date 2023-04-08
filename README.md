@@ -10,7 +10,7 @@ Window AI is a browser extension that lets you configure AI models in one place 
 
 More about why this was made [here](https://twitter.com/xanderatallah/status/1643356106670981122).
 
-Below, you'll find out [how to install](#📥-installation), [how to find apps](#👀-find-apps), [how to make apps](#📄-docs), and [how to connect custom models](#🧠-local-model-setup).
+Below, you'll find out [how to install](#-installation), [how to find apps](#-find-apps), [how to make apps](#-docs), and [how to connect custom models](#-local-model-setup).
 
 ### 📺 Demo
 https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4
