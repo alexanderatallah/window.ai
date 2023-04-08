@@ -85,7 +85,6 @@ export const cohere = initCohere(
   },
   {
     adapter: fetchAdapter,
-    apiKey: process.env.COHERE_API_KEY,
     max_tokens: DEFAULT_MAX_TOKENS,
     temperature: 0.9
     // stop_sequences: ['\n'],
