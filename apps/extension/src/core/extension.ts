@@ -24,15 +24,11 @@ export const Extension = {
     })
   },
 
-  // NOTE: Passing in a tabId is tricky to get right,
-  // because sometimes the tab is not ready to receive port connections,
-  // and sometimes there's nothing listening on the other end yet
-  connectToPort(name: PortName, tabId?: number): Port {
-    const port = tabId
-      ? browser.tabs.connect(tabId, { name })
-      : browser.runtime.connect({ name })
+  connectToPort(name: PortName, onDisconnect: () => void): Port {
+    const port = browser.runtime.connect({ name })
     port.onDisconnect.addListener(() => {
       log("Disconnected from port")
+      onDisconnect()
     })
     return port
   },

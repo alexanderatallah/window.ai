@@ -12,8 +12,17 @@ export const config: PlasmoCSConfig = {
 type PublicPort = PortName.Completion | PortName.Model
 
 const ports: Record<PublicPort, Port> = {
-  [PortName.Completion]: Extension.connectToPort(PortName.Completion),
-  [PortName.Model]: Extension.connectToPort(PortName.Model)
+  [PortName.Completion]: Extension.connectToPort(PortName.Completion, () =>
+    reconnect(PortName.Completion)
+  ),
+  [PortName.Model]: Extension.connectToPort(PortName.Model, () =>
+    reconnect(PortName.Completion)
+  )
+}
+
+function reconnect(portName: PublicPort) {
+  log(`Reconnecting to ${portName} port`)
+  ports[portName] = Extension.connectToPort(portName, () => reconnect(portName))
 }
 
 ;(Object.keys(ports) as PublicPort[]).forEach((portName) =>

@@ -97,7 +97,9 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
             permissions: permission
           })
         }>
-        {object?.permissions === "allow" ? "Always allow" : "Ask every time"}
+        {object?.permissions === "allow"
+          ? "Always allow this site"
+          : "Always ask for this site"}
       </Dropdown>
     </div>
   )

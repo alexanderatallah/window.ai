@@ -50,7 +50,8 @@ export function Settings() {
     }
     return configManager.save({
       ...config,
-      apiKey: apiKey
+      apiKey: apiKey,
+      completionUrl: url
     })
   }
 
