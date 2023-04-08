@@ -9,10 +9,10 @@ import {
   PortRequest,
   PortResponse
 } from "~core/constants"
+import { Extension } from "~core/extension"
 import { originManager } from "~core/managers/origin"
 import { Result, err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
-import { Extension } from "~platforms/extension"
 import { ErrorCode } from "~public-interface"
 
 const permissionState = new RequestState<

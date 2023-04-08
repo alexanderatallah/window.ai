@@ -124,6 +124,7 @@ export abstract class BaseManager<T extends BaseModel> {
       }
 
       fetcher()
+      // Adding objects as a dependency causes an infinite loop
     }, [page, _itemIds, pageSize, _pageMode])
 
     const appendNextPage = useCallback(() => {

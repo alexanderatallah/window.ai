@@ -18,7 +18,7 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
             {transaction.origin.title}
           </Text>
           <Text dimming="less" truncate>
-            <a href={url} title={url} target="_blank">
+            <a href={url} title={url} target="_blank" rel="noreferrer">
               {originManager.urlDisplay(transaction.origin)}
             </a>
           </Text>
