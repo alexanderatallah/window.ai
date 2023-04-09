@@ -7,7 +7,7 @@
 </head>
 <body>
 	<h1>Local Hugging Face Models</h1>
-	<form id="completions-form" action="http://localhost:8000/completions" method="POST">
+	<form id="completions-form" method="POST">
 		<label for="prompt">Prompt:</label>
 		<br><br>
 		<textarea id="prompt" name="prompt" required></textarea><br>
@@ -31,7 +31,7 @@
 		  const promptValue = promptInput.value;
 
 		  // Get the active model from the window.ai API 
-		  await window.ai.getCurrentModel();
+		  const currentModel = await window.ai.getCurrentModel();
 
 		  // Get completions from the window.ai API
 		  const completion = await window.ai.getCompletion(
@@ -39,7 +39,7 @@
 		  );
 
 		  const completionsResults = document.getElementById('completions-results');
-		  completionsResults.textContent = JSON.stringify(completion, null, 2);
+		  completionsResults.textContent = "Model \"" + currentModel + "\" output: " + JSON.stringify(completion, null, 2);
 		}
 
 		form.addEventListener('submit', handleSubmit);
