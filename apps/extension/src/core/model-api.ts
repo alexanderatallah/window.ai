@@ -99,8 +99,6 @@ const modelInstances: { [K in ModelID]: Model } = {
   [ModelID.Local]: alpacaTurbo
 }
 
-const streamableModels = new Set([ModelID.GPT3, ModelID.GPT4, ModelID.Local])
-
 export async function complete(
   data: Request
 ): Promise<Result<string[], string>> {

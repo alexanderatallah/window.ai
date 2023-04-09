@@ -27,7 +27,10 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
   - [📄 Docs](#-docs)
     - [Why should I build with this?](#why-should-i-build-with-this)
     - [Getting started](#getting-started)
-    - [Reference](#reference)
+    - [Functions](#functions)
+    - [CompletionOptions](#completionoptions)
+    - [Model IDs](#model-ids)
+    - [Error codes](#error-codes)
   - [🧠 Local model setup](#-local-model-setup)
     - [Server API Spec](#server-api-spec)
     - [Demo comparing Alpaca with GPT-4](#demo-comparing-alpaca-with-gpt-4)
@@ -109,9 +112,9 @@ await ai.getCompletion({
 
 Note that `getCompletion` will return an array, `Output[]`, if you specify `numOutputs > 1`.
 
-### Reference
+### Functions
 
-Better version of this section coming. In the meantime, all public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). There are just two functions in the library:
+There are just two functions in the library:
 
 **Current model**: get the user's currently preferred model ID.
 ```ts
@@ -126,6 +129,74 @@ window.ai.getCompletion(
   ): Promise<Output | Output[]>
 ```
 `Input` is either a `{ prompt : string }` or `{ messages: ChatMessage[]}`. Examples: see [getting started](#🧑‍💻-getting-started) above.
+
+All public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). Highlights below:
+
+### CompletionOptions
+
+This options dictionary allows you to specify options for the completion request.
+```ts
+export interface CompletionOptions {
+
+  // If specified, partial updates will be streamed to this handler as they become available,
+  // and only the first partial update will be returned by the Promise.
+  onStreamResult?: (result: Output | null, error: string | null) => unknown
+
+  // What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
+  // make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+  // Different models have different defaults.
+  temperature?: number
+
+  // How many completion choices to generate. Defaults to 1.
+  numOutputs?: number
+
+  // The maximum number of tokens to generate in the chat completion. Defaults to infinity, but the
+  // total length of input tokens and generated tokens is limited by the model's context length.
+  maxTokens?: number
+
+  // Sequences where the API will stop generating further tokens.
+  stopSequences?: string[]
+
+  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
+  model?: ModelID
+}
+```
+
+### Model IDs
+
+ModelID is an enum of the available models:
+```ts
+// NOTE: this is an evolving standard, and may change in the future.
+export enum ModelID {
+  GPT3 = "openai/gpt3.5",
+  GPT4 = "openai/gpt4",
+  GPTNeo = "together/gpt-neoxt-20B",
+  Cohere = "cohere/xlarge",
+  Local = "local"
+}
+```
+### Error codes
+
+Errors emitted by the extension API:
+```ts
+export enum ErrorCode {
+  // Incorrect API key / auth
+  NotAuthenticated = "NOT_AUTHENTICATED",
+
+  // User denied permission to the app
+  PermissionDenied = "PERMISSION_DENIED",
+  
+  // Happens when a permission request popup times out
+  RequestNotFound = "REQUEST_NOT_FOUND",
+
+  // When a request is badly formed
+  InvalidRequest = "INVALID_REQUEST",
+
+  // When an AI model refuses to fulfill a request. The returned error is
+  // prefixed by this value and includes the status code that the model API returned
+  ModelRejectedRequest = "MODEL_REJECTED_REQUEST"
+}
+```
 
 
 ## 🧠 Local model setup
