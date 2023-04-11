@@ -1,6 +1,7 @@
+import { sendToBackground } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
-import { ModelID } from "~public-interface"
+import { EventType, ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
 
@@ -62,6 +63,13 @@ class ConfigManager extends BaseManager<Config> {
 
   async setDefault(id: ModelID) {
     await this.defaultConfig.set("id", id)
+    await sendToBackground({
+      name: "event",
+      body: {
+        event: EventType.ModelChanged,
+        data: id
+      }
+    })
   }
 
   async getDefault(): Promise<Config> {

@@ -13,6 +13,7 @@ import {
 import { OriginData, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import { Result, isOk } from "~core/utils/result-monad"
+import type { ErrorCode } from "~public-interface"
 import {
   CompletionOptions,
   EventType,
@@ -41,7 +42,7 @@ export const WindowAI = {
       shouldStream
     })
     return new Promise((resolve, reject) => {
-      _addRequestListener<CompletionResponse>(requestId, (res) => {
+      _addResponseListener<CompletionResponse>(requestId, (res) => {
         if (isOk(res)) {
           resolve(shouldReturnMultiple ? res.data : res.data[0])
           onStreamResult && onStreamResult(res.data[0], null)
@@ -56,7 +57,7 @@ export const WindowAI = {
   async getCurrentModel(): Promise<ModelID> {
     const requestId = _relayRequest<ModelRequest>(PortName.Model, {})
     return new Promise((resolve, reject) => {
-      _addRequestListener<ModelResponse>(requestId, (res) => {
+      _addResponseListener<ModelResponse>(requestId, (res) => {
         if (isOk(res)) {
           resolve(res.data.model)
         } else {
@@ -66,12 +67,20 @@ export const WindowAI = {
     })
   },
 
-  addEventListener(handler: (event: EventType, data: object) => void) {
+  addEventListener(
+    handler: (
+      event: EventType,
+      data: { model: ModelID } | { error: ErrorCode }
+    ) => void
+  ) {
     const requestId = _relayRequest<ModelRequest>(PortName.Model, {
       shouldListen: true
     })
-    _addRequestListener<ModelResponse>(requestId, (res) => {
-      if (isOk(res) && res.data.event) {
+    _addResponseListener<ModelResponse>(requestId, (res) => {
+      if (isOk(res)) {
+        if (!res.data.event) {
+          throw new Error("Expected 'event': " + JSON.stringify(res.data))
+        }
         handler(res.data.event, res.data)
       } else {
         handler(EventType.Error, { error: res.error })
@@ -125,16 +134,16 @@ function _relayRequest<T>(portName: PortName, request: T): RequestId {
 // }
 
 // TODO figure out how to reclaim memory
-const _requestListeners = new Map<RequestId, Set<(data: any) => void>>()
+const _responseListeners = new Map<RequestId, Set<(data: any) => void>>()
 
-function _addRequestListener<T extends Result<any, string>>(
+function _addResponseListener<T extends Result<any, string>>(
   requestId: RequestId,
   handler: (data: T) => void
 ) {
   const handlerSet =
-    _requestListeners.get(requestId) || new Set<(data: T) => void>()
+    _responseListeners.get(requestId) || new Set<(data: T) => void>()
   handlerSet.add(handler)
-  _requestListeners.set(requestId, handlerSet)
+  _responseListeners.set(requestId, handlerSet)
 }
 
 window.addEventListener(
@@ -148,7 +157,7 @@ window.addEventListener(
     }
 
     if (data?.type === ContentMessageType.Response) {
-      const handlers = _requestListeners.get(data.id)
+      const handlers = _responseListeners.get(data.id)
       if (!handlers) {
         throw `No handlers found for request ${data.id}`
       }

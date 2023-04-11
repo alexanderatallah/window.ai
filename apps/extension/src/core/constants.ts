@@ -11,7 +11,7 @@ export enum PortName {
 export interface PortRequest {
   [PortName.Completion]: { id: RequestId; request: CompletionRequest }
   [PortName.Permission]: { id: RequestId; permitted?: boolean }
-  [PortName.Model]: { id: RequestId }
+  [PortName.Model]: { id: RequestId; request: ModelRequest }
 }
 
 export interface PortResponse {

@@ -1,5 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
+import { addEventListener } from "~background/messages/event"
 import type { PortName, PortRequest, PortResponse } from "~core/constants"
 import { configManager } from "~core/managers/config"
 import { ok } from "~core/utils/result-monad"
@@ -18,7 +19,18 @@ const handler: PlasmoMessaging.PortHandler<
     })
   }
 
-  const { id } = req.body
+  const { id, request } = req.body
+  if (request.shouldListen) {
+    if (!req.port) {
+      return res.send({
+        id,
+        error: ErrorCode.InvalidRequest
+      })
+    }
+    addEventListener(req.port)
+    // We're adding a listener, no response needed
+    return
+  }
 
   const currentModel = await configManager.getDefault()
 

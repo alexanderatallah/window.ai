@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
-import { RequestState } from "~background/state/request"
+import { RequestState } from "~background/lib/request-state"
 import {
   CompletionRequest,
   POPUP_HEIGHT,
@@ -34,7 +34,7 @@ const handler: PlasmoMessaging.PortHandler<
   const { id, permitted } = req.body
   if (permitted !== undefined) {
     // We're completing a request, no response needed
-    permissionState.complete(id, req.body)
+    permissionState.finish(id, req.body)
     return
   }
 
@@ -76,7 +76,7 @@ export async function requestPermission(
       if (permissionState.get(requestId)) {
         // User closed window without responding, so assume
         // no permission granted
-        permissionState.complete(requestId, {
+        permissionState.finish(requestId, {
           id: requestId,
           permitted: false
         })
