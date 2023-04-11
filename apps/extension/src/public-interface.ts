@@ -71,3 +71,11 @@ export enum ErrorCode {
   InvalidRequest = "INVALID_REQUEST",
   ModelRejectedRequest = "MODEL_REJECTED_REQUEST"
 }
+
+// Event types emitted by the extension API
+export enum EventType {
+  // Fired when the user's model is changed.
+  ModelChanged = "model_changed",
+  // Error emitted by the extension
+  Error = "error"
+}

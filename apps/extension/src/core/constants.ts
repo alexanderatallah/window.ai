@@ -1,4 +1,4 @@
-import type { ErrorCode, ModelID, Output } from "../public-interface"
+import type { ErrorCode, EventType, ModelID, Output } from "../public-interface"
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
 
@@ -45,8 +45,11 @@ export type CompletionRequest = {
 }
 export type CompletionResponse = Result<Output[], ErrorCode | string>
 
-export type ModelRequest = {}
-export type ModelResponse = Result<ModelID, ErrorCode>
+export type ModelRequest = { shouldListen?: boolean }
+export type ModelResponse = Result<
+  { model: ModelID; event?: EventType },
+  ErrorCode
+>
 
 export const IS_SERVER =
   typeof process !== "undefined" && process?.versions?.node

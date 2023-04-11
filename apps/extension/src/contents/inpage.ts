@@ -13,8 +13,9 @@ import {
 import { OriginData, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import { Result, isOk } from "~core/utils/result-monad"
-import type {
+import {
   CompletionOptions,
+  EventType,
   Input,
   ModelID,
   Output
@@ -57,11 +58,24 @@ export const WindowAI = {
     return new Promise((resolve, reject) => {
       _addRequestListener<ModelResponse>(requestId, (res) => {
         if (isOk(res)) {
-          resolve(res.data)
+          resolve(res.data.model)
         } else {
           reject(res.error)
         }
       })
+    })
+  },
+
+  addEventListener(handler: (event: EventType, data: object) => void) {
+    const requestId = _relayRequest<ModelRequest>(PortName.Model, {
+      shouldListen: true
+    })
+    _addRequestListener<ModelResponse>(requestId, (res) => {
+      if (isOk(res) && res.data.event) {
+        handler(res.data.event, res.data)
+      } else {
+        handler(EventType.Error, { error: res.error })
+      }
     })
   }
 }

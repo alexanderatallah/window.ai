@@ -25,7 +25,7 @@ const handler: PlasmoMessaging.PortHandler<
   // We're starting a request, so send the request to the extension UI
   res.send({
     id,
-    response: ok(currentModel.id)
+    response: ok({ model: currentModel.id })
   })
 }
 
