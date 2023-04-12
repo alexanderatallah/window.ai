@@ -18,7 +18,7 @@ export class RequestState<RequestType, ResponseType> {
     this.completionListeners.set(id, [])
   }
 
-  complete(id: RequestId, result: ResponseType): void {
+  finish(id: RequestId, result: ResponseType): void {
     const { request, listeners } = this._assertAndGetRequest(id)
     listeners.forEach((listener) => {
       listener(request, result)

@@ -20,19 +20,17 @@ export function init(
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
 ): Model {
-  const completionModelId =
-    config.quality === "low" ? OpenAIModelId.Curie : OpenAIModelId.Davinci
+  // const completionModelId =
+  //   config.quality === "low" ? OpenAIModelId.Curie : OpenAIModelId.Davinci
   const chatModelId =
     config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
-  // config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
   return new Model(
     {
       modelProvider: "openai",
       isStreamable: true,
-      getModelId: (req) => (req.messages ? chatModelId : completionModelId),
+      getModelId: (req) => chatModelId,
       baseUrl: "https://api.openai.com/v1",
-      getPath: (req) =>
-        "messages" in req ? "/chat/completions" : "/completions",
+      getPath: (req) => "/chat/completions",
       debug: config.debug,
       endOfStreamSentinel: "[DONE]",
       cacheGet: config.cacheGet,
@@ -43,10 +41,22 @@ export function init(
           stop_sequences,
           num_generations,
           modelProvider,
+          prompt,
           ...optsToSend
         } = req
+        let messages = optsToSend.messages || []
+        if (prompt) {
+          messages = [
+            ...messages,
+            {
+              role: "user",
+              content: prompt
+            }
+          ]
+        }
         return {
           ...optsToSend,
+          messages,
           model: modelId,
           user: meta.user_identifier || undefined,
           stop: stop_sequences.length ? stop_sequences : undefined,

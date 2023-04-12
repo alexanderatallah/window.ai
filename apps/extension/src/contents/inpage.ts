@@ -5,16 +5,21 @@ import {
   CompletionRequest,
   CompletionResponse,
   ContentMessageType,
+  EventRequest,
+  EventResponse,
   ModelRequest,
   ModelResponse,
   PortName,
+  PortRequest,
   RequestId
 } from "~core/constants"
 import { OriginData, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import { Result, isOk } from "~core/utils/result-monad"
-import type {
+import {
   CompletionOptions,
+  ErrorCode,
+  EventType,
   Input,
   ModelID,
   Output
@@ -35,12 +40,12 @@ export const WindowAI = {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
     const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
-    const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
+    const requestId = _relayRequest(PortName.Completion, {
       transaction: transactionManager.init(input, _getOriginData(), options),
       shouldStream
     })
     return new Promise((resolve, reject) => {
-      _addRequestListener<CompletionResponse>(requestId, (res) => {
+      _addResponseListener<CompletionResponse>(requestId, (res) => {
         if (isOk(res)) {
           resolve(shouldReturnMultiple ? res.data : res.data[0])
           onStreamResult && onStreamResult(res.data[0], null)
@@ -53,16 +58,35 @@ export const WindowAI = {
   },
 
   async getCurrentModel(): Promise<ModelID> {
-    const requestId = _relayRequest<ModelRequest>(PortName.Model, {})
+    const requestId = _relayRequest(PortName.Model, {})
     return new Promise((resolve, reject) => {
-      _addRequestListener<ModelResponse>(requestId, (res) => {
+      _addResponseListener<ModelResponse>(requestId, (res) => {
         if (isOk(res)) {
-          resolve(res.data)
+          resolve(res.data.model)
         } else {
           reject(res.error)
         }
       })
     })
+  },
+
+  addEventListener<T>(
+    handler: (event: EventType, data: T | ErrorCode) => void
+  ): RequestId {
+    // TODO - use a dedicated port for events
+    const requestId = _relayRequest(PortName.Events, {
+      shouldListen: true
+    })
+    _addResponseListener<EventResponse<T>>(null, (res) => {
+      if (isOk(res)) {
+        if (res.data.event) {
+          handler(res.data.event, res.data.data)
+        }
+      } else {
+        handler(EventType.Error, res.error)
+      }
+    })
+    return requestId
   }
 }
 
@@ -85,42 +109,33 @@ function _getOriginData(): OriginData {
   )
 }
 
-function _relayRequest<T>(portName: PortName, request: T): RequestId {
+function _relayRequest<PN extends PortName>(
+  portName: PN,
+  request: PortRequest[PN]["request"]
+): RequestId {
   const requestId = uuidv4() as RequestId
-  window.postMessage(
-    {
-      type: ContentMessageType.Request,
-      id: requestId,
-      portName,
-      request
-    },
-    "*"
-  )
+  const msg = {
+    type: ContentMessageType.Request,
+    portName,
+    id: requestId,
+    request
+  }
+  window.postMessage(msg, "*")
   return requestId
 }
 
-// function _cancel(requestId: RequestId) {
-//   window.postMessage(
-//     {
-//       type: ContentMessageType.Cancel,
-//       id: requestId,
-//       portName: PORT_NAME
-//     },
-//     "*"
-//   )
-// }
-
 // TODO figure out how to reclaim memory
-const _requestListeners = new Map<RequestId, Set<(data: any) => void>>()
+// `null` means all listen for all requests
+const _responseListeners = new Map<RequestId | null, Set<(data: any) => void>>()
 
-function _addRequestListener<T extends Result<any, string>>(
-  requestId: RequestId,
+function _addResponseListener<T extends Result<any, string>>(
+  requestId: RequestId | null,
   handler: (data: T) => void
 ) {
   const handlerSet =
-    _requestListeners.get(requestId) || new Set<(data: T) => void>()
+    _responseListeners.get(requestId) || new Set<(data: T) => void>()
   handlerSet.add(handler)
-  _requestListeners.set(requestId, handlerSet)
+  _responseListeners.set(requestId, handlerSet)
 }
 
 window.addEventListener(
@@ -133,12 +148,17 @@ window.addEventListener(
       return
     }
 
-    if (data?.type === ContentMessageType.Response) {
-      const handlers = _requestListeners.get(data.id)
-      if (!handlers) {
-        throw `No handlers found for request ${data.id}`
+    if (data.type === ContentMessageType.Response) {
+      const msg = data as { id: RequestId; response: unknown }
+
+      const handlers = new Set([
+        ...(_responseListeners.get(msg.id) || []),
+        ...(_responseListeners.get(null) || [])
+      ])
+      if (handlers.size === 0) {
+        throw `No handlers found for request ${msg.id}`
       }
-      handlers.forEach((h) => h(data.response))
+      handlers.forEach((h) => h(msg.response))
     }
   },
   false

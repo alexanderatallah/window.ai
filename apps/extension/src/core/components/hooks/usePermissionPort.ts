@@ -15,7 +15,7 @@ export function usePermissionPort() {
       const urlParams = new URLSearchParams(window.location.search)
       const requestId = urlParams.get("requestId")
       if (requestId) {
-        send({ id: requestId })
+        send({ request: { requesterId: requestId } })
       }
     }
   }, [])

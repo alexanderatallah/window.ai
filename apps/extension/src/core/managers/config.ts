@@ -1,6 +1,8 @@
 import { Storage } from "@plasmohq/storage"
 
-import { ModelID } from "~public-interface"
+import { PortName } from "~core/constants"
+import { Extension } from "~core/extension"
+import { EventType, ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
 
@@ -61,7 +63,16 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   async setDefault(id: ModelID) {
+    const previous = (await this.defaultConfig.get("id")) as ModelID | undefined
     await this.defaultConfig.set("id", id)
+    if (previous !== id) {
+      Extension.sendRequest(PortName.Events, {
+        request: {
+          event: EventType.ModelChanged,
+          data: { model: id }
+        }
+      })
+    }
   }
 
   async getDefault(): Promise<Config> {

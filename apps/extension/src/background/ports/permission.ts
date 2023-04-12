@@ -1,6 +1,6 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
-import { RequestState } from "~background/state/request"
+import { RequestState } from "~background/lib/request-state"
 import {
   CompletionRequest,
   POPUP_HEIGHT,
@@ -17,7 +17,7 @@ import { ErrorCode } from "~public-interface"
 
 const permissionState = new RequestState<
   CompletionRequest,
-  PortRequest[PortName.Permission]
+  PortRequest[PortName.Permission]["request"]
 >()
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Permission],
@@ -26,30 +26,28 @@ const handler: PlasmoMessaging.PortHandler<
   log("Permission port received message: ", req)
 
   if (!req.body) {
-    return res.send({
-      error: ErrorCode.InvalidRequest
-    })
+    return res.send(err(ErrorCode.InvalidRequest))
   }
 
-  const { id, permitted } = req.body
+  const { requesterId, permitted } = req.body.request
   if (permitted !== undefined) {
     // We're completing a request, no response needed
-    permissionState.complete(id, req.body)
+    permissionState.finish(requesterId, req.body.request)
     return
   }
 
-  const request = permissionState.get(id)
-  if (!request) {
+  const requester = permissionState.get(requesterId)
+  if (!requester) {
     return res.send({
-      id,
+      id: req.body.id,
       error: ErrorCode.RequestNotFound
     })
   }
 
   // We're starting a request, so send the request to the extension UI
   res.send({
-    id,
-    request
+    requesterId,
+    requester
   })
 }
 
@@ -76,8 +74,8 @@ export async function requestPermission(
       if (permissionState.get(requestId)) {
         // User closed window without responding, so assume
         // no permission granted
-        permissionState.complete(requestId, {
-          id: requestId,
+        permissionState.finish(requestId, {
+          requesterId: requestId,
           permitted: false
         })
       }
@@ -91,7 +89,8 @@ export async function requestPermission(
     permissionState.addCompletionListener(
       requestId,
       async (request, result) => {
-        if (!result.permitted) {
+        const { permitted } = result
+        if (!permitted) {
           resolve(err(ErrorCode.PermissionDenied))
         } else {
           resolve(ok(true))

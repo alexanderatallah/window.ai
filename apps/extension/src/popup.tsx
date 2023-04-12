@@ -52,7 +52,10 @@ function NavFrame() {
         <PermissionRequest
           data={port.data}
           onResult={(permitted) =>
-            port.data.id && port.send({ id: port.data.id, permitted })
+            "requesterId" in port.data &&
+            port.send({
+              request: { permitted, requesterId: port.data.requesterId }
+            })
           }
         />
       ) : (
