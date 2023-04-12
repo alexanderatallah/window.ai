@@ -114,12 +114,7 @@ Note that `getCompletion` will return an array, `Output[]`, if you specify `numO
 
 ### Functions
 
-There are just two functions in the library:
-
-**Current model**: get the user's currently preferred model ID.
-```ts
-window.ai.getCurrentModel(): Promise<ModelID> 
-```
+The Window API is simple. Just a few functions:
 
 **Get completion**: get or stream a completion from the specified (or preferred) model.
 ```ts
@@ -129,6 +124,20 @@ window.ai.getCompletion(
   ): Promise<Output | Output[]>
 ```
 `Input` is either a `{ prompt : string }` or `{ messages: ChatMessage[]}`. Examples: see [getting started](#🧑‍💻-getting-started) above.
+
+**Current model**: get the user's currently preferred model ID.
+```ts
+window.ai.getCurrentModel(): Promise<ModelID> 
+```
+
+**Listen to events**: to listen to events emitted by the extension, such as whenever the preferred model changes, here's what you do:
+
+```ts
+window.ai.addEventListener((event: EventType, data: unknown) => {
+  // You can check `event` to see if it's the EventType you care about, e.g. "model_changed"
+  console.log("EVENT received", event, data)
+})
+```
 
 All public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). Highlights below:
 
