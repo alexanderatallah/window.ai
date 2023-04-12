@@ -76,6 +76,6 @@ export enum ErrorCode {
 export enum EventType {
   // Fired when the user's model is changed.
   ModelChanged = "model_changed",
-  // Error emitted by the extension
+  // Fired for errors
   Error = "error"
 }

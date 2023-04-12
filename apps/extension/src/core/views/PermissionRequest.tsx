@@ -22,7 +22,7 @@ export function PermissionRequest({
   const [transaction, error] =
     "error" in data
       ? [undefined, data.error]
-      : [data.request.transaction, undefined]
+      : [data.requester.transaction, undefined]
 
   return (
     // TODO figure out why hfull doesn't work

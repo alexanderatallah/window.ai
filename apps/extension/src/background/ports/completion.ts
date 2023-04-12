@@ -4,7 +4,7 @@ import type { PortName, PortRequest, PortResponse } from "~core/constants"
 import { configManager } from "~core/managers/config"
 import { Transaction, transactionManager } from "~core/managers/transaction"
 import * as modelApi from "~core/model-api"
-import { isErr, isOk, ok } from "~core/utils/result-monad"
+import { err, isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import { ErrorCode, Input, Output } from "~public-interface"
 
@@ -17,9 +17,7 @@ const handler: PlasmoMessaging.PortHandler<
   log("Background received message: ", req)
 
   if (!req.body) {
-    return res.send({
-      error: ErrorCode.InvalidRequest
-    })
+    return res.send(err(ErrorCode.InvalidRequest))
   }
 
   const { id, request } = req.body

@@ -94,9 +94,9 @@ export function Settings() {
           styled
           choices={Object.values(ModelID)}
           onSelect={async (id) => {
-            await configManager.setDefault(id)
             setDefaultModel(id)
             setModelId(id)
+            await configManager.setDefault(id)
           }}>
           {LLMLabels[defaultModel]}
         </Dropdown>

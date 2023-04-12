@@ -1,6 +1,5 @@
-import { sendToBackground } from "@plasmohq/messaging"
-
 import { ok } from "~core/utils/result-monad"
+import { log } from "~core/utils/utils"
 import type { EventType } from "~public-interface"
 
 // TODO adapt to browser.runtime.Port
@@ -17,8 +16,9 @@ export class EventBus {
     this.listeners.add(port)
   }
 
-  async dispatch(eventType: EventType, data: object) {
+  dispatch(eventType: EventType, data: unknown) {
     this.listeners.forEach((port) => {
+      log("Dispatching event", eventType, data, port)
       port.postMessage({
         response: ok({ event: eventType, data })
       })

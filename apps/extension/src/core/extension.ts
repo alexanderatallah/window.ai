@@ -1,6 +1,11 @@
 import browser from "webextension-polyfill"
 
-import type { PortEvent, PortName } from "~core/constants"
+import type {
+  PortEvent,
+  PortName,
+  PortRequest,
+  PortResponse
+} from "~core/constants"
 import { log } from "~core/utils/utils"
 
 export type Port = browser.Runtime.Port
@@ -24,11 +29,11 @@ export const Extension = {
     })
   },
 
-  connectToPort(name: PortName, onDisconnect: () => void): Port {
+  connectToPort(name: PortName, onDisconnect?: () => void): Port {
     const port = browser.runtime.connect({ name })
     port.onDisconnect.addListener(() => {
       log("Disconnected from port")
-      onDisconnect()
+      onDisconnect && onDisconnect()
     })
     return port
   },
@@ -51,13 +56,15 @@ export const Extension = {
     port: Port
   ) {
     port.postMessage({ body: data })
-    // TODO see if try/catch is necessary here:
-    // try {
-    //     getPort().postMessage({ body: data })
-    //   } catch (e) {
-    //     log("Error posting message to port. Retrying ", e)
-    //     getPort(true).postMessage({ body: data })
-    //   }
+  },
+
+  // Convenience method for firing a one-time message to a port.
+  // Like plasmo's sendToBackground
+  sendRequest<PN extends PortName, PR extends PortRequest>(
+    portName: PortName,
+    data: PR[PN]
+  ) {
+    Extension.sendMessage<PN, PR>(data, Extension.connectToPort(portName))
   },
 
   async openPopup(

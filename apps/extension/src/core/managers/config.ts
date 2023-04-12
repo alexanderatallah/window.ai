@@ -1,6 +1,7 @@
-import { sendToBackground } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
+import { PortName } from "~core/constants"
+import { Extension } from "~core/extension"
 import { EventType, ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
@@ -62,14 +63,16 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   async setDefault(id: ModelID) {
+    const previous = (await this.defaultConfig.get("id")) as ModelID | undefined
     await this.defaultConfig.set("id", id)
-    await sendToBackground({
-      name: "event",
-      body: {
-        event: EventType.ModelChanged,
-        data: id
-      }
-    })
+    if (previous !== id) {
+      Extension.sendRequest(PortName.Events, {
+        request: {
+          event: EventType.ModelChanged,
+          data: { model: id }
+        }
+      })
+    }
   }
 
   async getDefault(): Promise<Config> {

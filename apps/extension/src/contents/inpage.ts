@@ -5,17 +5,20 @@ import {
   CompletionRequest,
   CompletionResponse,
   ContentMessageType,
+  EventRequest,
+  EventResponse,
   ModelRequest,
   ModelResponse,
   PortName,
+  PortRequest,
   RequestId
 } from "~core/constants"
 import { OriginData, originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import { Result, isOk } from "~core/utils/result-monad"
-import type { ErrorCode } from "~public-interface"
 import {
   CompletionOptions,
+  ErrorCode,
   EventType,
   Input,
   ModelID,
@@ -37,7 +40,7 @@ export const WindowAI = {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
     const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
-    const requestId = _relayRequest<CompletionRequest>(PortName.Completion, {
+    const requestId = _relayRequest(PortName.Completion, {
       transaction: transactionManager.init(input, _getOriginData(), options),
       shouldStream
     })
@@ -55,7 +58,7 @@ export const WindowAI = {
   },
 
   async getCurrentModel(): Promise<ModelID> {
-    const requestId = _relayRequest<ModelRequest>(PortName.Model, {})
+    const requestId = _relayRequest(PortName.Model, {})
     return new Promise((resolve, reject) => {
       _addResponseListener<ModelResponse>(requestId, (res) => {
         if (isOk(res)) {
@@ -67,25 +70,23 @@ export const WindowAI = {
     })
   },
 
-  addEventListener(
-    handler: (
-      event: EventType,
-      data: { model: ModelID } | { error: ErrorCode }
-    ) => void
-  ) {
-    const requestId = _relayRequest<ModelRequest>(PortName.Model, {
+  addEventListener<T>(
+    handler: (event: EventType, data: T | ErrorCode) => void
+  ): RequestId {
+    // TODO - use a dedicated port for events
+    const requestId = _relayRequest(PortName.Events, {
       shouldListen: true
     })
-    _addResponseListener<ModelResponse>(requestId, (res) => {
+    _addResponseListener<EventResponse<T>>(null, (res) => {
       if (isOk(res)) {
-        if (!res.data.event) {
-          throw new Error("Expected 'event': " + JSON.stringify(res.data))
+        if (res.data.event) {
+          handler(res.data.event, res.data.data)
         }
-        handler(res.data.event, res.data)
       } else {
-        handler(EventType.Error, { error: res.error })
+        handler(EventType.Error, res.error)
       }
     })
+    return requestId
   }
 }
 
@@ -108,36 +109,27 @@ function _getOriginData(): OriginData {
   )
 }
 
-function _relayRequest<T>(portName: PortName, request: T): RequestId {
+function _relayRequest<PN extends PortName>(
+  portName: PN,
+  request: PortRequest[PN]["request"]
+): RequestId {
   const requestId = uuidv4() as RequestId
-  window.postMessage(
-    {
-      type: ContentMessageType.Request,
-      id: requestId,
-      portName,
-      request
-    },
-    "*"
-  )
+  const msg = {
+    type: ContentMessageType.Request,
+    portName,
+    id: requestId,
+    request
+  }
+  window.postMessage(msg, "*")
   return requestId
 }
 
-// function _cancel(requestId: RequestId) {
-//   window.postMessage(
-//     {
-//       type: ContentMessageType.Cancel,
-//       id: requestId,
-//       portName: PORT_NAME
-//     },
-//     "*"
-//   )
-// }
-
 // TODO figure out how to reclaim memory
-const _responseListeners = new Map<RequestId, Set<(data: any) => void>>()
+// `null` means all listen for all requests
+const _responseListeners = new Map<RequestId | null, Set<(data: any) => void>>()
 
 function _addResponseListener<T extends Result<any, string>>(
-  requestId: RequestId,
+  requestId: RequestId | null,
   handler: (data: T) => void
 ) {
   const handlerSet =
@@ -156,12 +148,17 @@ window.addEventListener(
       return
     }
 
-    if (data?.type === ContentMessageType.Response) {
-      const handlers = _responseListeners.get(data.id)
-      if (!handlers) {
-        throw `No handlers found for request ${data.id}`
+    if (data.type === ContentMessageType.Response) {
+      const msg = data as { id: RequestId; response: unknown }
+
+      const handlers = new Set([
+        ...(_responseListeners.get(msg.id) || []),
+        ...(_responseListeners.get(null) || [])
+      ])
+      if (handlers.size === 0) {
+        throw `No handlers found for request ${msg.id}`
       }
-      handlers.forEach((h) => h(data.response))
+      handlers.forEach((h) => h(msg.response))
     }
   },
   false
