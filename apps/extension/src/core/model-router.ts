@@ -1,7 +1,7 @@
 import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 
-import { init as initAlpacaTurbo } from "~core/llm/alpaca-turbo"
 import { init as initCohere } from "~core/llm/cohere"
+import { init as initLocalAPI } from "~core/llm/local"
 import { init as initOpenAI } from "~core/llm/openai"
 import { init as initTogether } from "~core/llm/together"
 import { ErrorCode, ModelID } from "~public-interface"
@@ -28,9 +28,9 @@ export type Request = Pick<Required<Transaction>, "model"> &
     modelUrl?: string
   }
 
-export const alpacaTurbo = initAlpacaTurbo(
+export const alpaca = initLocalAPI(
+  ModelID.Alpaca7B,
   {
-    quality: "low",
     debug: shouldDebugModels
   },
   {
@@ -42,8 +42,8 @@ export const alpacaTurbo = initAlpacaTurbo(
 )
 
 export const openai3_5 = initOpenAI(
+  ModelID.GPT3,
   {
-    quality: "low",
     debug: shouldDebugModels
   },
   {
@@ -54,8 +54,8 @@ export const openai3_5 = initOpenAI(
 )
 
 export const openai4 = initOpenAI(
+  ModelID.GPT4,
   {
-    quality: "max",
     debug: shouldDebugModels
   },
   {
@@ -67,7 +67,6 @@ export const openai4 = initOpenAI(
 
 export const together = initTogether(
   {
-    quality: "max", // TODO this currently 500s
     debug: shouldDebugModels
   },
   {
@@ -80,7 +79,6 @@ export const together = initTogether(
 
 export const cohere = initCohere(
   {
-    quality: "max",
     debug: shouldDebugModels
   },
   {
@@ -96,7 +94,7 @@ const modelInstances: { [K in ModelID]: Model } = {
   [ModelID.GPT4]: openai4,
   [ModelID.Cohere]: cohere,
   [ModelID.GPTNeo]: together,
-  [ModelID.Local]: alpacaTurbo
+  [ModelID.Alpaca7B]: alpaca
 }
 
 export async function complete(

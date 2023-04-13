@@ -8,18 +8,17 @@ import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 
 import { definedValues, parseDataChunks } from "~core/utils/utils"
-import { ChatMessage, ErrorCode } from "~public-interface"
+import { ChatMessage, ErrorCode, ModelID } from "~public-interface"
 
 export interface ModelConfig {
   baseUrl: string
   modelProvider: string
   isStreamable: boolean
-  getModelId?: (request: RequestData) => string | null
+  getModelId: (request: Omit<RequestData, "modelId">) => string
   customHeaders?: Record<string, string>
   authPrefix?: string
   debug?: boolean
   retries?: number
-  quality?: "low" | "max" // defaults to 'max'
   endOfStreamSentinel?: string | null
   cacheGet?: CacheGetter
   cacheSet?: CacheSetter
@@ -121,13 +120,11 @@ export class Model {
 
   addDefaults(config: ModelConfig): Required<ModelConfig> {
     const opts: Required<ModelConfig> = {
-      quality: "max",
       authPrefix: "Bearer ",
       retries: 5,
       debug: true,
       customHeaders: {},
       endOfStreamSentinel: null,
-      getModelId: (request: RequestData) => request.modelId || null,
       ...definedValues(config),
       cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
       cacheSet: config.cacheSet || (() => Promise.resolve(undefined))
@@ -151,9 +148,8 @@ export class Model {
     requestPrompt: RequestPrompt,
     opts: Required<RequestOptions>
   ): RequestData {
-    const ret: RequestData = {
+    const ret = {
       ...requestPrompt,
-      modelId: null,
       modelProvider: this.config.modelProvider,
       temperature: opts.temperature,
       top_p: opts.top_p,
@@ -164,8 +160,10 @@ export class Model {
       max_tokens: opts.max_tokens,
       stream: opts.stream
     }
-    ret.modelId = this.config.getModelId(ret)
-    return ret
+    return {
+      ...ret,
+      modelId: this.config.getModelId(ret)
+    }
   }
 
   async complete(

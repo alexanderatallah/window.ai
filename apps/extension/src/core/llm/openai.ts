@@ -1,4 +1,4 @@
-import type { ChatMessage } from "~public-interface"
+import { ChatMessage, ModelID } from "~public-interface"
 
 import { Model, ModelConfig, RequestOptions } from "./model"
 
@@ -16,14 +16,19 @@ export enum OpenAIModelId {
 // }
 
 export function init(
-  config: Pick<ModelConfig, "quality" | "debug"> &
+  modelId: ModelID,
+  config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
 ): Model {
-  // const completionModelId =
-  //   config.quality === "low" ? OpenAIModelId.Curie : OpenAIModelId.Davinci
-  const chatModelId =
-    config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
+  const mapping: { [k: string]: OpenAIModelId } = {
+    [ModelID.GPT3]: OpenAIModelId.GPT3_5_Turbo,
+    [ModelID.GPT4]: OpenAIModelId.GPT4
+  }
+  const chatModelId = mapping[modelId]
+  if (!chatModelId) {
+    throw new Error(`Invalid modelId: ${modelId}`)
+  }
   return new Model(
     {
       modelProvider: "openai",

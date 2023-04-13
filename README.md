@@ -176,12 +176,14 @@ export interface CompletionOptions {
 ModelID is an enum of the available models:
 ```ts
 // NOTE: this is an evolving standard, and may change in the future.
+// "/" Splits the model provider from the model name, e.g. "gpt3.5"
 export enum ModelID {
   GPT3 = "openai/gpt3.5",
   GPT4 = "openai/gpt4",
   GPTNeo = "together/gpt-neoxt-20B",
   Cohere = "cohere/xlarge",
-  Local = "local"
+  // Local models
+  Alpaca7B = "alpaca/7B"
 }
 ```
 ### Error codes
@@ -226,6 +228,7 @@ This endpoint accepts a request body containing the following parameters:
 
 - `prompt`: The prompt(s) to generate completions for, encoded as a `string`. OR you can use ChatML format via `messages`:
 - `messages` an array of `ChatMessage`s.
+- `model`: a string representing the type of model being requested. ex: `ModelID.Alpaca7B`
 - `max_tokens`: The maximum number of tokens to generate in the completion.
 - `temperature`: What sampling temperature to use, between 0 and 2.
 - `stop_sequences`: A string or array of strings where the API will stop generating further tokens. The returned text will not contain the stop sequence.

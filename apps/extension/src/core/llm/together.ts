@@ -18,14 +18,11 @@ export enum TogetherModelId {
 // }
 
 export function init(
-  config: Pick<ModelConfig, "quality" | "debug"> &
+  config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
 ) {
-  const modelId =
-    config.quality === "max"
-      ? TogetherModelId.GPT_NEOXT_20B_v2
-      : TogetherModelId.GPT_JT_6B_v1
+  const modelId = TogetherModelId.GPT_NEOXT_20B_v2
   return new Model(
     {
       modelProvider: "together",

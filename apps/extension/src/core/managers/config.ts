@@ -11,7 +11,7 @@ export const LLMLabels: { [K in ModelID]: string } = {
   [ModelID.GPT4]: "OpenAI: GPT-4",
   [ModelID.GPTNeo]: "Together: GPT NeoXT 20B",
   [ModelID.Cohere]: "Cohere: Xlarge",
-  [ModelID.Local]: "Local"
+  [ModelID.Alpaca7B]: "Local"
 }
 
 export const DefaultCompletionURL: { [K in ModelID]: string } = {
@@ -19,7 +19,7 @@ export const DefaultCompletionURL: { [K in ModelID]: string } = {
   [ModelID.GPT4]: "https://api.openai.com/v1/completions",
   [ModelID.GPTNeo]: "https://api.together.xyz/inference",
   [ModelID.Cohere]: "https://api.cohere.ai/generate",
-  [ModelID.Local]: "http://127.0.0.1:8000/completions"
+  [ModelID.Alpaca7B]: "http://127.0.0.1:8000/completions"
 }
 
 export const APIKeyURL: { [K in ModelID]: string | undefined } = {
@@ -27,7 +27,7 @@ export const APIKeyURL: { [K in ModelID]: string | undefined } = {
   [ModelID.GPT4]: "https://platform.openai.com/account/api-keys",
   [ModelID.GPTNeo]: undefined,
   [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys",
-  [ModelID.Local]: undefined
+  [ModelID.Alpaca7B]: undefined
 }
 
 export interface Config {
@@ -58,7 +58,8 @@ class ConfigManager extends BaseManager<Config> {
   isIncomplete(config: Config): boolean {
     return (
       !config.completionUrl ||
-      (![ModelID.Local, ModelID.GPTNeo].includes(config.id) && !config.apiKey)
+      (![ModelID.Alpaca7B, ModelID.GPTNeo].includes(config.id) &&
+        !config.apiKey)
     )
   }
 

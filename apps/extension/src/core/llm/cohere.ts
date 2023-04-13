@@ -1,4 +1,4 @@
-import { assertNever, messagesToPrompt } from "~core/utils/utils"
+import { messagesToPrompt } from "~core/utils/utils"
 
 import { Model, ModelConfig, RequestOptions } from "./model"
 
@@ -21,14 +21,11 @@ export enum CohereModelId {
 // }
 
 export function init(
-  config: Pick<ModelConfig, "quality" | "debug"> &
+  config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
 ) {
-  const modelId =
-    config.quality === "low"
-      ? CohereModelId.Xlarge
-      : CohereModelId.XlargeNightly
+  const modelId = CohereModelId.XlargeNightly
   return new Model(
     {
       ...config,
