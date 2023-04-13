@@ -1,4 +1,5 @@
-export {}
+import type { WindowAI } from "~contents/inpage"
+
 // ChatML is a simple markup language for chat messages. More available here:
 // https://github.com/openai/openai-python/blob/main/chatml.md
 export type ChatMessage = {
@@ -25,15 +26,10 @@ export type Output =
     }
 
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions<T extends Input> {
+export interface CompletionOptions {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
-  onStreamResult?: (
-    result: T extends { prompt: string }
-      ? { text: string }
-      : { message: ChatMessage },
-    error: string | null
-  ) => unknown
+  onStreamResult?: (result: Output | null, error: string | null) => unknown
   // What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
   // make the output more random, while lower values like 0.2 will make it more focused and deterministic.
   // Different models have different defaults.
@@ -68,21 +64,44 @@ export enum ErrorCode {
   ModelRejectedRequest = "MODEL_REJECTED_REQUEST"
 }
 
-// This part is for the global augmentation
+// Event types emitted by the extension API
+export enum EventType {
+  // Fired when the user's model is changed.
+  ModelChanged = "model_changed",
+  // Fired for errors
+  Error = "error"
+}
+
+export type RequestId = string
+
 declare global {
-  // window.ai is injected into every webpage, allowing apps to avoid having to
-  // include scripts or hard-code network requests to use AI models.
-  interface WindowAI {
-    getCurrentModel: () => Promise<ModelID>
-    getCompletion: <T extends Input>(
-      input: T,
-      options?: CompletionOptions<T>
-    ) => Promise<
-      T extends { prompt: string } ? { text: string } : { message: ChatMessage }
-    >
+  interface Window {
+    ai: {
+      getCompletion(
+        input: Input,
+        options: CompletionOptions
+      ): Promise<Output | Output[]>
+
+      getCurrentModel(): Promise<ModelID>
+      addEventListener<T>(
+        handler: (event: EventType, data: T | ErrorCode) => void
+      ): RequestId
+    }
+  }
+}
+
+export const initWindowAI = async () => {
+  // wait until the window.ai object is available
+  if (!window.ai) {
+    await new Promise((resolve) => {
+      const interval = setInterval(() => {
+        if (window.ai) {
+          clearInterval(interval)
+          resolve(1)
+        }
+      }, 100)
+    })
   }
 
-  interface Window {
-    ai: WindowAI
-  }
+  return window.ai
 }
