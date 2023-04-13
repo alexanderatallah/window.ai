@@ -23,7 +23,7 @@
     "react-wrap-balancer": "^0.1.5"
   },
   "devDependencies": {
-    "@types/window.ai": "workspace:*",
+    "window.ai": "workspace:*",
     "@types/node": "^17.0.45",
     "@types/react": "latest",
     "eslint-config-custom": "workspace:*",
