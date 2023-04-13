@@ -65,8 +65,7 @@ export const Extension = {
   },
 
   // Convenience method for firing a one-time message to background.
-  // Like plasmo's sendToBackground
-  sendRequest<PN extends PortName, PR extends PortRequest>(
+  sendToBackground<PN extends PortName, PR extends PortRequest>(
     portName: PortName,
     data: PR[PN]
   ) {
@@ -74,7 +73,7 @@ export const Extension = {
   },
 
   // Convenience method for firing a one-time message to a tab.
-  sendResponse<PN extends PortName, PR extends PortResponse>(
+  sendToTab<PN extends PortName, PR extends PortResponse>(
     tabId: number,
     data: PR[PN]
   ) {

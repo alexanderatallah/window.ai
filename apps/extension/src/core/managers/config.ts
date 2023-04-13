@@ -66,7 +66,7 @@ class ConfigManager extends BaseManager<Config> {
     const previous = (await this.defaultConfig.get("id")) as ModelID | undefined
     await this.defaultConfig.set("id", id)
     if (previous !== id) {
-      Extension.sendRequest(PortName.Events, {
+      Extension.sendToBackground(PortName.Events, {
         request: {
           event: EventType.ModelChanged,
           data: { model: id }

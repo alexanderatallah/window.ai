@@ -16,7 +16,7 @@ export class EventBus {
     const tabs = await tabManager.getIds(MAX_TABS_TO_NOTIFY)
     tabs.forEach((tabId) => {
       log("Dispatching event", eventType, data, tabId)
-      Extension.sendResponse(parseInt(tabId), {
+      Extension.sendToTab(parseInt(tabId), {
         response: ok({ event: eventType, data })
       })
     })
