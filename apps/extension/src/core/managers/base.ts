@@ -36,6 +36,15 @@ export abstract class BaseManager<T extends BaseModel> {
     return this.store.get<T | undefined>(id)
   }
 
+  async getIds(
+    pageSize = 20,
+    page = 0,
+    indexName = primaryIndexName
+  ): Promise<string[]> {
+    const ids = (await this.store.get<string[]>(indexName)) || []
+    return ids.slice(pageSize * page, pageSize * (page + 1))
+  }
+
   async getOrInit(id: string, ...initArgs: unknown[]): Promise<T> {
     const obj = await this.get(id)
     if (obj) {
