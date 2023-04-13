@@ -15,56 +15,70 @@ export const config: PlasmoCSConfig = {
   run_at: "document_start"
 }
 
-type PublicPort = PortName.Completion | PortName.Model | PortName.Events
+const ports: Record<PortName, Port | undefined> = {
+  [PortName.Completion]: undefined,
+  [PortName.Model]: undefined,
+  [PortName.Events]: undefined,
+  [PortName.Permission]: undefined
+}
 
-const ports: Record<PublicPort, Port> = {
-  [PortName.Completion]: Extension.connectToPort(PortName.Completion, () =>
-    reconnect(PortName.Completion)
-  ),
-  [PortName.Model]: Extension.connectToPort(PortName.Model, () =>
-    reconnect(PortName.Completion)
-  ),
-  [PortName.Events]: Extension.connectToPort(PortName.Events, () =>
-    reconnect(PortName.Events)
+function connectWithRetry(portName: PortName): Port {
+  log(`Connecting to ${portName} port`)
+  const port = Extension.connectToBackground(portName, () =>
+    connectWithRetry(portName)
   )
+  ports[portName] = port
+  return port
 }
 
-function reconnect(portName: PublicPort) {
-  log(`Reconnecting to ${portName} port`)
-  ports[portName] = Extension.connectToPort(portName, () => reconnect(portName))
-}
-
-;(Object.keys(ports) as PublicPort[]).forEach((portName) =>
+;(Object.keys(ports) as PortName[]).forEach((portName) => {
+  if (portName === PortName.Permission) {
+    // Only used for background script
+    return
+  }
+  const port = connectWithRetry(portName)
   // Handle responses from background script
-  Extension.addPortListener<typeof portName, PortResponse>(
-    portName,
-    (msg) => {
-      if (!("response" in msg)) {
-        // TODO handle invalid requests
-        throw `Invalid request: ${msg}`
-      }
-      const response = msg.response
-      const id = "id" in msg ? msg.id : null
-      const res = {
-        type: ContentMessageType.Response,
-        portName,
-        id,
-        response
-      }
-      window.postMessage(res, "*")
-    },
-    ports[portName]
-  )
-)
+  Extension.addPortListener<typeof portName, PortResponse>((msg) => {
+    if (!("response" in msg)) {
+      // TODO handle invalid requests
+      console.error(`Invalid request`, msg)
+      return
+    }
+    const res = {
+      type: ContentMessageType.Response,
+      portName,
+      id: msg.id,
+      response: msg.response
+    }
+    window.postMessage(res, "*")
+  }, port)
+})
 
-// Handle requests from content script
+// Listen to all other incoming messages as events
+Extension.addPortListener((msg, port) => {
+  if (!("response" in msg)) {
+    // TODO handle invalid requests
+    console.error(`Invalid request`, msg)
+    return
+  }
+  const res = {
+    type: ContentMessageType.Response,
+    portName: PortName.Events,
+    id: null,
+    response: msg.response
+  }
+  window.postMessage(res, "*")
+})
+
+// Handle messages from inpage script
 window.addEventListener("message", (event) => {
   const { source, data } = event
 
   // We only accept messages to our window and a port
 
-  const portName = data.portName as PublicPort
-  if (source !== window || !ports[portName]) {
+  const portName = data.portName as PortName
+  const port = ports[portName]
+  if (source !== window || !port) {
     return
   }
 
@@ -74,7 +88,7 @@ window.addEventListener("message", (event) => {
     case ContentMessageType.Request:
     case ContentMessageType.Cancel:
       log(`Relay received ${type}: `, data)
-      Extension.sendMessage(data, ports[portName])
+      Extension.sendMessage(data, port)
       break
     case ContentMessageType.Response:
       // Handled by inpage script
