@@ -1,6 +1,6 @@
 {
   "name": "window-extension",
-  "displayName": "window.ai",
+  "displayName": "Window AI",
   "version": "0.0.4",
   "description": "Use your own AI models on the web",
   "author": "Alex Atallah <alexander.atallah@gmail.com>",
@@ -9,7 +9,7 @@
     "dev": "run-p dev:*",
     "dev:plasmo": "plasmo dev",
     "build": "run-p build:*",
-    "build:plasmo": "plasmo build",
+    "build:plasmo": "plasmo build --no-minify --no-hoist",
     "package": "plasmo package"
   },
   "dependencies": {
