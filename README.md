@@ -31,6 +31,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
     - [CompletionOptions](#completionoptions)
     - [Model IDs](#model-ids)
     - [Error codes](#error-codes)
+    - [Community tools](#community-tools)
   - [🧠 Local model setup](#-local-model-setup)
     - [Server API Spec](#server-api-spec)
     - [Demo comparing Alpaca with GPT-4](#demo-comparing-alpaca-with-gpt-4)
@@ -209,6 +210,11 @@ export enum ErrorCode {
 }
 ```
 
+### Community tools
+
+Hope to eventually make an `awesome-window.ai` repo, but in the meantime:
+
+- **🪄 [Wanda](https://github.com/haardikk21/wanda)**: React Hooks for working with `window.ai`
 
 ## 🧠 Local model setup
 

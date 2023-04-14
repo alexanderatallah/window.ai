@@ -1,25 +1,22 @@
+import { Extension } from "~core/extension"
+import { tabManager } from "~core/managers/tab"
 import { ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import type { EventType } from "~public-interface"
 
-// TODO adapt to browser.runtime.Port
-type Port = chrome.runtime.Port
+const MAX_TABS_TO_NOTIFY = 100
 
 export class EventBus {
-  protected listeners: Set<Port>
-
-  constructor() {
-    this.listeners = new Set<Port>()
+  async addListener(tabId: number) {
+    const tab = tabManager.init(tabId)
+    await tabManager.save(tab)
   }
 
-  addListener(port: Port) {
-    this.listeners.add(port)
-  }
-
-  dispatch(eventType: EventType, data: unknown) {
-    this.listeners.forEach((port) => {
-      log("Dispatching event", eventType, data, port)
-      port.postMessage({
+  async dispatch(eventType: EventType, data: unknown) {
+    const tabs = await tabManager.getIds(MAX_TABS_TO_NOTIFY)
+    tabs.forEach((tabId) => {
+      log("Dispatching event", eventType, data, tabId)
+      Extension.sendToTab(parseInt(tabId), {
         response: ok({ event: eventType, data })
       })
     })

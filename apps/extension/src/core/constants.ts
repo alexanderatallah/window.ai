@@ -35,8 +35,8 @@ export interface PortResponse {
     | { id: RequestId; response: ModelResponse }
     | { id?: RequestId; error: ErrorCode.InvalidRequest }
   [PortName.Events]:
-    | { response: EventResponse<unknown> }
-    | { error: ErrorCode.InvalidRequest }
+    | { id?: RequestId; response: EventResponse<unknown> }
+    | { id?: RequestId; error: ErrorCode.InvalidRequest }
 }
 
 export type PortEvent = PortRequest | PortResponse

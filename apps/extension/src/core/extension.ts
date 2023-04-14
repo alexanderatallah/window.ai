@@ -11,28 +11,33 @@ import { log } from "~core/utils/utils"
 export type Port = browser.Runtime.Port
 export const Extension = {
   // Listen to incoming messages from a specific port name.
-  // If we already have a preexisting port, just add the listener.
-  // Then this method primarily helps with typing.
+  // If name is undefined, listen to incoming tab messages.
   addPortListener<PN extends PortName, PE extends PortEvent>(
-    name: PN,
     listener: (message: PE[PN], port: Port) => void,
     port?: Port
   ) {
     if (port) {
       port.onMessage.addListener(listener)
-      return
-    }
-    browser.runtime.onConnect.addListener((port) => {
-      if (port.name === name) {
+    } else {
+      browser.runtime.onConnect.addListener((port) => {
         port.onMessage.addListener(listener)
-      }
-    })
+      })
+    }
   },
 
-  connectToPort(name: PortName, onDisconnect?: () => void): Port {
+  connectToBackground(name: PortName, onDisconnect?: () => void): Port {
     const port = browser.runtime.connect({ name })
     port.onDisconnect.addListener(() => {
-      log("Disconnected from port")
+      log("Disconnected from port", name)
+      onDisconnect && onDisconnect()
+    })
+    return port
+  },
+
+  connectToTab(tabId: number, onDisconnect?: () => void): Port {
+    const port = browser.tabs.connect(tabId)
+    port.onDisconnect.addListener(() => {
+      console.info("Disconnected from tab", tabId)
       onDisconnect && onDisconnect()
     })
     return port
@@ -53,18 +58,26 @@ export const Extension = {
 
   sendMessage<PN extends PortName, PE extends PortEvent>(
     data: PE[PN],
-    port: Port
+    port: Port,
+    wrapBody = true
   ) {
-    port.postMessage({ body: data })
+    port.postMessage(wrapBody ? { body: data } : data)
   },
 
-  // Convenience method for firing a one-time message to a port.
-  // Like plasmo's sendToBackground
-  sendRequest<PN extends PortName, PR extends PortRequest>(
+  // Convenience method for firing a one-time message to background.
+  sendToBackground<PN extends PortName, PR extends PortRequest>(
     portName: PortName,
     data: PR[PN]
   ) {
-    Extension.sendMessage<PN, PR>(data, Extension.connectToPort(portName))
+    Extension.sendMessage<PN, PR>(data, Extension.connectToBackground(portName))
+  },
+
+  // Convenience method for firing a one-time message to a tab.
+  sendToTab<PN extends PortName, PR extends PortResponse>(
+    tabId: number,
+    data: PR[PN]
+  ) {
+    Extension.sendMessage<PN, PR>(data, Extension.connectToTab(tabId), false)
   },
 
   async openPopup(
