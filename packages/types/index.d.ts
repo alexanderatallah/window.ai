@@ -55,8 +55,7 @@ export enum ModelID {
   GPT4 = "openai/gpt4",
   GPTNeo = "together/gpt-neoxt-20B",
   Cohere = "cohere/xlarge",
-  // Local models
-  Alpaca7B = "alpaca/7B"
+  Local = "local"
 }
 
 // Error codes emitted by the extension API

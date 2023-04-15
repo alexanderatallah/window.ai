@@ -28,8 +28,8 @@ export type Request = Pick<Required<Transaction>, "model"> &
     modelUrl?: string
   }
 
-export const alpaca = initLocalAPI(
-  ModelID.Alpaca7B,
+export const localModel = initLocalAPI(
+  ModelID.Local,
   {
     debug: shouldDebugModels
   },
@@ -94,7 +94,7 @@ const modelInstances: { [K in ModelID]: Model } = {
   [ModelID.GPT4]: openai4,
   [ModelID.Cohere]: cohere,
   [ModelID.GPTNeo]: together,
-  [ModelID.Alpaca7B]: alpaca
+  [ModelID.Local]: localModel
 }
 
 export async function complete(

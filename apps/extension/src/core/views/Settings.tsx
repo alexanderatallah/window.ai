@@ -56,7 +56,7 @@ export function Settings() {
   }
 
   // TODO move this logic to model router
-  const isLocalModel = modelId === ModelID.Alpaca7B
+  const isLocalModel = modelId === ModelID.Local
   const isOpenAI = modelId === ModelID.GPT3 || modelId === ModelID.GPT4
 
   return (
