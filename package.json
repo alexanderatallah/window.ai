@@ -26,6 +26,11 @@
     "turbo": "latest",
     "typescript": "^5.0.4"
   },
+  "pnpm": {
+    "overrides": {
+      "svgo": "3.0.2"
+    }
+  },
   "packageManager": "pnpm@7.18.2",
   "keywords": [],
   "license": "MIT"
