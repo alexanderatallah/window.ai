@@ -25,6 +25,11 @@
     "prettier": "latest",
     "turbo": "latest"
   },
+  "pnpm": {
+    "overrides": {
+      "svgo": "3.0.2"
+    }
+  },
   "packageManager": "pnpm@7.18.2",
   "keywords": [],
   "license": "MIT"
