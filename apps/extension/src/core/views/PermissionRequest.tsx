@@ -8,7 +8,10 @@ import { Text } from "~core/components/pure/Text"
 import type { PortName, PortResponse } from "~core/constants"
 import { LLMLabels, configManager } from "~core/managers/config"
 import { originManager } from "~core/managers/origin"
-import { Transaction, transactionManager } from "~core/managers/transaction"
+import {
+  type Transaction,
+  transactionManager
+} from "~core/managers/transaction"
 import { useModel } from "~core/providers/model"
 import { useNav } from "~core/providers/nav"
 
