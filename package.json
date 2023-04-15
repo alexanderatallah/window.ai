@@ -21,9 +21,14 @@
     "@changesets/cli": "^2.26.0",
     "@manypkg/cli": "^0.20.0",
     "cross-env": "7.0.3",
-    "eslint-config-custom": "0.0.0",
-    "prettier": "latest",
-    "turbo": "latest"
+    "eslint": "8.38.0",
+    "eslint-config-next": "13.3.0",
+    "eslint-config-prettier": "8.8.0",
+    "eslint-config-turbo": "1.9.1",
+    "eslint-plugin-react": "7.32.2",
+    "prettier": "^2.8.7",
+    "turbo": "latest",
+    "typescript": "^5.0.4"
   },
   "pnpm": {
     "overrides": {
