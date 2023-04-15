@@ -9,7 +9,7 @@ import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
 import {
   APIKeyURL,
-  Config,
+  type Config,
   DefaultCompletionURL,
   LLMLabels,
   configManager

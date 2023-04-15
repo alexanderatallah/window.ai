@@ -2,7 +2,8 @@ import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
 
 import { EventBus } from "~background/lib/event-bus"
 import type { PortName, PortRequest, PortResponse } from "~core/constants"
-import { Result, err, ok } from "~core/utils/result-monad"
+import { err } from "~core/utils/result-monad"
+import type { Result } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import { ErrorCode, EventType } from "~public-interface"
 

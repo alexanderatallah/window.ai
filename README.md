@@ -62,7 +62,7 @@ It works with these models:
 
 ## 📥 Installation
 
-This extension is in **beta** and not on stores yet. For now, you can join the [#beta-testing channel on Discord](https://discord.gg/KBPhAPEJNj) to get access to a downloadable extension that you can load into Chrome.
+This extension is in **beta** and not on stores yet. For now, you can join the [#beta-builds channel on Discord](https://discord.gg/KBPhAPEJNj) to get access to a downloadable extension that you can load into Chrome.
 
 ## 👀 Find apps
 
