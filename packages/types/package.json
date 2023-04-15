@@ -3,12 +3,11 @@
   "types": "index.d.ts",
   "version": "1.0.0",
   "description": "Window.ai API",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [],
   "author": "Alex Atallah <alexander.atallah@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.0.3"
+    "typescript": "^5.0.4"
   }
 }
