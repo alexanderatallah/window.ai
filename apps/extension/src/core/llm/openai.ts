@@ -1,6 +1,7 @@
 import type { ChatMessage } from "~public-interface"
 
-import { Model, ModelConfig, RequestOptions } from "./model"
+import type { ModelConfig, RequestOptions } from "./model"
+import { Model } from "./model"
 
 export enum OpenAIModelId {
   Davinci = "text-davinci-003",

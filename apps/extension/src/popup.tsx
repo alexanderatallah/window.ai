@@ -1,5 +1,3 @@
-import "./style.css"
-
 import { useEffect } from "react"
 
 import { NavBar } from "~core/components/NavBar"
@@ -12,6 +10,8 @@ import { Activity } from "~core/views/Activity"
 import { Apps } from "~core/views/Apps"
 import { PermissionRequest } from "~core/views/PermissionRequest"
 import { Settings } from "~core/views/Settings"
+
+import "./style.css"
 
 function Popup() {
   return (

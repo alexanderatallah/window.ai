@@ -1,4 +1,4 @@
-import type { Readable } from "stream"
+import { Readable } from "stream"
 
 import type { ChatMessage } from "~public-interface"
 

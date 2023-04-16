@@ -1,13 +1,9 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import {
-  ContentMessageType,
-  PortName,
-  PortRequest,
-  PortResponse,
-  RequestId
-} from "~core/constants"
-import { Extension, type Port } from "~core/extension"
+import type { PortResponse } from "~core/constants"
+import { ContentMessageType, PortName } from "~core/constants"
+import type { Port } from "~core/extension"
+import { Extension } from "~core/extension"
 import { log } from "~core/utils/utils"
 
 export const config: PlasmoCSConfig = {
