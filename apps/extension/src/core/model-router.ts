@@ -1,12 +1,12 @@
 import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 
-import { init as initCohere } from "~core/llm/cohere"
-import { init as initLocalAPI } from "~core/llm/local"
-import { init as initOpenAI } from "~core/llm/openai"
-import { init as initTogether } from "~core/llm/together"
 import { ErrorCode, ModelID } from "~public-interface"
+import { init as initCohere } from "~templates/cohere"
+import { init as initLocalAPI } from "~templates/local"
+import { init as initOpenAI } from "~templates/openai"
+import { init as initTogether } from "~templates/together"
 
-import type { Model } from "./llm/model"
+import type { Model } from "../templates/base/model-api"
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"

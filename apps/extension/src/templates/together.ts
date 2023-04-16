@@ -1,7 +1,7 @@
 import { messagesToPrompt } from "~core/utils/utils"
 
-import type { ModelConfig, RequestOptions } from "./model"
-import { Model } from "./model"
+import type { ModelConfig, RequestOptions } from "./base/model-api"
+import { ModelAPI } from "./base/model-api"
 
 export enum TogetherModelId {
   GPT_JT_6B_v1 = "Together-gpt-JT-6B-v1",
@@ -24,7 +24,7 @@ export function init(
   options: RequestOptions
 ) {
   const modelId = TogetherModelId.GPT_NEOXT_20B_v2
-  return new Model(
+  return new ModelAPI(
     {
       modelProvider: "together",
       isStreamable: false,

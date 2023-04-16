@@ -1,7 +1,8 @@
-import { ChatMessage, ModelID } from "~public-interface"
+import type { ChatMessage } from "~public-interface"
+import { ModelID } from "~public-interface"
 
-import type { ModelConfig, RequestOptions } from "./model"
-import { Model } from "./model"
+import type { ModelConfig, RequestOptions } from "./base/model-api"
+import { ModelAPI } from "./base/model-api"
 
 export enum OpenAIModelId {
   Davinci = "text-davinci-003",
@@ -21,7 +22,7 @@ export function init(
   config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
-): Model {
+) {
   const mapping: { [k: string]: OpenAIModelId } = {
     [ModelID.GPT3]: OpenAIModelId.GPT3_5_Turbo,
     [ModelID.GPT4]: OpenAIModelId.GPT4
@@ -30,7 +31,7 @@ export function init(
   if (!chatModelId) {
     throw new Error(`Invalid modelId: ${modelId}`)
   }
-  return new Model(
+  return new ModelAPI(
     {
       modelProvider: "openai",
       isStreamable: true,

@@ -1,7 +1,7 @@
 import { messagesToPrompt } from "~core/utils/utils"
 
-import type { ModelConfig, RequestOptions } from "./model"
-import { Model } from "./model"
+import type { ModelConfig, RequestOptions } from "./base/model-api"
+import { ModelAPI } from "./base/model-api"
 
 export enum CohereModelId {
   XlargeNightly = "command-xlarge-nightly",
@@ -27,7 +27,7 @@ export function init(
   options: RequestOptions
 ) {
   const modelId = CohereModelId.XlargeNightly
-  return new Model(
+  return new ModelAPI(
     {
       ...config,
       isStreamable: false,

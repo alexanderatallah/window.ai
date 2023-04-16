@@ -1,15 +1,15 @@
 import { messagesToPrompt } from "~core/utils/utils"
 
-import type { ModelConfig, RequestOptions } from "./model"
-import { Model } from "./model"
+import type { ModelConfig, RequestOptions } from "./base/model-api"
+import { ModelAPI } from "./base/model-api"
 
 export function init(
   modelId: string,
   config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">> = {},
   opts: RequestOptions
-): Model {
-  return new Model(
+) {
+  return new ModelAPI(
     {
       modelProvider: "local",
       isStreamable: true,

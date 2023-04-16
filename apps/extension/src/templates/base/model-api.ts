@@ -68,7 +68,7 @@ export type CacheSetter = (data: {
   completion: string[]
 }) => Promise<unknown>
 
-export class Model {
+export class ModelAPI {
   public api: AxiosInstance
   public config: Required<ModelConfig>
   public options: Required<RequestOptions>

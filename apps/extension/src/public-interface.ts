@@ -50,17 +50,18 @@ export interface CompletionOptions {
   // Sequences where the API will stop generating further tokens.
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: ModelID
+  model?: ModelID | string
 }
 
-// ModelID is an enum of the available models.
-// NOTE: this is an evolving standard, and may change in the future.
+// ModelID is an enum of the models that Window will pre-configure for first-time users.
+// It's specified by the model's author, a "/", and the name of the model
+// as provided by the author, including those seen in https://huggingface.co/models.
+// Closed models by an organization will have the org-provided model id after the "/".
 export enum ModelID {
-  GPT3 = "openai/gpt3.5",
-  GPT4 = "openai/gpt4",
-  GPTNeo = "together/gpt-neoxt-20B",
-  Cohere = "cohere/xlarge",
-  Local = "local"
+  GPT3 = "openai/gpt-3.5-turbo",
+  GPT4 = "openai/gpt-4",
+  Together = "togethercomputer/GPT-NeoXT-Chat-Base-20B",
+  Cohere = "cohere/command-xlarge-nightly"
 }
 
 // Error codes emitted by the extension API
