@@ -6,7 +6,7 @@ import { init as initOpenAI } from "~core/llm/openai"
 import { init as initTogether } from "~core/llm/together"
 import { ErrorCode, ModelID } from "~public-interface"
 
-import { Model } from "./llm/model"
+import type { Model } from "./llm/model"
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
