@@ -1,8 +1,8 @@
 import type { ChatMessage } from "~public-interface"
 import { ModelID } from "~public-interface"
 
-import type { ModelConfig, RequestOptions } from "./base/model-api"
-import { ModelAPI } from "./base/model-api"
+import type { ModelConfig, RequestOptions } from "../base/model-api"
+import { ModelAPI } from "../base/model-api"
 
 export enum OpenAIModelId {
   Davinci = "text-davinci-003",
@@ -44,7 +44,7 @@ export function init(
       cacheSet: config.cacheSet,
       transformForRequest: (req, meta) => {
         const {
-          modelId,
+          model,
           stop_sequences,
           num_generations,
           modelProvider,
@@ -64,7 +64,7 @@ export function init(
         return {
           ...optsToSend,
           messages,
-          model: modelId,
+          model,
           user: meta.user_identifier || undefined,
           stop: stop_sequences.length ? stop_sequences : undefined,
           n: num_generations

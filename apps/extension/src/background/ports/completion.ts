@@ -34,13 +34,13 @@ const handler: PlasmoMessaging.PortHandler<
   // Save the incomplete txn
   await transactionManager.save(txn)
 
-  const requestData = await makeRequestData(txn)
+  const config = await configManager.getOrDefault(txn.model)
 
-  if (request.shouldStream && modelRouter.isStreamable(requestData.model)) {
+  if (request.shouldStream && modelRouter.isStreamable(config)) {
     const replies: string[] = []
     const errors: string[] = []
 
-    const results = await modelRouter.stream(requestData)
+    const results = await modelRouter.stream(txn)
 
     for await (const result of results) {
       if (isOk(result)) {
@@ -58,7 +58,7 @@ const handler: PlasmoMessaging.PortHandler<
       : undefined
     txn.error = errors.join("") || undefined
   } else {
-    const result = await modelRouter.complete(requestData)
+    const result = await modelRouter.complete(txn)
 
     if (isOk(result)) {
       const outputs = result.data.map((d) => getOutput(txn.input, d))
@@ -78,23 +78,6 @@ function getOutput(input: Input, result: string): Output {
   return "messages" in input
     ? { message: { role: "assistant", content: result } }
     : { text: result }
-}
-
-async function makeRequestData(txn: Transaction): Promise<modelRouter.Request> {
-  const { input, stopSequences, maxTokens, temperature, numOutputs } = txn
-  const model = txn.model || (await configManager.getDefault()).id
-  const config = await configManager.get(model)
-
-  return {
-    input,
-    stopSequences,
-    maxTokens,
-    model,
-    temperature,
-    numOutputs,
-    modelUrl: config?.completionUrl,
-    apiKey: config?.apiKey
-  }
 }
 
 export default handler

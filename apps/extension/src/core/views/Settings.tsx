@@ -1,6 +1,8 @@
+import { InformationCircleIcon, PlusIcon } from "@heroicons/react/24/outline"
 import { useEffect, useState } from "react"
 
 import { Accordion } from "~core/components/pure/Accordion"
+import { Button } from "~core/components/pure/Button"
 import { Dropdown } from "~core/components/pure/Dropdown"
 import { Input } from "~core/components/pure/Input"
 import { Splitter } from "~core/components/pure/Splitter"
@@ -16,6 +18,8 @@ import {
 } from "~core/managers/config"
 import { useModel } from "~core/providers/model"
 import { ModelID } from "~public-interface"
+import { type TemplateID, Templates } from "~templates"
+import type { ModelAPI } from "~templates/base/model-api"
 
 export function Settings() {
   // const [loading, setLoading] = useState(false)
@@ -24,6 +28,8 @@ export function Settings() {
   const [url, setUrl] = useState("")
   const [config, setConfig] = useState<Config | undefined>()
   const [defaultModel, setDefaultModel] = useState<ModelID>(modelId)
+  const [template, setTemplate] = useState<ModelAPI>(Templates.OpenAI)
+  const { objects } = configManager.useObjects()
 
   useEffect(() => {
     configManager.get(modelId).then((c) => {
@@ -41,7 +47,7 @@ export function Settings() {
 
   useEffect(() => {
     setApiKey(config?.apiKey || "")
-    setUrl(config?.completionUrl || "")
+    setUrl(config?.baseUrl || "")
   }, [config])
 
   async function saveAll() {
@@ -51,12 +57,20 @@ export function Settings() {
     return configManager.save({
       ...config,
       apiKey: apiKey,
-      completionUrl: url
+      baseUrl: url
     })
   }
 
+  async function addConfig() {
+    const newConfig = configManager.init(ModelID.GPT3)
+    setConfig(newConfig)
+    // setModelId(newConfig.id)
+  }
+
   // TODO move this logic to model router
-  const isLocalModel = modelId === ModelID.Local
+  const isLocalModel =
+    template.config.baseUrl.includes("localhost") ||
+    template.config.baseUrl.includes("127.0.0.1")
   const isOpenAI = modelId === ModelID.GPT3 || modelId === ModelID.GPT4
 
   return (
@@ -66,34 +80,22 @@ export function Settings() {
       </Text>
       <div className="my-4">
         <Text size="xs" dimming="less">
-          Change your model settings here. API keys are only stored in your
-          browser.{" "}
-          <Tooltip
-            content={
-              <span>
-                An API key is required for the OpenAI and Cohere models, but not
-                for Together or Local (running on your computer).
-                <br />
-                <br />
-                For OpenAI, you must have a paid account, otherwise your key
-                will be rate-limited excessively.
-              </span>
-            }>
-            Learn more
-          </Tooltip>
-          .
+          Change your model settings here.
         </Text>
       </div>
       <Well>
-        <div className="-my-3">
+        <div className="-my-3 flex flex-row justify-between">
           <Text strength="medium" dimming="less">
             Default model
           </Text>
+          <Button align="right" appearance="tertiary" onClick={addConfig}>
+            <PlusIcon className="w-4 text-slate-600 -mx-6 -my-2" />
+          </Button>
         </div>
         <Splitter />
         <Dropdown<ModelID>
           styled
-          choices={Object.values(ModelID)}
+          choices={objects.map((c) => c.id)}
           onSelect={async (id) => {
             setDefaultModel(id)
             setModelId(id)
@@ -104,17 +106,27 @@ export function Settings() {
       </Well>
       <div className="py-4">
         <Well>
-          <div className="-my-3">
+          <div className="-my-3 flex flex-row justify-between">
             <Text strength="medium" dimming="less">
-              Model settings
+              Settings:
+            </Text>
+            <Text align="right" inline strength="medium" dimming="more">
+              {LLMLabels[modelId]}
             </Text>
           </div>
           <Splitter />
-          <Dropdown<ModelID>
-            choices={Object.values(ModelID)}
-            onSelect={(v) => setModelId(v)}>
-            {LLMLabels[modelId]}
-          </Dropdown>
+          <div className="flex flex-row justify-between">
+            <div className="pt-2">
+              <Text dimming="less" size="xs">
+                Template:
+              </Text>
+            </div>
+            <Dropdown
+              choices={Object.keys(Templates) as TemplateID[]}
+              onSelect={(t) => setTemplate(Templates[t])}>
+              {template.config.modelProvider}
+            </Dropdown>
+          </div>
 
           <div className="">
             {!isLocalModel && (
@@ -135,8 +147,13 @@ export function Settings() {
                   className="font-bold"
                   rel="noreferrer">
                   here
-                </a>
-                .
+                </a>{" "}
+                <Tooltip
+                  content={
+                    <span>API keys are only stored in your browser.</span>
+                  }>
+                  <InformationCircleIcon className="w-3 inline" />
+                </Tooltip>
               </Text>
             )}
             {isOpenAI && (

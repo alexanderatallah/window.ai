@@ -66,9 +66,7 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
 
   useEffect(() => {
     async function checkConfig() {
-      const config = requestedModel
-        ? await configManager.getOrInit(requestedModel)
-        : await configManager.getDefault()
+      const config = await configManager.getOrDefault(requestedModel)
       setModelId(config.id)
       if (configManager.isIncomplete(config)) {
         setSettingsShown(true)
@@ -83,7 +81,7 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
         {originManager.originDisplay(transaction.origin)}
       </Text>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-        This app is requesting permission to access {LLMLabels[modelId]}
+        This app is requesting permission to access {modelId}
       </p>
       <Accordion title="View Request" centered>
         <code className="block text-left text-xs overflow-y-auto max-h-20 px-4">

@@ -5,6 +5,7 @@ import React from "react"
 // Surround it by another one if you need to add a className.
 export function Text({
   size,
+  inline,
   strength,
   dimming,
   align,
@@ -13,6 +14,7 @@ export function Text({
   children
 }: {
   size?: "lg" | "xs"
+  inline?: boolean
   strength?: "bold" | "medium" | "italic"
   dimming?: "less" | "more"
   align?: "left" | "center" | "right"
@@ -23,6 +25,7 @@ export function Text({
   return (
     <div
       className={
+        (inline ? "inline " : "") +
         (size === "lg" ? "text-lg " : size === "xs" ? "text-xs " : " ") +
         (strength === "bold"
           ? "font-bold "

@@ -50,10 +50,12 @@ export interface CompletionOptions {
   // Sequences where the API will stop generating further tokens.
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
+  // Arbitrary strings are allowed, and will be passed to the model as `model`,
+  // but Window will only pre-configure those in ModelID.
   model?: ModelID | string
 }
 
-// ModelID is an enum of the models that Window will pre-configure for first-time users.
+// ModelID is an enum of the models that Window can pre-configure for first-time users.
 // It's specified by the model's author, a "/", and the name of the model
 // as provided by the author, including those seen in https://huggingface.co/models.
 // Closed models by an organization will have the org-provided model id after the "/".

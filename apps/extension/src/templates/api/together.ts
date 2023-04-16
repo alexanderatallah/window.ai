@@ -1,7 +1,7 @@
 import { messagesToPrompt } from "~core/utils/utils"
 
-import type { ModelConfig, RequestOptions } from "./base/model-api"
-import { ModelAPI } from "./base/model-api"
+import type { ModelConfig, RequestOptions } from "../base/model-api"
+import { ModelAPI } from "../base/model-api"
 
 export enum TogetherModelId {
   GPT_JT_6B_v1 = "Together-gpt-JT-6B-v1",
@@ -39,7 +39,7 @@ export function init(
       },
       transformForRequest: (req) => {
         const {
-          modelId,
+          model,
           prompt,
           messages,
           stop_sequences,
@@ -64,7 +64,7 @@ export function init(
           max_tokens,
           top_p,
           temperature,
-          model: modelId,
+          model,
           stop: ["\n<human>", ...stop_sequences],
           prompt: fullPrompt
         }

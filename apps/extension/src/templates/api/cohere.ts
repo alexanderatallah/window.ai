@@ -1,7 +1,7 @@
 import { messagesToPrompt } from "~core/utils/utils"
 
-import type { ModelConfig, RequestOptions } from "./base/model-api"
-import { ModelAPI } from "./base/model-api"
+import type { ModelConfig, RequestOptions } from "../base/model-api"
+import { ModelAPI } from "../base/model-api"
 
 export enum CohereModelId {
   XlargeNightly = "command-xlarge-nightly",
@@ -42,7 +42,7 @@ export function init(
       },
       transformForRequest: (req) => {
         const {
-          modelId,
+          model,
           prompt,
           messages,
           top_p,
@@ -59,7 +59,7 @@ export function init(
           ...optsToSend,
           stop_sequences: ["\n<human>", ...stop_sequences],
           prompt: fullPrompt,
-          model: modelId,
+          model,
           p: top_p
         }
       },

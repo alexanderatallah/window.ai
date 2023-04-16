@@ -1,10 +1,9 @@
 import { messagesToPrompt } from "~core/utils/utils"
 
-import type { ModelConfig, RequestOptions } from "./base/model-api"
-import { ModelAPI } from "./base/model-api"
+import type { ModelConfig, RequestOptions } from "../base/model-api"
+import { ModelAPI } from "../base/model-api"
 
 export function init(
-  modelId: string,
   config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">> = {},
   opts: RequestOptions
@@ -13,14 +12,14 @@ export function init(
     {
       modelProvider: "local",
       isStreamable: true,
-      getModelId: () => modelId,
+      getModelId: () => null,
       baseUrl: "http://127.0.0.1:8000",
       getPath: () => "/completions",
       debug: config.debug,
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       transformForRequest: (req) => {
-        const { prompt, messages, modelId, ...optsToSend } = req
+        const { prompt, messages, model, ...optsToSend } = req
         const fullPrompt =
           prompt !== undefined
             ? prompt
@@ -29,7 +28,7 @@ export function init(
             : undefined
         return {
           ...optsToSend,
-          model: modelId,
+          model,
           prompt: fullPrompt
         }
       },

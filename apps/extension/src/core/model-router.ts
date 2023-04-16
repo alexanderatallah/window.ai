@@ -1,116 +1,21 @@
-import fetchAdapter from "@vespaiach/axios-fetch-adapter"
-
 import { ErrorCode, ModelID } from "~public-interface"
-import { init as initCohere } from "~templates/cohere"
-import { init as initLocalAPI } from "~templates/local"
-import { init as initOpenAI } from "~templates/openai"
-import { init as initTogether } from "~templates/together"
 
-import type { Model } from "../templates/base/model-api"
+import { type Config, configManager } from "./managers/config"
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
-// TODO configure basic in-memory lru cache
-// const cache = new Map<string, { completion: string }>()
-// const cacheGet: CacheGetter = async (key) => cache.get(key)?.completion
-// const cacheSet: CacheSetter = async (data) => cache.set(data.id, data)
-
-const DEFAULT_MAX_TOKENS = 256
-const shouldDebugModels = process.env.NODE_ENV !== "production"
-
-export type Request = Pick<Required<Transaction>, "model"> &
-  Pick<
-    Transaction,
-    "input" | "temperature" | "maxTokens" | "stopSequences" | "numOutputs"
-  > & {
-    apiKey?: string
-    modelUrl?: string
-  }
-
-export const localModel = initLocalAPI(
-  ModelID.Local,
-  {
-    debug: shouldDebugModels
-  },
-  {
-    // TODO consider switching from axios to fetch, since fetchAdapter
-    // doesn't work in Node.js side
-    max_tokens: 512,
-    adapter: fetchAdapter
-  }
-)
-
-export const openai3_5 = initOpenAI(
-  ModelID.GPT3,
-  {
-    debug: shouldDebugModels
-  },
-  {
-    adapter: fetchAdapter,
-    max_tokens: DEFAULT_MAX_TOKENS,
-    presence_penalty: 0 // Using negative numbers causes 500s from davinci
-  }
-)
-
-export const openai4 = initOpenAI(
-  ModelID.GPT4,
-  {
-    debug: shouldDebugModels
-  },
-  {
-    adapter: fetchAdapter,
-    max_tokens: DEFAULT_MAX_TOKENS,
-    presence_penalty: 0 // Using negative numbers causes 500s from davinci
-  }
-)
-
-export const together = initTogether(
-  {
-    debug: shouldDebugModels
-  },
-  {
-    adapter: fetchAdapter,
-    max_tokens: DEFAULT_MAX_TOKENS,
-    temperature: 0.8
-    // stop_sequences: ['\n'],
-  }
-)
-
-export const cohere = initCohere(
-  {
-    debug: shouldDebugModels
-  },
-  {
-    adapter: fetchAdapter,
-    max_tokens: DEFAULT_MAX_TOKENS,
-    temperature: 0.9
-    // stop_sequences: ['\n'],
-  }
-)
-
-const modelInstances: { [K in ModelID]: Model } = {
-  [ModelID.GPT3]: openai3_5,
-  [ModelID.GPT4]: openai4,
-  [ModelID.Cohere]: cohere,
-  [ModelID.GPTNeo]: together,
-  [ModelID.Local]: localModel
-}
-
 export async function complete(
-  data: Request
+  data: Transaction
 ): Promise<Result<string[], string>> {
-  const modelId = data.model || ModelID.GPT3
-  const model = modelInstances[modelId]
-
-  if (!model) {
-    return err(ErrorCode.InvalidRequest)
-  }
+  const modelId = data.model
+  const config = await configManager.getOrDefault(modelId)
+  const { template, params } = configManager.getModelParams(config)
 
   try {
-    const result = await model.complete(data.input, {
-      apiKey: data.apiKey,
+    const result = await template.complete(data.input, {
+      ...params,
       max_tokens: data.maxTokens,
       temperature: data.temperature,
       stop_sequences: data.stopSequences,
@@ -122,28 +27,31 @@ export async function complete(
   }
 }
 
-export function isStreamable(modelId: ModelID): boolean {
-  return modelInstances[modelId].config.isStreamable
+export function isStreamable(config: Config): boolean {
+  const { template } = configManager.getModelParams(config)
+  return template.config.isStreamable
 }
 
 export async function stream(
-  data: Request
+  data: Transaction
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const modelId = data.model || ModelID.GPT3
-    const model = modelInstances[modelId]
+    const modelId = data.model
+    const config = await configManager.getOrDefault(modelId)
 
-    if (!model || !isStreamable(modelId)) {
+    if (!isStreamable(config)) {
       throw ErrorCode.InvalidRequest
     }
+
+    const { template, params } = configManager.getModelParams(config)
 
     if (data.numOutputs && data.numOutputs > 1) {
       // Can't stream multiple outputs
       throw ErrorCode.InvalidRequest
     }
 
-    const stream = await model.stream(data.input, {
-      apiKey: data.apiKey,
+    const stream = await template.stream(data.input, {
+      ...params,
       max_tokens: data.maxTokens,
       temperature: data.temperature,
       stop_sequences: data.stopSequences

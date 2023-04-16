@@ -1,3 +1,4 @@
+import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
@@ -11,7 +12,15 @@ export interface ModelConfig {
   baseUrl: string
   modelProvider: string
   isStreamable: boolean
-  getModelId: (request: Omit<RequestData, "modelId">) => string
+  getModelId: (request: Omit<RequestData, "model">) => string | null
+  getPath: (request: RequestData) => string
+  transformForRequest: (
+    request: RequestData,
+    meta: RequestMetadata
+  ) => Record<string, unknown>
+  transformResponse: (res: unknown) => string[]
+
+  // Optionals
   customHeaders?: Record<string, string>
   authPrefix?: string
   debug?: boolean
@@ -19,17 +28,12 @@ export interface ModelConfig {
   endOfStreamSentinel?: string | null
   cacheGet?: CacheGetter
   cacheSet?: CacheSetter
-  getPath: (request: RequestData) => string
-  transformForRequest: (
-    request: RequestData,
-    meta: RequestMetadata
-  ) => Record<string, unknown>
-  transformResponse: (res: unknown) => string[]
+  adapter?: AxiosRequestConfig["adapter"]
 }
 
 export interface RequestOptions {
   apiKey?: string | null
-  modelId?: string | null
+  model?: string | null
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
@@ -40,7 +44,6 @@ export interface RequestOptions {
   user_identifier?: string | null
   max_tokens?: number | null
   stream?: boolean
-  adapter?: AxiosRequestConfig["adapter"] | null
 }
 
 type RequestPromptBasic = { prompt: string; suffix?: string }
@@ -71,13 +74,13 @@ export type CacheSetter = (data: {
 export class ModelAPI {
   public api: AxiosInstance
   public config: Required<ModelConfig>
-  public options: Required<RequestOptions>
+  public defaultOptions: Required<RequestOptions>
 
   constructor(config: ModelConfig, opts: RequestOptions = {}) {
     // Defaults
     this.config = this.addDefaults(config)
-    this.options = {
-      modelId: null,
+    this.defaultOptions = {
+      model: null,
       apiKey: null,
       timeout: 25000,
       user_identifier: null,
@@ -89,7 +92,6 @@ export class ModelAPI {
       num_generations: 1,
       max_tokens: 16, // OpenAI default, low for safety
       stream: false,
-      adapter: null,
       ...definedValues(opts)
     }
     // Create API client
@@ -99,7 +101,7 @@ export class ModelAPI {
         "Content-Type": "application/json",
         ...this.config.customHeaders
       },
-      adapter: this.options.adapter || undefined
+      adapter: this.config.adapter || undefined
     })
     axiosRetry(this.api, {
       retries: this.config.retries,
@@ -122,6 +124,7 @@ export class ModelAPI {
       debug: true,
       customHeaders: {},
       endOfStreamSentinel: null,
+      adapter: fetchAdapter,
       ...definedValues(config),
       cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
       cacheSet: config.cacheSet || (() => Promise.resolve(undefined))
@@ -159,7 +162,7 @@ export class ModelAPI {
     }
     return {
       ...ret,
-      modelId: this.config.getModelId(ret)
+      model: this.config.getModelId(ret)
     }
   }
 
@@ -176,7 +179,7 @@ export class ModelAPI {
       authPrefix
     } = this.config
     const opts: Required<RequestOptions> = {
-      ...this.options,
+      ...this.defaultOptions,
       ...definedValues(requestOpts)
     }
     const request = this.getRequestIdentifierData(requestPrompt, opts)
@@ -189,7 +192,7 @@ export class ModelAPI {
     }
     const payload = transformForRequest(request, opts)
     this.log(`COMPLETING id ${id}: ${promptSnippet}...`, {
-      modelId: request.modelId,
+      modelId: request.model,
       suffix: payload["suffix"],
       max_tokens: payload["max_tokens"],
       stop_sequences: payload["stop_sequences"]
@@ -234,7 +237,7 @@ export class ModelAPI {
     requestOpts: RequestOptions = {}
   ): Promise<ReadableStream<string>> {
     const opts: Required<RequestOptions> = {
-      ...this.options,
+      ...this.defaultOptions,
       ...definedValues(requestOpts),
       stream: true
     }
@@ -245,7 +248,7 @@ export class ModelAPI {
     const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
     const payload = transformForRequest(request, opts)
     this.log(`STREAMING id ${id}: ${promptSnippet}...`, {
-      modelId: request.modelId,
+      modelId: request.model,
       suffix: payload["suffix"],
       max_tokens: payload["max_tokens"],
       stop_sequences: payload["stop_sequences"],
