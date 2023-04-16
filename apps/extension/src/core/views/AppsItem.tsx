@@ -3,7 +3,8 @@ import { Logo } from "~core/components/pure/Logo"
 import { Splitter } from "~core/components/pure/Splitter"
 import { Text } from "~core/components/pure/Text"
 import { Well } from "~core/components/pure/Well"
-import { Origin, originManager } from "~core/managers/origin"
+import type { Origin } from "~core/managers/origin"
+import { originManager } from "~core/managers/origin"
 
 export function AppsItem({ origin }: { origin: Origin }) {
   const { object, setObject } = originManager.useObject(origin.id)

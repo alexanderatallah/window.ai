@@ -7,9 +7,9 @@ import { Splitter } from "~core/components/pure/Splitter"
 import { Text } from "~core/components/pure/Text"
 import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
+import type { Config } from "~core/managers/config"
 import {
   APIKeyURL,
-  type Config,
   DefaultCompletionURL,
   LLMLabels,
   configManager

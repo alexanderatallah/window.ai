@@ -5,13 +5,12 @@ import { Accordion } from "~core/components/pure/Accordion"
 import { Button } from "~core/components/pure/Button"
 import { Dropdown } from "~core/components/pure/Dropdown"
 import { Text } from "~core/components/pure/Text"
-import type { PortName, PortResponse } from "~core/constants"
+import type { PortResponse } from "~core/constants"
+import { PortName } from "~core/constants"
 import { LLMLabels, configManager } from "~core/managers/config"
 import { originManager } from "~core/managers/origin"
-import {
-  type Transaction,
-  transactionManager
-} from "~core/managers/transaction"
+import type { Transaction } from "~core/managers/transaction"
+import { transactionManager } from "~core/managers/transaction"
 import { useModel } from "~core/providers/model"
 import { useNav } from "~core/providers/nav"
 

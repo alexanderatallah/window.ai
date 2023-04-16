@@ -1,14 +1,11 @@
 import { v4 as uuidv4 } from "uuid"
 
-import type {
-  CompletionOptions,
-  Input,
-  ModelID,
-  Output
-} from "~public-interface"
+import type { CompletionOptions, Input, Output } from "~public-interface"
+import { ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
-import { OriginData, originManager } from "./origin"
+import type { OriginData } from "./origin"
+import { originManager } from "./origin"
 
 export interface Transaction {
   id: string

@@ -1,14 +1,11 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from "axios"
+import type { AxiosInstance, AxiosRequestConfig } from "axios"
+import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 
 import { definedValues, parseDataChunks } from "~core/utils/utils"
-import { ChatMessage, ErrorCode } from "~public-interface"
+import type { ChatMessage } from "~public-interface"
+import { ErrorCode } from "~public-interface"
 
 export interface ModelConfig {
   baseUrl: string

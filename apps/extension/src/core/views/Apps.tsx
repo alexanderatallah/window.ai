@@ -2,12 +2,12 @@ import { useRef, useState } from "react"
 
 import { NoActivity } from "~core/components/NoActivity"
 import { useInfiniteScroll } from "~core/components/hooks/useInfiniteScroll"
-import { HorizontalMenu } from "~core/components/pure/HorizontalMenu"
 import { Logo } from "~core/components/pure/Logo"
 import { Skeleton } from "~core/components/pure/Skeleton"
 import { SlidingPane } from "~core/components/pure/SlidingPane"
 import { Text } from "~core/components/pure/Text"
-import { Origin, originManager } from "~core/managers/origin"
+import type { Origin } from "~core/managers/origin"
+import { originManager } from "~core/managers/origin"
 
 import { AppsItem } from "./AppsItem"
 

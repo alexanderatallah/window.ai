@@ -5,7 +5,6 @@
 Window AI is a browser extension that lets you configure AI models in one place and use them on the web.
 
 - **For developers**: easily make multi-model apps free from API costs and limits - just use the injected `window.ai` library. Even make decentralized apps.
-  
 - **For users**: all your model setup in one place. Use your preferred model, whether it's external (like OpenAI), proxied, or local, to protect privacy.
 
 More about why this was made [here](https://twitter.com/xanderatallah/status/1643356106670981122).
@@ -13,13 +12,14 @@ More about why this was made [here](https://twitter.com/xanderatallah/status/164
 Below, you'll find out [how to install](#-installation), [how to find apps](#-find-apps), [how to make apps](#-docs), and [how to connect custom models](#-local-model-setup).
 
 ### 📺 Demo
+
 https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4
 
 ### ℹ️ Contents
 
 - [Window: use your own AI models on the web](#window-use-your-own-ai-models-on-the-web)
-    - [📺 Demo](#-demo)
-    - [ℹ️ Contents](#ℹ️-contents)
+  - [📺 Demo](#-demo)
+  - [ℹ️ Contents](#ℹ️-contents)
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
@@ -39,7 +39,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 
 ## ⭐️ Main features
 
-- **Configure keys**: set all your API keys in one place and forget about them. They are *only* stored locally.
+- **Configure keys**: set all your API keys in one place and forget about them. They are _only_ stored locally.
 
 - **User-controlled models**: use external, proxied, and local models of your choice.
 
@@ -101,14 +101,17 @@ All public types, including error messages, are documented in [this file](/apps/
 Example of streaming GPT-4 results to the console:
 
 ```ts
-await ai.getCompletion({
-  messages: [{role: "user", content: "Who are you?"}]
-}, {
-  temperature: 0.7,
-  maxTokens: 800,
-  model: ModelID.GPT4,
-  onStreamResult: (res) => console.log(res.message.content)
-})
+await ai.getCompletion(
+  {
+    messages: [{ role: "user", content: "Who are you?" }]
+  },
+  {
+    temperature: 0.7,
+    maxTokens: 800,
+    model: ModelID.GPT4,
+    onStreamResult: (res) => console.log(res.message.content)
+  }
+)
 ```
 
 Note that `getCompletion` will return an array, `Output[]`, if you specify `numOutputs > 1`.
@@ -118,17 +121,20 @@ Note that `getCompletion` will return an array, `Output[]`, if you specify `numO
 The Window API is simple. Just a few functions:
 
 **Get completion**: get or stream a completion from the specified (or preferred) model.
+
 ```ts
 window.ai.getCompletion(
     input: Input,
     options: CompletionOptions = {}
   ): Promise<Output | Output[]>
 ```
+
 `Input` is either a `{ prompt : string }` or `{ messages: ChatMessage[]}`. Examples: see [getting started](#🧑‍💻-getting-started) above.
 
 **Current model**: get the user's currently preferred model ID.
+
 ```ts
-window.ai.getCurrentModel(): Promise<ModelID> 
+window.ai.getCurrentModel(): Promise<ModelID>
 ```
 
 **Listen to events**: to listen to events emitted by the extension, such as whenever the preferred model changes, here's what you do:
@@ -145,9 +151,9 @@ All public types, including error messages, are documented in [this file](/apps/
 ### CompletionOptions
 
 This options dictionary allows you to specify options for the completion request.
+
 ```ts
 export interface CompletionOptions {
-
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
   onStreamResult?: (result: Output | null, error: string | null) => unknown
@@ -175,6 +181,7 @@ export interface CompletionOptions {
 ### Model IDs
 
 ModelID is an enum of the available models:
+
 ```ts
 // NOTE: this is an evolving standard, and may change in the future.
 export enum ModelID {
@@ -185,9 +192,11 @@ export enum ModelID {
   Local = "local"
 }
 ```
+
 ### Error codes
 
 Errors emitted by the extension API:
+
 ```ts
 export enum ErrorCode {
   // Incorrect API key / auth
@@ -195,7 +204,7 @@ export enum ErrorCode {
 
   // User denied permission to the app
   PermissionDenied = "PERMISSION_DENIED",
-  
+
   // Happens when a permission request popup times out
   RequestNotFound = "REQUEST_NOT_FOUND",
 
@@ -245,7 +254,9 @@ This endpoint accepts a request body containing the following parameters:
 This endpoint should return an object that looks like:
 
 ```ts
-{ choices: Array<{ text: string }> }
+{
+  choices: Array<{ text: string }>
+}
 ```
 
 More WIP thinking [here](https://alexatallah.notion.site/RFC-LLM-API-Standard-c8f15d24bd2f4ab98b656f08cdc1c4fb).
@@ -263,7 +274,6 @@ This is a turborepo monorepo containing:
 1. A [Plasmo extension](https://docs.plasmo.com/) project.
 2. A web app serving [windowai.io](https://windowai.io).
 3. Upcoming packages to help developers (see Discord for more info).
-
 
 **To run the extension and the web app in parallel:**
 

@@ -1,15 +1,16 @@
 # Running Local Hugging Face Models
 
-If you want to run Hugging Face models via Window, you can do so by configuring `server.py` to serve downloaded models up to your endpoint. Currently, no streaming is supported, so the functionality of some apps may be affected. 
+If you want to run Hugging Face models via Window, you can do so by configuring `server.py` to serve downloaded models up to your endpoint. Currently, no streaming is supported, so the functionality of some apps may be affected.
 
 ## Installation
 
-There should only be two requirements for the server (Flask and transformers), though you are welcome to add your own modifications. Simply run: 
+There should only be two requirements for the server (Flask and transformers), though you are welcome to add your own modifications. Simply run:
 
 `pip install -r requirements.txt`.
 
 ### Downloading Models
-If you are installing models for the first time, it's recommended to download the models ahead of time before using them via the endpoint. Usually, the Hugging Face page for the model will include sample code. For instance, for [finbert-tone]([url](https://huggingface.co/yiyanghkust/finbert-tone)), running the following code in your Python console will automatically download the model to your system's cache.
+
+If you are installing models for the first time, it's recommended to download the models ahead of time before using them via the endpoint. Usually, the Hugging Face page for the model will include sample code. For instance, for [finbert-tone](<[url](https://huggingface.co/yiyanghkust/finbert-tone)>), running the following code in your Python console will automatically download the model to your system's cache.
 
 ```python
 from transformers import BertTokenizer, BertForSequenceClassification
@@ -18,7 +19,6 @@ from transformers import pipeline
 finbert = BertForSequenceClassification.from_pretrained('yiyanghkust/finbert-tone',num_labels=3)
 tokenizer = BertTokenizer.from_pretrained('yiyanghkust/finbert-tone')
 ```
-
 
 ## Writing Connectors
 
