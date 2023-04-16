@@ -1,6 +1,7 @@
 import { WrenchScrewdriverIcon } from "@heroicons/react/24/solid"
 
-import { NavView, useNav } from "~core/providers/nav"
+import type { NavView } from "~core/providers/nav"
+import { useNav } from "~core/providers/nav"
 
 type Tab = { name: string; view: NavView }
 export function NavBar() {

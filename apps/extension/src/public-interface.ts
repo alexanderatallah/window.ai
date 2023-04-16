@@ -59,7 +59,7 @@ export enum ModelID {
   GPT3 = "openai/gpt3.5",
   GPT4 = "openai/gpt4",
   GPTNeo = "together/gpt-neoxt-20B",
-  Cohere = "cohere/xlarge"
+  Cohere = "cohere/xlarge",
   Local = "local"
 }
 

@@ -1,6 +1,7 @@
 import { messagesToPrompt } from "~core/utils/utils"
 
-import { Model, ModelConfig, RequestOptions } from "./model"
+import type { ModelConfig, RequestOptions } from "./model"
+import { Model } from "./model"
 
 export enum TogetherModelId {
   GPT_JT_6B_v1 = "Together-gpt-JT-6B-v1",

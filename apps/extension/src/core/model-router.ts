@@ -8,7 +8,8 @@ import { ErrorCode, ModelID } from "~public-interface"
 
 import type { Model } from "./llm/model"
 import type { Transaction } from "./managers/transaction"
-import { Result, err, ok } from "./utils/result-monad"
+import type { Result } from "./utils/result-monad"
+import { err, ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
 // TODO configure basic in-memory lru cache

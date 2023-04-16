@@ -1,11 +1,7 @@
 import browser from "webextension-polyfill"
 
-import type {
-  PortEvent,
-  PortName,
-  PortRequest,
-  PortResponse
-} from "~core/constants"
+import type { PortEvent, PortRequest, PortResponse } from "~core/constants"
+import { PortName } from "~core/constants"
 import { log } from "~core/utils/utils"
 
 export type Port = browser.Runtime.Port

@@ -1,6 +1,7 @@
 import { messagesToPrompt } from "~core/utils/utils"
 
-import { Model, ModelConfig, RequestOptions } from "./model"
+import type { ModelConfig, RequestOptions } from "./model"
+import { Model } from "./model"
 
 export function init(
   modelId: string,

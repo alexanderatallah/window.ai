@@ -1,12 +1,15 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
+import type { PlasmoMessaging } from "@plasmohq/messaging"
 
-import type { PortName, PortRequest, PortResponse } from "~core/constants"
+import type { PortRequest, PortResponse } from "~core/constants"
+import { PortName } from "~core/constants"
 import { configManager } from "~core/managers/config"
-import { Transaction, transactionManager } from "~core/managers/transaction"
-import * as modelApi from "~core/model-api"
+import type { Transaction } from "~core/managers/transaction"
+import { transactionManager } from "~core/managers/transaction"
+import * as modelRouter from "~core/model-router"
 import { err, isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
-import { ErrorCode, Input, Output } from "~public-interface"
+import type { Input, Output } from "~public-interface"
+import { ErrorCode } from "~public-interface"
 
 import { requestPermission } from "./permission"
 
@@ -33,11 +36,11 @@ const handler: PlasmoMessaging.PortHandler<
 
   const requestData = await makeRequestData(txn)
 
-  if (request.shouldStream && modelApi.isStreamable(requestData.model)) {
+  if (request.shouldStream && modelRouter.isStreamable(requestData.model)) {
     const replies: string[] = []
     const errors: string[] = []
 
-    const results = await modelApi.stream(requestData)
+    const results = await modelRouter.stream(requestData)
 
     for await (const result of results) {
       if (isOk(result)) {
@@ -55,7 +58,7 @@ const handler: PlasmoMessaging.PortHandler<
       : undefined
     txn.error = errors.join("") || undefined
   } else {
-    const result = await modelApi.complete(requestData)
+    const result = await modelRouter.complete(requestData)
 
     if (isOk(result)) {
       const outputs = result.data.map((d) => getOutput(txn.input, d))
@@ -77,7 +80,7 @@ function getOutput(input: Input, result: string): Output {
     : { text: result }
 }
 
-async function makeRequestData(txn: Transaction): Promise<modelApi.Request> {
+async function makeRequestData(txn: Transaction): Promise<modelRouter.Request> {
   const { input, stopSequences, maxTokens, temperature, numOutputs } = txn
   const model = txn.model || (await configManager.getDefault()).id
   const config = await configManager.get(model)

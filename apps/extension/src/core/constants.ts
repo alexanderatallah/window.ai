@@ -1,6 +1,7 @@
 import type { EventRequest, EventResponse } from "~background/ports/events"
 
-import type { ErrorCode, ModelID, Output } from "../public-interface"
+import type { Output } from "../public-interface"
+import { ErrorCode, ModelID } from "../public-interface"
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
 
