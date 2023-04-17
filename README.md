@@ -18,8 +18,8 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 ### ℹ️ Contents
 
 - [Window: use your own AI models on the web](#window-use-your-own-ai-models-on-the-web)
-  - [📺 Demo](#-demo)
-  - [ℹ️ Contents](#ℹ️-contents)
+    - [📺 Demo](#-demo)
+    - [ℹ️ Contents](#ℹ️-contents)
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
@@ -174,7 +174,9 @@ export interface CompletionOptions {
   stopSequences?: string[]
 
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: ModelID
+  // Arbitrary strings are allowed, and will be passed to the Local model as `model`.
+  // NOTE: this standard is evolving - recommend not using this if you're making an immutable app.
+  model?: ModelID | string
 }
 ```
 
@@ -184,6 +186,7 @@ ModelID is an enum of the available models:
 
 ```ts
 // NOTE: this is an evolving standard, and may change in the future.
+// "/" Splits the organization's name from the model name
 export enum ModelID {
   GPT3 = "openai/gpt3.5",
   GPT4 = "openai/gpt4",
@@ -241,6 +244,7 @@ This endpoint accepts a request body containing the following parameters:
 
 - `prompt`: The prompt(s) to generate completions for, encoded as a `string`. OR you can use ChatML format via `messages`:
 - `messages` an array of `ChatMessage`s.
+- `model`: a string representing the type of model being requested. ex: `ModelID.GPT4`
 - `max_tokens`: The maximum number of tokens to generate in the completion.
 - `temperature`: What sampling temperature to use, between 0 and 2.
 - `stop_sequences`: A string or array of strings where the API will stop generating further tokens. The returned text will not contain the stop sequence.

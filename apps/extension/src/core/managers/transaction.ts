@@ -16,7 +16,7 @@ export interface Transaction {
   temperature?: number
   maxTokens?: number
   stopSequences?: string[]
-  model?: ModelID
+  model?: ModelID | string
   numOutputs?: number
 
   outputs?: Output[]

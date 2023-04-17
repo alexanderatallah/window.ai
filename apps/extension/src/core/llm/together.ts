@@ -19,21 +19,17 @@ export enum TogetherModelId {
 // }
 
 export function init(
-  config: Pick<ModelConfig, "quality" | "debug"> &
+  config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
 ) {
-  const modelId =
-    config.quality === "max"
-      ? TogetherModelId.GPT_NEOXT_20B_v2
-      : TogetherModelId.GPT_JT_6B_v1
   return new Model(
     {
       modelProvider: "together",
       isStreamable: false,
-      baseUrl: "https://api.together.xyz",
+      defaultBaseUrl: "https://api.together.xyz",
       getPath: () => "/inference",
-      getModelId: () => modelId,
+      overrideModelParam: () => TogetherModelId.GPT_NEOXT_20B_v2,
       debug: config.debug,
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
@@ -42,7 +38,6 @@ export function init(
       },
       transformForRequest: (req) => {
         const {
-          modelId,
           prompt,
           messages,
           stop_sequences,
@@ -67,7 +62,6 @@ export function init(
           max_tokens,
           top_p,
           temperature,
-          model: modelId,
           stop: ["\n<human>", ...stop_sequences],
           prompt: fullPrompt
         }

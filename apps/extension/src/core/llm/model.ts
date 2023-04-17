@@ -1,3 +1,4 @@
+import fetchAdapter from "@vespaiach/axios-fetch-adapter"
 import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
@@ -7,30 +8,34 @@ import { definedValues, parseDataChunks } from "~core/utils/utils"
 import type { ChatMessage } from "~public-interface"
 import { ErrorCode } from "~public-interface"
 
+// These options are specific to the model shape and archetype
 export interface ModelConfig {
-  baseUrl: string
+  defaultBaseUrl: string
   modelProvider: string
   isStreamable: boolean
-  getModelId?: (request: RequestData) => string | null
-  customHeaders?: Record<string, string>
-  authPrefix?: string
-  debug?: boolean
-  retries?: number
-  quality?: "low" | "max" // defaults to 'max'
-  endOfStreamSentinel?: string | null
-  cacheGet?: CacheGetter
-  cacheSet?: CacheSetter
   getPath: (request: RequestData) => string
   transformForRequest: (
     request: RequestData,
     meta: RequestMetadata
   ) => Record<string, unknown>
   transformResponse: (res: unknown) => string[]
+
+  // Optionals
+  overrideModelParam?: (request: RequestData) => string | null
+  customHeaders?: Record<string, string>
+  authPrefix?: string
+  debug?: boolean
+  retries?: number
+  endOfStreamSentinel?: string | null
+  cacheGet?: CacheGetter
+  cacheSet?: CacheSetter
+  adapter?: AxiosRequestConfig["adapter"]
 }
 
 export interface RequestOptions {
+  baseUrl?: string
   apiKey?: string | null
-  modelId?: string | null
+  model?: string | null
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
@@ -53,9 +58,9 @@ export interface RequestPrompt
 
 export type RequestData = Omit<
   Required<RequestOptions>,
-  "user_identifier" | "timeout" | "apiKey" | "adapter"
+  "user_identifier" | "timeout" | "apiKey" | "adapter" // These do not affect output of the model
 > &
-  Pick<Required<ModelConfig>, "modelProvider"> &
+  Pick<Required<ModelConfig>, "modelProvider"> & // To distinguish btw providers with same-name models
   RequestPrompt
 
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
@@ -72,13 +77,14 @@ export type CacheSetter = (data: {
 export class Model {
   public api: AxiosInstance
   public config: Required<ModelConfig>
-  public options: Required<RequestOptions>
+  public defaultOptions: Required<RequestOptions>
 
   constructor(config: ModelConfig, opts: RequestOptions = {}) {
     // Defaults
     this.config = this.addDefaults(config)
-    this.options = {
-      modelId: null,
+    this.defaultOptions = {
+      baseUrl: this.config.defaultBaseUrl,
+      model: null,
       apiKey: null,
       timeout: 25000,
       user_identifier: null,
@@ -95,12 +101,12 @@ export class Model {
     }
     // Create API client
     this.api = axios.create({
-      baseURL: this.config.baseUrl,
+      baseURL: this.defaultOptions.baseUrl,
       headers: {
         "Content-Type": "application/json",
         ...this.config.customHeaders
       },
-      adapter: this.options.adapter || undefined
+      adapter: this.config.adapter || undefined
     })
     axiosRetry(this.api, {
       retries: this.config.retries,
@@ -118,14 +124,16 @@ export class Model {
 
   addDefaults(config: ModelConfig): Required<ModelConfig> {
     const opts: Required<ModelConfig> = {
-      quality: "max",
       authPrefix: "Bearer ",
       retries: 5,
       debug: true,
       customHeaders: {},
       endOfStreamSentinel: null,
-      getModelId: (request: RequestData) => request.modelId || null,
+      adapter: fetchAdapter,
       ...definedValues(config),
+      // Functions throw a ts error when placed above the spread
+      overrideModelParam:
+        config.overrideModelParam || ((request: RequestData) => request.model),
       cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
       cacheSet: config.cacheSet || (() => Promise.resolve(undefined))
     }
@@ -148,9 +156,9 @@ export class Model {
     requestPrompt: RequestPrompt,
     opts: Required<RequestOptions>
   ): RequestData {
-    const ret: RequestData = {
+    const ret = {
       ...requestPrompt,
-      modelId: null,
+      model: opts.model,
       modelProvider: this.config.modelProvider,
       temperature: opts.temperature,
       top_p: opts.top_p,
@@ -159,10 +167,13 @@ export class Model {
       stop_sequences: opts.stop_sequences,
       num_generations: opts.num_generations,
       max_tokens: opts.max_tokens,
-      stream: opts.stream
+      stream: opts.stream,
+      baseUrl: opts.baseUrl
     }
-    ret.modelId = this.config.getModelId(ret)
-    return ret
+    return {
+      ...ret,
+      model: this.config.overrideModelParam(ret)
+    }
   }
 
   async complete(
@@ -178,7 +189,7 @@ export class Model {
       authPrefix
     } = this.config
     const opts: Required<RequestOptions> = {
-      ...this.options,
+      ...this.defaultOptions,
       ...definedValues(requestOpts)
     }
     const request = this.getRequestIdentifierData(requestPrompt, opts)
@@ -191,7 +202,7 @@ export class Model {
     }
     const payload = transformForRequest(request, opts)
     this.log(`COMPLETING id ${id}: ${promptSnippet}...`, {
-      modelId: request.modelId,
+      modelId: request.model,
       suffix: payload["suffix"],
       max_tokens: payload["max_tokens"],
       stop_sequences: payload["stop_sequences"]
@@ -199,6 +210,7 @@ export class Model {
     let responseData: Record<string, any>
     try {
       const response = await this.api.post(getPath(request), payload, {
+        baseURL: opts.baseUrl,
         timeout: opts.timeout,
         headers: {
           Authorization: `${authPrefix}${opts.apiKey || ""}`
@@ -236,7 +248,7 @@ export class Model {
     requestOpts: RequestOptions = {}
   ): Promise<ReadableStream<string>> {
     const opts: Required<RequestOptions> = {
-      ...this.options,
+      ...this.defaultOptions,
       ...definedValues(requestOpts),
       stream: true
     }
@@ -247,7 +259,7 @@ export class Model {
     const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
     const payload = transformForRequest(request, opts)
     this.log(`STREAMING id ${id}: ${promptSnippet}...`, {
-      modelId: request.modelId,
+      modelId: request.model,
       suffix: payload["suffix"],
       max_tokens: payload["max_tokens"],
       stop_sequences: payload["stop_sequences"],
