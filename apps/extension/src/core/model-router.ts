@@ -7,15 +7,6 @@ import type { Result } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
-export type Request = Pick<Required<Transaction>, "model"> &
-  Pick<
-    Transaction,
-    "input" | "temperature" | "maxTokens" | "stopSequences" | "numOutputs"
-  > & {
-    apiKey?: string
-    modelUrl?: string
-  }
-
 export async function complete(
   txn: Transaction
 ): Promise<Result<string[], string>> {

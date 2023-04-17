@@ -7,7 +7,7 @@ import { EventType, ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
 
-export const DefaultLabel: { [K in ModelID]: string } = {
+const defaultLabel: { [K in ModelID]: string } = {
   [ModelID.GPT3]: "OpenAI: GPT-3.5",
   [ModelID.GPT4]: "OpenAI: GPT-4",
   [ModelID.Together]: "Together: GPT NeoXT 20B",
