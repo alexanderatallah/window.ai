@@ -40,7 +40,7 @@ class ConfigManager extends BaseManager<Config> {
     return {
       id,
       baseUrl: modelCallers[id].config.defaultBaseUrl,
-      label: DefaultLabel[id]
+      label: defaultLabel[id]
     }
   }
 
