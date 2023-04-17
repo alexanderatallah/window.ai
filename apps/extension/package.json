@@ -41,7 +41,7 @@
     "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.22",
     "prettier": "2.8.7",
-    "tailwindcss": "^3.3.1",
+    "tailwindcss": "3.3.1",
     "typescript": "5.0.4"
   },
   "manifest": {

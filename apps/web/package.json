@@ -29,8 +29,7 @@
     "autoprefixer": "^10.4.14",
     "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.22",
-    "tailwindcss": "^3.2.7",
-    "turbo": "^1.8.3",
+    "tailwindcss": "3.3.1",
     "typescript": "^5.0.4"
   }
 }
