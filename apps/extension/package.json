@@ -32,7 +32,6 @@
   "devDependencies": {
     "@plasmohq/prettier-plugin-sort-imports": "3.6.4",
     "@plasmohq/rps": "^1.8.4",
-    "@tailwindcss/line-clamp": "^0.4.2",
     "@types/node": "18.15.11",
     "@types/object-hash": "^3.0.2",
     "@types/react": "18.0.35",
@@ -42,7 +41,7 @@
     "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.22",
     "prettier": "2.8.7",
-    "tailwindcss": "^3.2.7",
+    "tailwindcss": "^3.3.1",
     "typescript": "5.0.4"
   },
   "manifest": {
