@@ -137,7 +137,10 @@ function Home() {
               </Button>
             </div>
             <video width="500" controls className="flex-grow shadow-md m-12">
-              <source src="demo.mp4" type="video/mp4" />
+              <source
+                src="https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4"
+                type="video/mp4"
+              />
               Your browser does not support the video tag.
             </video>
           </div>
