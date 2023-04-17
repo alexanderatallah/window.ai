@@ -49,8 +49,7 @@ class ConfigManager extends BaseManager<Config> {
     const defaults = this.init(id)
     return {
       ...defaults,
-      ...obj,
-      baseUrl: obj?.baseUrl || defaults.baseUrl
+      ...obj
     }
   }
 
