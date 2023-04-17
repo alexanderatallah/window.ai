@@ -25,13 +25,13 @@ export function Button({
   return (
     <button
       className={
-        "inline-flex items-center px-6 py-2 font-semibold leading-6 shadow rounded-md transition ease-in-out duration-100 " +
+        "inline-flex items-center px-6 py-2 font-semibold leading-6 rounded-md transition ease-in-out duration-100 " +
         "disabled:opacity-50 " +
         (appearance === "primary"
-          ? "text-white bg-indigo-500 hover:bg-indigo-600 "
+          ? "text-white bg-indigo-500 hover:bg-indigo-600 shadow "
           : appearance === "secondary"
-          ? "text-indigo-500 bg-indigo-100 hover:bg-indigo-200 "
-          : "text-slate-500 bg-slate-100 hover:bg-slate-200 ") +
+          ? "text-indigo-500 bg-indigo-100 hover:bg-indigo-200 shadow "
+          : "text-slate-500 bg-slate-100 ") +
         (centered ? "justify-center " : "justify-start ") +
         (loading ? "relative " : "") +
         (wide ? "w-full " : "")

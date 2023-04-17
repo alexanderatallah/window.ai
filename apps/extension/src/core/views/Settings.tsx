@@ -1,3 +1,4 @@
+import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { useEffect, useState } from "react"
 
 import { Accordion } from "~core/components/pure/Accordion"
@@ -8,14 +9,17 @@ import { Text } from "~core/components/pure/Text"
 import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
 import type { Config } from "~core/managers/config"
-import {
-  APIKeyURL,
-  DefaultCompletionURL,
-  LLMLabels,
-  configManager
-} from "~core/managers/config"
+import { configManager } from "~core/managers/config"
 import { useModel } from "~core/providers/model"
 import { ModelID } from "~public-interface"
+
+const APIKeyURL: { [K in ModelID]: string | undefined } = {
+  [ModelID.GPT3]: "https://platform.openai.com/account/api-keys",
+  [ModelID.GPT4]: "https://platform.openai.com/account/api-keys",
+  [ModelID.Together]: undefined,
+  [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys",
+  [ModelID.Local]: undefined
+}
 
 export function Settings() {
   // const [loading, setLoading] = useState(false)
@@ -41,8 +45,14 @@ export function Settings() {
 
   useEffect(() => {
     setApiKey(config?.apiKey || "")
-    setUrl(config?.completionUrl || "")
+    setUrl(config?.baseUrl || "")
   }, [config])
+
+  async function saveDefaultModel(id: ModelID) {
+    setDefaultModel(id)
+    setModelId(id)
+    await configManager.setDefault(id)
+  }
 
   async function saveAll() {
     if (!config) {
@@ -51,7 +61,7 @@ export function Settings() {
     return configManager.save({
       ...config,
       apiKey: apiKey,
-      completionUrl: url
+      baseUrl: url
     })
   }
 
@@ -65,22 +75,7 @@ export function Settings() {
       </Text>
       <div className="my-4">
         <Text size="xs" dimming="less">
-          Change your model settings here. API keys are only stored in your
-          browser.{" "}
-          <Tooltip
-            content={
-              <span>
-                An API key is required for the OpenAI and Cohere models, but not
-                for Together or Local (running on your computer).
-                <br />
-                <br />
-                For OpenAI, you must have a paid account, otherwise your key
-                will be rate-limited excessively.
-              </span>
-            }>
-            Learn more
-          </Tooltip>
-          .
+          Change your model settings here.
         </Text>
       </div>
       <Well>
@@ -93,27 +88,22 @@ export function Settings() {
         <Dropdown<ModelID>
           styled
           choices={Object.values(ModelID)}
-          onSelect={async (id) => {
-            setDefaultModel(id)
-            setModelId(id)
-            await configManager.setDefault(id)
-          }}>
-          {LLMLabels[defaultModel]}
+          onSelect={saveDefaultModel}>
+          {config?.label}
         </Dropdown>
       </Well>
       <div className="py-4">
         <Well>
-          <div className="-my-3">
+          <div className="-my-3 flex flex-row justify-between">
             <Text strength="medium" dimming="less">
-              Model settings
+              Settings:
+            </Text>
+            <Text align="right" strength="medium" dimming="more">
+              {config?.label}
             </Text>
           </div>
+
           <Splitter />
-          <Dropdown<ModelID>
-            choices={Object.values(ModelID)}
-            onSelect={(v) => setModelId(v)}>
-            {LLMLabels[modelId]}
-          </Dropdown>
 
           <div className="">
             {!isLocalModel && (
@@ -134,8 +124,21 @@ export function Settings() {
                   className="font-bold"
                   rel="noreferrer">
                   here
-                </a>
-                .
+                </a>{" "}
+                <Tooltip
+                  content={
+                    <span>
+                      API keys are only stored in your browser. For OpenAI, you
+                      must have a paid account, otherwise your key will be
+                      rate-limited excessively.
+                      <br />
+                      <br />
+                      An API key is required for the OpenAI and Cohere models,
+                      but not for Together or Local (running on your computer).
+                    </span>
+                  }>
+                  <InformationCircleIcon className="w-3 inline -mt-1 opacity-50" />
+                </Tooltip>
               </Text>
             )}
             {isOpenAI && (
@@ -168,18 +171,18 @@ export function Settings() {
             )}
             <Accordion title="Advanced" initiallyOpened={isLocalModel}>
               <Input
-                placeholder="URL"
+                placeholder="Base URL"
                 type="url"
-                name="completion-url"
-                value={url || DefaultCompletionURL[modelId]}
+                name="base-url"
+                value={url || config?.baseUrl || ""}
                 onChange={(val) => setUrl(val)}
                 onBlur={saveAll}
               />
               <label
-                htmlFor={"completion-url"}
+                htmlFor={"base-url"}
                 className="block text-xs font-medium opacity-60 mt-2">
                 {isLocalModel
-                  ? "Use any URL, including localhost!"
+                  ? "Use any base URL, including localhost."
                   : "Optionally use this to set a proxy. Only change if you know what you're doing."}
               </label>
             </Accordion>

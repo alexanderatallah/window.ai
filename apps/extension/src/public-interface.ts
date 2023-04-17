@@ -50,15 +50,18 @@ export interface CompletionOptions {
   // Sequences where the API will stop generating further tokens.
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: ModelID
+  // Arbitrary strings are allowed, and will be passed to the Local model as `model`.
+  // NOTE: this standard is evolving - recommend not using this if you're making an immutable app.
+  model?: ModelID | string
 }
 
 // ModelID is an enum of the available models.
-// NOTE: this is an evolving standard, and may change in the future.
+// NOTE: this is an evolving standard, and may change in the future - especially the "local" ID.
+// TODO: change to huggingface-style model names, like "togethercomputer/GPT-NeoXT-Chat-Base-20B"
 export enum ModelID {
   GPT3 = "openai/gpt3.5",
   GPT4 = "openai/gpt4",
-  GPTNeo = "together/gpt-neoxt-20B",
+  Together = "together/gpt-neoxt-20B",
   Cohere = "cohere/xlarge",
   Local = "local"
 }
