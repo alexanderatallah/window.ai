@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Button } from "./Button"
 import { type ChatGPTMessage, ChatLine, LoadingChatLine } from "./ChatLine"
 import { useCookies } from "react-cookie"
-import { DISCORD_URL, DOWNLOAD_URL } from "./common"
+import { DISCORD_URL, DOWNLOAD_URL, EXTENSION_CHROME_URL } from "./common"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
@@ -165,18 +165,12 @@ export function Chat() {
         {showInstallMessage && (
           <div className="grid grid-cols-2 gap-6">
             <Button
-              onClick={() => window.open(DISCORD_URL, "_blank")}
-              className="">
-              Download the beta
+              onClick={() => window.open(EXTENSION_CHROME_URL, "_blank")}
+              className=" bg-indigo-600 hover:bg-indigo-500 ">
+              Get the extension
             </Button>
-            <Button
-              onClick={() =>
-                window.open(
-                  "https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked",
-                  "_blank"
-                )
-              }>
-              How to install
+            <Button onClick={() => window.open(DISCORD_URL, "_blank")}>
+              Join the community
             </Button>
           </div>
         )}

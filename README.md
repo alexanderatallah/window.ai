@@ -4,8 +4,11 @@
 
 Window AI is a browser extension that lets you configure AI models in one place and use them on the web.
 
-- **For developers**: easily make multi-model apps free from API costs and limits - just use the injected `window.ai` library. Even make decentralized apps.
-- **For users**: all your model setup in one place. Use your preferred model, whether it's external (like OpenAI), proxied, or local, to protect privacy.
+- **For developers**: easily make multi-model apps free from API costs and limits - just use the injected `window.ai` library. Leverage decentralized AI.
+
+- **For users**: control the AI you use on the web, whether it's external (like OpenAI), proxied, or local, to protect privacy.
+
+- **For model providers**: plug into an ecosystem of users without requiring developers to change their apps.
 
 More about why this was made [here](https://twitter.com/xanderatallah/status/1643356106670981122).
 
@@ -23,6 +26,8 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
+    - [Browser support](#browser-support)
+    - [Beta builds](#beta-builds)
   - [👀 Find apps](#-find-apps)
   - [📄 Docs](#-docs)
     - [Why should I build with this?](#why-should-i-build-with-this)
@@ -62,7 +67,17 @@ It works with these models:
 
 ## 📥 Installation
 
-This extension is in **beta** and not on stores yet. For now, you can join the [#beta-builds channel on Discord](https://discord.gg/KBPhAPEJNj) to get access to a downloadable extension that you can load into Chrome.
+Download the Chrome extension here: https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag
+
+### Browser support
+✅ [Chrome](https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag)
+✅ [Brave](https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag)
+✏️ Microsoft Edge
+✏️ Firefox
+✏️ Safari: https://github.com/alexanderatallah/window.ai/issues/20
+
+### Beta builds
+You can join the [#beta-builds channel on Discord](https://discord.gg/KBPhAPEJNj) to get early access to features being tested and developed by the community.
 
 ## 👀 Find apps
 
