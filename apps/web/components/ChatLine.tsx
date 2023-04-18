@@ -1,15 +1,6 @@
 import clsx from "clsx"
 import Balancer from "react-wrap-balancer"
-
-// wrap Balancer to remove type errors :( - @TODO - fix this ugly hack
-const BalancerWrapper = (props: any) => <Balancer {...props} />
-
-type ChatGPTAgent = "user" | "system" | "assistant"
-
-export interface ChatGPTMessage {
-  role: ChatGPTAgent
-  content: string
-}
+import { ChatMessage } from "window.ai"
 
 // loading placeholder animation for the chat line
 export const LoadingChatLine = () => (
@@ -42,7 +33,7 @@ const convertNewLines = (text: string) =>
     </span>
   ))
 
-export function ChatLine({ role = "assistant", content }: ChatGPTMessage) {
+export function ChatLine({ role = "assistant", content }: ChatMessage) {
   if (!content) {
     return null
   }
@@ -53,26 +44,24 @@ export function ChatLine({ role = "assistant", content }: ChatGPTMessage) {
       className={
         role != "assistant" ? "float-right clear-both" : "float-left clear-both"
       }>
-      <BalancerWrapper>
-        <div className="float-right mb-5 rounded-lg bg-white px-4 py-5 shadow-lg ring-1 ring-zinc-100 sm:px-6">
-          <div className="flex space-x-3">
-            <div className="flex-1 gap-4">
-              <p className="font-large text-xxl text-gray-900">
-                <a href="#" className="hover:underline">
-                  {role == "assistant" ? "AI" : "You"}
-                </a>
-              </p>
-              <p
-                className={clsx(
-                  "text ",
-                  role == "assistant" ? "font-semibold font- " : "text-gray-400"
-                )}>
-                {formatteMessage}
-              </p>
-            </div>
+      <div className="float-right mb-5 rounded-lg bg-white px-4 py-5 shadow-lg ring-1 ring-zinc-100 sm:px-6">
+        <div className="flex space-x-3">
+          <div className="flex-1 gap-4">
+            <p className="font-large text-xxl text-gray-900">
+              <a href="#" className="hover:underline">
+                {role == "assistant" ? "AI" : "You"}
+              </a>
+            </p>
+            <p
+              className={clsx(
+                "text ",
+                role == "assistant" ? "font-semibold font- " : "text-gray-400"
+              )}>
+              <Balancer className="break-words">{formatteMessage}</Balancer>
+            </p>
           </div>
         </div>
-      </BalancerWrapper>
+      </div>
     </div>
   )
 }

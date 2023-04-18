@@ -1,32 +1,27 @@
 {
-    "compilerOptions": {
-        "target": "es2017",
-        "lib": [
-            "dom",
-            "dom.iterable",
-            "esnext"
-        ],
-        "module": "esnext",
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "isolatedModules": true,
-        "moduleResolution": "node",
-        "preserveWatchOutput": true,
-        "skipLibCheck": true,
-        "strict": true,
-        "baseUrl": "./src",
-        "outDir": "dist",
-        "noEmit": false,
-        "sourceMap": true,
-        "declaration": true,
-        "declarationMap": true,
-        "resolveJsonModule": true,
-    },
-    "include": [
-        "src"
-    ],
-    "exclude": [
-        "dist",
-        "node_modules"
-    ]
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": "./",
+
+    "target": "ESNext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": false,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "~*": ["./src/*"]
+    }
+  }
 }

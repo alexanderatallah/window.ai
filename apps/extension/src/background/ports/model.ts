@@ -1,3 +1,5 @@
+import { ErrorCode } from "window.ai"
+
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import type { PortRequest, PortResponse } from "~core/constants"
@@ -5,7 +7,6 @@ import { PortName } from "~core/constants"
 import { configManager } from "~core/managers/config"
 import { err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
-import { ErrorCode } from "~public-interface"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Model],

@@ -1,3 +1,5 @@
+import { ErrorCode, EventType } from "window.ai"
+
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import { EventBus } from "~background/lib/event-bus"
@@ -6,7 +8,6 @@ import { PortName } from "~core/constants"
 import type { Result } from "~core/utils/result-monad"
 import { err } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
-import { ErrorCode, EventType } from "~public-interface"
 
 export type EventRequest<T> = {
   shouldListen?: boolean

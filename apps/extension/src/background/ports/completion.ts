@@ -1,15 +1,14 @@
+import { ErrorCode, type Input, type Output, isMessagesInput } from "window.ai"
+
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import type { PortRequest, PortResponse } from "~core/constants"
 import { PortName } from "~core/constants"
 import { configManager } from "~core/managers/config"
-import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
 import * as modelRouter from "~core/model-router"
 import { err, isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
-import type { Input, Output } from "~public-interface"
-import { ErrorCode } from "~public-interface"
 
 import { requestPermission } from "./permission"
 
@@ -75,7 +74,7 @@ const handler: PlasmoMessaging.PortHandler<
 }
 
 function getOutput(input: Input, result: string): Output {
-  return "messages" in input
+  return isMessagesInput(input)
     ? { message: { role: "assistant", content: result } }
     : { text: result }
 }

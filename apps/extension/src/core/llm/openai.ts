@@ -1,4 +1,6 @@
-import { type ChatMessage, ModelID } from "~public-interface"
+import { type ChatMessage } from "window.ai"
+
+import { ModelID } from "~public-interface"
 
 import type { ModelConfig, RequestOptions } from "./model"
 import { Model } from "./model"

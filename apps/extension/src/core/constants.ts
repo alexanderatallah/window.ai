@@ -1,7 +1,8 @@
-import type { EventRequest, EventResponse } from "~background/ports/events"
+import type { ErrorCode, Output, RequestID } from "window.ai"
 
-import type { Output } from "../public-interface"
-import { ErrorCode, ModelID } from "../public-interface"
+import type { EventRequest, EventResponse } from "~background/ports/events"
+import type { ModelID } from "~public-interface"
+
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
 
@@ -13,31 +14,31 @@ export enum PortName {
 }
 
 export interface PortRequest {
-  [PortName.Completion]: { id: RequestId; request: CompletionRequest }
+  [PortName.Completion]: { id: RequestID; request: CompletionRequest }
   [PortName.Permission]: {
-    id?: RequestId
-    request: { requesterId: RequestId; permitted?: boolean }
+    id?: RequestID
+    request: { requesterId: RequestID; permitted?: boolean }
   }
-  [PortName.Model]: { id: RequestId; request: ModelRequest }
-  [PortName.Events]: { id?: RequestId; request: EventRequest<unknown> }
+  [PortName.Model]: { id: RequestID; request: ModelRequest }
+  [PortName.Events]: { id?: RequestID; request: EventRequest<unknown> }
 }
 
 export interface PortResponse {
   [PortName.Completion]:
-    | { id: RequestId; response: CompletionResponse }
-    | { id?: RequestId; error: ErrorCode.InvalidRequest }
+    | { id: RequestID; response: CompletionResponse }
+    | { id?: RequestID; error: ErrorCode.InvalidRequest }
   [PortName.Permission]:
-    | { requesterId: RequestId; requester: CompletionRequest }
+    | { requesterId: RequestID; requester: CompletionRequest }
     | {
-        id?: RequestId
+        id?: RequestID
         error: ErrorCode.InvalidRequest | ErrorCode.RequestNotFound
       }
   [PortName.Model]:
-    | { id: RequestId; response: ModelResponse }
-    | { id?: RequestId; error: ErrorCode.InvalidRequest }
+    | { id: RequestID; response: ModelResponse }
+    | { id?: RequestID; error: ErrorCode.InvalidRequest }
   [PortName.Events]:
-    | { id?: RequestId; response: EventResponse<unknown> }
-    | { id?: RequestId; error: ErrorCode.InvalidRequest }
+    | { id?: RequestID; response: EventResponse<unknown> }
+    | { id?: RequestID; error: ErrorCode.InvalidRequest }
 }
 
 export type PortEvent = PortRequest | PortResponse
@@ -47,8 +48,6 @@ export enum ContentMessageType {
   Response = "response",
   Cancel = "cancel"
 }
-
-export type RequestId = string
 
 export type CompletionRequest = {
   transaction: Transaction

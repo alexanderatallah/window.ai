@@ -12,6 +12,7 @@
     },
     "test": {},
     "dev": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
@@ -22,6 +23,7 @@
       "dependsOn": ["build"]
     },
     "publish": {
-      "dependsOn": ["build"]}
+      "dependsOn": ["build"]
+    }
   }
 }

@@ -1,9 +1,11 @@
+import { EventType } from "window.ai"
+
 import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { modelCallers } from "~core/llm"
-import { EventType, ModelID } from "~public-interface"
+import { ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
 

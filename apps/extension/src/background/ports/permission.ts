@@ -1,3 +1,5 @@
+import { ErrorCode } from "window.ai"
+
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import { RequestState } from "~background/lib/request-state"
@@ -12,7 +14,6 @@ import { originManager } from "~core/managers/origin"
 import type { Result } from "~core/utils/result-monad"
 import { err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
-import { ErrorCode } from "~public-interface"
 
 const permissionState = new RequestState<
   CompletionRequest,
