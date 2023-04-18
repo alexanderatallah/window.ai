@@ -185,7 +185,7 @@ export function Chat() {
         {showInstallMessage && (
           <div className="flex flex-col gap-2 text-sm">
             <p className="px-4 text-center text-gray-400">
-              window.ai not found, please install the extension:
+              window.ai not found on your browser!
             </p>
             <div className="grid grid-cols-2 gap-6">
               <Button
