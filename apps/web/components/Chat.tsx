@@ -73,7 +73,7 @@ export function Chat() {
   useEffect(() => {
     const init = async () => {
       try {
-        // we can also just use the poolWindowAI method here, and use window.ai directly down there as well
+        // we can also just use the waitForWindowAI method here, and use window.ai directly down there as well
         windowAIRef.current = await getWindowAI()
       } catch {
         setShowInstallMessage(true)

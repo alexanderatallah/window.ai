@@ -119,7 +119,7 @@ export function hasWindowAI() {
 
 const DEFAULT_WAIT_OPTIONS = {
   interval: 100,
-  timeout: 2_400
+  timeout: 2_400 // https://github.com/alexanderatallah/window.ai/pull/34#discussion_r1170545022
 }
 
 export async function waitForWindowAI(opts = DEFAULT_WAIT_OPTIONS) {
