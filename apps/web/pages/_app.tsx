@@ -7,7 +7,12 @@ import { GitHub } from "../components/Icons/Github"
 import { Twitter } from "../components/Icons/Twitter"
 
 import "../styles/globals.css"
-import { DISCORD_URL, GITHUB_URL, ANNOUNCEMENT_URL } from "../components/common"
+import {
+  DISCORD_URL,
+  GITHUB_URL,
+  ANNOUNCEMENT_URL,
+  TWITTER_URL
+} from "../components/common"
 
 function Layout({ children }: any) {
   return (
@@ -22,7 +27,7 @@ function Layout({ children }: any) {
           <Link href={GITHUB_URL}>
             <GitHub className="w-8 h-8 text-neutral-500" />
           </Link>
-          <Link href={ANNOUNCEMENT_URL}>
+          <Link href={TWITTER_URL}>
             <Twitter className="w-8 h-8 text-neutral-500" />
           </Link>
         </div>

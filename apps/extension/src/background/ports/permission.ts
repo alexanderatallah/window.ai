@@ -1,17 +1,16 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
+import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import { RequestState } from "~background/lib/request-state"
-import {
+import type {
   CompletionRequest,
-  POPUP_HEIGHT,
-  POPUP_WIDTH,
-  PortName,
   PortRequest,
   PortResponse
 } from "~core/constants"
+import { POPUP_HEIGHT, POPUP_WIDTH, PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { originManager } from "~core/managers/origin"
-import { Result, err, ok } from "~core/utils/result-monad"
+import type { Result } from "~core/utils/result-monad"
+import { err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import { ErrorCode } from "~public-interface"
 

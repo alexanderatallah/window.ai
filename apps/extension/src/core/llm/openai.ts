@@ -1,6 +1,7 @@
-import type { ChatMessage } from "~public-interface"
+import { type ChatMessage, ModelID } from "~public-interface"
 
-import { Model, ModelConfig, RequestOptions } from "./model"
+import type { ModelConfig, RequestOptions } from "./model"
+import { Model } from "./model"
 
 export enum OpenAIModelId {
   Davinci = "text-davinci-003",
@@ -16,32 +17,33 @@ export enum OpenAIModelId {
 // }
 
 export function init(
-  config: Pick<ModelConfig, "quality" | "debug"> &
+  config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
 ): Model {
-  // const completionModelId =
-  //   config.quality === "low" ? OpenAIModelId.Curie : OpenAIModelId.Davinci
-  const chatModelId =
-    config.quality === "low" ? OpenAIModelId.GPT3_5_Turbo : OpenAIModelId.GPT4
   return new Model(
     {
       modelProvider: "openai",
       isStreamable: true,
-      getModelId: (req) => chatModelId,
-      baseUrl: "https://api.openai.com/v1",
-      getPath: (req) => "/chat/completions",
+      overrideModelParam: (req) =>
+        req.model === ModelID.GPT3
+          ? OpenAIModelId.GPT3_5_Turbo
+          : req.model === ModelID.GPT4
+          ? OpenAIModelId.GPT4
+          : req.model,
+      defaultBaseUrl: "https://api.openai.com/v1",
+      getPath: () => "/chat/completions",
       debug: config.debug,
       endOfStreamSentinel: "[DONE]",
       cacheGet: config.cacheGet,
       cacheSet: config.cacheSet,
       transformForRequest: (req, meta) => {
         const {
-          modelId,
           stop_sequences,
           num_generations,
           modelProvider,
           prompt,
+          baseUrl,
           ...optsToSend
         } = req
         let messages = optsToSend.messages || []
@@ -57,7 +59,6 @@ export function init(
         return {
           ...optsToSend,
           messages,
-          model: modelId,
           user: meta.user_identifier || undefined,
           stop: stop_sequences.length ? stop_sequences : undefined,
           n: num_generations

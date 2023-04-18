@@ -3,7 +3,12 @@ import { Chat } from "../components/Chat"
 import { CodeBlock } from "../components/CodeBlock"
 import Link from "next/link"
 import Image from "next/image"
-import { ANNOUNCEMENT_URL, DISCORD_URL, GITHUB_URL } from "../components/common"
+import {
+  ANNOUNCEMENT_URL,
+  DISCORD_URL,
+  EXTENSION_CHROME_URL,
+  GITHUB_URL
+} from "../components/common"
 import Tooltip from "../components/Tooltip"
 import { Button } from "../components/Button"
 
@@ -34,31 +39,36 @@ const Section = ({ children }: any) => {
 function Home() {
   return (
     <div className="flex flex-col gap-3 w-full py-16">
-      <section className="flex flex-col gap-6 max-w-5xl mx-auto px-8">
+      <section className="flex flex-col gap-6 max-w-5xl mx-auto px-8 w-full">
         <Text variant="h1">Window</Text>
         <Text variant="h2">Use your own AI models on the web</Text>
 
-        <Text className="text-zinc-600">
-          In this example, a simple chat bot is implemented in one file, with no
-          backend. Using the{" "}
-          <Link href={DISCORD_URL} className="underline">
-            Chrome Extension
-          </Link>{" "}
-          <Tooltip content="While the extension is being tested and developed, please join the Discord to download the beta build and get notified about updates.">
-            ⚠️
-          </Tooltip>
-          , you can choose which model to use with apps{" "}
-          <Link className="underline" href={GITHUB_URL} target="_blank">
-            built on window.ai
-          </Link>
-          .
-        </Text>
+        <div className="grid grid-cols-6 gap-6">
+          <Text className="text-zinc-600 md:col-span-4 col-span-6">
+            In this example, a simple chatbot is implemented in one file, with{" "}
+            <strong>no backend.</strong>
+            <br />
+            Users, not developers, choose which model to use with apps{" "}
+            <Link className="underline" href={GITHUB_URL} target="_blank">
+              built on window.ai
+            </Link>
+            .
+          </Text>
+          <a
+            href={EXTENSION_CHROME_URL}
+            target="_blank"
+            className="inline-flex items-center gap-2 justify-center rounded-md py-2 px-3 text-sm outline-offset-2 transition active:transition-none
+        font-semibold text-zinc-10 active:bg-zinc-800 active:text-zinc-100/70
+           bg-indigo-600 hover:bg-indigo-500 md:col-span-2 col-span-6 text-white">
+            Get the extension
+          </a>
+        </div>
       </section>
 
       <Section>
         <div className="flex justify-between w-full md:space-x-4 md:flex-row flex-col space-y-8 md:space-y-0">
           <CodeBlock language="js" value={windowaiExample} />
-          <div className="pt-8 w-full">
+          <div className="w-full">
             <Chat />
           </div>
         </div>
@@ -132,12 +142,20 @@ function Home() {
                   docs
                 </Link>
               </Text>
+              <Button
+                onClick={() => window.open(EXTENSION_CHROME_URL, "_blank")}
+                className=" bg-indigo-600 hover:bg-indigo-500 ">
+                Get the extension
+              </Button>
               <Button onClick={() => window.open(DISCORD_URL, "_blank")}>
                 Join the community
               </Button>
             </div>
             <video width="500" controls className="flex-grow shadow-md m-12">
-              <source src="demo.mp4" type="video/mp4" />
+              <source
+                src="https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4"
+                type="video/mp4"
+              />
               Your browser does not support the video tag.
             </video>
           </div>

@@ -1,16 +1,19 @@
 import { KeyIcon } from "@heroicons/react/24/solid"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 import { Accordion } from "~core/components/pure/Accordion"
 import { Button } from "~core/components/pure/Button"
 import { Dropdown } from "~core/components/pure/Dropdown"
 import { Text } from "~core/components/pure/Text"
-import type { PortName, PortResponse } from "~core/constants"
-import { LLMLabels, configManager } from "~core/managers/config"
+import type { PortResponse } from "~core/constants"
+import { PortName } from "~core/constants"
+import { configManager } from "~core/managers/config"
 import { originManager } from "~core/managers/origin"
-import { Transaction, transactionManager } from "~core/managers/transaction"
+import type { Transaction } from "~core/managers/transaction"
+import { transactionManager } from "~core/managers/transaction"
 import { useModel } from "~core/providers/model"
 import { useNav } from "~core/providers/nav"
+import { ModelID } from "~public-interface"
 
 export function PermissionRequest({
   data,
@@ -59,15 +62,15 @@ export function PermissionRequest({
 function TransactionPermission({ transaction }: { transaction: Transaction }) {
   const { setSettingsShown } = useNav()
   const { modelId, setModelId } = useModel()
+  const [label, setLabel] = useState("")
   const { object, setObject } = originManager.useObject(transaction.origin.id)
   const requestedModel = transaction.model
 
   useEffect(() => {
     async function checkConfig() {
-      const config = requestedModel
-        ? await configManager.getOrInit(requestedModel)
-        : await configManager.getDefault()
+      const config = await configManager.getWithDefault(requestedModel)
       setModelId(config.id)
+      setLabel(config.label)
       if (configManager.isIncomplete(config)) {
         setSettingsShown(true)
       }
@@ -81,7 +84,10 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
         {originManager.originDisplay(transaction.origin)}
       </Text>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-        This app is requesting permission to access {LLMLabels[modelId]}
+        This app is requesting permission to access {label}
+        {modelId === ModelID.Local && requestedModel
+          ? ` (${requestedModel})`
+          : ""}
       </p>
       <Accordion title="View Request" centered>
         <code className="block text-left text-xs overflow-y-auto max-h-20 px-4">

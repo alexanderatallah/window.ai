@@ -1,6 +1,7 @@
-import { assertNever, messagesToPrompt } from "~core/utils/utils"
+import { messagesToPrompt } from "~core/utils/utils"
 
-import { Model, ModelConfig, RequestOptions } from "./model"
+import type { ModelConfig, RequestOptions } from "./model"
+import { Model } from "./model"
 
 export enum CohereModelId {
   XlargeNightly = "command-xlarge-nightly",
@@ -21,34 +22,30 @@ export enum CohereModelId {
 // }
 
 export function init(
-  config: Pick<ModelConfig, "quality" | "debug"> &
+  config: Pick<ModelConfig, "debug"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
 ) {
-  const modelId =
-    config.quality === "low"
-      ? CohereModelId.Xlarge
-      : CohereModelId.XlargeNightly
   return new Model(
     {
       ...config,
       isStreamable: false,
       modelProvider: "cohere",
-      baseUrl: "https://api.cohere.ai",
+      defaultBaseUrl: "https://api.cohere.ai",
       getPath: () => "/generate",
       authPrefix: "BEARER ",
-      getModelId: () => modelId,
+      overrideModelParam: () => CohereModelId.XlargeNightly,
       debug: config.debug,
       customHeaders: {
         "Cohere-Version": "2022-12-06"
       },
       transformForRequest: (req) => {
         const {
-          modelId,
           prompt,
           messages,
           top_p,
           stop_sequences,
+          modelProvider,
           ...optsToSend
         } = req
         const fullPrompt =
@@ -61,7 +58,6 @@ export function init(
           ...optsToSend,
           stop_sequences: ["\n<human>", ...stop_sequences],
           prompt: fullPrompt,
-          model: modelId,
           p: top_p
         }
       },

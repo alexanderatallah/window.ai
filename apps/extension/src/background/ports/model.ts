@@ -1,6 +1,7 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
+import type { PlasmoMessaging } from "@plasmohq/messaging"
 
-import type { PortName, PortRequest, PortResponse } from "~core/constants"
+import type { PortRequest, PortResponse } from "~core/constants"
+import { PortName } from "~core/constants"
 import { configManager } from "~core/managers/config"
 import { err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"

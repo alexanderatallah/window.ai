@@ -4,15 +4,18 @@
 
 Window AI is a browser extension that lets you configure AI models in one place and use them on the web.
 
-- **For developers**: easily make multi-model apps free from API costs and limits - just use the injected `window.ai` library. Even make decentralized apps.
-  
-- **For users**: all your model setup in one place. Use your preferred model, whether it's external (like OpenAI), proxied, or local, to protect privacy.
+- **For developers**: easily make multi-model apps free from API costs and limits - just use the injected `window.ai` library. Leverage decentralized AI.
+
+- **For users**: control the AI you use on the web, whether it's external (like OpenAI), proxied, or local, to protect privacy.
+
+- **For model providers**: plug into an ecosystem of users without requiring developers to change their apps.
 
 More about why this was made [here](https://twitter.com/xanderatallah/status/1643356106670981122).
 
 Below, you'll find out [how to install](#-installation), [how to find apps](#-find-apps), [how to make apps](#-docs), and [how to connect custom models](#-local-model-setup).
 
 ### 📺 Demo
+
 https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b19f-5ae405a31516.mp4
 
 ### ℹ️ Contents
@@ -23,6 +26,8 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
+    - [Browser support](#browser-support)
+    - [Beta builds](#beta-builds)
   - [👀 Find apps](#-find-apps)
   - [📄 Docs](#-docs)
     - [Why should I build with this?](#why-should-i-build-with-this)
@@ -31,6 +36,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
     - [CompletionOptions](#completionoptions)
     - [Model IDs](#model-ids)
     - [Error codes](#error-codes)
+    - [Community tools](#community-tools)
   - [🧠 Local model setup](#-local-model-setup)
     - [Server API Spec](#server-api-spec)
     - [Demo comparing Alpaca with GPT-4](#demo-comparing-alpaca-with-gpt-4)
@@ -38,7 +44,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 
 ## ⭐️ Main features
 
-- **Configure keys**: set all your API keys in one place and forget about them. They are *only* stored locally.
+- **Configure keys**: set all your API keys in one place and forget about them. They are _only_ stored locally.
 
 - **User-controlled models**: use external, proxied, and local models of your choice.
 
@@ -61,7 +67,17 @@ It works with these models:
 
 ## 📥 Installation
 
-This extension is in **beta** and not on stores yet. For now, you can join the [#beta-testing channel on Discord](https://discord.gg/KBPhAPEJNj) to get access to a downloadable extension that you can load into Chrome.
+Download the Chrome extension here: https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag
+
+### Browser support
+✅ [Chrome](https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag)
+✅ [Brave](https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag)
+✏️ Microsoft Edge
+✏️ Firefox
+✏️ Safari: https://github.com/alexanderatallah/window.ai/issues/20
+
+### Beta builds
+You can join the [#beta-builds channel on Discord](https://discord.gg/KBPhAPEJNj) to get early access to features being tested and developed by the community.
 
 ## 👀 Find apps
 
@@ -100,14 +116,17 @@ All public types, including error messages, are documented in [this file](/apps/
 Example of streaming GPT-4 results to the console:
 
 ```ts
-await ai.getCompletion({
-  messages: [{role: "user", content: "Who are you?"}]
-}, {
-  temperature: 0.7,
-  maxTokens: 800,
-  model: ModelID.GPT4,
-  onStreamResult: (res) => console.log(res.message.content)
-})
+await ai.getCompletion(
+  {
+    messages: [{ role: "user", content: "Who are you?" }]
+  },
+  {
+    temperature: 0.7,
+    maxTokens: 800,
+    model: ModelID.GPT4,
+    onStreamResult: (res) => console.log(res.message.content)
+  }
+)
 ```
 
 Note that `getCompletion` will return an array, `Output[]`, if you specify `numOutputs > 1`.
@@ -117,17 +136,20 @@ Note that `getCompletion` will return an array, `Output[]`, if you specify `numO
 The Window API is simple. Just a few functions:
 
 **Get completion**: get or stream a completion from the specified (or preferred) model.
+
 ```ts
 window.ai.getCompletion(
     input: Input,
     options: CompletionOptions = {}
   ): Promise<Output | Output[]>
 ```
+
 `Input` is either a `{ prompt : string }` or `{ messages: ChatMessage[]}`. Examples: see [getting started](#🧑‍💻-getting-started) above.
 
 **Current model**: get the user's currently preferred model ID.
+
 ```ts
-window.ai.getCurrentModel(): Promise<ModelID> 
+window.ai.getCurrentModel(): Promise<ModelID>
 ```
 
 **Listen to events**: to listen to events emitted by the extension, such as whenever the preferred model changes, here's what you do:
@@ -144,9 +166,9 @@ All public types, including error messages, are documented in [this file](/apps/
 ### CompletionOptions
 
 This options dictionary allows you to specify options for the completion request.
+
 ```ts
 export interface CompletionOptions {
-
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
   onStreamResult?: (result: Output | null, error: string | null) => unknown
@@ -167,15 +189,19 @@ export interface CompletionOptions {
   stopSequences?: string[]
 
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: ModelID
+  // Arbitrary strings are allowed, and will be passed to the Local model as `model`.
+  // NOTE: this standard is evolving - recommend not using this if you're making an immutable app.
+  model?: ModelID | string
 }
 ```
 
 ### Model IDs
 
 ModelID is an enum of the available models:
+
 ```ts
 // NOTE: this is an evolving standard, and may change in the future.
+// "/" Splits the organization's name from the model name
 export enum ModelID {
   GPT3 = "openai/gpt3.5",
   GPT4 = "openai/gpt4",
@@ -184,9 +210,11 @@ export enum ModelID {
   Local = "local"
 }
 ```
+
 ### Error codes
 
 Errors emitted by the extension API:
+
 ```ts
 export enum ErrorCode {
   // Incorrect API key / auth
@@ -194,7 +222,7 @@ export enum ErrorCode {
 
   // User denied permission to the app
   PermissionDenied = "PERMISSION_DENIED",
-  
+
   // Happens when a permission request popup times out
   RequestNotFound = "REQUEST_NOT_FOUND",
 
@@ -207,6 +235,11 @@ export enum ErrorCode {
 }
 ```
 
+### Community tools
+
+Hope to eventually make an `awesome-window.ai` repo, but in the meantime:
+
+- **🪄 [Wanda](https://github.com/haardikk21/wanda)**: React Hooks for working with `window.ai`
 
 ## 🧠 Local model setup
 
@@ -226,6 +259,7 @@ This endpoint accepts a request body containing the following parameters:
 
 - `prompt`: The prompt(s) to generate completions for, encoded as a `string`. OR you can use ChatML format via `messages`:
 - `messages` an array of `ChatMessage`s.
+- `model`: a string representing the type of model being requested. ex: `ModelID.GPT4`
 - `max_tokens`: The maximum number of tokens to generate in the completion.
 - `temperature`: What sampling temperature to use, between 0 and 2.
 - `stop_sequences`: A string or array of strings where the API will stop generating further tokens. The returned text will not contain the stop sequence.
@@ -239,7 +273,9 @@ This endpoint accepts a request body containing the following parameters:
 This endpoint should return an object that looks like:
 
 ```ts
-{ choices: Array<{ text: string }> }
+{
+  choices: Array<{ text: string }>
+}
 ```
 
 More WIP thinking [here](https://alexatallah.notion.site/RFC-LLM-API-Standard-c8f15d24bd2f4ab98b656f08cdc1c4fb).
@@ -257,7 +293,6 @@ This is a turborepo monorepo containing:
 1. A [Plasmo extension](https://docs.plasmo.com/) project.
 2. A web app serving [windowai.io](https://windowai.io).
 3. Upcoming packages to help developers (see Discord for more info).
-
 
 **To run the extension and the web app in parallel:**
 
