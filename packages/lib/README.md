@@ -6,7 +6,7 @@ This is the official window.ai client library. It provides the base `WindowAI` i
 
 ```ts
 
-import { getWindowAI } from 'window-ai';
+import { getWindowAI } from 'window.ai';
 
 // initialize the client
 
