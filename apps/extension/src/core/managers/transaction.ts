@@ -1,7 +1,12 @@
 import { v4 as uuidv4 } from "uuid"
+import {
+  type CompletionOptions,
+  type Input,
+  type Output,
+  isTextOutput
+} from "window.ai"
 
-import type { CompletionOptions, Input, Output } from "~public-interface"
-import { ModelID } from "~public-interface"
+import type { ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
 import type { OriginData } from "./origin"
@@ -33,7 +38,7 @@ class TransactionManager extends BaseManager<Transaction> {
   init(
     input: Input,
     origin: OriginData,
-    options: CompletionOptions
+    options: CompletionOptions<ModelID>
   ): Transaction {
     this._validateInput(input)
     const { temperature, maxTokens, stopSequences, model, numOutputs } = options
@@ -78,12 +83,9 @@ class TransactionManager extends BaseManager<Transaction> {
       return undefined
     }
     return txn.outputs
-      .map((t) => {
-        if ("text" in t) {
-          return t.text
-        }
-        return `${t.message.role}: ${t.message.content}`
-      })
+      .map((t) =>
+        isTextOutput(t) ? t.text : `${t.message.role}: ${t.message.content}`
+      )
       .join("\n")
   }
 

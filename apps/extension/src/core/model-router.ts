@@ -1,5 +1,6 @@
+import { ErrorCode } from "window.ai"
+
 import { modelCallers } from "~core/llm"
-import { ErrorCode } from "~public-interface"
 
 import { type Config, configManager } from "./managers/config"
 import type { Transaction } from "./managers/transaction"

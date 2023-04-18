@@ -1,0 +1,40 @@
+{
+  "name": "window.ai",
+  "public": true,
+  "version": "0.0.3",
+  "type": "module",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "target": "esnext",
+    "platform": "browser",
+    "splitting": false,
+    "bundle": true,
+    "dts": true,
+    "sourcemap": true
+  },
+  "scripts": {
+    "test": "jest",
+    "dev": "tsup --watch",
+    "build": "tsup "
+  },
+  "devDependencies": {
+    "@types/node": "18.15.11",
+    "tsup": "6.7.0",
+    "typescript": "5.0.4"
+  }
+}
