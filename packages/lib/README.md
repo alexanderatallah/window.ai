@@ -1,16 +1,16 @@
 # Official window.ai client library.
 
-This is the official window.ai client library for Node.js. It provides convenient access to the window.ai API for client and server-side applications.
+This is the official window.ai client library. It provides the base `WindowAI` interface. The `window.ai` browser extension implements this interface to expose the window.ai API to web applications. Any web application can leverage this client library to consume the `window.ai` API.
 
 # Usage
 
 ```ts
 
-import { initWindowAi } from 'window-ai';
+import { getWindowAI } from 'window-ai';
 
 // initialize the client
 
-const ai = await initWindowAi()
+const ai = await getWindowAI()
 
 ai.getCurrentModel()
 ai.getCompletion(...)

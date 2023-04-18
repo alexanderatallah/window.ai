@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "./Button"
-import { type ChatGPTMessage, ChatLine, LoadingChatLine } from "./ChatLine"
+import { ChatLine, LoadingChatLine } from "./ChatLine"
 import { useCookies } from "react-cookie"
 import { DISCORD_URL, DOWNLOAD_URL } from "./common"
-import ai from "window.ai"
+import {
+  ChatMessage,
+  ErrorCode,
+  WindowAI,
+  getWindowAI,
+  isMessageOutput
+} from "window.ai"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
 // default first message to display in UI (not necessary to define the prompt)
-export const initialMessages: ChatGPTMessage[] = [
+export const initialMessages: ChatMessage[] = [
   {
     role: "assistant",
     content: "Hi! I am a friendly AI assistant. Ask me anything!"
@@ -46,12 +52,14 @@ const InputMessage = ({ input, setInput, sendMessage }: any) => (
 )
 
 export function Chat() {
-  const [messages, setMessages] = useState<ChatGPTMessage[]>(initialMessages)
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [cookie, setCookie] = useCookies([COOKIE_NAME])
   const [showInstallMessage, setShowInstallMessage] = useState(false)
   const [permissionDenied, setPermissionDenied] = useState(false)
+
+  const windowAIRef = useRef<WindowAI>()
 
   useEffect(() => {
     if (!cookie[COOKIE_NAME]) {
@@ -61,30 +69,44 @@ export function Chat() {
     }
   }, [cookie, setCookie])
 
+  // TODO: This efefct can be an util hook
+  useEffect(() => {
+    const init = async () => {
+      try {
+        // we can also just use the poolWindowAI method here, and use window.ai directly down there as well
+        windowAIRef.current = await getWindowAI()
+      } catch {
+        setShowInstallMessage(true)
+      }
+    }
+    init()
+  }, [])
+
   // send message to API /api/chat endpoint
   const sendMessage = async (message: string) => {
-    if (!("ai" in window)) {
-      setShowInstallMessage(true)
+    if (showInstallMessage || !windowAIRef.current) {
       return
     }
-    setShowInstallMessage(false)
+
     setLoading(true)
-    const newMessages = [
+
+    const newMessages: ChatMessage[] = [
       ...messages,
-      { role: "user", content: message } as ChatGPTMessage
+      { role: "user", content: message }
     ]
+
     setMessages(newMessages)
+
     const last10messages = newMessages.slice(-10) // remember last 10 messages
 
-    const responseMsg = { role: "assistant", content: "" }
+    const responseMsg: ChatMessage = { role: "assistant", content: "" }
     const allMsgs = [...newMessages]
 
-    //@ts-ignore
     setMessages([...allMsgs, { ...responseMsg }])
     setPermissionDenied(false)
 
     try {
-      await window.ai.getCompletion(
+      await windowAIRef.current.getCompletion(
         {
           messages: [...last10messages]
         },
@@ -94,16 +116,16 @@ export function Chat() {
               throw error
             }
 
-            responseMsg.content += result.message.content
-
-            //@ts-ignore
-            setMessages([...allMsgs, { ...responseMsg }])
+            if (isMessageOutput(result!)) {
+              responseMsg.content += result.message.content
+              setMessages([...allMsgs, { ...responseMsg }])
+            }
           }
         }
       )
     } catch (e) {
-      console.log("error", e)
-      if (e === "PERMISSION_DENIED") {
+      console.error(e)
+      if (e === ErrorCode.PermissionDenied) {
         setPermissionDenied(true)
         setMessages((p) => {
           p.pop()
@@ -120,8 +142,6 @@ export function Chat() {
           content: "Sorry, I had an error. Please try again later."
         }
       ])
-
-      console.log(e)
     }
 
     setLoading(false)
@@ -136,7 +156,6 @@ export function Chat() {
   }
 
   // scroll when new message is added
-
   useEffect(() => {
     if (messagesRef.current) {
       scrollToBottom()
@@ -154,31 +173,36 @@ export function Chat() {
           {loading && <LoadingChatLine />}
         </div>
         {messages.length < 2 && (
-          <span className="mx-auto flex flex-grow text-gray-600 clear-both">
+          <span className="mx-auto flex flex-grow text-gray-600 clear-both text-sm">
             Type a message to start the conversation
           </span>
         )}
         {permissionDenied && (
-          <span className="mx-auto flex flex-grow text-red-400 clear-both">
+          <span className="mx-auto flex flex-grow text-red-400 clear-both text-sm">
             window.ai permission denied!
           </span>
         )}
         {showInstallMessage && (
-          <div className="grid grid-cols-2 gap-6">
-            <Button
-              onClick={() => window.open(DISCORD_URL, "_blank")}
-              className="">
-              Download the beta
-            </Button>
-            <Button
-              onClick={() =>
-                window.open(
-                  "https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked",
-                  "_blank"
-                )
-              }>
-              How to install
-            </Button>
+          <div className="flex flex-col gap-2 text-sm">
+            <p className="px-4 text-center text-gray-400">
+              window.ai not found, please install the extension:
+            </p>
+            <div className="grid grid-cols-2 gap-6">
+              <Button
+                onClick={() => window.open(DISCORD_URL, "_blank")}
+                className="">
+                Download the beta
+              </Button>
+              <Button
+                onClick={() =>
+                  window.open(
+                    "https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked",
+                    "_blank"
+                  )
+                }>
+                How to install
+              </Button>
+            </div>
           </div>
         )}
         <InputMessage

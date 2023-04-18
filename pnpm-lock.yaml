@@ -61,6 +61,7 @@ importers:
       typescript: 5.0.4
       uuid: ^9.0.0
       webextension-polyfill: ^0.10.0
+      window.ai: workspace:*
     dependencies:
       '@heroicons/react': 2.0.17_react@18.2.0
       '@plasmohq/messaging': 0.1.8_react@18.2.0
@@ -91,6 +92,7 @@ importers:
       prettier: 2.8.7
       tailwindcss: 3.3.1_postcss@8.4.22
       typescript: 5.0.4
+      window.ai: link:../../packages/lib
 
   apps/web:
     specifiers:
@@ -98,7 +100,6 @@ importers:
       '@types/node': ^18.15.11
       '@types/react': ^18.0.35
       '@types/react-syntax-highlighter': ^15.5.6
-      '@types/window.ai': workspace:*
       '@vercel/analytics': ^0.1.11
       '@vercel/examples-ui': ^1.0.5
       autoprefixer: ^10.4.14
@@ -129,7 +130,6 @@ importers:
     devDependencies:
       '@types/node': 18.15.11
       '@types/react': 18.0.35
-      '@types/window.ai': link:../../packages/types
       autoprefixer: 10.4.14_postcss@8.4.22
       eslint-config-custom: link:../../packages/eslint-config-custom
       postcss: 8.4.22
@@ -145,16 +145,9 @@ importers:
       '@types/node': 18.15.11
       tsup: 6.7.0
       typescript: 5.0.4
-    dependencies:
-      typescript: 5.0.4
     devDependencies:
       '@types/node': 18.15.11
       tsup: 6.7.0_typescript@5.0.4
-
-  packages/types:
-    specifiers:
-      typescript: 5.0.4
-    devDependencies:
       typescript: 5.0.4
 
 packages:

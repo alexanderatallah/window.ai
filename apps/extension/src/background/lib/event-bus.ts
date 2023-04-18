@@ -1,8 +1,9 @@
+import type { EventType } from "window.ai"
+
 import { Extension } from "~core/extension"
 import { tabManager } from "~core/managers/tab"
 import { ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
-import { EventType } from "~public-interface"
 
 const MAX_TABS_TO_NOTIFY = 100
 

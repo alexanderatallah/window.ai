@@ -3,10 +3,9 @@ import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
+import { type ChatMessage, ErrorCode } from "window.ai"
 
 import { definedValues, parseDataChunks } from "~core/utils/utils"
-import type { ChatMessage } from "~public-interface"
-import { ErrorCode } from "~public-interface"
 
 // These options are specific to the model shape and archetype
 export interface ModelConfig {

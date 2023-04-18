@@ -42,7 +42,8 @@
     "postcss": "^8.4.22",
     "prettier": "2.8.7",
     "tailwindcss": "3.3.1",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "window.ai": "workspace:*"
   },
   "manifest": {
     "host_permissions": [

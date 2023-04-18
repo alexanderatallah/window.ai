@@ -1,12 +1,19 @@
 import type { PlasmoCSConfig } from "plasmo"
 import { v4 as uuidv4 } from "uuid"
+import {
+  type CompletionOptions,
+  type EventListenerHandler,
+  EventType,
+  type RequestID as RequestId,
+  VALID_DOMAIN,
+  type WindowAI
+} from "window.ai"
 
 import type {
   CompletionResponse,
   EventResponse,
   ModelResponse,
-  PortRequest,
-  RequestId
+  PortRequest
 } from "~core/constants"
 import { ContentMessageType, PortName } from "~core/constants"
 import type { OriginData } from "~core/managers/origin"
@@ -14,8 +21,9 @@ import { originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import type { Result } from "~core/utils/result-monad"
 import { isOk } from "~core/utils/result-monad"
-import type { CompletionOptions, Input, Output } from "~public-interface"
-import { ErrorCode, EventType, ModelID } from "~public-interface"
+import type { ModelID } from "~public-interface"
+
+import { version } from "../../package.json"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -24,11 +32,12 @@ export const config: PlasmoCSConfig = {
   // run_at: "document_start" // This causes some Next.js pages (e.g. Plasmo docs) to break
 }
 
-export const WindowAI = {
-  async getCompletion(
-    input: Input,
-    options: CompletionOptions = {}
-  ): Promise<Output | Output[]> {
+export const windowAI: WindowAI<ModelID> = {
+  __window_ai_metadata__: {
+    domain: VALID_DOMAIN,
+    version
+  },
+  async getCompletion(input, options = {}) {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
     const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
@@ -49,7 +58,7 @@ export const WindowAI = {
     })
   },
 
-  async getCurrentModel(): Promise<ModelID> {
+  async getCurrentModel() {
     const requestId = _relayRequest(PortName.Model, {})
     return new Promise((resolve, reject) => {
       _addResponseListener<ModelResponse>(requestId, (res) => {
@@ -62,9 +71,7 @@ export const WindowAI = {
     })
   },
 
-  addEventListener<T>(
-    handler: (event: EventType, data: T | ErrorCode) => void
-  ): RequestId {
+  addEventListener<T>(handler: EventListenerHandler<T>) {
     // TODO - use a dedicated port for events
     const requestId = _relayRequest(PortName.Events, {
       shouldListen: true
@@ -83,7 +90,9 @@ export const WindowAI = {
 }
 
 // TODO better validation
-function _validateOptions(options: CompletionOptions): CompletionOptions {
+function _validateOptions(
+  options: CompletionOptions<ModelID>
+): CompletionOptions<ModelID> {
   if (
     typeof options !== "object" ||
     (options.onStreamResult && typeof options.onStreamResult !== "function")
@@ -148,7 +157,7 @@ window.addEventListener(
         ...(_responseListeners.get(null) || [])
       ])
       if (handlers.size === 0) {
-        throw `No handlers found for request ${msg.id}`
+        throw new Error(`No handlers found for request ${msg.id}`)
       }
       handlers.forEach((h) => h(msg.response))
     }
@@ -156,4 +165,4 @@ window.addEventListener(
   false
 )
 
-window.ai = window.ai || WindowAI
+window.ai = window.ai || windowAI

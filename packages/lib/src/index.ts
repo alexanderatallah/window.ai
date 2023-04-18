@@ -1,5 +1,3 @@
-import type { WindowAI } from "~contents/inpage"
-
 // ChatML is a simple markup language for chat messages. More available here:
 // https://github.com/openai/openai-python/blob/main/chatml.md
 export type ChatMessage = {
@@ -7,26 +5,44 @@ export type ChatMessage = {
   content: string
 }
 
+export type ChatRole = ChatMessage["role"]
+
+export type PromptInput = {
+  prompt: string
+}
+
+export type MessagesInput = {
+  messages: ChatMessage[]
+}
+
 // Input allows you to specify either a prompt string or a list of chat messages.
-export type Input =
-  | {
-      prompt: string
-    }
-  | {
-      messages: ChatMessage[]
-    }
+export type Input = PromptInput | MessagesInput
+
+export function isMessagesInput(input: Input): input is MessagesInput {
+  return "messages" in input
+}
+
+export type TextOutput = {
+  text: string
+}
+
+export type MessageOutput = {
+  message: ChatMessage
+}
 
 // Output can be either a string or a chat message, depending on which Input type you use.
-export type Output =
-  | {
-      text: string
-    }
-  | {
-      message: ChatMessage
-    }
+export type Output = TextOutput | MessageOutput
+
+export function isTextOutput(output: Output): output is TextOutput {
+  return "text" in output
+}
+
+export function isMessageOutput(output: Output): output is MessageOutput {
+  return "message" in output
+}
 
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions {
+export interface CompletionOptions<TModel> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
   onStreamResult?: (result: Output | null, error: string | null) => unknown
@@ -42,17 +58,7 @@ export interface CompletionOptions {
   // Sequences where the API will stop generating further tokens.
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: ModelID
-}
-
-// ModelID is an enum of the available models.
-// NOTE: this is an evolving standard, and may change in the future.
-export enum ModelID {
-  GPT3 = "openai/gpt3.5",
-  GPT4 = "openai/gpt4",
-  GPTNeo = "together/gpt-neoxt-20B",
-  Cohere = "cohere/xlarge",
-  Local = "local"
+  model?: TModel
 }
 
 // Error codes emitted by the extension API
@@ -72,36 +78,74 @@ export enum EventType {
   Error = "error"
 }
 
-export type RequestId = string
+export type RequestID = string
+
+export type EventListenerHandler<T> = (
+  event: EventType,
+  data: T | ErrorCode
+) => void
+
+export const VALID_DOMAIN = "https://windowai.io" as const
+
+export interface WindowAI<TModel = string> {
+  __window_ai_metadata__: {
+    domain: typeof VALID_DOMAIN
+    version: string
+  }
+
+  getCompletion(
+    input: Input,
+    options?: CompletionOptions<TModel>
+  ): Promise<Output | Output[]>
+
+  getCurrentModel(): Promise<TModel>
+
+  addEventListener<T>(handler: EventListenerHandler<T>): RequestID
+}
 
 declare global {
   interface Window {
-    ai: {
-      getCompletion(
-        input: Input,
-        options: CompletionOptions
-      ): Promise<Output | Output[]>
-
-      getCurrentModel(): Promise<ModelID>
-      addEventListener<T>(
-        handler: (event: EventType, data: T | ErrorCode) => void
-      ): RequestId
-    }
+    ai: WindowAI
   }
 }
 
-export const initWindowAI = async () => {
-  // wait until the window.ai object is available
-  if (!window.ai) {
-    await new Promise((resolve) => {
-      const interval = setInterval(() => {
-        if (window.ai) {
-          clearInterval(interval)
-          resolve(1)
-        }
-      }, 100)
-    })
+// Checking against other window.ai implementations
+export function hasWindowAI() {
+  return (
+    !!globalThis.window.ai?.__window_ai_metadata__ &&
+    window.ai.__window_ai_metadata__.domain === VALID_DOMAIN
+  )
+}
+
+const DEFAULT_WAIT_OPTIONS = {
+  interval: 100,
+  timeout: 2_400
+}
+
+export async function waitForWindowAI(opts = DEFAULT_WAIT_OPTIONS) {
+  if (hasWindowAI()) {
+    return
   }
 
-  return window.ai
+  await new Promise((resolve, reject) => {
+    let counter = 0
+    const timerInterval = setInterval(() => {
+      counter += opts.interval
+      if (counter > opts.timeout) {
+        clearInterval(timerInterval)
+        reject(new Error("window.ai not found"))
+      }
+
+      if (hasWindowAI()) {
+        clearInterval(timerInterval)
+        resolve(true)
+      }
+    }, opts.interval)
+  })
+}
+
+export const getWindowAI = async (opts = DEFAULT_WAIT_OPTIONS) => {
+  // wait until the window.ai object is available
+  await waitForWindowAI(opts)
+  return globalThis.window.ai
 }
