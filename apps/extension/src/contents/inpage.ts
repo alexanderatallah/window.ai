@@ -1,29 +1,21 @@
 import type { PlasmoCSConfig } from "plasmo"
 import { v4 as uuidv4 } from "uuid"
 
-import {
-  CompletionRequest,
+import type {
   CompletionResponse,
-  ContentMessageType,
-  EventRequest,
   EventResponse,
-  ModelRequest,
   ModelResponse,
-  PortName,
   PortRequest,
   RequestId
 } from "~core/constants"
-import { OriginData, originManager } from "~core/managers/origin"
+import { ContentMessageType, PortName } from "~core/constants"
+import type { OriginData } from "~core/managers/origin"
+import { originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
-import { Result, isOk } from "~core/utils/result-monad"
-import {
-  CompletionOptions,
-  ErrorCode,
-  EventType,
-  Input,
-  ModelID,
-  Output
-} from "~public-interface"
+import type { Result } from "~core/utils/result-monad"
+import { isOk } from "~core/utils/result-monad"
+import type { CompletionOptions, Input, Output } from "~public-interface"
+import { ErrorCode, EventType, ModelID } from "~public-interface"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],

@@ -1,8 +1,10 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging/dist"
+import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import { EventBus } from "~background/lib/event-bus"
-import type { PortName, PortRequest, PortResponse } from "~core/constants"
-import { Result, err, ok } from "~core/utils/result-monad"
+import type { PortRequest, PortResponse } from "~core/constants"
+import { PortName } from "~core/constants"
+import type { Result } from "~core/utils/result-monad"
+import { err } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 import { ErrorCode, EventType } from "~public-interface"
 
@@ -25,20 +27,21 @@ const handler: PlasmoMessaging.PortHandler<
     return res.send(err(ErrorCode.InvalidRequest))
   }
 
-  const { request } = req.body
+  const { request, id } = req.body
 
   if (request.shouldListen) {
-    if (!req.port) {
-      return res.send(err(ErrorCode.InvalidRequest))
+    if (!req.port?.sender?.tab?.id) {
+      console.error("Bad sender", req.port)
+      return res.send({ id, error: ErrorCode.InvalidRequest })
     }
-    eventBus.addListener(req.port)
+    await eventBus.addListener(req.port.sender.tab.id)
     // We're adding a listener, no response needed
     return
   }
 
   const { event, data } = request
   if (event) {
-    eventBus.dispatch(event, data)
+    await eventBus.dispatch(event, data)
     // No response needed
     return
   }

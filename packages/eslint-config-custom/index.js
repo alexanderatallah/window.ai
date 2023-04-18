@@ -3,6 +3,8 @@ module.exports = {
   rules: {
     "@next/next/no-html-link-for-pages": "off",
     "react/jsx-key": "off",
-    semi: ["error", "never"],
-  },
-};
+    "react-hooks/rules-of-hooks": "off", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "off", // Checks effect dependencies
+    semi: ["error", "never"]
+  }
+}

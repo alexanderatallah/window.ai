@@ -1,7 +1,8 @@
 import { Logo } from "~core/components/pure/Logo"
 import { Text } from "~core/components/pure/Text"
 import { originManager } from "~core/managers/origin"
-import { Transaction, transactionManager } from "~core/managers/transaction"
+import type { Transaction } from "~core/managers/transaction"
+import { transactionManager } from "~core/managers/transaction"
 import { formatDate } from "~core/utils/utils"
 
 export function ActivityItem({ transaction }: { transaction: Transaction }) {

@@ -20,19 +20,17 @@
     "react-cookie": "^4.1.1",
     "react-dom": "latest",
     "react-syntax-highlighter": "^15.5.0",
-    "react-wrap-balancer": "^0.1.5"
+    "react-wrap-balancer": "^0.4.0"
   },
   "devDependencies": {
     "window.ai": "workspace:*",
-    "@types/node": "^17.0.45",
-    "@types/react": "latest",
-    "eslint-config-custom": "workspace:*",
+    "@types/node": "^18.15.11",
+    "@types/react": "^18.0.35",
+    "@types/window.ai": "workspace:*",
     "autoprefixer": "^10.4.14",
-    "eslint": "^8.36.0",
-    "eslint-config-next": "^12.3.4",
+    "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.7",
-    "turbo": "^1.8.3",
-    "typescript": "^4.9.5"
+    "typescript": "5.0.4"
   }
 }

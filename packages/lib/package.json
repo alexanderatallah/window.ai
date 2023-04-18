@@ -1,19 +1,19 @@
 {
-    "name": "window.ai",
-    "public": true,
-    "version": "0.0.3",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "scripts": {
-        "test": "jest",
-        "build": "tsup ./src/index.ts --format cjs --dts --sourcemap --onSuccess 'tsc --emitDeclarationOnly --declaration --project tsconfig.json --declarationDir dist'",
-        "dev": "pnpm run build --watch"
-    },
-    "devDependencies": {
-        "@types/node": "^18.11.18",
-        "tsup": "^6.5.0"
-    },
-    "dependencies": {
-        "typescript": "latest"
-    }
+  "name": "window.ai",
+  "public": true,
+  "version": "0.0.3",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "tsup ./src/index.ts --format cjs --dts --sourcemap --onSuccess 'tsc --emitDeclarationOnly --declaration --project tsconfig.json --declarationDir dist'",
+    "dev": "pnpm run build --watch"
+  },
+  "devDependencies": {
+    "@types/node": "18.15.11",
+    "tsup": "6.7.0"
+  },
+  "dependencies": {
+    "typescript": "5.0.4"
+  }
 }
