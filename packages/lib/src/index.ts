@@ -111,10 +111,13 @@ declare global {
 
 // Checking against other window.ai implementations
 export function hasWindowAI() {
-  return (
-    !!globalThis.window.ai?.__window_ai_metadata__ &&
-    window.ai.__window_ai_metadata__.domain === VALID_DOMAIN
-  )
+  return typeof globalThis.window.ai?.getCompletion === "function"
+
+  // Ref: https://github.com/alexanderatallah/window.ai/pull/34#discussion_r1170544209
+  // return (
+  //   !!globalThis.window.ai?.__window_ai_metadata__ &&
+  //   window.ai.__window_ai_metadata__.domain === VALID_DOMAIN
+  // )
 }
 
 const DEFAULT_WAIT_OPTIONS = {
