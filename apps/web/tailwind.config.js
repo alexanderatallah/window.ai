@@ -4,5 +4,6 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
     "./node_modules/@vercel/examples-ui/**/*.js"
-  ]
+  ],
+  plugins: [require("windy-radix-palette")]
 }

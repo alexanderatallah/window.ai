@@ -30,6 +30,8 @@
     "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.22",
     "tailwindcss": "3.3.1",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "windy-radix-palette": "0.6.0",
+    "@radix-ui/colors": "0.1.8"
   }
 }

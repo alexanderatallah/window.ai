@@ -9,7 +9,6 @@ import {
   EXTENSION_CHROME_URL,
   GITHUB_URL
 } from "../components/common"
-import Tooltip from "../components/Tooltip"
 import { Button } from "../components/Button"
 
 const windowaiExample = `
