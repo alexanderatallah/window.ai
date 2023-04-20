@@ -96,6 +96,7 @@ importers:
 
   apps/web:
     specifiers:
+      '@airthium/extract-json-from-string': 1.0.8
       '@radix-ui/colors': 0.1.8
       '@tabler/icons-react': ^2.13.2
       '@types/node': ^18.15.11
@@ -108,6 +109,7 @@ importers:
       eslint-config-custom: workspace:*
       next: latest
       postcss: ^8.4.22
+      puro: 0.8.4
       react: latest
       react-cookie: ^4.1.1
       react-dom: latest
@@ -118,12 +120,14 @@ importers:
       window.ai: workspace:*
       windy-radix-palette: 0.6.0
     dependencies:
+      '@airthium/extract-json-from-string': 1.0.8
       '@tabler/icons-react': 2.16.0_react@18.2.0
       '@types/react-syntax-highlighter': 15.5.6
       '@vercel/analytics': 0.1.11_react@18.2.0
       '@vercel/examples-ui': 1.0.5_yucv4tfv7v7nrkw2uguegj6e7e
       clsx: 1.2.1
       next: 13.3.0_biqbaboplfbrettd7655fr4n2y
+      puro: 0.8.4_react@18.2.0
       react: 18.2.0
       react-cookie: 4.1.1_react@18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -155,6 +159,10 @@ importers:
       typescript: 5.0.4
 
 packages:
+
+  /@airthium/extract-json-from-string/1.0.8:
+    resolution: {integrity: sha512-9NtSU79wi/rww7dKI5kFcBlmlE3JZ5RFlC8+4434y6PeDFFCMyZdd9JEao0fZNvteh7pmyJSWpOqL/e9aX3jrg==}
+    dev: false
 
   /@ampproject/remapping/2.2.1:
     resolution: {integrity: sha512-lFMjJTrFL3j7L9yBxwYfCq2k6qqwHyzuUl/XBnif78PWTJYyL/dfowQHWE3sp6U6ZzqWiiIZnpTMO96zhkjwtg==}
