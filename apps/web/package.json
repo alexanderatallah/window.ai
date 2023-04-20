@@ -20,7 +20,8 @@
     "react-cookie": "^4.1.1",
     "react-dom": "latest",
     "react-syntax-highlighter": "^15.5.0",
-    "react-wrap-balancer": "^0.4.0"
+    "react-wrap-balancer": "^0.4.0",
+    "puro": "0.8.4"
   },
   "devDependencies": {
     "window.ai": "workspace:*",

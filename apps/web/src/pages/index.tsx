@@ -1,6 +1,6 @@
 import { Layout, Text } from "@vercel/examples-ui"
-import { Chat } from "../components/Chat"
-import { CodeBlock } from "../components/CodeBlock"
+import { Chat } from "~components/Chat"
+import { CodeBlock } from "~components/CodeBlock"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -8,8 +8,8 @@ import {
   DISCORD_URL,
   EXTENSION_CHROME_URL,
   GITHUB_URL
-} from "../components/common"
-import { Button } from "../components/Button"
+} from "~components/common"
+import { Button } from "~components/Button"
 
 const windowaiExample = `
 // Get the active model from the window.ai API 

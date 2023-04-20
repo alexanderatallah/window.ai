@@ -1,11 +1,11 @@
-import React, { useState } from "react"
+import { useState, type ReactNode } from "react"
 
 export function Tooltip({
   children,
   content
 }: {
-  children: React.ReactNode
-  content: React.ReactNode
+  children: ReactNode
+  content: ReactNode
 }) {
   const [visible, setVisible] = useState(false)
 

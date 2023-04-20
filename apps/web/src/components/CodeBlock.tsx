@@ -1,5 +1,5 @@
 import { IconCheck, IconClipboard, IconDownload } from "@tabler/icons-react"
-import { FC, memo, useState } from "react"
+import { type FC, memo, useState } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import {
   oneDark,

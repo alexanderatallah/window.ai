@@ -1,12 +1,16 @@
 import { Layout } from "@vercel/examples-ui"
-import { InputMessage } from "../components/InputMessage"
-import { useWindowAI } from "../components/hooks/useWindowAI"
+import { InputMessage } from "~components/InputMessage"
+import { useWindowAI } from "~components/hooks/useWindowAI"
 import clsx from "clsx"
 
 const Agent = ({ name = "Agent Name", purpose = "Purpose" }) => {
   return (
     <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2">
-      <div className="flex flex-col rounded-lg bg-slate-3 ">
+      <div
+        className={clsx(
+          "flex flex-col rounded-lg transition-colors",
+          "bg-slate-3 hover:bg-slate-4"
+        )}>
         <div className="bg-slate-6 p-2 rounded-t-lg">
           <h3 className="font-bold">{name}</h3>
           <h4 className="text-xs">{purpose}</h4>
@@ -55,12 +59,23 @@ function PlaygroundPage() {
           name="Manager"
           purpose="Facilitate Primary Goal and Hiring new Agent"
         />
-
+        <Agent name="Agent 1" purpose="Pass Butter" />
         <Agent
           name="Manager"
           purpose="Facilitate Primary Goal and Hiring new Agent"
         />
-
+        <Agent
+          name="Manager"
+          purpose="Facilitate Primary Goal and Hiring new Agent"
+        />
+        <Agent
+          name="Manager"
+          purpose="Facilitate Primary Goal and Hiring new Agent"
+        />
+        <Agent
+          name="Manager"
+          purpose="Facilitate Primary Goal and Hiring new Agent"
+        />
         <Agent
           name="Manager"
           purpose="Facilitate Primary Goal and Hiring new Agent"

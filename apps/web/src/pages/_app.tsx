@@ -2,12 +2,12 @@ import type { AppProps } from "next/app"
 import { Analytics } from "@vercel/analytics/react"
 import "@vercel/examples-ui/globals.css"
 import Link from "next/link"
-import { Discord } from "../components/icons/Discord"
-import { GitHub } from "../components/icons/Github"
-import { Twitter } from "../components/icons/Twitter"
+import { Discord } from "~components/icons/Discord"
+import { GitHub } from "~components/icons/Github"
+import { Twitter } from "~components/icons/Twitter"
 
-import "../styles/globals.css"
-import { DISCORD_URL, GITHUB_URL, TWITTER_URL } from "../components/common"
+import "~styles/globals.css"
+import { DISCORD_URL, GITHUB_URL, TWITTER_URL } from "~components/common"
 
 function Layout({ children }: any) {
   return (

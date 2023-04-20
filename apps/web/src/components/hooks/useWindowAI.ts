@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import {
-  ChatMessage,
+  type ChatMessage,
   ErrorCode,
-  WindowAI,
+  type WindowAI,
   getWindowAI,
   isMessageOutput
 } from "window.ai"
@@ -15,7 +15,10 @@ export const initialMessages: ChatMessage[] = [
   }
 ]
 
-export function useWindowAI(defaultMessages = initialMessages) {
+export function useWindowAI(
+  defaultMessages = initialMessages,
+  { cacheSize = 10 } = {}
+) {
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessages)
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
@@ -51,7 +54,7 @@ export function useWindowAI(defaultMessages = initialMessages) {
 
     setMessages(newMessages)
 
-    const last10messages = newMessages.slice(-10) // remember last 10 messages
+    const messageCache = newMessages.slice(-cacheSize)
 
     const responseMsg: ChatMessage = { role: "assistant", content: "" }
     const allMsgs = [...newMessages]
@@ -62,7 +65,7 @@ export function useWindowAI(defaultMessages = initialMessages) {
     try {
       await windowAIRef.current.getCompletion(
         {
-          messages: [...last10messages]
+          messages: [...messageCache]
         },
         {
           onStreamResult: (result, error) => {

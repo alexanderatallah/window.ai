@@ -1,6 +1,6 @@
 import clsx from "clsx"
 import Balancer from "react-wrap-balancer"
-import { ChatMessage } from "window.ai"
+import { type ChatMessage } from "window.ai"
 
 // loading placeholder animation for the chat line
 export const LoadingChatLine = () => (
