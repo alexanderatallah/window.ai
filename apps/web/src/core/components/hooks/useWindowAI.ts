@@ -42,7 +42,7 @@ export function useWindowAI(
   // send message to API /api/chat endpoint
   const sendMessage = async (message: string) => {
     if (showInstallMessage || !windowAIRef.current) {
-      return
+      return null
     }
 
     setLoading(true)
@@ -80,6 +80,8 @@ export function useWindowAI(
           }
         }
       )
+      setLoading(false)
+      return responseMsg
     } catch (e) {
       console.error(e)
       if (e === ErrorCode.PermissionDenied) {
@@ -88,20 +90,19 @@ export function useWindowAI(
           p.pop()
           return [...p]
         })
-        setLoading(false)
-        return
+      } else {
+        setMessages([
+          ...messages,
+          {
+            role: "assistant",
+            content: "Sorry, I had an error. Please try again later."
+          }
+        ])
       }
 
-      setMessages([
-        ...messages,
-        {
-          role: "assistant",
-          content: "Sorry, I had an error. Please try again later."
-        }
-      ])
+      setLoading(false)
+      return null
     }
-
-    setLoading(false)
   }
 
   return {

@@ -1,7 +1,10 @@
-import { Layout } from "@vercel/examples-ui"
 import { InputMessage } from "~core/components/InputMessage"
 import { useWindowAI } from "~core/components/hooks/useWindowAI"
 import clsx from "clsx"
+import {
+  AgentManagerProvider,
+  useAgentManager
+} from "~core/providers/useAgentManager"
 
 const AgentMonitor = ({ name = "Agent Name", purpose = "Purpose" }) => {
   return (
@@ -36,8 +39,8 @@ const AgentMonitor = ({ name = "Agent Name", purpose = "Purpose" }) => {
   )
 }
 
-function PlaygroundPage() {
-  const { input, setInput, sendMessage, messages } = useWindowAI([])
+function Playground() {
+  const { managerAI } = useAgentManager()
 
   return (
     <div className="flex flex-col gap-3 p-8 min-h-screen bg-slate-1 text-slate-11">
@@ -48,9 +51,9 @@ function PlaygroundPage() {
         <InputMessage
           placeholder="Enter Primary Goal"
           buttonText="Set"
-          input={input}
-          setInput={setInput}
-          sendMessage={sendMessage}
+          input={managerAI.input}
+          setInput={managerAI.setInput}
+          sendMessage={managerAI.sendMessage}
         />
       </div>
 
@@ -64,6 +67,10 @@ function PlaygroundPage() {
   )
 }
 
-PlaygroundPage.Layout = Layout
-
-export default PlaygroundPage
+export default function PlaygroundPage() {
+  return (
+    <AgentManagerProvider>
+      <Playground />
+    </AgentManagerProvider>
+  )
+}
