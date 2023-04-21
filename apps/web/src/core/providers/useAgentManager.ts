@@ -4,9 +4,7 @@ import { useWindowAI } from "~core/components/hooks/useWindowAI"
 
 type AgentConfig = {
   id: string
-
   name: string
-
   purpose: string
 }
 
