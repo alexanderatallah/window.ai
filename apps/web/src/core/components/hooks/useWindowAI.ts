@@ -4,7 +4,8 @@ import {
   ErrorCode,
   type WindowAI,
   getWindowAI,
-  isMessageOutput
+  isMessageOutput,
+  type Output
 } from "window.ai"
 
 // default first message to display in UI (not necessary to define the prompt)
@@ -17,10 +18,9 @@ export const initialMessages: ChatMessage[] = [
 
 export function useWindowAI(
   defaultMessages = initialMessages,
-  { cacheSize = 10 } = {}
+  { cacheSize = 10, stream = false } = {}
 ) {
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessages)
-  const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [showInstallMessage, setShowInstallMessage] = useState(false)
   const [permissionDenied, setPermissionDenied] = useState(false)
@@ -63,25 +63,34 @@ export function useWindowAI(
     setPermissionDenied(false)
 
     try {
-      await windowAIRef.current.getCompletion(
-        {
-          messages: [...messageCache]
-        },
-        {
-          onStreamResult: (result, error) => {
-            if (error) {
-              throw error
-            }
+      if (stream) {
+        await windowAIRef.current.getCompletion(
+          {
+            messages: [...messageCache]
+          },
+          {
+            onStreamResult: (result, error) => {
+              if (error) {
+                throw error
+              }
 
-            if (isMessageOutput(result!)) {
-              responseMsg.content += result.message.content
-              setMessages([...allMsgs, { ...responseMsg }])
+              if (isMessageOutput(result!)) {
+                responseMsg.content += result.message.content
+                setMessages([...allMsgs, { ...responseMsg }])
+              }
             }
           }
+        )
+      } else {
+        const result = (await windowAIRef.current.getCompletion({
+          messages: [...messageCache]
+        })) as Output
+        if (isMessageOutput(result)) {
+          responseMsg.content = result.message.content
+          setMessages([...allMsgs, { ...responseMsg }])
         }
-      )
-      setLoading(false)
-      return responseMsg
+        return result
+      }
     } catch (e) {
       console.error(e)
       if (e === ErrorCode.PermissionDenied) {
@@ -99,16 +108,13 @@ export function useWindowAI(
           }
         ])
       }
-
+    } finally {
       setLoading(false)
-      return null
     }
   }
 
   return {
     messages,
-    input,
-    setInput,
     sendMessage,
     loading,
     showInstallMessage,

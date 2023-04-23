@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useCookies } from "react-cookie"
 import { Button } from "./Button"
 import { ChatLine, LoadingChatLine } from "./ChatLine"
@@ -11,11 +11,9 @@ const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 export function Chat() {
   const {
     permissionDenied,
-    input,
     loading,
     messages,
     sendMessage,
-    setInput,
     showInstallMessage
   } = useWindowAI()
 
@@ -81,11 +79,7 @@ export function Chat() {
             </div>
           </div>
         )}
-        <InputMessage
-          input={input}
-          setInput={setInput}
-          sendMessage={sendMessage}
-        />
+        <InputMessage sendMessage={sendMessage} clearInput />
       </div>
     </div>
   )
