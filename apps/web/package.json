@@ -17,6 +17,7 @@
     "@airthium/extract-json-from-string": "1.0.8",
     "clsx": "^1.2.1",
     "next": "latest",
+    "nanoid": "4.0.2",
     "react": "latest",
     "react-cookie": "^4.1.1",
     "react-dom": "latest",

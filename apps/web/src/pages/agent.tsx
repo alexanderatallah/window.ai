@@ -1,10 +1,10 @@
 import { AgentManagerProvider } from "~core/providers/useAgentManager"
-import { PlaygroundView } from "~views/PlaygroundView"
+import { AgentPlaygroundView } from "~views/AgentPlaygroundView"
 
-export default function PlaygroundPage() {
+export default function AgentPlaygroundPage() {
   return (
     <AgentManagerProvider>
-      <PlaygroundView />
+      <AgentPlaygroundView />
     </AgentManagerProvider>
   )
 }

@@ -1,3 +1,4 @@
+import clsx from "clsx"
 import { useState, type ReactNode } from "react"
 
 export function Tooltip({
@@ -24,7 +25,11 @@ export function Tooltip({
       onMouseLeave={hideTooltip}>
       {children}
       {visible && (
-        <span className="absolute z-10 left-1/2 transform -translate-x-1/2 top-full mt-2 p-3  w-52 bg-slate-900 text-slate-100 text-xs rounded-md shadow-lg">
+        <span
+          className={clsx(
+            "absolute z-10 top-full left-0",
+            "mt-2 p-3 w-52 bg-slate-9 text-slate-12 text-xs rounded-md shadow-lg"
+          )}>
           {content}
         </span>
       )}
