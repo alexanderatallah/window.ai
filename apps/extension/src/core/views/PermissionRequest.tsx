@@ -7,11 +7,11 @@ import { Dropdown } from "~core/components/pure/Dropdown"
 import { Text } from "~core/components/pure/Text"
 import type { PortResponse } from "~core/constants"
 import { PortName } from "~core/constants"
-import { configManager } from "~core/managers/config"
+import { AuthType, configManager } from "~core/managers/config"
 import { originManager } from "~core/managers/origin"
 import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
-import { useModel } from "~core/providers/model"
+import { useConfig } from "~core/providers/config"
 import { useNav } from "~core/providers/nav"
 import { ModelID } from "~public-interface"
 
@@ -61,17 +61,15 @@ export function PermissionRequest({
 
 function TransactionPermission({ transaction }: { transaction: Transaction }) {
   const { setSettingsShown } = useNav()
-  const { modelId, setModelId } = useModel()
-  const [label, setLabel] = useState("")
+  const { config, setConfig } = useConfig()
   const { object, setObject } = originManager.useObject(transaction.origin.id)
   const requestedModel = transaction.model
 
   useEffect(() => {
     async function checkConfig() {
-      const config = await configManager.getWithDefault(requestedModel)
-      setModelId(config.id)
-      setLabel(config.label)
-      if (configManager.isIncomplete(config)) {
+      const config = await configManager.forModelWithDefault(requestedModel)
+      setConfig(config)
+      if (!configManager.isCredentialed(config)) {
         setSettingsShown(true)
       }
     }
@@ -84,8 +82,8 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
         {originManager.originDisplay(transaction.origin)}
       </Text>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-        This app is requesting permission to access {label}
-        {modelId === ModelID.Local && requestedModel
+        This app is requesting permission to access {config?.label}
+        {config?.auth === AuthType.None && requestedModel
           ? ` (${requestedModel})`
           : ""}
       </p>
@@ -96,7 +94,7 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
       </Accordion>
       <Dropdown
         choices={["ask", "allow"]}
-        onSelect={async (permission) =>
+        onSelect={async (permission: "ask" | "allow") =>
           setObject({
             ...transaction.origin,
             permissions: permission

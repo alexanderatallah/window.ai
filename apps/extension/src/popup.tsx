@@ -4,7 +4,7 @@ import { NavBar } from "~core/components/NavBar"
 import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { SlidingPane } from "~core/components/pure/SlidingPane"
 import { configManager } from "~core/managers/config"
-import { ModelProvider } from "~core/providers/model"
+import { ConfigProvider } from "~core/providers/config"
 import { NavProvider, useNav } from "~core/providers/nav"
 import { Activity } from "~core/views/Activity"
 import { Apps } from "~core/views/Apps"
@@ -23,9 +23,9 @@ function Popup() {
         " text-sm font-sans"
       }>
       <NavProvider>
-        <ModelProvider>
+        <ConfigProvider>
           <NavFrame />
-        </ModelProvider>
+        </ConfigProvider>
       </NavProvider>
     </main>
   )
@@ -38,7 +38,7 @@ function NavFrame() {
   useEffect(() => {
     async function checkConfig() {
       const config = await configManager.getDefault()
-      if (configManager.isIncomplete(config)) {
+      if (!configManager.isCredentialed(config)) {
         // This logic allows us to default the settings page on for first-time users
         setSettingsShown(true)
       }

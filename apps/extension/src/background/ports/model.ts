@@ -20,12 +20,11 @@ const handler: PlasmoMessaging.PortHandler<
 
   const { id } = req.body
 
-  const currentModel = await configManager.getDefault()
+  const config = await configManager.getDefault()
 
-  // We're starting a request, so send the request to the extension UI
   res.send({
     id,
-    response: ok({ model: currentModel.id })
+    response: ok({ model: configManager.getCurrentModel(config) })
   })
 }
 

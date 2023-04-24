@@ -1,6 +1,6 @@
 import { ErrorCode } from "window.ai"
 
-import { modelCallers } from "~core/llm"
+import { modelAPICallers } from "~core/llm"
 
 import { type Config, configManager } from "./managers/config"
 import type { Transaction } from "./managers/transaction"
@@ -11,8 +11,8 @@ import { log } from "./utils/utils"
 export async function complete(
   txn: Transaction
 ): Promise<Result<string[], string>> {
-  const config = await configManager.getWithDefault(txn.model)
-  const caller = modelCallers[config.id]
+  const config = await configManager.forModelWithDefault(txn.model)
+  const caller = configManager.getCaller(config)
 
   try {
     const result = await caller.complete(txn.input, {
@@ -31,15 +31,15 @@ export async function complete(
 }
 
 export function isStreamable(config: Config): boolean {
-  return modelCallers[config.id].config.isStreamable
+  return configManager.getCaller(config).config.isStreamable
 }
 
 export async function stream(
   txn: Transaction
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const config = await configManager.getWithDefault(txn.model)
-    const caller = modelCallers[config.id]
+    const config = await configManager.forModelWithDefault(txn.model)
+    const caller = configManager.getCaller(config)
 
     if (!isStreamable(config)) {
       throw ErrorCode.InvalidRequest

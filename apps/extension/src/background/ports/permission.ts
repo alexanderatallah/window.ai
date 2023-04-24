@@ -56,10 +56,7 @@ export async function requestPermission(
   requestId: string
 ) {
   const originData = request.transaction.origin
-  const origin = await originManager.getOrInit(
-    request.transaction.origin.id,
-    originData
-  )
+  const origin = await originManager.getOrInit(originData.id, originData)
   if (origin.permissions === "allow") {
     log("Permission granted by user settings: ", origin)
     return ok(true)

@@ -33,7 +33,7 @@ const handler: PlasmoMessaging.PortHandler<
   // Save the incomplete txn
   await transactionManager.save(txn)
 
-  const config = await configManager.getWithDefault(txn.model)
+  const config = await configManager.forModelWithDefault(txn.model)
 
   if (request.shouldStream && modelRouter.isStreamable(config)) {
     const replies: string[] = []

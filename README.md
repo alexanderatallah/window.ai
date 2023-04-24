@@ -116,7 +116,7 @@ All public types, including error messages, are documented in [this file](/apps/
 Example of streaming GPT-4 results to the console:
 
 ```ts
-await ai.getCompletion(
+await window.ai.getCompletion(
   {
     messages: [{ role: "user", content: "Who are you?" }]
   },

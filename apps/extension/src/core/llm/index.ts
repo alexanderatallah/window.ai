@@ -4,6 +4,7 @@ import { init as initCohere } from "./cohere"
 import { init as initLocal } from "./local"
 import { Model } from "./model"
 import { init as initOpenAI } from "./openai"
+import { init as initOpenRouter } from "./openrouter"
 import { init as initTogether } from "./together"
 
 // TODO configure basic in-memory lru cache
@@ -22,6 +23,16 @@ export const local = initLocal(
     // TODO consider switching from axios to fetch, since fetchAdapter
     // doesn't work in Node.js side
     max_tokens: 512
+  }
+)
+
+export const openrouter = initOpenRouter(
+  {
+    debug: shouldDebugModels
+  },
+  {
+    max_tokens: DEFAULT_MAX_TOKENS,
+    presence_penalty: 0 // Using negative numbers causes 500s from davinci
   }
 )
 
@@ -57,10 +68,9 @@ export const cohere = initCohere(
   }
 )
 
-export const modelCallers: { [K in ModelID]: Model } = {
+export const modelAPICallers: { [K in ModelID]: Model } = {
   [ModelID.GPT3]: openai,
   [ModelID.GPT4]: openai,
   [ModelID.Cohere]: cohere,
-  [ModelID.Together]: together,
-  [ModelID.Local]: local
+  [ModelID.Together]: together
 }

@@ -8,50 +8,65 @@ import { Splitter } from "~core/components/pure/Splitter"
 import { Text } from "~core/components/pure/Text"
 import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
-import type { Config } from "~core/managers/config"
+import { AuthType, type Config } from "~core/managers/config"
 import { configManager } from "~core/managers/config"
-import { useModel } from "~core/providers/model"
+import { useConfig } from "~core/providers/config"
 import { ModelID } from "~public-interface"
 
-const APIKeyURL: { [K in ModelID]: string | undefined } = {
+type ConfigSetting = { auth: AuthType; model?: ModelID }
+
+const configSettings: ConfigSetting[] = [
+  { auth: AuthType.Token },
+  { auth: AuthType.APIKey, model: ModelID.GPT3 },
+  { auth: AuthType.APIKey, model: ModelID.GPT4 },
+  { auth: AuthType.APIKey, model: ModelID.Together },
+  { auth: AuthType.APIKey, model: ModelID.Cohere },
+  { auth: AuthType.None }
+]
+
+const APIKeyURL: { [K in ModelID]: string } = {
   [ModelID.GPT3]: "https://platform.openai.com/account/api-keys",
   [ModelID.GPT4]: "https://platform.openai.com/account/api-keys",
-  [ModelID.Together]: undefined,
-  [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys",
-  [ModelID.Local]: undefined
+  [ModelID.Together]: "https://api.together.xyz/",
+  [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys"
 }
 
 export function Settings() {
-  // const [loading, setLoading] = useState(false)
-  const { modelId, setModelId } = useModel()
+  const { config, setConfig } = useConfig()
   const [apiKey, setApiKey] = useState("")
   const [url, setUrl] = useState("")
-  const [config, setConfig] = useState<Config | undefined>()
-  const [defaultModel, setDefaultModel] = useState<ModelID>(modelId)
+  // const [defaultModel, setDefaultModel] = useState<ModelID | undefined>()
 
-  useEffect(() => {
-    configManager.get(modelId).then((c) => {
-      const config = c || configManager.init(modelId)
-      setConfig(config)
-    })
-  }, [modelId])
+  // useEffect(() => {
+  //   async function loadConfig() {
+  //     const c = await configManager.getOrInit(modelId)
+  //     setConfig(c)
+  //   }
+  //   loadConfig()
+  // }, [modelId])
 
-  useEffect(() => {
-    configManager.getDefault().then((c) => {
-      setDefaultModel(c.id)
-      setModelId(c.id)
-    })
-  }, [])
+  // useEffect(() => {
+  //   async function loadDefault() {
+  //     const c = await configManager.getDefault()
+  //     setDefaultModel(c.id)
+  //     setModelId(c.id)
+  //   }
+  //   loadDefault()
+  // }, [config])
 
   useEffect(() => {
     setApiKey(config?.apiKey || "")
     setUrl(config?.baseUrl || "")
   }, [config])
 
-  async function saveDefaultModel(id: ModelID) {
-    setDefaultModel(id)
-    setModelId(id)
-    await configManager.setDefault(id)
+  async function saveDefaultConfig(authType: AuthType, modelId?: ModelID) {
+    const config =
+      (await configManager.forAuthAndModel(authType, modelId)) ||
+      configManager.init(authType, modelId)
+    await configManager.save(config)
+    await configManager.setDefault(config)
+    // setDefaultModel(id)
+    setConfig(config)
   }
 
   async function saveAll() {
@@ -65,8 +80,10 @@ export function Settings() {
     })
   }
 
-  const isLocalModel = modelId === ModelID.Local
-  const isOpenAI = modelId === ModelID.GPT3 || modelId === ModelID.GPT4
+  const isLocalModel = config?.auth === AuthType.None
+  const isOpenAIAPI =
+    config?.auth === AuthType.APIKey &&
+    !!config?.models.find((m) => m === ModelID.GPT3 || m === ModelID.GPT4)
 
   return (
     <div className="flex flex-col">
@@ -85,10 +102,15 @@ export function Settings() {
           </Text>
         </div>
         <Splitter />
-        <Dropdown<ModelID>
+        <Dropdown<ConfigSetting>
           styled
-          choices={Object.values(ModelID)}
-          onSelect={saveDefaultModel}>
+          choices={configSettings}
+          getLabel={(c) => {
+            return configManager.getLabelForAuth(c.auth, c.model)
+          }}
+          onSelect={(c) => {
+            saveDefaultConfig(c.auth, c.model)
+          }}>
           {config?.label}
         </Dropdown>
       </Well>
@@ -115,11 +137,11 @@ export function Settings() {
               />
             )}
             <div className="mt-3"></div>
-            {APIKeyURL[modelId] && (
+            {config?.auth === AuthType.APIKey && (
               <Text dimming="less" size="xs">
                 {apiKey ? "Monitor your" : "Obtain an"} API key{" "}
                 <a
-                  href={APIKeyURL[modelId]}
+                  href={APIKeyURL[config.models[0]]}
                   target="_blank"
                   className="font-bold"
                   rel="noreferrer">
@@ -141,7 +163,7 @@ export function Settings() {
                 </Tooltip>
               </Text>
             )}
-            {isOpenAI && (
+            {isOpenAIAPI && (
               <Text dimming="less" size="xs">
                 Note: you must be on a{" "}
                 <a
