@@ -8,14 +8,17 @@ import { nanoid } from "nanoid"
 import { useLog } from "~features/agent/useLog"
 
 export type AgentConfig = {
-  id: string
   name: string
   purpose: string
-  prompt: string
   description: string
+
+  id?: string
+  prompt?: string
 }
 
 type AgentPool = Record<string, AgentConfig>
+
+const defaultGoal = `Build a starship that can travel to Mars.`
 
 const getCaptainSystemPrompt = (limit = 4) =>
   `You are a resourceful project manager who can break any complex problem into ${limit} subtasks, then come up with the description for an autonomous agent that could contribute usefully to each of those task.`
@@ -57,12 +60,15 @@ export const useAgentManagerProvider = () => {
 
   const captainLog = useLog()
 
-  const setGoal = async (goal: string) => {
+  const [goal, _setGoal] = useState(defaultGoal)
+
+  const setGoal = async (_goal: string) => {
+    _setGoal(_goal)
     setAgentPool({})
 
-    captainLog.add(`Goal set: "${goal}"`)
+    captainLog.add(`Goal set: "${_goal}"`)
 
-    const goalPrompt = getGoalPrompt(goal)
+    const goalPrompt = getGoalPrompt(_goal)
     const resp = await captain.sendMessage(goalPrompt)
 
     if (isMessageOutput(resp!)) {
@@ -115,6 +121,7 @@ export const useAgentManagerProvider = () => {
     removeAgent,
     captain,
     captainLog,
+    goal,
     setGoal
   }
 }

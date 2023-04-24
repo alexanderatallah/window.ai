@@ -1,4 +1,6 @@
+import { IconInfoCircle } from "@tabler/icons-react"
 import clsx from "clsx"
+import type { ReactNode } from "react"
 import Balancer from "react-wrap-balancer"
 import type { ChatMessage } from "window.ai"
 import Tooltip from "~core/components/Tooltip"
@@ -45,11 +47,12 @@ function ThinkingIndicator() {
 
 export const AgentMonitor = ({
   id = "agent-id",
-  name = "Agent Name",
-  purpose = "Purpose",
-  description = "Description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo esse suscipit, necessitatibus corrupti ducimus, labore autem saepe sint magni, iure voluptatibus deserunt voluptates corporis blanditiis obcaecati exercitationem beatae dolore porro.",
+  name = "Agent Name" as ReactNode,
+  purpose = "Purpose" as ReactNode,
+  description = "Description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo esse suscipit, necessitatibus corrupti ducimus, labore autem saepe sint magni, iure voluptatibus deserunt voluptates corporis blanditiis obcaecati exercitationem beatae dolore porro." as ReactNode,
   messages = [] as ChatMessage[],
-  isThinking = false
+  isThinking = false,
+  children = null as ReactNode
 }) => {
   return (
     <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2">
@@ -58,13 +61,24 @@ export const AgentMonitor = ({
           "flex flex-col rounded-lg transition-colors",
           "bg-slate-3 hover:bg-slate-4"
         )}>
-        <div className="bg-slate-6 p-2 rounded-t-lg">
-          <h3 className="font-bold">{name}</h3>
-          <Tooltip content={description}>
-            <h4 className="text-xs">
+        <div className="bg-slate-6 hover:bg-slate-7 p-2 rounded-t-lg gap-2 flex flex-col">
+          <div className={clsx("flex justify-between")}>
+            <h3 className="font-bold">{name}</h3>
+            {typeof description === "string" && (
+              <Tooltip content={description}>
+                <IconInfoCircle />
+              </Tooltip>
+            )}
+          </div>
+          <h4 className="text-xs">
+            {typeof purpose === "string" ? (
               <Balancer>{purpose}</Balancer>
-            </h4>
-          </Tooltip>
+            ) : (
+              purpose
+            )}
+          </h4>
+
+          {typeof description !== "string" && description}
         </div>
         <ul
           className={clsx(
@@ -76,6 +90,7 @@ export const AgentMonitor = ({
             <li key={`${id}-msg-${index}`}>{message.content}</li>
           ))}
         </ul>
+        {children}
         {isThinking && <ThinkingIndicator />}
       </div>
     </div>

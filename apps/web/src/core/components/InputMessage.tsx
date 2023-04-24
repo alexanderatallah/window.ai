@@ -1,20 +1,23 @@
 import { useCallback, useState } from "react"
 import { Button } from "./Button"
+import clsx from "clsx"
 
 type InputMessageProps = {
   sendMessage: (input: string) => void
   placeholder?: string
   buttonText?: string
   clearInput?: boolean
+  defaultInput?: string
 }
 
 export const InputMessage = ({
   sendMessage,
   placeholder = "Type a message",
   buttonText = "Say",
-  clearInput = false
+  clearInput = false,
+  defaultInput = ""
 }: InputMessageProps) => {
-  const [input, setInput] = useState("")
+  const [input, setInput] = useState(defaultInput)
 
   const submit = useCallback(() => {
     sendMessage(input)
@@ -30,7 +33,13 @@ export const InputMessage = ({
         aria-label="chat input"
         required
         placeholder={placeholder}
-        className="min-w-0 flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 sm:text-sm"
+        className={clsx(
+          "min-w-0 flex-auto appearance-none rounded-md border sm:text-sm",
+          "border-slate-7 focus:border-slate-8",
+          "bg-slate-1 placeholder:text-slate-11 text-slate-12",
+          "px-3 py-[calc(theme(spacing.2)-1px)]",
+          "shadow-md shadow-slate-1/5 focus:outline-none focus:ring-4 focus:ring-slate-7/10"
+        )}
         value={input}
         onKeyDown={(e) => {
           if (e.key === "Enter") {

@@ -1,11 +1,12 @@
 import { InputMessage } from "~core/components/InputMessage"
 import { useAgentManager } from "~core/providers/useAgentManager"
+import { AgentHiringCard } from "~features/agent/AgentHiringCard"
 import { CaptainMonitor } from "~features/agent/CaptainMonitor"
 import { CrewMonitor } from "~features/agent/CrewMonitor"
 
 // Create a screen writing mobile application with a novel UX that no one has seen before, ensure the design is great
 export function AgentPlaygroundView() {
-  const { setGoal, agentList } = useAgentManager()
+  const { goal, setGoal, agentList } = useAgentManager()
 
   return (
     <div className="flex flex-col gap-3 p-8 min-h-screen bg-slate-1 text-slate-11">
@@ -16,12 +17,14 @@ export function AgentPlaygroundView() {
         <InputMessage
           placeholder="Enter Primary Goal"
           buttonText="Set"
+          defaultInput={goal}
           sendMessage={setGoal}
         />
       </div>
 
       <div className="flex flex-wrap w-full">
         <CaptainMonitor />
+        <AgentHiringCard />
         {agentList.map((agent) => (
           <CrewMonitor key={agent.id} id={agent.id} />
         ))}

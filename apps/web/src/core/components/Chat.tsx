@@ -4,7 +4,7 @@ import { Button } from "./Button"
 import { ChatLine, LoadingChatLine } from "./ChatLine"
 import { InputMessage } from "./InputMessage"
 import { DISCORD_URL, EXTENSION_CHROME_URL } from "./common"
-import { useWindowAI } from "./hooks/useWindowAI"
+import { initialMessages, useWindowAI } from "./hooks/useWindowAI"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
@@ -15,7 +15,9 @@ export function Chat() {
     messages,
     sendMessage,
     showInstallMessage
-  } = useWindowAI()
+  } = useWindowAI(initialMessages, {
+    stream: true
+  })
 
   const [cookie, setCookie] = useCookies([COOKIE_NAME])
 
