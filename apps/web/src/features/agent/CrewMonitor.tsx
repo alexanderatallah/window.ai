@@ -1,10 +1,10 @@
 import { useMemo } from "react"
 import { useAgentManager } from "~core/providers/useAgentManager"
 import { AgentMonitor } from "~features/agent/AgentMonitor"
+import { useCrew } from "~features/agent/useCrew"
 
 export const CrewMonitor = ({ id = "" }) => {
-  const { getAgent } = useAgentManager()
-  const agent = useMemo(() => getAgent(id), [id, getAgent])
+  const { agent } = useCrew({ id })
 
   return (
     <AgentMonitor

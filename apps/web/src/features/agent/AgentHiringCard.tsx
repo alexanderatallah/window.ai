@@ -8,7 +8,7 @@ const Input: FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = (props) => (
   <textarea
     {...props}
     className={clsx(
-      "p-2",
+      "w-full p-2",
       "rounded-lg",
       "bg-slate-1 focus:bg-slate-2 border-slate-7",
       "focus:border-slate-8 focus:outline-slate-7",
@@ -17,10 +17,10 @@ const Input: FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = (props) => (
   />
 )
 
-const defaultName = "Moonbase Architect Engineer"
-const defaultPurpose = "Plan out the blueprint of a Moonbase"
+const defaultName = "Mars Base Architect Engineer"
+const defaultPurpose = "Plan out the blueprint of a Marsbase"
 const defaultDescription =
-  "A resourceful civil engineer, whose goal is to plan out each and every detail of how a base on the moon might operate in the first year. Diligent, detailed, resourceful."
+  "A resourceful civil engineer whose goal is to plan out each and every detail of how a base on Mars might operate in the first 2 years. Diligent, detailed, resourceful."
 
 export const AgentHiringCard = () => {
   const { addAgent } = useAgentManager()

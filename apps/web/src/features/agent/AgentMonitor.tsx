@@ -63,7 +63,7 @@ export const AgentMonitor = ({
         )}>
         <div className="bg-slate-6 hover:bg-slate-7 p-2 rounded-t-lg gap-2 flex flex-col">
           <div className={clsx("flex justify-between")}>
-            <h3 className="font-bold">{name}</h3>
+            <h3 className="font-bold w-full">{name}</h3>
             {typeof description === "string" && (
               <Tooltip content={description}>
                 <IconInfoCircle />

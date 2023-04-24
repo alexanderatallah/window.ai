@@ -39,6 +39,10 @@ export function useWindowAI(
     init()
   }, [])
 
+  useEffect(() => {
+    setMessages(defaultMessages)
+  }, [defaultMessages])
+
   // send message to API /api/chat endpoint
   const sendMessage = async (message: string) => {
     if (showInstallMessage || !windowAIRef.current) {

@@ -1,11 +1,19 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useWindowAI } from "~core/components/hooks/useWindowAI"
+import {
+  useAgentManager,
+  type AgentConfig
+} from "~core/providers/useAgentManager"
+import { useLog } from "~features/agent/useLog"
 
-const getSystemPrompt = () => ``
+const getSystemPrompt = (goal: string, ac: AgentConfig) =>
+  `I am ${ac.name}, ${ac.description}. My purpose is to ${ac.purpose}. I am a member of a larger project whose goal is to ${goal}.`
 
 const getObservePrompt = () => ``
 
-const getOrientPrompt = () => ``
+const getOrientPrompt = () => `
+Taking all the data gathered in the observation phase, breaking it down deductively into its constituent parts and then recombining those parts through creative synthesis to form a new model of reality that lets you make better decisions and actions.
+`
 
 const getDecidePrompt = () => ``
 
@@ -28,16 +36,22 @@ function delay(ms: number) {
 // Crew has access to the agent pool
 // Crew can propose that a new agent should be hired
 // Crew are spawn autonomously, will have a runtime, and will communicate back its result to the agentManager at each action
-export const useCrew = ({ limit = 4, interval = 4200 }) => {
+export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
+  const log = useLog()
   const [state, setState] = useState(OODAState.Idle)
+  const { goal, getAgent } = useAgentManager()
+
+  const agent = useMemo(() => getAgent(id), [id])
+
   const ai = useWindowAI([
     {
-      role: "system",
-      content: ""
+      role: "assistant",
+      content: getSystemPrompt(goal, agent)
     }
   ])
 
   async function observe() {
+    log.add("Observing:")
     setState(OODAState.Observe)
   }
 
@@ -70,7 +84,7 @@ export const useCrew = ({ limit = 4, interval = 4200 }) => {
     let loopCount = 0
 
     const loop = async () => {
-      while (isMounted && loopCount < limit) {
+      while (isMounted && loopCount < loopLimit) {
         await Promise.race([runOODALoop(), delay(interval)])
         loopCount++
       }
@@ -81,9 +95,10 @@ export const useCrew = ({ limit = 4, interval = 4200 }) => {
     return () => {
       isMounted = false
     }
-  }, [interval, limit])
+  }, [interval, loopLimit])
 
   return {
+    agent,
     state,
     runOODALoop
   }

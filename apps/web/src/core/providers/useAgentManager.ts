@@ -51,6 +51,9 @@ export const useAgentManagerProvider = () => {
   const [hiringSuggestions, setHiringSuggestions] = useState<string[]>([])
 
   const [agentPool, setAgentPool] = useState<AgentPool>({})
+
+  const agentList = useMemo(() => Object.values(agentPool), [agentPool])
+
   const captain = useWindowAI([
     {
       role: "system",
@@ -77,7 +80,10 @@ export const useAgentManagerProvider = () => {
       )?.[0] as AgentConfig[]
 
       if (newAgentList) {
-        captainLog.add(`Hiring: ${newAgentList.map((a) => a.name).join(", ")}`)
+        captainLog.add(`Recruiting:`)
+        newAgentList.forEach((agent) => {
+          captainLog.add(`- ${agent.name}`)
+        })
 
         setAgentPool(
           newAgentList.reduce((acc, agentConfig: AgentConfig) => {
@@ -112,7 +118,17 @@ export const useAgentManagerProvider = () => {
     })
   }, [])
 
-  const agentList = useMemo(() => Object.values(agentPool), [agentPool])
+  const addInsight = useCallback((insight: string) => {
+    setKeyInsights((prev) => [...prev, insight])
+  }, [])
+
+  const removeInsight = useCallback((insight: string) => {
+    setKeyInsights((prev) => prev.filter((i) => i !== insight))
+  }, [])
+
+  const suggestHire = useCallback((agentDescription: string) => {
+    setHiringSuggestions((prev) => [...prev, agentDescription])
+  }, [])
 
   return {
     agentList,
@@ -122,7 +138,12 @@ export const useAgentManagerProvider = () => {
     captain,
     captainLog,
     goal,
-    setGoal
+    setGoal,
+
+    keyInsights,
+    addInsight,
+    removeInsight,
+    suggestHire
   }
 }
 
