@@ -114,21 +114,21 @@ class ConfigManager extends BaseManager<Config> {
     return isNew
   }
 
-  async forModel(modelId: ModelID): Promise<Config | undefined> {
+  async forModel(modelId: ModelID): Promise<Config> {
     const configId = await this.modelHandlers.get(modelId)
-    if (!configId) {
-      return undefined
-    }
-    const config = await this.get(configId)
-    if (!config) {
+    if (configId) {
+      const config = await this.get(configId)
+      if (config) {
+        const defaults = this.init(config.auth, modelId)
+        return {
+          ...defaults,
+          ...config
+        }
+      }
       await this.modelHandlers.remove(modelId)
-      return undefined
     }
-    const defaults = this.init(config.auth, modelId)
-    return {
-      ...defaults,
-      ...config
-    }
+    // TODO include Token auth possibilities?
+    return this.init(AuthType.APIKey, modelId)
   }
 
   isCredentialed(config: Config): boolean {
@@ -176,10 +176,7 @@ class ConfigManager extends BaseManager<Config> {
       return this.getDefault()
     }
     if (isKnownModel(model)) {
-      const config = await this.forModel(model)
-      if (config) {
-        return config
-      }
+      return this.forModel(model)
     }
     // TEMP: Handle unknown models using localhost
     const configs = await this.filter({ auth: AuthType.None })

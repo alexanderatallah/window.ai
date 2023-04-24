@@ -70,6 +70,7 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
       const config = await configManager.forModelWithDefault(requestedModel)
       setConfig(config)
       if (!configManager.isCredentialed(config)) {
+        console.warn(config.baseUrl, config.auth, config.apiKey)
         setSettingsShown(true)
       }
     }

@@ -13,12 +13,13 @@ export async function complete(
 ): Promise<Result<string[], string>> {
   const config = await configManager.forModelWithDefault(txn.model)
   const caller = configManager.getCaller(config)
+  const model = txn.model || configManager.getCurrentModel(config)
 
   try {
     const result = await caller.complete(txn.input, {
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
-      model: txn.model || config.id,
+      model,
       max_tokens: txn.maxTokens,
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences,
@@ -40,6 +41,7 @@ export async function stream(
   try {
     const config = await configManager.forModelWithDefault(txn.model)
     const caller = configManager.getCaller(config)
+    const model = txn.model || configManager.getCurrentModel(config)
 
     if (!isStreamable(config)) {
       throw ErrorCode.InvalidRequest
@@ -53,7 +55,7 @@ export async function stream(
     const stream = await caller.stream(txn.input, {
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
-      model: txn.model || config.id,
+      model,
       max_tokens: txn.maxTokens,
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences

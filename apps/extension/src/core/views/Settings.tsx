@@ -81,6 +81,8 @@ export function Settings() {
   }
 
   const isLocalModel = config?.auth === AuthType.None
+  const needsAPIKey =
+    config?.auth === AuthType.APIKey && config.models[0] !== ModelID.Together
   const isOpenAIAPI =
     config?.auth === AuthType.APIKey &&
     !!config?.models.find((m) => m === ModelID.GPT3 || m === ModelID.GPT4)
@@ -98,7 +100,7 @@ export function Settings() {
       <Well>
         <div className="-my-3">
           <Text strength="medium" dimming="less">
-            Default model
+            Default provider
           </Text>
         </div>
         <Splitter />
@@ -137,7 +139,7 @@ export function Settings() {
               />
             )}
             <div className="mt-3"></div>
-            {config?.auth === AuthType.APIKey && (
+            {needsAPIKey && (
               <Text dimming="less" size="xs">
                 {apiKey ? "Monitor your" : "Obtain an"} API key{" "}
                 <a

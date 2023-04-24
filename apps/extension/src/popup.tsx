@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 import { NavBar } from "~core/components/NavBar"
 import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
@@ -33,22 +33,34 @@ function Popup() {
 
 function NavFrame() {
   const port = usePermissionPort()
+  const isPermissionRequest = !!port.data
   const { view, setSettingsShown, settingsShown } = useNav()
+  const timeout = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
     async function checkConfig() {
+      if (isPermissionRequest) {
+        return
+      }
       const config = await configManager.getDefault()
+      // This logic allows us to default the settings page on for first-time users
       if (!configManager.isCredentialed(config)) {
-        // This logic allows us to default the settings page on for first-time users
         setSettingsShown(true)
       }
     }
-    checkConfig()
-  }, [])
+    // HACK: wait for permission request to be set
+    if (timeout.current) {
+      clearTimeout(timeout.current)
+    }
+    timeout.current = setTimeout(checkConfig, 50)
+    return () => {
+      clearTimeout(timeout.current)
+    }
+  }, [isPermissionRequest])
 
   return (
     <div className="h-full">
-      {port?.data ? (
+      {isPermissionRequest ? (
         <PermissionRequest
           data={port.data}
           onResult={(permitted) =>
