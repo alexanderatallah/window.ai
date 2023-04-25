@@ -116,10 +116,8 @@ export function Chat() {
               throw error
             }
 
-            if (isMessageOutput(result!)) {
-              responseMsg.content += result.message.content
-              setMessages([...allMsgs, { ...responseMsg }])
-            }
+            responseMsg.content += result.message.content
+            setMessages([...allMsgs, { ...responseMsg }])
           }
         }
       )

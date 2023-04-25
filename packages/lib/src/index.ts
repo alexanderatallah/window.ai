@@ -42,10 +42,16 @@ export function isMessageOutput(output: Output): output is MessageOutput {
 }
 
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions<TModel> {
+export interface CompletionOptions<
+  TModel,
+  TInput extends Input = MessagesInput
+> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
-  onStreamResult?: (result: Output | null, error: string | null) => unknown
+  onStreamResult?: (
+    result: TInput extends MessagesInput ? MessageOutput : Output,
+    error: string | null
+  ) => unknown
   // What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
   // make the output more random, while lower values like 0.2 will make it more focused and deterministic.
   // Different models have different defaults.
@@ -93,9 +99,9 @@ export interface WindowAI<TModel = string> {
     version: string
   }
 
-  getCompletion(
-    input: Input,
-    options?: CompletionOptions<TModel>
+  getCompletion<TInput extends Input>(
+    input: TInput,
+    options?: CompletionOptions<TModel, TInput>
   ): Promise<Output | Output[]>
 
   getCurrentModel(): Promise<TModel>
