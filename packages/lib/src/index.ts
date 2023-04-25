@@ -18,7 +18,11 @@ export type MessagesInput = {
 // Input allows you to specify either a prompt string or a list of chat messages.
 export type Input = PromptInput | MessagesInput
 
-export function isMessagesInput(input: Input): input is MessagesInput {
+export function isPromptInput(input: any): input is PromptInput {
+  return "prompt" in input
+}
+
+export function isMessagesInput(input: any): input is MessagesInput {
   return "messages" in input
 }
 
@@ -41,11 +45,20 @@ export function isMessageOutput(output: Output): output is MessageOutput {
   return "message" in output
 }
 
+export type InferedOutput<TInput> = TInput extends MessagesInput
+  ? MessageOutput
+  : TInput extends PromptInput
+  ? TextOutput
+  : Output
+
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions<TModel> {
+export interface CompletionOptions<TModel, TInput extends Input = Input> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
-  onStreamResult?: (result: Output | null, error: string | null) => unknown
+  onStreamResult?: (
+    result: InferedOutput<TInput> | null,
+    error: string | null
+  ) => unknown
   // What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
   // make the output more random, while lower values like 0.2 will make it more focused and deterministic.
   // Different models have different defaults.
@@ -93,10 +106,10 @@ export interface WindowAI<TModel = string> {
     version: string
   }
 
-  getCompletion(
-    input: Input,
-    options?: CompletionOptions<TModel>
-  ): Promise<Output | Output[]>
+  getCompletion<TInput extends Input = Input>(
+    input: TInput,
+    options?: CompletionOptions<TModel, TInput>
+  ): Promise<InferedOutput<TInput>[]>
 
   getCurrentModel(): Promise<TModel>
 

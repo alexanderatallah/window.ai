@@ -78,21 +78,17 @@ export function useWindowAI(
                 throw error
               }
 
-              if (isMessageOutput(result!)) {
-                responseMsg.content += result.message.content
-                setMessages([...allMsgs, { ...responseMsg }])
-              }
+              responseMsg.content += result?.message.content
+              setMessages([...allMsgs, { ...responseMsg }])
             }
           }
         )
       } else {
-        const result = (await windowAIRef.current.getCompletion({
+        const [result] = await windowAIRef.current.getCompletion({
           messages: [...messageCache]
-        })) as Output
-        if (isMessageOutput(result)) {
-          responseMsg.content = result.message.content
-          setMessages([...allMsgs, { ...responseMsg }])
-        }
+        })
+        responseMsg.content = result.message.content
+        setMessages([...allMsgs, { ...responseMsg }])
         return result
       }
     } catch (e) {

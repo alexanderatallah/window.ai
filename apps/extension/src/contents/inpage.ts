@@ -40,21 +40,23 @@ export const windowAI: WindowAI<ModelID> = {
   async getCompletion(input, options = {}) {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
-    const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
     const requestId = _relayRequest(PortName.Completion, {
       transaction: transactionManager.init(input, _getOriginData(), options),
       shouldStream
     })
     return new Promise((resolve, reject) => {
-      _addResponseListener<CompletionResponse>(requestId, (res) => {
-        if (isOk(res)) {
-          resolve(shouldReturnMultiple ? res.data : res.data[0])
-          onStreamResult && onStreamResult(res.data[0], null)
-        } else {
-          reject(res.error)
-          onStreamResult && onStreamResult(null, res.error)
+      _addResponseListener<CompletionResponse<typeof input>>(
+        requestId,
+        (res) => {
+          if (isOk(res)) {
+            resolve(res.data)
+            onStreamResult && onStreamResult(res.data[0], null)
+          } else {
+            reject(res.error)
+            onStreamResult && onStreamResult(null, res.error)
+          }
         }
-      })
+      )
     })
   },
 
@@ -90,9 +92,9 @@ export const windowAI: WindowAI<ModelID> = {
 }
 
 // TODO better validation
-function _validateOptions(
-  options: CompletionOptions<ModelID>
-): CompletionOptions<ModelID> {
+function _validateOptions<TOptions extends CompletionOptions<ModelID>>(
+  options: TOptions
+): TOptions {
   if (
     typeof options !== "object" ||
     (options.onStreamResult && typeof options.onStreamResult !== "function")
