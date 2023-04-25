@@ -43,20 +43,42 @@ export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
 
   const agent = useMemo(() => getAgent(id), [id])
 
-  const ai = useWindowAI([
+  // The feedback are gathered at each loop across each state, which will be used to inform the observation phase
+  const [feedback, setFeedback] = useState<string[]>([])
+
+  const ai = useWindowAI(
+    [
+      {
+        role: "assistant",
+        content: getSystemPrompt(goal, agent)
+      }
+    ],
     {
-      role: "assistant",
-      content: getSystemPrompt(goal, agent)
+      cacheSize: 25
     }
-  ])
+  )
 
   async function observe() {
     log.add("Observing:")
     setState(OODAState.Observe)
+    // Implicit Guidance & Control: use goal + agent purposes
+    // Collecting internal feedback
+    // Unfolding circumstances: use what other agents have found at the current time loop
+    // Outside information: web search? news? social media? lookup?
+    // Unfolding interaction with environment: ???
+
+    // Can we skip the orient and decide phase to act right away?
+    // Has the agent achieved "Intuitive Skill"?
   }
 
   async function orient() {
     setState(OODAState.Orient)
+    // Breaking down:
+    // Analysis & Synthesis
+    // Cultural traditions
+    // Genetic heritage
+    // New infomation
+    // Previous experience
   }
 
   async function decide() {
