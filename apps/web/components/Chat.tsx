@@ -3,13 +3,7 @@ import { Button } from "./Button"
 import { ChatLine, LoadingChatLine } from "./ChatLine"
 import { useCookies } from "react-cookie"
 import { DISCORD_URL, EXTENSION_CHROME_URL } from "./common"
-import {
-  ChatMessage,
-  ErrorCode,
-  WindowAI,
-  getWindowAI,
-  isMessageOutput
-} from "window.ai"
+import { ChatMessage, ErrorCode, WindowAI, getWindowAI } from "window.ai"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
@@ -116,7 +110,7 @@ export function Chat() {
               throw error
             }
 
-            responseMsg.content += result.message.content
+            responseMsg.content += result?.message.content
             setMessages([...allMsgs, { ...responseMsg }])
           }
         }
