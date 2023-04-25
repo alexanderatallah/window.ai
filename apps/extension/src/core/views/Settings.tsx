@@ -1,15 +1,16 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { useEffect, useState } from "react"
 
+import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { Accordion } from "~core/components/pure/Accordion"
+import { Button } from "~core/components/pure/Button"
 import { Dropdown } from "~core/components/pure/Dropdown"
 import { Input } from "~core/components/pure/Input"
 import { Splitter } from "~core/components/pure/Splitter"
 import { Text } from "~core/components/pure/Text"
 import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
-import { AuthType, type Config } from "~core/managers/config"
-import { configManager } from "~core/managers/config"
+import { AuthType, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
 import { ModelID } from "~public-interface"
 
@@ -24,35 +25,16 @@ const configSettings: ConfigSetting[] = [
   { auth: AuthType.None }
 ]
 
-const APIKeyURL: { [K in ModelID]: string } = {
-  [ModelID.GPT3]: "https://platform.openai.com/account/api-keys",
-  [ModelID.GPT4]: "https://platform.openai.com/account/api-keys",
-  [ModelID.Together]: "https://api.together.xyz/",
-  [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys"
-}
-
 export function Settings() {
   const { config, setConfig } = useConfig()
+  const { data } = usePermissionPort()
   const [apiKey, setApiKey] = useState("")
   const [url, setUrl] = useState("")
-  // const [defaultModel, setDefaultModel] = useState<ModelID | undefined>()
 
-  // useEffect(() => {
-  //   async function loadConfig() {
-  //     const c = await configManager.getOrInit(modelId)
-  //     setConfig(c)
-  //   }
-  //   loadConfig()
-  // }, [modelId])
-
-  // useEffect(() => {
-  //   async function loadDefault() {
-  //     const c = await configManager.getDefault()
-  //     setDefaultModel(c.id)
-  //     setModelId(c.id)
-  //   }
-  //   loadDefault()
-  // }, [config])
+  // Only show dropdown if there is no permission request
+  // or if the permission request is for the default model
+  const showDefaultConfigDropdown =
+    !data || ("requester" in data && !data.requester.transaction.model)
 
   useEffect(() => {
     setApiKey(config?.apiKey || "")
@@ -63,9 +45,7 @@ export function Settings() {
     const config =
       (await configManager.forAuthAndModel(authType, modelId)) ||
       configManager.init(authType, modelId)
-    await configManager.save(config)
     await configManager.setDefault(config)
-    // setDefaultModel(id)
     setConfig(config)
   }
 
@@ -81,8 +61,8 @@ export function Settings() {
   }
 
   const isLocalModel = config?.auth === AuthType.None
-  const needsAPIKey =
-    config?.auth === AuthType.APIKey && config.models[0] !== ModelID.Together
+  const needsAPIKey = config?.auth === AuthType.APIKey
+  const needsToken = config?.auth === AuthType.Token
   const isOpenAIAPI =
     config?.auth === AuthType.APIKey &&
     !!config?.models.find((m) => m === ModelID.GPT3 || m === ModelID.GPT4)
@@ -97,40 +77,44 @@ export function Settings() {
           Change your model settings here.
         </Text>
       </div>
-      <Well>
-        <div className="-my-3">
-          <Text strength="medium" dimming="less">
-            Default provider
-          </Text>
-        </div>
-        <Splitter />
-        <Dropdown<ConfigSetting>
-          styled
-          choices={configSettings}
-          getLabel={(c) => {
-            return configManager.getLabelForAuth(c.auth, c.model)
-          }}
-          onSelect={(c) => {
-            saveDefaultConfig(c.auth, c.model)
-          }}>
-          {config?.label}
-        </Dropdown>
-      </Well>
+      {showDefaultConfigDropdown && (
+        <Well>
+          <div className="-my-3">
+            <Text strength="medium" dimming="less">
+              Default provider
+            </Text>
+          </div>
+          <Splitter />
+          <Dropdown<ConfigSetting>
+            styled
+            choices={configSettings}
+            getLabel={(c) => {
+              return configManager.getLabelForAuth(c.auth, c.model)
+            }}
+            onSelect={(c) => {
+              saveDefaultConfig(c.auth, c.model)
+            }}>
+            {config?.label}
+          </Dropdown>
+        </Well>
+      )}
       <div className="py-4">
         <Well>
           <div className="-my-3 flex flex-row justify-between">
             <Text strength="medium" dimming="less">
               Settings:
             </Text>
-            <Text align="right" strength="medium" dimming="more">
-              {config?.label}
-            </Text>
+            {!showDefaultConfigDropdown && (
+              <Text align="right" strength="medium" dimming="more">
+                {config?.label}
+              </Text>
+            )}
           </div>
 
           <Splitter />
 
-          <div className="">
-            {!isLocalModel && (
+          <div>
+            {needsAPIKey && (
               <Input
                 placeholder="API Key"
                 value={apiKey || ""}
@@ -138,12 +122,25 @@ export function Settings() {
                 onBlur={saveAll}
               />
             )}
+            {needsToken && (
+              <Button
+                appearance="primary"
+                wide
+                onClick={() =>
+                  window.open(
+                    configManager.getExternalConfigURL(config),
+                    "_blank"
+                  )
+                }>
+                Sign Up
+              </Button>
+            )}
             <div className="mt-3"></div>
             {needsAPIKey && (
               <Text dimming="less" size="xs">
                 {apiKey ? "Monitor your" : "Obtain an"} API key{" "}
                 <a
-                  href={APIKeyURL[config.models[0]]}
+                  href={configManager.getExternalConfigURL(config)}
                   target="_blank"
                   className="font-bold"
                   rel="noreferrer">
@@ -193,23 +190,25 @@ export function Settings() {
                 .
               </Text>
             )}
-            <Accordion title="Advanced" initiallyOpened={isLocalModel}>
-              <Input
-                placeholder="Base URL"
-                type="url"
-                name="base-url"
-                value={url || config?.baseUrl || ""}
-                onChange={(val) => setUrl(val)}
-                onBlur={saveAll}
-              />
-              <label
-                htmlFor={"base-url"}
-                className="block text-xs font-medium opacity-60 mt-2">
-                {isLocalModel
-                  ? "Use any base URL, including localhost."
-                  : "Optionally use this to set a proxy. Only change if you know what you're doing."}
-              </label>
-            </Accordion>
+            {!needsToken && (
+              <Accordion title="Advanced" initiallyOpened={isLocalModel}>
+                <Input
+                  placeholder="Base URL"
+                  type="url"
+                  name="base-url"
+                  value={url || config?.baseUrl || ""}
+                  onChange={(val) => setUrl(val)}
+                  onBlur={saveAll}
+                />
+                <label
+                  htmlFor={"base-url"}
+                  className="block text-xs font-medium opacity-60 mt-2">
+                  {isLocalModel
+                    ? "Use any base URL, including localhost."
+                    : "Optionally use this to set a proxy. Only change if you know what you're doing."}
+                </label>
+              </Accordion>
+            )}
           </div>
         </Well>
       </div>

@@ -32,8 +32,8 @@ function Popup() {
 }
 
 function NavFrame() {
-  const port = usePermissionPort()
-  const isPermissionRequest = !!port.data
+  const permissionPort = usePermissionPort()
+  const isPermissionRequest = !!permissionPort.data
   const { view, setSettingsShown, settingsShown } = useNav()
   const timeout = useRef<NodeJS.Timeout>()
 
@@ -62,11 +62,14 @@ function NavFrame() {
     <div className="h-full">
       {isPermissionRequest ? (
         <PermissionRequest
-          data={port.data}
+          data={permissionPort.data}
           onResult={(permitted) =>
-            "requesterId" in port.data &&
-            port.send({
-              request: { permitted, requesterId: port.data.requesterId }
+            "requesterId" in permissionPort.data &&
+            permissionPort.send({
+              request: {
+                permitted,
+                requesterId: permissionPort.data.requesterId
+              }
             })
           }
         />

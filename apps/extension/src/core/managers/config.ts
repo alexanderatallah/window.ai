@@ -19,7 +19,14 @@ export enum AuthType {
   APIKey = "key"
 }
 
-const defaultLabel: { [K in ModelID]: string } = {
+const APIKeyURL: { [K in ModelID]: string } = {
+  [ModelID.GPT3]: "https://platform.openai.com/account/api-keys",
+  [ModelID.GPT4]: "https://platform.openai.com/account/api-keys",
+  [ModelID.Together]: "https://api.together.xyz/",
+  [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys"
+}
+
+const defaultAPILabel: { [K in ModelID]: string } = {
   [ModelID.GPT3]: "OpenAI: GPT-3.5",
   [ModelID.GPT4]: "OpenAI: GPT-4",
   [ModelID.Together]: "Together: GPT NeoXT 20B",
@@ -91,7 +98,8 @@ class ConfigManager extends BaseManager<Config> {
           models: [modelId],
           apiKey:
             modelId === ModelID.Together
-              ? process.env.PLASMO_PUBLIC_TOGETHER_API_KEY
+              ? // TODO remove or fix this - env var not picked up
+                process.env.PLASMO_PUBLIC_TOGETHER_API_KEY
               : undefined,
           baseUrl: caller.config.defaultBaseUrl,
           label
@@ -146,6 +154,7 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   async setDefault(config: Config) {
+    await this.save(config)
     const previous = (await this.defaultConfig.get("id")) as string | undefined
     await this.defaultConfig.set("id", config.id)
     if (previous !== config.id) {
@@ -224,17 +233,37 @@ class ConfigManager extends BaseManager<Config> {
         if (!modelId) {
           throw new Error("A model ID is required for API key auth")
         }
-        return defaultLabel[modelId]
+        return defaultAPILabel[modelId]
     }
   }
 
   getCaller(config: Config) {
-    return this.getCallerForAuth(config.auth, config.models[0])
+    return this.getCallerForAuth(config.auth, this.getCurrentModel(config))
   }
 
   getCurrentModel(config: Config): ModelID | undefined {
     // TODO: support multiple models per config
+    if (config.models.length > 1) {
+      return undefined
+    }
     return config.models[0]
+  }
+
+  getExternalConfigURL(config: Config) {
+    switch (config.auth) {
+      case AuthType.None:
+        return "https://github.com/alexanderatallah/window.ai#-local-model-setup"
+      case AuthType.Token:
+        return (
+          process.env.PLASMO_PUBLIC_OPENROUTER_URI || "https://openrouter.ai"
+        )
+      case AuthType.APIKey:
+        const model = this.getCurrentModel(config)
+        if (!model) {
+          throw new Error("A model ID is required")
+        }
+        return APIKeyURL[model]
+    }
   }
 }
 
