@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid"
 import {
   type CompletionOptions,
-  type InferedOutput,
+  type InferredOutput,
   type Input,
   isMessagesInput,
   isPromptInput,
@@ -26,7 +26,7 @@ export interface Transaction<TInput = Input> {
   model?: ModelID | string
   numOutputs?: number
 
-  outputs?: InferedOutput<TInput>[]
+  outputs?: InferredOutput<TInput>[]
   error?: string
 }
 

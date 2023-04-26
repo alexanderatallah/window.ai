@@ -45,7 +45,7 @@ export function isMessageOutput(output: Output): output is MessageOutput {
   return "message" in output
 }
 
-export type InferedOutput<TInput> = TInput extends MessagesInput
+export type InferredOutput<TInput> = TInput extends MessagesInput
   ? MessageOutput
   : TInput extends PromptInput
   ? TextOutput
@@ -56,7 +56,7 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
   onStreamResult?: (
-    result: InferedOutput<TInput> | null,
+    result: InferredOutput<TInput> | null,
     error: string | null
   ) => unknown
   // What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
@@ -109,7 +109,7 @@ export interface WindowAI<TModel = string> {
   getCompletion<TInput extends Input = Input>(
     input: TInput,
     options?: CompletionOptions<TModel, TInput>
-  ): Promise<InferedOutput<TInput>[]>
+  ): Promise<InferredOutput<TInput>[]>
 
   getCurrentModel(): Promise<TModel>
 
