@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useCookies } from "react-cookie"
 import { Button } from "./Button"
 import { ChatLine, LoadingChatLine } from "./ChatLine"

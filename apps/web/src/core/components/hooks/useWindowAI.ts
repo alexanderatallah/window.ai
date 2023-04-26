@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import {
-  type ChatMessage,
   ErrorCode,
-  type WindowAI,
   getWindowAI,
-  isMessageOutput,
-  type Output
+  type ChatMessage,
+  type WindowAI
 } from "window.ai"
 
 // default first message to display in UI (not necessary to define the prompt)
@@ -38,10 +36,6 @@ export function useWindowAI(
     }
     init()
   }, [])
-
-  useEffect(() => {
-    setMessages(defaultMessages)
-  }, [defaultMessages])
 
   // send message to API /api/chat endpoint
   const sendMessage = async (message: string) => {
@@ -84,6 +78,8 @@ export function useWindowAI(
           }
         )
       } else {
+        console.log({ messageCache })
+
         const [result] = await windowAIRef.current.getCompletion({
           messages: [...messageCache]
         })

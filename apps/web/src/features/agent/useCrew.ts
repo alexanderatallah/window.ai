@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { useArray } from "~core/components/hooks/useArray"
 import { useWindowAI } from "~core/components/hooks/useWindowAI"
 import {
   useAgentManager,
@@ -7,7 +8,7 @@ import {
 import { useLog } from "~features/agent/useLog"
 
 const getSystemPrompt = (goal: string, ac: AgentConfig) =>
-  `I am ${ac.name}, ${ac.description}. My purpose is to ${ac.purpose}. I am a member of a larger project whose goal is to ${goal}.`
+  `I am ${ac.name}, ${ac.description}. My purpose is to ${ac.purpose}. I am a member of a larger project whose goal is to ${goal}. We will be utilizing the OODA loop, going through each phase one by one after each of your message which will provide me with relevant input guidance.`
 
 const getObservePrompt = () => ``
 
@@ -20,12 +21,12 @@ const getDecidePrompt = () => ``
 const getActPrompt = () => ``
 
 export enum OODAState {
-  Idle = "idle",
-  Observe = "observe",
-  Orient = "orient",
-  Decide = "decide",
-  Act = "act",
-  Blocked = "blocked"
+  Idle = "Idling",
+  Observe = "Observing",
+  Orient = "Orienting",
+  Decide = "Deciding",
+  Act = "Acting",
+  Blocked = "Blocked"
 }
 
 function delay(ms: number) {
@@ -38,13 +39,14 @@ function delay(ms: number) {
 // Crew are spawn autonomously, will have a runtime, and will communicate back its result to the agentManager at each action
 export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
   const log = useLog()
+
   const [state, setState] = useState(OODAState.Idle)
   const { goal, getAgent } = useAgentManager()
 
   const agent = useMemo(() => getAgent(id), [id])
 
   // The feedback are gathered at each loop across each state, which will be used to inform the observation phase
-  const [feedback, setFeedback] = useState<string[]>([])
+  const feedback = useArray()
 
   const ai = useWindowAI(
     [
@@ -58,9 +60,9 @@ export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
     }
   )
 
-  async function observe() {
-    log.add("Observing:")
+  const observe = async () => {
     setState(OODAState.Observe)
+    // Gather "contexts" to form an "observation"
     // Implicit Guidance & Control: use goal + agent purposes
     // Collecting internal feedback
     // Unfolding circumstances: use what other agents have found at the current time loop
@@ -69,9 +71,15 @@ export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
 
     // Can we skip the orient and decide phase to act right away?
     // Has the agent achieved "Intuitive Skill"?
+
+    const observation = await ai.sendMessage(`
+        Given the project's goal, your unique purpose, and the above contexts, what are the observation that you found based on the context above? SKIP PROMPT
+    `)
+    log.add("Observation:")
+    log.add(observation?.message.content)
   }
 
-  async function orient() {
+  const orient = async () => {
     setState(OODAState.Orient)
     // Breaking down:
     // Analysis & Synthesis
@@ -81,15 +89,15 @@ export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
     // Previous experience
   }
 
-  async function decide() {
+  const decide = async () => {
     setState(OODAState.Decide)
   }
 
-  async function act() {
+  const act = async () => {
     setState(OODAState.Act)
   }
 
-  async function cleanup() {
+  const cleanup = async () => {
     setState(OODAState.Idle)
   }
 
@@ -106,6 +114,8 @@ export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
     let loopCount = 0
 
     const loop = async () => {
+      console.log("HERE?")
+
       while (isMounted && loopCount < loopLimit) {
         await Promise.race([runOODALoop(), delay(interval)])
         loopCount++
@@ -122,6 +132,7 @@ export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
   return {
     agent,
     state,
+    log,
     runOODALoop
   }
 }

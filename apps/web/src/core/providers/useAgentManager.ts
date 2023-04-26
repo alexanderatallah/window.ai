@@ -18,7 +18,7 @@ export type AgentConfig = {
 
 type AgentPool = Record<string, AgentConfig>
 
-const defaultGoal = `Build a starship that can travel to Mars.`
+const defaultGoal = `Build a habitable base on Mars`
 
 const getCaptainSystemPrompt = (limit = 4) =>
   `You are a resourceful project manager who can break any complex problem into ${limit} subtasks, then come up with the description for an autonomous agent that could contribute usefully to each of those task.`
@@ -44,7 +44,7 @@ const getGoalPrompt = (goal: string, limit = 4) =>
 // Come up with new subtasks if all agents are idle
 
 // store insights/research/output collected from agents
-//
+// store a message queue that other agent sent to a certain agent (or the captain itself)
 export const useAgentManagerProvider = () => {
   const [keyInsights, setKeyInsights] = useState<string[]>([])
 

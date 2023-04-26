@@ -4,7 +4,10 @@ import type { ChatMessage } from "window.ai"
 export function useLog() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
 
-  const add = (content: string) => {
+  const add = (content = "") => {
+    if (!content) {
+      return
+    }
     setMessages((m) => [
       ...m,
       {

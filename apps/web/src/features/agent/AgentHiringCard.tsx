@@ -17,8 +17,8 @@ const Input: FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = (props) => (
   />
 )
 
-const defaultName = "Mars Base Architect Engineer"
-const defaultPurpose = "Plan out the blueprint of a Marsbase"
+const defaultName = "Mars Civil Engineer"
+const defaultPurpose = "Plan out the blueprint of a base on Mars"
 const defaultDescription =
   "A resourceful civil engineer whose goal is to plan out each and every detail of how a base on Mars might operate in the first 2 years. Diligent, detailed, resourceful."
 
