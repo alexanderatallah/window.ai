@@ -98,7 +98,7 @@ export interface WindowAI<TModel = string> {
     options?: CompletionOptions<TModel>
   ): Promise<Output | Output[]>
 
-  getCurrentModel(): Promise<TModel>
+  getCurrentModel(): Promise<TModel | undefined>
 
   addEventListener<T>(handler: EventListenerHandler<T>): RequestID
 }
