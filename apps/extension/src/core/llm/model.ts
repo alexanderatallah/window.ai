@@ -85,7 +85,7 @@ export class Model {
       baseUrl: this.config.defaultBaseUrl,
       model: null,
       apiKey: null,
-      timeout: 25000,
+      timeout: 42000,
       user_identifier: null,
       frequency_penalty: 0,
       presence_penalty: 0,

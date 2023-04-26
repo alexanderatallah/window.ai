@@ -74,7 +74,11 @@ export const useAgentManagerProvider = () => {
     const goalPrompt = getGoalPrompt(_goal)
     const resp = await captain.sendMessage(goalPrompt)
 
-    if (isMessageOutput(resp!)) {
+    if (!resp) {
+      return
+    }
+
+    if (isMessageOutput(resp)) {
       const newAgentList = extractJson(
         resp.message.content
       )?.[0] as AgentConfig[]

@@ -1,5 +1,5 @@
 import { AgentMonitor } from "~features/agent/AgentMonitor"
-import { useCrew } from "~features/agent/useCrew"
+import { OODAState, useCrew } from "~features/agent/useCrew"
 
 export const CrewMonitor = ({ id = "" }) => {
   const { agent, state, log } = useCrew({ id })
@@ -10,8 +10,9 @@ export const CrewMonitor = ({ id = "" }) => {
       name={agent.name}
       purpose={agent.purpose}
       description={agent.description}
-      messages={log.messages}>
-      <div className="flex flex-col items-center gap-2 mb-2 text-sm">
+      messages={log.messages}
+      isThinking={state !== OODAState.Idle && state !== OODAState.Blocked}>
+      <div className="flex flex-col items-center gap-2 m-2 text-sm">
         {state}
       </div>
     </AgentMonitor>

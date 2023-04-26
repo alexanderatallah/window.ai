@@ -87,7 +87,15 @@ export const AgentMonitor = ({
             "text-xs"
           )}>
           {messages.map((message, index) => (
-            <li key={`${id}-msg-${index}`}>{message.content}</li>
+            <li
+              key={`${id}-msg-${index}`}
+              className={clsx(
+                "whitespace-pre-wrap p-2",
+                "hover:bg-slate-5",
+                "rounded-md"
+              )}>
+              {message.content}
+            </li>
           ))}
         </ul>
         {children}

@@ -19,6 +19,7 @@ export function useWindowAI(
   { cacheSize = 10, stream = false } = {}
 ) {
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessages)
+  const [isReady, setIsReady] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showInstallMessage, setShowInstallMessage] = useState(false)
   const [permissionDenied, setPermissionDenied] = useState(false)
@@ -30,6 +31,7 @@ export function useWindowAI(
       try {
         // we can also just use the waitForWindowAI method here, and use window.ai directly down there as well
         windowAIRef.current = await getWindowAI()
+        setIsReady(true)
       } catch {
         setShowInstallMessage(true)
       }
@@ -78,11 +80,14 @@ export function useWindowAI(
           }
         )
       } else {
-        console.log({ messageCache })
-
-        const [result] = await windowAIRef.current.getCompletion({
-          messages: [...messageCache]
-        })
+        const [result] = await windowAIRef.current.getCompletion(
+          {
+            messages: [...messageCache]
+          },
+          {
+            maxTokens: 2048
+          }
+        )
         responseMsg.content = result.message.content
         setMessages([...allMsgs, { ...responseMsg }])
         return result
@@ -110,6 +115,7 @@ export function useWindowAI(
   }
 
   return {
+    isReady,
     messages,
     sendMessage,
     loading,

@@ -21,9 +21,14 @@ export function useLog() {
     setMessages((m) => m.filter((msg) => msg.content !== content))
   }
 
+  const clear = () => {
+    setMessages([])
+  }
+
   return {
     messages,
     add,
-    remove
+    remove,
+    clear
   }
 }
