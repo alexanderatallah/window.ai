@@ -74,20 +74,6 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   numOutputs?: number
 }
 
-type SingleCompletionOptions<TModel, TInput extends Input = Input> = Omit<
-  CompletionOptions<TModel, TInput>,
-  "numOutputs"
->
-
-export type InferredCompletionOutput<
-  TInput extends Input,
-  TOptions
-> = TOptions extends {
-  numOutputs: number
-}
-  ? InferedOutput<TInput>
-  : InferedOutput<TInput>[]
-
 // Error codes emitted by the extension API
 export enum ErrorCode {
   NotAuthenticated = "NOT_AUTHENTICATED",
@@ -122,10 +108,8 @@ export interface WindowAI<TModel = string> {
 
   getCompletion<TInput extends Input = Input>(
     input: TInput,
-    options?: CompletionOptions<TModel, TInput> | SingleCompletionOptions
-  ): Promise<
-    InferredCompletionOutput<TInput, CompletionOptions<TModel, TInput>>
-  >
+    options?: CompletionOptions<TModel, TInput>
+  ): Promise<InferedOutput<TInput>[]>
 
   getCurrentModel(): Promise<TModel>
 
@@ -179,5 +163,20 @@ export async function waitForWindowAI(opts = DEFAULT_WAIT_OPTIONS) {
 export const getWindowAI = async (opts = DEFAULT_WAIT_OPTIONS) => {
   // wait until the window.ai object is available
   await waitForWindowAI(opts)
+
+  // Context: https://github.com/alexanderatallah/window.ai/pull/43#discussion_r1178316153
+  const _getCompletion = globalThis.window.ai.getCompletion
+  globalThis.window.ai.getCompletion = async (input, options = {}) => {
+    if (!options || (options.numOutputs && options.numOutputs === 1)) {
+      const output = (await _getCompletion(
+        input,
+        options
+      )) as unknown as InferedOutput<typeof input>
+      return [output]
+    } else {
+      return await _getCompletion(input, options)
+    }
+  }
+
   return globalThis.window.ai
 }
