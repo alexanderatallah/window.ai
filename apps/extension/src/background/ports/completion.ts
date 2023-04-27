@@ -1,6 +1,6 @@
 import {
   ErrorCode,
-  type InferedOutput,
+  type InferredOutput,
   type Input,
   isMessagesInput
 } from "window.ai"
@@ -78,7 +78,7 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
 }
 
-function getOutput(input: Input, result: string): InferedOutput<typeof input> {
+function getOutput(input: Input, result: string): InferredOutput<typeof input> {
   return isMessagesInput(input)
     ? { message: { role: "assistant", content: result } }
     : { text: result }

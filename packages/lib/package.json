@@ -6,11 +6,11 @@
     "dist"
   ],
   "type": "module",
-  "module": "./dist/index.js",
   "publishConfig": {
     "types": "./dist/index.d.ts"
   },
   "types": "./src/index.ts",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",

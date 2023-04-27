@@ -1,4 +1,4 @@
-import type { ErrorCode, InferedOutput, Input, RequestID } from "window.ai"
+import type { ErrorCode, InferredOutput, Input, RequestID } from "window.ai"
 
 import type { EventRequest, EventResponse } from "~background/ports/events"
 import type { ModelID } from "~public-interface"
@@ -54,7 +54,7 @@ export type CompletionRequest = {
   shouldStream?: boolean
 }
 export type CompletionResponse<TInput extends Input = Input> = Result<
-  InferedOutput<TInput>[],
+  InferredOutput<TInput>[],
   ErrorCode | string
 >
 
