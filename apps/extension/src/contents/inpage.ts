@@ -1,10 +1,9 @@
 import type { PlasmoCSConfig } from "plasmo"
 import { v4 as uuidv4 } from "uuid"
 import {
-  type CompletionOptions,
   type EventListenerHandler,
   EventType,
-  type RequestID as RequestId,
+  type RequestID,
   VALID_DOMAIN,
   type WindowAI
 } from "window.ai"
@@ -40,6 +39,7 @@ export const windowAI: WindowAI<ModelID> = {
   async getCompletion(input, options = {}) {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
+    const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
     const requestId = _relayRequest(PortName.Completion, {
       transaction: transactionManager.init(input, _getOriginData(), options),
       shouldStream
@@ -49,7 +49,7 @@ export const windowAI: WindowAI<ModelID> = {
         requestId,
         (res) => {
           if (isOk(res)) {
-            resolve(res.data)
+            resolve(shouldReturnMultiple ? res.data : (res.data[0] as any))
             onStreamResult && onStreamResult(res.data[0], null)
           } else {
             reject(res.error)
@@ -92,12 +92,12 @@ export const windowAI: WindowAI<ModelID> = {
 }
 
 // TODO better validation
-function _validateOptions<TOptions extends CompletionOptions<ModelID>>(
-  options: TOptions
-): TOptions {
+function _validateOptions<TOptions>(options: TOptions): TOptions {
   if (
     typeof options !== "object" ||
-    (options.onStreamResult && typeof options.onStreamResult !== "function")
+    (!!options &&
+      "onStreamResult" in options &&
+      typeof options.onStreamResult !== "function")
   ) {
     throw new Error("Invalid options")
   }
@@ -115,8 +115,8 @@ function _getOriginData(): OriginData {
 function _relayRequest<PN extends PortName>(
   portName: PN,
   request: PortRequest[PN]["request"]
-): RequestId {
-  const requestId = uuidv4() as RequestId
+): RequestID {
+  const requestId = uuidv4() as RequestID
   const msg = {
     type: ContentMessageType.Request,
     portName,
@@ -129,10 +129,10 @@ function _relayRequest<PN extends PortName>(
 
 // TODO figure out how to reclaim memory
 // `null` means all listen for all requests
-const _responseListeners = new Map<RequestId | null, Set<(data: any) => void>>()
+const _responseListeners = new Map<RequestID | null, Set<(data: any) => void>>()
 
 function _addResponseListener<T extends Result<any, string>>(
-  requestId: RequestId | null,
+  requestId: RequestID | null,
   handler: (data: T) => void
 ) {
   const handlerSet =
@@ -152,7 +152,7 @@ window.addEventListener(
     }
 
     if (data.type === ContentMessageType.Response) {
-      const msg = data as { id: RequestId; response: unknown }
+      const msg = data as { id: RequestID; response: unknown }
 
       const handlers = new Set([
         ...(_responseListeners.get(msg.id) || []),

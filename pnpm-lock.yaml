@@ -57,7 +57,10 @@ importers:
       autoprefixer: ^10.4.14
       axios: ^1.3.4
       axios-retry: ^3.4.0
+<<<<<<< HEAD
       eslint-config-custom: workspace:*
+=======
+>>>>>>> type-infer
       object-hash: ^3.0.0
       plasmo: 0.68.3
       postcss: ^8.4.22
@@ -95,7 +98,10 @@ importers:
       '@types/react-dom': 18.0.11
       '@types/uuid': 9.0.1
       autoprefixer: 10.4.14_postcss@8.4.22
+<<<<<<< HEAD
       eslint-config-custom: link:../../packages/eslint-config-custom
+=======
+>>>>>>> type-infer
       postcss: 8.4.22
       prettier: 2.8.7
       tailwindcss: 3.3.1_postcss@8.4.22
@@ -104,8 +110,11 @@ importers:
 
   apps/web:
     specifiers:
+<<<<<<< HEAD
       '@airthium/extract-json-from-string': 1.0.8
       '@radix-ui/colors': 0.1.8
+=======
+>>>>>>> type-infer
       '@tabler/icons-react': ^2.13.2
       '@types/node': ^18.15.11
       '@types/react': ^18.0.35
@@ -114,6 +123,7 @@ importers:
       '@vercel/examples-ui': ^1.0.5
       autoprefixer: ^10.4.14
       clsx: ^1.2.1
+<<<<<<< HEAD
       nanoid: 4.0.2
       next: 13.2.4
       postcss: ^8.4.22
@@ -121,29 +131,47 @@ importers:
       react: 18.2.0
       react-cookie: ^4.1.1
       react-dom: 18.2.0
+=======
+      next: 13.2.4
+      postcss: ^8.4.22
+      react: latest
+      react-cookie: ^4.1.1
+      react-dom: latest
+>>>>>>> type-infer
       react-syntax-highlighter: ^15.5.0
       react-wrap-balancer: ^0.4.0
       tailwindcss: 3.3.1
       typescript: 5.0.4
       window.ai: workspace:*
+<<<<<<< HEAD
       windy-radix-palette: 0.6.0
     dependencies:
       '@airthium/extract-json-from-string': 1.0.8
+=======
+    dependencies:
+>>>>>>> type-infer
       '@tabler/icons-react': 2.16.0_react@18.2.0
       '@types/react-syntax-highlighter': 15.5.6
       '@vercel/analytics': 0.1.11_react@18.2.0
       '@vercel/examples-ui': 1.0.5_ld2jel3hspngo3u5lti2kgl2sq
       clsx: 1.2.1
+<<<<<<< HEAD
       nanoid: 4.0.2
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
       puro: 0.8.4_react@18.2.0
+=======
+      next: 13.2.4_biqbaboplfbrettd7655fr4n2y
+>>>>>>> type-infer
       react: 18.2.0
       react-cookie: 4.1.1_react@18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-syntax-highlighter: 15.5.0_react@18.2.0
       react-wrap-balancer: 0.4.0_react@18.2.0
     devDependencies:
+<<<<<<< HEAD
       '@radix-ui/colors': 0.1.8
+=======
+>>>>>>> type-infer
       '@types/node': 18.15.11
       '@types/react': 18.0.35
       autoprefixer: 10.4.14_postcss@8.4.22
@@ -151,7 +179,10 @@ importers:
       tailwindcss: 3.3.1_postcss@8.4.22
       typescript: 5.0.4
       window.ai: link:../../packages/lib
+<<<<<<< HEAD
       windy-radix-palette: 0.6.0_h2ocy3isf4stypaujvfwd5nyui
+=======
+>>>>>>> type-infer
 
   packages/eslint-config-custom:
     specifiers: {}
@@ -168,10 +199,13 @@ importers:
 
 packages:
 
+<<<<<<< HEAD
   /@airthium/extract-json-from-string/1.0.8:
     resolution: {integrity: sha512-9NtSU79wi/rww7dKI5kFcBlmlE3JZ5RFlC8+4434y6PeDFFCMyZdd9JEao0fZNvteh7pmyJSWpOqL/e9aX3jrg==}
     dev: false
 
+=======
+>>>>>>> type-infer
   /@ampproject/remapping/2.2.1:
     resolution: {integrity: sha512-lFMjJTrFL3j7L9yBxwYfCq2k6qqwHyzuUl/XBnif78PWTJYyL/dfowQHWE3sp6U6ZzqWiiIZnpTMO96zhkjwtg==}
     engines: {node: '>=6.0.0'}
@@ -2646,10 +2680,13 @@ packages:
       config-chain: 1.1.13
     dev: false
 
+<<<<<<< HEAD
   /@radix-ui/colors/0.1.8:
     resolution: {integrity: sha512-jwRMXYwC0hUo0mv6wGpuw254Pd9p/R6Td5xsRpOmaWkUHlooNWqVcadgyzlRumMq3xfOTXwJReU0Jv+EIy4Jbw==}
     dev: true
 
+=======
+>>>>>>> type-infer
   /@rushstack/eslint-patch/1.2.0:
     resolution: {integrity: sha512-sXo/qW2/pAcmT43VoRKOJbDOfV3cYpq3szSVfIThQXNt+E4DfKj361vaAt3c88U5tPUxzEswam7GW48PJqtKAg==}
     dev: false
@@ -6320,12 +6357,15 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+<<<<<<< HEAD
   /nanoid/4.0.2:
     resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
     engines: {node: ^14 || ^16 || >=18}
     hasBin: true
     dev: false
 
+=======
+>>>>>>> type-infer
   /napi-build-utils/1.0.2:
     resolution: {integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==}
     dev: false
@@ -8519,6 +8559,7 @@ packages:
     dependencies:
       isexe: 2.0.0
 
+<<<<<<< HEAD
   /windy-radix-palette/0.6.0_h2ocy3isf4stypaujvfwd5nyui:
     resolution: {integrity: sha512-tXVX+HS94wmLjJwuXgDynyN8OSE7AsIRegDRms/6Jkmv+xTnko23TjNEpuveBah0FOZvtzpVhEMTSnj3jro5KA==}
     peerDependencies:
@@ -8529,6 +8570,8 @@ packages:
       tailwindcss: 3.3.1_postcss@8.4.22
     dev: true
 
+=======
+>>>>>>> type-infer
   /word-wrap/1.2.3:
     resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}
     engines: {node: '>=0.10.0'}

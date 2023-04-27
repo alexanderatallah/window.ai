@@ -18,11 +18,11 @@ export type MessagesInput = {
 // Input allows you to specify either a prompt string or a list of chat messages.
 export type Input = PromptInput | MessagesInput
 
-export function isPromptInput(input: any): input is PromptInput {
+export function isPromptInput(input: Input): input is PromptInput {
   return "prompt" in input
 }
 
-export function isMessagesInput(input: any): input is MessagesInput {
+export function isMessagesInput(input: Input): input is MessagesInput {
   return "messages" in input
 }
 
@@ -63,8 +63,6 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   // make the output more random, while lower values like 0.2 will make it more focused and deterministic.
   // Different models have different defaults.
   temperature?: number
-  // How many completion choices to generate. Defaults to 1.
-  numOutputs?: number
   // The maximum number of tokens to generate in the chat completion. Defaults to infinity, but the
   // total length of input tokens and generated tokens is limited by the model's context length.
   maxTokens?: number
@@ -72,6 +70,8 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: TModel
+  // How many completion choices to generate. Defaults to 1.
+  numOutputs?: number
 }
 
 // Error codes emitted by the extension API
@@ -109,7 +109,11 @@ export interface WindowAI<TModel = string> {
   getCompletion<TInput extends Input = Input>(
     input: TInput,
     options?: CompletionOptions<TModel, TInput>
-  ): Promise<InferredOutput<TInput>[]>
+  ): Promise<
+    "numOutputs" extends keyof typeof options
+      ? InferredOutput<TInput>[]
+      : InferredOutput<TInput>
+  >
 
   getCurrentModel(): Promise<TModel>
 

@@ -80,7 +80,7 @@ export function useWindowAI(
           }
         )
       } else {
-        const [result] = await windowAIRef.current.getCompletion(
+        const result = await windowAIRef.current.getCompletion(
           {
             messages: [...messageCache]
           },
