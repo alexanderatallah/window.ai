@@ -99,6 +99,10 @@ export function Chat() {
     setMessages([...allMsgs, { ...responseMsg }])
     setPermissionDenied(false)
 
+    const { text } = await windowAIRef.current.getCompletion({
+      messages: [...last10messages]
+    })
+
     try {
       await windowAIRef.current.getCompletion(
         {

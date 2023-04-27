@@ -104,7 +104,7 @@ class TransactionManager extends BaseManager<Transaction> {
     }
   }
 
-  _validateInput(input: any): void {
+  _validateInput(input: Input): void {
     if (
       typeof input !== "object" ||
       (!isPromptInput(input) && !isMessagesInput(input))

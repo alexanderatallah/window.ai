@@ -1,4 +1,10 @@
-import type { ErrorCode, InferedOutput, Input, RequestID } from "window.ai"
+import type {
+  ErrorCode,
+  InferedOutput,
+  InferredCompletionOutput,
+  Input,
+  RequestID
+} from "window.ai"
 
 import type { EventRequest, EventResponse } from "~background/ports/events"
 import type { ModelID } from "~public-interface"
@@ -53,10 +59,10 @@ export type CompletionRequest = {
   transaction: Transaction
   shouldStream?: boolean
 }
-export type CompletionResponse<TInput extends Input = Input> = Result<
-  InferedOutput<TInput>[],
-  ErrorCode | string
->
+export type CompletionResponse<
+  TInput extends Input = Input,
+  TOptions = any
+> = Result<InferredCompletionOutput<TInput, TOptions>, ErrorCode | string>
 
 export type ModelRequest = {}
 export type ModelResponse = Result<{ model: ModelID }, ErrorCode>
