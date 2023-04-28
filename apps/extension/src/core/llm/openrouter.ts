@@ -14,6 +14,7 @@ export function init(
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
 ): Model {
+  // Configurable to localhost in extension UI
   const host =
     process.env.PLASMO_PUBLIC_OPENROUTER_URI || "https://openrouter.ai"
   return new Model(

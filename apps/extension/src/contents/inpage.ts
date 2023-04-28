@@ -59,7 +59,7 @@ export const windowAI: WindowAI<ModelID> = {
   },
 
   async getCurrentModel() {
-    const requestId = _relayRequest(PortName.Model, {})
+    const requestId = _relayRequest(PortName.Model, undefined)
     return new Promise((resolve, reject) => {
       _addResponseListener<ModelResponse>(requestId, (res) => {
         if (isOk(res)) {
@@ -86,6 +86,22 @@ export const windowAI: WindowAI<ModelID> = {
       }
     })
     return requestId
+  },
+
+  BETA_updateModelProvider({ token, shouldSetDefault }) {
+    const requestId = _relayRequest(PortName.Model, {
+      token,
+      shouldSetDefault
+    })
+    return new Promise((resolve, reject) => {
+      _addResponseListener<ModelResponse>(requestId, (res) => {
+        if (isOk(res)) {
+          resolve(res.data.model)
+        } else {
+          reject(res.error)
+        }
+      })
+    })
   }
 }
 

@@ -10,8 +10,9 @@ import { Splitter } from "~core/components/pure/Splitter"
 import { Text } from "~core/components/pure/Text"
 import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
-import { AuthType, configManager } from "~core/managers/config"
+import { AuthType, type Config, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
+import { decodeJWTPayload } from "~core/utils/utils"
 import { ModelID } from "~public-interface"
 
 type ConfigSetting = { auth: AuthType; model?: ModelID }
@@ -22,7 +23,7 @@ const configSettings: ConfigSetting[] = [
   { auth: AuthType.APIKey, model: ModelID.GPT4 },
   { auth: AuthType.APIKey, model: ModelID.Together },
   { auth: AuthType.APIKey, model: ModelID.Cohere },
-  { auth: AuthType.None }
+  { auth: AuthType.APIKey } // Local model
 ]
 
 export function Settings() {
@@ -60,8 +61,10 @@ export function Settings() {
     })
   }
 
-  const isLocalModel = config?.auth === AuthType.None
+  const isLocalModel =
+    config?.auth === AuthType.APIKey && config?.models.length === 0
   const needsAPIKey = config?.auth === AuthType.APIKey
+  const asksForAPIKey = needsAPIKey || isLocalModel // Some local models need keys, e.g. https://github.com/keldenl/gpt-llama.cpp
   const needsToken = config?.auth === AuthType.Token
   const isOpenAIAPI =
     config?.auth === AuthType.APIKey &&
@@ -114,7 +117,7 @@ export function Settings() {
           <Splitter />
 
           <div>
-            {needsAPIKey && (
+            {asksForAPIKey && (
               <Input
                 placeholder="API Key"
                 value={apiKey || ""}
@@ -122,19 +125,7 @@ export function Settings() {
                 onBlur={saveAll}
               />
             )}
-            {needsToken && (
-              <Button
-                appearance="primary"
-                wide
-                onClick={() =>
-                  window.open(
-                    configManager.getExternalConfigURL(config),
-                    "_blank"
-                  )
-                }>
-                Sign Up
-              </Button>
-            )}
+            {needsToken && <TokenSettings config={config} />}
             <div className="mt-3"></div>
             {needsAPIKey && (
               <Text dimming="less" size="xs">
@@ -190,28 +181,73 @@ export function Settings() {
                 .
               </Text>
             )}
-            {!needsToken && (
-              <Accordion title="Advanced" initiallyOpened={isLocalModel}>
-                <Input
-                  placeholder="Base URL"
-                  type="url"
-                  name="base-url"
-                  value={url || config?.baseUrl || ""}
-                  onChange={(val) => setUrl(val)}
-                  onBlur={saveAll}
-                />
-                <label
-                  htmlFor={"base-url"}
-                  className="block text-xs font-medium opacity-60 mt-2">
-                  {isLocalModel
-                    ? "Use any base URL, including localhost."
-                    : "Optionally use this to set a proxy. Only change if you know what you're doing."}
-                </label>
-              </Accordion>
-            )}
+            <Accordion title="Advanced" initiallyOpened={isLocalModel}>
+              <Input
+                placeholder="Base URL"
+                type="url"
+                name="base-url"
+                value={url || config?.baseUrl || ""}
+                onChange={(val) => setUrl(val)}
+                onBlur={saveAll}
+              />
+              <label
+                htmlFor={"base-url"}
+                className="block text-xs font-medium opacity-60 mt-2">
+                {isLocalModel
+                  ? "Use any base URL, including localhost."
+                  : "Optionally use this to set a proxy. Only change if you know what you're doing."}
+              </label>
+            </Accordion>
           </div>
         </Well>
       </div>
+    </div>
+  )
+}
+
+function TokenSettings({ config }: { config: Config }) {
+  return (
+    <div>
+      {config.token ? (
+        <div className="flex flex-col justify-between">
+          <table className="table-fixed mt-2">
+            <tbody>
+              {Object.entries(decodeJWTPayload(config.token))
+                .filter(([k]) => ["email", "exp"].includes(k))
+                .map(([k, v]) => (
+                  <tr key={k}>
+                    <td className="text-xs opacity-30">{k}</td>
+                    <td className="text-xs opacity-60">
+                      {typeof v === "string"
+                        ? v
+                        : typeof v === "number"
+                        ? new Date(v * 1000).toLocaleString()
+                        : JSON.stringify(v)}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+          <div className="mt-6"></div>
+          <Button
+            appearance="secondary"
+            wide
+            onClick={() =>
+              window.open(configManager.getExternalConfigURL(config), "_blank")
+            }>
+            Manage
+          </Button>
+        </div>
+      ) : (
+        <Button
+          appearance="primary"
+          wide
+          onClick={() =>
+            window.open(configManager.getExternalConfigURL(config), "_blank")
+          }>
+          Sign Up
+        </Button>
+      )}
     </div>
   )
 }

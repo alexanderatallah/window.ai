@@ -18,6 +18,7 @@ export async function complete(
   try {
     const result = await caller.complete(txn.input, {
       apiKey: config.apiKey,
+      authToken: config.token,
       baseUrl: config.baseUrl,
       model,
       max_tokens: txn.maxTokens,
@@ -54,6 +55,7 @@ export async function stream(
 
     const stream = await caller.stream(txn.input, {
       apiKey: config.apiKey,
+      authToken: config.token,
       baseUrl: config.baseUrl,
       model,
       max_tokens: txn.maxTokens,

@@ -34,6 +34,7 @@ export interface ModelConfig {
 export interface RequestOptions {
   baseUrl?: string
   apiKey?: string | null
+  authToken?: string | null
   model?: string | null
   frequency_penalty?: number
   presence_penalty?: number
@@ -57,7 +58,7 @@ export interface RequestPrompt
 
 export type RequestData = Omit<
   Required<RequestOptions>,
-  "user_identifier" | "timeout" | "apiKey" | "adapter" // These do not affect output of the model
+  "user_identifier" | "timeout" | "apiKey" | "authToken" | "adapter" // These do not affect output of the model
 > &
   Pick<Required<ModelConfig>, "modelProvider"> & // To distinguish btw providers with same-name models
   RequestPrompt
@@ -85,6 +86,7 @@ export class Model {
       baseUrl: this.config.defaultBaseUrl,
       model: null,
       apiKey: null,
+      authToken: null,
       timeout: 25000,
       user_identifier: null,
       frequency_penalty: 0,
@@ -184,8 +186,7 @@ export class Model {
       getPath,
       cacheGet,
       cacheSet,
-      transformResponse,
-      authPrefix
+      transformResponse
     } = this.config
     const opts: Required<RequestOptions> = {
       ...this.defaultOptions,
@@ -211,9 +212,7 @@ export class Model {
       const response = await this.api.post(getPath(request), payload, {
         baseURL: opts.baseUrl,
         timeout: opts.timeout,
-        headers: {
-          Authorization: `${authPrefix}${opts.apiKey || ""}`
-        }
+        headers: this._getRequestHeaders(opts)
       })
       responseData = response.data
     } catch (err: unknown) {
@@ -251,8 +250,7 @@ export class Model {
       ...definedValues(requestOpts),
       stream: true
     }
-    const { transformResponse, transformForRequest, authPrefix, getPath } =
-      this.config
+    const { transformResponse, transformForRequest, getPath } = this.config
     const request = this.getRequestIdentifierData(requestPrompt, opts)
     const id = objectHash(request)
     const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
@@ -273,9 +271,7 @@ export class Model {
         {
           timeout: opts.timeout,
           responseType: "stream",
-          headers: {
-            Authorization: `${authPrefix}${opts.apiKey || ""}`
-          }
+          headers: this._getRequestHeaders(opts)
         }
       )
 
@@ -297,6 +293,13 @@ export class Model {
       throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
     }
     return stream
+  }
+
+  protected _getRequestHeaders(opts: Required<RequestOptions>) {
+    const { authPrefix } = this.config
+    return {
+      Authorization: `${authPrefix}${opts.apiKey || opts.authToken || ""}`
+    }
   }
 
   private _executeTransform(

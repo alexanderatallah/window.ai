@@ -85,22 +85,54 @@ export type EventListenerHandler<T> = (
   data: T | ErrorCode
 ) => void
 
+export type ModelProviderOptions = {
+  token: string
+  shouldSetDefault?: boolean
+}
+
 export const VALID_DOMAIN = "https://windowai.io" as const
 
 export interface WindowAI<TModel = string> {
+  /**
+   * Metadata containing the domain and version of the extension API
+   */
   __window_ai_metadata__: {
     domain: typeof VALID_DOMAIN
     version: string
   }
 
+  /** Get or stream a completion from the specified (or preferred) model.
+   * @param input The input to use for the completion.
+   * @param options Options for the completion request.
+   * @returns A promise that resolves to the completion result, or an array of completion results if numOutputs > 1.
+   */
   getCompletion(
     input: Input,
     options?: CompletionOptions<TModel>
   ): Promise<Output | Output[]>
 
+  /** Get the user's current model.
+   * @returns A promise that resolves to the user's current model, or
+   *          undefined if not available.
+   */
   getCurrentModel(): Promise<TModel | undefined>
 
+  /**
+   * Add an event listener for all event types.
+   * @param handler The handler to call when any event is emitted.
+   * @returns A request ID that can be used to remove the event listener.
+   */
   addEventListener<T>(handler: EventListenerHandler<T>): RequestID
+
+  /**
+   * Authenticate or update a model provider
+   * @param options The options for the model provider.
+   * @returns A promise that resolves to the user's current model, or
+   *          undefined if not available.
+   */
+  BETA_updateModelProvider(
+    options: ModelProviderOptions
+  ): Promise<TModel | undefined>
 }
 
 declare global {

@@ -11,8 +11,6 @@ import { ModelID, isKnownModel } from "~public-interface"
 import { BaseManager } from "./base"
 
 export enum AuthType {
-  // No internet or auth required - e.g. use localhost
-  None = "none",
   // Use JWT auth to access a remote model router
   Token = "token",
   // Use an API key
@@ -72,14 +70,6 @@ class ConfigManager extends BaseManager<Config> {
     const caller = this.getCallerForAuth(auth, modelId)
     const label = this.getLabelForAuth(auth, modelId)
     switch (auth) {
-      case AuthType.None:
-        return {
-          id,
-          auth,
-          label,
-          models: [],
-          baseUrl: caller.config.defaultBaseUrl
-        }
       case AuthType.Token:
         return {
           id,
@@ -89,18 +79,10 @@ class ConfigManager extends BaseManager<Config> {
           baseUrl: caller.config.defaultBaseUrl
         }
       case AuthType.APIKey:
-        if (!modelId) {
-          throw new Error("A model ID is required for API key auth")
-        }
         return {
           id,
           auth,
-          models: [modelId],
-          apiKey:
-            modelId === ModelID.Together
-              ? // TODO remove or fix this - env var not picked up
-                process.env.PLASMO_PUBLIC_TOGETHER_API_KEY
-              : undefined,
+          models: modelId ? [modelId] : [],
           baseUrl: caller.config.defaultBaseUrl,
           label
         }
@@ -144,12 +126,10 @@ class ConfigManager extends BaseManager<Config> {
       return false
     }
     switch (config.auth) {
-      case AuthType.None:
-        return true
       case AuthType.Token:
         return !!config.token
       case AuthType.APIKey:
-        return !!config.apiKey
+        return config.models.length ? !!config.apiKey : true
     }
   }
 
@@ -187,18 +167,35 @@ class ConfigManager extends BaseManager<Config> {
     if (isKnownModel(model)) {
       return this.forModel(model)
     }
-    // TEMP: Handle unknown models using localhost
-    const configs = await this.filter({ auth: AuthType.None })
+    // TEMP: Handle unknown models using one custom model
+    const configs = await this.filter({
+      auth: AuthType.APIKey,
+      model: null
+    })
     if (configs.length > 0) {
       return configs[0]
     }
-    return this.init(AuthType.None)
+    return this.init(AuthType.APIKey)
   }
 
-  async filter({ auth }: { auth: AuthType }): Promise<Config[]> {
-    const ids = await this.getIds(20, 0, authIndexName, auth)
+  // Filtering for `null` looks for configs that don't have any models
+  async filter({
+    auth,
+    model
+  }: {
+    auth: AuthType
+    model?: ModelID | null
+  }): Promise<Config[]> {
+    const ids = await this.getIds(100, 0, authIndexName, auth)
     const maybeConfigs = await Promise.all(ids.map((id) => this.get(id)))
-    return maybeConfigs.filter((c) => c !== undefined) as Config[]
+    const configs = maybeConfigs.filter((c) => c !== undefined) as Config[]
+    return configs.filter((c) =>
+      model === null
+        ? c.models.length === 0
+        : model
+        ? c.models.includes(model)
+        : true
+    )
   }
 
   async forAuthAndModel(auth: AuthType, modelId?: ModelID) {
@@ -211,29 +208,19 @@ class ConfigManager extends BaseManager<Config> {
 
   getCallerForAuth(auth: AuthType, modelId?: ModelID) {
     switch (auth) {
-      case AuthType.None:
-        return local
       case AuthType.Token:
         return openrouter
       case AuthType.APIKey:
-        if (!modelId) {
-          throw new Error("A model ID is required for API key auth")
-        }
-        return modelAPICallers[modelId]
+        return modelId ? modelAPICallers[modelId] : local
     }
   }
 
   getLabelForAuth(auth: AuthType, modelId?: ModelID) {
     switch (auth) {
-      case AuthType.None:
-        return "Local"
       case AuthType.Token:
         return "OpenRouter"
       case AuthType.APIKey:
-        if (!modelId) {
-          throw new Error("A model ID is required for API key auth")
-        }
-        return defaultAPILabel[modelId]
+        return modelId ? defaultAPILabel[modelId] : "Local"
     }
   }
 
@@ -251,16 +238,16 @@ class ConfigManager extends BaseManager<Config> {
 
   getExternalConfigURL(config: Config) {
     switch (config.auth) {
-      case AuthType.None:
-        return "https://github.com/alexanderatallah/window.ai#-local-model-setup"
       case AuthType.Token:
         return (
-          process.env.PLASMO_PUBLIC_OPENROUTER_URI || "https://openrouter.ai"
+          (process.env.PLASMO_PUBLIC_OPENROUTER_URI ||
+            "https://openrouter.ai") + "/signin"
         )
       case AuthType.APIKey:
         const model = this.getCurrentModel(config)
         if (!model) {
-          throw new Error("A model ID is required")
+          // Assume local model
+          return "https://github.com/alexanderatallah/window.ai#-local-model-setup"
         }
         return APIKeyURL[model]
     }

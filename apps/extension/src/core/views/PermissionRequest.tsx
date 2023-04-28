@@ -13,7 +13,7 @@ import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
 import { useConfig } from "~core/providers/config"
 import { useNav } from "~core/providers/nav"
-import { ModelID } from "~public-interface"
+import { ModelID, isKnownModel } from "~public-interface"
 
 export function PermissionRequest({
   data,
@@ -83,7 +83,7 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
       </Text>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
         This app is requesting permission to access {config?.label}
-        {config?.auth === AuthType.None && requestedModel
+        {requestedModel && !isKnownModel(requestedModel)
           ? ` (${requestedModel})`
           : ""}
       </p>

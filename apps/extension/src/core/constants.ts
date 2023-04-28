@@ -1,4 +1,9 @@
-import type { ErrorCode, Output, RequestID } from "window.ai"
+import type {
+  ErrorCode,
+  ModelProviderOptions,
+  Output,
+  RequestID
+} from "window.ai"
 
 import type { EventRequest, EventResponse } from "~background/ports/events"
 import type { ModelID } from "~public-interface"
@@ -19,7 +24,7 @@ export interface PortRequest {
     id?: RequestID
     request: { requesterId: RequestID; permitted?: boolean }
   }
-  [PortName.Model]: { id: RequestID; request: ModelRequest }
+  [PortName.Model]: { id: RequestID; request?: ModelRequest }
   [PortName.Events]: { id?: RequestID; request: EventRequest<unknown> }
 }
 
@@ -55,7 +60,7 @@ export type CompletionRequest = {
 }
 export type CompletionResponse = Result<Output[], ErrorCode | string>
 
-export type ModelRequest = {}
+export type ModelRequest = ModelProviderOptions
 export type ModelResponse = Result<{ model: ModelID | undefined }, ErrorCode>
 
 export type { EventRequest, EventResponse }
