@@ -34,7 +34,6 @@ export interface ModelConfig {
 export interface RequestOptions {
   baseUrl?: string
   apiKey?: string | null
-  authToken?: string | null
   model?: string | null
   frequency_penalty?: number
   presence_penalty?: number
@@ -58,7 +57,7 @@ export interface RequestPrompt
 
 export type RequestData = Omit<
   Required<RequestOptions>,
-  "user_identifier" | "timeout" | "apiKey" | "authToken" | "adapter" // These do not affect output of the model
+  "user_identifier" | "timeout" | "apiKey" | "adapter" // These do not affect output of the model
 > &
   Pick<Required<ModelConfig>, "modelProvider"> & // To distinguish btw providers with same-name models
   RequestPrompt
@@ -86,7 +85,6 @@ export class Model {
       baseUrl: this.config.defaultBaseUrl,
       model: null,
       apiKey: null,
-      authToken: null,
       timeout: 25000,
       user_identifier: null,
       frequency_penalty: 0,
@@ -263,7 +261,6 @@ export class Model {
       stream: payload["stream"]
     })
 
-    let stream: ReadableStream<string>
     try {
       const response = await this.api.post<ReadableStream<string>>(
         getPath(request),
@@ -275,9 +272,11 @@ export class Model {
         }
       )
 
+      const decoder = new TextDecoder()
       const transformStream = new TransformStream({
         transform: (chunk, controller) => {
-          this._executeTransform(chunk, transformResponse, {
+          const chunkStr = decoder.decode(chunk)
+          this._executeTransform(chunkStr, transformResponse, {
             onEnd: () => controller.terminate(),
             onError: (err) => controller.error(err),
             onResult: (result) => controller.enqueue(result)
@@ -285,25 +284,24 @@ export class Model {
         }
       })
 
-      stream = response.data.pipeThrough(transformStream)
+      return response.data.pipeThrough(transformStream)
     } catch (err: unknown) {
       const asResponse = err as AxiosError
       const errMessage = `${asResponse.response?.status}: ${asResponse}`
       this.error(errMessage + "\n" + asResponse.response?.data)
       throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
     }
-    return stream
   }
 
   protected _getRequestHeaders(opts: Required<RequestOptions>) {
     const { authPrefix } = this.config
     return {
-      Authorization: `${authPrefix}${opts.apiKey || opts.authToken || ""}`
+      Authorization: `${authPrefix}${opts.apiKey || ""}`
     }
   }
 
   private _executeTransform(
-    chunk: BufferSource,
+    chunkStr: string,
     transformResponse: (responseData: Record<string, any>) => string[],
     {
       onEnd,
@@ -315,17 +313,24 @@ export class Model {
       onResult: (result: string) => void
     }
   ) {
-    const chunkStr = new TextDecoder().decode(chunk)
     let fullResult = ""
+    // this.log("Batched chunk: ", chunkStr)
     for (const chunkDataRes of parseDataChunks(chunkStr)) {
       if (chunkDataRes === this.config.endOfStreamSentinel) {
-        this.log("End:", chunkDataRes)
+        this.log(
+          "End: ",
+          chunkDataRes,
+          "Full chunk: ",
+          chunkStr,
+          "Running result: ",
+          fullResult
+        )
+        if (fullResult) {
+          // The last data is empty and just has the finish_reason,
+          // but there might have been data earlier in the chunk
+          onResult(fullResult)
+        }
         onEnd()
-        return
-      } else if (!chunkDataRes) {
-        const e = new Error(`Returned no data: ${chunkStr}`)
-        this.error(e)
-        onError(e)
         return
       } else {
         const chunkData = JSON.parse(chunkDataRes)

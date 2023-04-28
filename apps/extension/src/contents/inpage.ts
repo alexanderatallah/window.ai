@@ -48,8 +48,11 @@ export const windowAI: WindowAI<ModelID> = {
     return new Promise((resolve, reject) => {
       _addResponseListener<CompletionResponse>(requestId, (res) => {
         if (isOk(res)) {
-          resolve(shouldReturnMultiple ? res.data : res.data[0])
-          onStreamResult && onStreamResult(res.data[0], null)
+          if (!res.data[0].isPartial) {
+            resolve(shouldReturnMultiple ? res.data : res.data[0])
+          } else {
+            onStreamResult && onStreamResult(res.data[0], null)
+          }
         } else {
           reject(res.error)
           onStreamResult && onStreamResult(null, res.error)
@@ -88,9 +91,10 @@ export const windowAI: WindowAI<ModelID> = {
     return requestId
   },
 
-  BETA_updateModelProvider({ token, shouldSetDefault }) {
+  BETA_updateModelProvider({ baseUrl, metadata, shouldSetDefault }) {
     const requestId = _relayRequest(PortName.Model, {
-      token,
+      baseUrl,
+      metadata,
       shouldSetDefault
     })
     return new Promise((resolve, reject) => {

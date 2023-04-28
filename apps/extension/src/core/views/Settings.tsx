@@ -12,13 +12,12 @@ import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
 import { AuthType, type Config, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
-import { decodeJWTPayload } from "~core/utils/utils"
 import { ModelID } from "~public-interface"
 
 type ConfigSetting = { auth: AuthType; model?: ModelID }
 
 const configSettings: ConfigSetting[] = [
-  { auth: AuthType.Token },
+  { auth: AuthType.External },
   { auth: AuthType.APIKey, model: ModelID.GPT3 },
   { auth: AuthType.APIKey, model: ModelID.GPT4 },
   { auth: AuthType.APIKey, model: ModelID.Together },
@@ -65,7 +64,7 @@ export function Settings() {
     config?.auth === AuthType.APIKey && config?.models.length === 0
   const needsAPIKey = config?.auth === AuthType.APIKey
   const asksForAPIKey = needsAPIKey || isLocalModel // Some local models need keys, e.g. https://github.com/keldenl/gpt-llama.cpp
-  const needsToken = config?.auth === AuthType.Token
+  const isExternal = config?.auth === AuthType.External
   const isOpenAIAPI =
     config?.auth === AuthType.APIKey &&
     !!config?.models.find((m) => m === ModelID.GPT3 || m === ModelID.GPT4)
@@ -125,7 +124,7 @@ export function Settings() {
                 onBlur={saveAll}
               />
             )}
-            {needsToken && <TokenSettings config={config} />}
+            {isExternal && <ExternalSettings config={config} />}
             <div className="mt-3"></div>
             {needsAPIKey && (
               <Text dimming="less" size="xs">
@@ -205,27 +204,25 @@ export function Settings() {
   )
 }
 
-function TokenSettings({ config }: { config: Config }) {
+function ExternalSettings({ config }: { config: Config }) {
   return (
     <div>
-      {config.token ? (
+      {config.authMetadata ? (
         <div className="flex flex-col justify-between">
           <table className="table-fixed mt-2">
             <tbody>
-              {Object.entries(decodeJWTPayload(config.token))
-                .filter(([k]) => ["email", "exp"].includes(k))
-                .map(([k, v]) => (
-                  <tr key={k}>
-                    <td className="text-xs opacity-30">{k}</td>
-                    <td className="text-xs opacity-60">
-                      {typeof v === "string"
-                        ? v
-                        : typeof v === "number"
-                        ? new Date(v * 1000).toLocaleString()
-                        : JSON.stringify(v)}
-                    </td>
-                  </tr>
-                ))}
+              {Object.entries(config.authMetadata).map(([k, v]) => (
+                <tr key={k}>
+                  <td className="text-xs opacity-30">{k}</td>
+                  <td className="text-xs opacity-60">
+                    {typeof v === "string"
+                      ? v
+                      : typeof v === "number"
+                      ? new Date(v * 1000).toLocaleString()
+                      : JSON.stringify(v)}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
           <div className="mt-6"></div>

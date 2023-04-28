@@ -18,7 +18,6 @@ export async function complete(
   try {
     const result = await caller.complete(txn.input, {
       apiKey: config.apiKey,
-      authToken: config.token,
       baseUrl: config.baseUrl,
       model,
       max_tokens: txn.maxTokens,
@@ -55,7 +54,6 @@ export async function stream(
 
     const stream = await caller.stream(txn.input, {
       apiKey: config.apiKey,
-      authToken: config.token,
       baseUrl: config.baseUrl,
       model,
       max_tokens: txn.maxTokens,
@@ -64,8 +62,9 @@ export async function stream(
     })
     return readableStreamToGenerator(stream)
   } catch (error) {
+    const message = error instanceof Error ? error.message : `${error}`
     async function* generator() {
-      yield err(`${error}`)
+      yield err(message)
     }
     return generator()
   }
@@ -84,9 +83,9 @@ async function* readableStreamToGenerator(
         break
       }
       lastValue =
-        typeof value === "string" // True for browser (always true for local), false for Node.js
+        typeof value === "string"
           ? value
-          : decoder.decode(value, { stream: true })
+          : decoder.decode(value, { stream: true }) // only for node.js
       log("Got stream value: ", lastValue)
       yield ok(lastValue)
     }

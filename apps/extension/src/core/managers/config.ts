@@ -11,8 +11,8 @@ import { ModelID, isKnownModel } from "~public-interface"
 import { BaseManager } from "./base"
 
 export enum AuthType {
-  // Use JWT auth to access a remote model router
-  Token = "token",
+  // Let another site handle all authentication
+  External = "external",
   // Use an API key
   APIKey = "key"
 }
@@ -41,7 +41,7 @@ export interface Config {
   baseUrl: string
   models: ModelID[]
 
-  token?: string
+  authMetadata?: { email?: string; expiresAt?: number }
   apiKey?: string
 }
 
@@ -70,7 +70,7 @@ class ConfigManager extends BaseManager<Config> {
     const caller = this.getCallerForAuth(auth, modelId)
     const label = this.getLabelForAuth(auth, modelId)
     switch (auth) {
-      case AuthType.Token:
+      case AuthType.External:
         return {
           id,
           auth,
@@ -126,8 +126,8 @@ class ConfigManager extends BaseManager<Config> {
       return false
     }
     switch (config.auth) {
-      case AuthType.Token:
-        return !!config.token
+      case AuthType.External:
+        return !!config.authMetadata
       case AuthType.APIKey:
         return config.models.length ? !!config.apiKey : true
     }
@@ -156,7 +156,7 @@ class ConfigManager extends BaseManager<Config> {
       }
       await this.defaultConfig.remove("id")
     }
-    return this.init(AuthType.Token)
+    return this.init(AuthType.External)
   }
 
   // TODO: allow multiple custom models
@@ -208,7 +208,7 @@ class ConfigManager extends BaseManager<Config> {
 
   getCallerForAuth(auth: AuthType, modelId?: ModelID) {
     switch (auth) {
-      case AuthType.Token:
+      case AuthType.External:
         return openrouter
       case AuthType.APIKey:
         return modelId ? modelAPICallers[modelId] : local
@@ -217,7 +217,7 @@ class ConfigManager extends BaseManager<Config> {
 
   getLabelForAuth(auth: AuthType, modelId?: ModelID) {
     switch (auth) {
-      case AuthType.Token:
+      case AuthType.External:
         return "OpenRouter"
       case AuthType.APIKey:
         return modelId ? defaultAPILabel[modelId] : "Local"
@@ -238,7 +238,7 @@ class ConfigManager extends BaseManager<Config> {
 
   getExternalConfigURL(config: Config) {
     switch (config.auth) {
-      case AuthType.Token:
+      case AuthType.External:
         return (
           (process.env.PLASMO_PUBLIC_OPENROUTER_URI ||
             "https://openrouter.ai") + "/signin"

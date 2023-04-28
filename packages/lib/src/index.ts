@@ -31,7 +31,9 @@ export type MessageOutput = {
 }
 
 // Output can be either a string or a chat message, depending on which Input type you use.
-export type Output = TextOutput | MessageOutput
+export type Output = (TextOutput | MessageOutput) & {
+  isPartial?: boolean
+}
 
 export function isTextOutput(output: Output): output is TextOutput {
   return "text" in output
@@ -86,7 +88,8 @@ export type EventListenerHandler<T> = (
 ) => void
 
 export type ModelProviderOptions = {
-  token: string
+  baseUrl: string
+  metadata?: { email?: string; expiresAt?: number } // If undefined, logs out the user
   shouldSetDefault?: boolean
 }
 
@@ -125,8 +128,9 @@ export interface WindowAI<TModel = string> {
   addEventListener<T>(handler: EventListenerHandler<T>): RequestID
 
   /**
-   * Authenticate or update a model provider
+   * Update the external model provider.
    * @param options The options for the model provider.
+   *                If metadata is undefined, logs out the user.
    * @returns A promise that resolves to the user's current model, or
    *          undefined if not available.
    */

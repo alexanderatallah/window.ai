@@ -20,19 +20,19 @@ const handler: PlasmoMessaging.PortHandler<
 
   const { id, request } = req.body
   if (request) {
-    // TODO handle other model providers here by checking request.apiBaseUrl, or
-    //      looking inside the decoded token!
+    // TODO handle other model providers here by checking request.baseUrl
     // TODO request the user's permission to add the model provider
-    const { token, shouldSetDefault } = request
+    const { metadata, shouldSetDefault } = request
     const config =
-      (await configManager.forAuthAndModel(AuthType.Token)) ||
-      configManager.init(AuthType.Token)
-    await configManager.save({
+      (await configManager.forAuthAndModel(AuthType.External)) ||
+      configManager.init(AuthType.External)
+    const newConfig = {
       ...config,
-      token
-    })
+      authMetadata: metadata
+    }
+    await configManager.save(newConfig)
     if (shouldSetDefault) {
-      await configManager.setDefault(config)
+      await configManager.setDefault(newConfig)
     }
   }
 
