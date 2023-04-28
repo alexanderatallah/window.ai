@@ -1,10 +1,10 @@
-import type { RequestId } from "~core/constants"
+import type { RequestID } from "window.ai"
 
 export class RequestState<RequestType, ResponseType> {
-  private map: Map<RequestId, RequestType>
+  private map: Map<RequestID, RequestType>
   // These fire when items are removed from the map
   private completionListeners: Map<
-    RequestId,
+    RequestID,
     Array<(v: RequestType, data: ResponseType) => void>
   >
 
@@ -13,12 +13,12 @@ export class RequestState<RequestType, ResponseType> {
     this.completionListeners = new Map()
   }
 
-  start(id: RequestId, request: RequestType): void {
+  start(id: RequestID, request: RequestType): void {
     this.map.set(id, request)
     this.completionListeners.set(id, [])
   }
 
-  finish(id: RequestId, result: ResponseType): void {
+  finish(id: RequestID, result: ResponseType): void {
     const { request, listeners } = this._assertAndGetRequest(id)
     listeners.forEach((listener) => {
       listener(request, result)
@@ -27,12 +27,12 @@ export class RequestState<RequestType, ResponseType> {
     this.completionListeners.delete(id)
   }
 
-  get(id: RequestId): RequestType | undefined {
+  get(id: RequestID): RequestType | undefined {
     return this.map.get(id)
   }
 
   addCompletionListener(
-    id: RequestId,
+    id: RequestID,
     listener: (v: RequestType, data: ResponseType) => void
   ): void {
     const { listeners } = this._assertAndGetRequest(id)
@@ -40,7 +40,7 @@ export class RequestState<RequestType, ResponseType> {
   }
 
   removeCompletionListener(
-    id: RequestId,
+    id: RequestID,
     listener: (v: RequestType, data: ResponseType) => void
   ): void {
     const { listeners } = this._assertAndGetRequest(id)
@@ -50,7 +50,7 @@ export class RequestState<RequestType, ResponseType> {
     )
   }
 
-  _assertAndGetRequest(id: RequestId): {
+  _assertAndGetRequest(id: RequestID): {
     request: RequestType
     listeners: Array<(v: RequestType, data: ResponseType) => void>
   } {

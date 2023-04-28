@@ -18,6 +18,10 @@ export type MessagesInput = {
 // Input allows you to specify either a prompt string or a list of chat messages.
 export type Input = PromptInput | MessagesInput
 
+export function isPromptInput(input: Input): input is PromptInput {
+  return "prompt" in input
+}
+
 export function isMessagesInput(input: Input): input is MessagesInput {
   return "messages" in input
 }
@@ -41,17 +45,24 @@ export function isMessageOutput(output: Output): output is MessageOutput {
   return "message" in output
 }
 
+export type InferredOutput<TInput> = TInput extends MessagesInput
+  ? MessageOutput
+  : TInput extends PromptInput
+  ? TextOutput
+  : Output
+
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions<TModel> {
+export interface CompletionOptions<TModel, TInput extends Input = Input> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
-  onStreamResult?: (result: Output | null, error: string | null) => unknown
+  onStreamResult?: (
+    result: InferredOutput<TInput> | null,
+    error: string | null
+  ) => unknown
   // What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
   // make the output more random, while lower values like 0.2 will make it more focused and deterministic.
   // Different models have different defaults.
   temperature?: number
-  // How many completion choices to generate. Defaults to 1.
-  numOutputs?: number
   // The maximum number of tokens to generate in the chat completion. Defaults to infinity, but the
   // total length of input tokens and generated tokens is limited by the model's context length.
   maxTokens?: number
@@ -59,6 +70,8 @@ export interface CompletionOptions<TModel> {
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: TModel
+  // How many completion choices to generate. Defaults to 1.
+  numOutputs?: number
 }
 
 // Error codes emitted by the extension API
@@ -93,10 +106,10 @@ export interface WindowAI<TModel = string> {
     version: string
   }
 
-  getCompletion(
-    input: Input,
-    options?: CompletionOptions<TModel>
-  ): Promise<Output | Output[]>
+  getCompletion<TInput extends Input = Input>(
+    input: TInput,
+    options?: CompletionOptions<TModel, TInput>
+  ): Promise<InferredOutput<TInput>[]>
 
   getCurrentModel(): Promise<TModel>
 
@@ -150,5 +163,12 @@ export async function waitForWindowAI(opts = DEFAULT_WAIT_OPTIONS) {
 export const getWindowAI = async (opts = DEFAULT_WAIT_OPTIONS) => {
   // wait until the window.ai object is available
   await waitForWindowAI(opts)
+
+  // Context: https://github.com/alexanderatallah/window.ai/pull/43#discussion_r1178316153
+  const _getCompletion = globalThis.window.ai.getCompletion
+  globalThis.window.ai.getCompletion = async (input, options = {}) => {
+    const output = await _getCompletion(input, options)
+    return Array.isArray(output) ? output : [output]
+  }
   return globalThis.window.ai
 }

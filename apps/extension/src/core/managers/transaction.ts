@@ -1,8 +1,10 @@
 import { v4 as uuidv4 } from "uuid"
 import {
   type CompletionOptions,
+  type InferredOutput,
   type Input,
-  type Output,
+  isMessagesInput,
+  isPromptInput,
   isTextOutput
 } from "window.ai"
 
@@ -12,7 +14,7 @@ import { BaseManager } from "./base"
 import type { OriginData } from "./origin"
 import { originManager } from "./origin"
 
-export interface Transaction {
+export interface Transaction<TInput = Input> {
   id: string
   timestamp: number
   origin: OriginData
@@ -24,7 +26,7 @@ export interface Transaction {
   model?: ModelID | string
   numOutputs?: number
 
-  outputs?: Output[]
+  outputs?: InferredOutput<TInput>[]
   error?: string
 }
 
@@ -35,10 +37,10 @@ class TransactionManager extends BaseManager<Transaction> {
     super("transactions")
   }
 
-  init(
-    input: Input,
+  init<TInput extends Input>(
+    input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID>
+    options: CompletionOptions<ModelID, TInput>
   ): Transaction {
     this._validateInput(input)
     const { temperature, maxTokens, stopSequences, model, numOutputs } = options
@@ -89,7 +91,7 @@ class TransactionManager extends BaseManager<Transaction> {
       .join("\n")
   }
 
-  formatJSON(txn: Transaction): object {
+  formatJSON(txn: Transaction) {
     const { input, temperature, maxTokens, stopSequences, model, numOutputs } =
       txn
     return {
@@ -105,7 +107,7 @@ class TransactionManager extends BaseManager<Transaction> {
   _validateInput(input: Input): void {
     if (
       typeof input !== "object" ||
-      (!("prompt" in input) && !("messages" in input))
+      (!isPromptInput(input) && !isMessagesInput(input))
     ) {
       throw new Error("Invalid input")
     }
