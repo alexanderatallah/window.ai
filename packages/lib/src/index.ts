@@ -109,11 +109,7 @@ export interface WindowAI<TModel = string> {
   getCompletion<TInput extends Input = Input>(
     input: TInput,
     options?: CompletionOptions<TModel, TInput>
-  ): Promise<
-    "numOutputs" extends keyof typeof options
-      ? InferredOutput<TInput>[]
-      : InferredOutput<TInput>
-  >
+  ): Promise<InferredOutput<TInput>[]>
 
   getCurrentModel(): Promise<TModel>
 
@@ -167,5 +163,12 @@ export async function waitForWindowAI(opts = DEFAULT_WAIT_OPTIONS) {
 export const getWindowAI = async (opts = DEFAULT_WAIT_OPTIONS) => {
   // wait until the window.ai object is available
   await waitForWindowAI(opts)
+
+  // Context: https://github.com/alexanderatallah/window.ai/pull/43#discussion_r1178316153
+  const _getCompletion = globalThis.window.ai.getCompletion
+  globalThis.window.ai.getCompletion = async (input, options = {}) => {
+    const output = await _getCompletion(input, options)
+    return Array.isArray(output) ? output : [output]
+  }
   return globalThis.window.ai
 }
