@@ -317,17 +317,14 @@ export class Model {
     // this.log("Batched chunk: ", chunkStr)
     for (const chunkDataRes of parseDataChunks(chunkStr)) {
       if (chunkDataRes === this.config.endOfStreamSentinel) {
-        this.log(
-          "End: ",
-          chunkDataRes,
-          "Full chunk: ",
-          chunkStr,
-          "Running result: ",
-          fullResult
-        )
+        this.log("End: ", chunkDataRes, "Full chunk: ", chunkStr)
         if (fullResult) {
           // The last data is empty and just has the finish_reason,
           // but there might have been data earlier in the chunk
+          this.log(
+            `Sending last result of length ${fullResult.length}`,
+            fullResult
+          )
           onResult(fullResult)
         }
         onEnd()

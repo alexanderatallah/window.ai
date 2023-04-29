@@ -56,7 +56,6 @@ export enum ContentMessageType {
 
 export type CompletionRequest = {
   transaction: Transaction
-  shouldStream?: boolean
 }
 export type CompletionResponse = Result<Output[], ErrorCode | string>
 

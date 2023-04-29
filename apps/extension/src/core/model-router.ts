@@ -1,72 +1,52 @@
-import { ErrorCode } from "window.ai"
-
-import { modelAPICallers } from "~core/llm"
-
 import { type Config, configManager } from "./managers/config"
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
-export async function complete(
+export async function generate(
   txn: Transaction
-): Promise<Result<string[], string>> {
+): Promise<AsyncGenerator<Result<string, string>>> {
   const config = await configManager.forModelWithDefault(txn.model)
   const caller = configManager.getCaller(config)
   const model = txn.model || configManager.getCurrentModel(config)
 
-  try {
-    const result = await caller.complete(txn.input, {
-      apiKey: config.apiKey,
-      baseUrl: config.baseUrl,
-      model,
-      max_tokens: txn.maxTokens,
-      temperature: txn.temperature,
-      stop_sequences: txn.stopSequences,
-      num_generations: txn.numOutputs
-    })
-    return ok(result)
-  } catch (error) {
-    return err(`${error}`)
+  // TODO allow streaming multiple outputs
+  const shouldStream =
+    isStreamable(config) && !(txn.numOutputs && txn.numOutputs > 1)
+
+  const opts = {
+    apiKey: config.apiKey,
+    baseUrl: config.baseUrl,
+    model,
+    max_tokens: txn.maxTokens,
+    temperature: txn.temperature,
+    stop_sequences: txn.stopSequences,
+    num_generations: txn.numOutputs
   }
-}
 
-export function isStreamable(config: Config): boolean {
-  return configManager.getCaller(config).config.isStreamable
-}
-
-export async function stream(
-  txn: Transaction
-): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const config = await configManager.forModelWithDefault(txn.model)
-    const caller = configManager.getCaller(config)
-    const model = txn.model || configManager.getCurrentModel(config)
-
-    if (!isStreamable(config)) {
-      throw ErrorCode.InvalidRequest
+    if (!shouldStream) {
+      const result = await caller.complete(txn.input, opts)
+      return arrayToGenerator(result)
+    } else {
+      const stream = await caller.stream(txn.input, opts)
+      return readableStreamToGenerator(stream)
     }
-
-    if (txn.numOutputs && txn.numOutputs > 1) {
-      // Can't stream multiple outputs
-      throw ErrorCode.InvalidRequest
-    }
-
-    const stream = await caller.stream(txn.input, {
-      apiKey: config.apiKey,
-      baseUrl: config.baseUrl,
-      model,
-      max_tokens: txn.maxTokens,
-      temperature: txn.temperature,
-      stop_sequences: txn.stopSequences
-    })
-    return readableStreamToGenerator(stream)
   } catch (error) {
     const message = error instanceof Error ? error.message : `${error}`
     async function* generator() {
       yield err(message)
     }
     return generator()
+  }
+}
+
+async function* arrayToGenerator<T>(
+  array: T[]
+): AsyncGenerator<Result<T, string>> {
+  for (const item of array) {
+    yield ok(item)
   }
 }
 
@@ -95,4 +75,8 @@ async function* readableStreamToGenerator(
   } finally {
     reader.releaseLock()
   }
+}
+
+function isStreamable(config: Config): boolean {
+  return configManager.getCaller(config).config.isStreamable
 }

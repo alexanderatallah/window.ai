@@ -4,7 +4,6 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import type { PortRequest, PortResponse } from "~core/constants"
 import { PortName } from "~core/constants"
-import { configManager } from "~core/managers/config"
 import { transactionManager } from "~core/managers/transaction"
 import * as modelRouter from "~core/model-router"
 import { err, isErr, isOk, ok } from "~core/utils/result-monad"
@@ -33,51 +32,37 @@ const handler: PlasmoMessaging.PortHandler<
   // Save the incomplete txn
   await transactionManager.save(txn)
 
-  const config = await configManager.forModelWithDefault(txn.model)
+  const hasMultipleOutputs = txn.numOutputs && txn.numOutputs > 1
+  const replies: string[] = []
+  const errors: string[] = []
+  const results = await modelRouter.generate(txn)
 
-  if (request.shouldStream && modelRouter.isStreamable(config)) {
-    const replies: string[] = []
-    const errors: string[] = []
-
-    const results = await modelRouter.stream(txn)
-
-    for await (const result of results) {
-      if (isOk(result)) {
-        const outputs = [getOutput(txn.input, result.data, true)]
-        res.send({ response: ok(outputs), id })
-        replies.push(result.data)
-      } else {
-        res.send({ response: result, id })
-        errors.push(result.error)
-        // TODO handle auth errors
-        // if (isAuthError(result.error)) {
-        //   await requestAuth()
-        // }
-      }
-    }
-
-    // Collect the replies and errors onto the txn
-    txn.outputs = replies.length
-      ? [getOutput(txn.input, replies.join(""))]
-      : undefined
-    txn.error = errors.join("") || undefined
-
-    // Send the final output to the client, as non-partial
-    if (txn.outputs) {
-      res.send({ response: ok(txn.outputs), id })
-    }
-  } else {
-    // TODO remove this code and make everything use modelRouter.stream
-    const result = await modelRouter.complete(txn)
-
+  for await (const result of results) {
     if (isOk(result)) {
-      const outputs = result.data.map((d) => getOutput(txn.input, d))
+      const outputs = [getOutput(txn.input, result.data, true)]
       res.send({ response: ok(outputs), id })
-      txn.outputs = outputs
+      replies.push(result.data)
     } else {
       res.send({ response: result, id })
-      txn.error = result.error
+      errors.push(result.error)
+      // TODO handle auth errors
+      // if (isAuthError(result.error)) {
+      //   await requestAuth()
+      // }
     }
+  }
+
+  // Collect the replies and errors onto the txn
+  txn.outputs = !replies.length
+    ? undefined
+    : hasMultipleOutputs
+    ? replies.map((r) => getOutput(txn.input, r))
+    : [getOutput(txn.input, replies.join(""))]
+  txn.error = errors.join("\n") || undefined
+
+  // Send the final output to the client, as non-partial
+  if (txn.outputs) {
+    res.send({ response: ok(txn.outputs), id })
   }
 
   // Update the completion with the reply
