@@ -1,10 +1,16 @@
 {
   "name": "window.ai",
   "public": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "files": [
+    "dist"
+  ],
   "type": "module",
+  "publishConfig": {
+    "types": "./dist/index.d.ts"
+  },
+  "types": "./src/index.ts",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -30,7 +36,8 @@
   "scripts": {
     "test": "jest",
     "dev": "tsup --watch",
-    "build": "tsup "
+    "build": "tsup",
+    "prepublish": "tsup"
   },
   "devDependencies": {
     "@types/node": "18.15.11",

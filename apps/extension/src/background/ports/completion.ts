@@ -1,4 +1,9 @@
-import { ErrorCode, type Input, type Output, isMessagesInput } from "window.ai"
+import {
+  ErrorCode,
+  type InferredOutput,
+  type Input,
+  isMessagesInput
+} from "window.ai"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
@@ -85,7 +90,11 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
 }
 
-function getOutput(input: Input, result: string, isPartial?: boolean): Output {
+function getOutput(
+  input: Input,
+  result: string,
+  isPartial?: boolean
+): InferredOutput<typeof input> {
   return isMessagesInput(input)
     ? { message: { role: "assistant", content: result }, isPartial }
     : { text: result, isPartial }

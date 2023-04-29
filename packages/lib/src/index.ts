@@ -18,22 +18,26 @@ export type MessagesInput = {
 // Input allows you to specify either a prompt string or a list of chat messages.
 export type Input = PromptInput | MessagesInput
 
+export function isPromptInput(input: Input): input is PromptInput {
+  return "prompt" in input
+}
+
 export function isMessagesInput(input: Input): input is MessagesInput {
   return "messages" in input
 }
 
 export type TextOutput = {
   text: string
+  isPartial?: boolean
 }
 
 export type MessageOutput = {
   message: ChatMessage
+  isPartial?: boolean
 }
 
 // Output can be either a string or a chat message, depending on which Input type you use.
-export type Output = (TextOutput | MessageOutput) & {
-  isPartial?: boolean
-}
+export type Output = TextOutput | MessageOutput
 
 export function isTextOutput(output: Output): output is TextOutput {
   return "text" in output
@@ -43,17 +47,24 @@ export function isMessageOutput(output: Output): output is MessageOutput {
   return "message" in output
 }
 
+export type InferredOutput<TInput> = TInput extends MessagesInput
+  ? MessageOutput
+  : TInput extends PromptInput
+  ? TextOutput
+  : Output
+
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions<TModel> {
+export interface CompletionOptions<TModel, TInput extends Input = Input> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
-  onStreamResult?: (result: Output | null, error: string | null) => unknown
+  onStreamResult?: (
+    result: InferredOutput<TInput> | null,
+    error: string | null
+  ) => unknown
   // What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
   // make the output more random, while lower values like 0.2 will make it more focused and deterministic.
   // Different models have different defaults.
   temperature?: number
-  // How many completion choices to generate. Defaults to 1.
-  numOutputs?: number
   // The maximum number of tokens to generate in the chat completion. Defaults to infinity, but the
   // total length of input tokens and generated tokens is limited by the model's context length.
   maxTokens?: number
@@ -61,6 +72,8 @@ export interface CompletionOptions<TModel> {
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: TModel
+  // How many completion choices to generate. Defaults to 1.
+  numOutputs?: number
 }
 
 // Error codes emitted by the extension API
@@ -104,15 +117,26 @@ export interface WindowAI<TModel = string> {
     version: string
   }
 
-  /** Get or stream a completion from the specified (or preferred) model.
+  /** Generate text completions from the specified (or preferred) model.
    * @param input The input to use for the completion.
    * @param options Options for the completion request.
-   * @returns A promise that resolves to the completion result, or an array of completion results if numOutputs > 1.
+   * @returns A promise that resolves to an array of completion results.
    */
-  getCompletion(
-    input: Input,
-    options?: CompletionOptions<TModel>
-  ): Promise<Output | Output[]>
+  generateText<TInput extends Input = Input>(
+    input: TInput,
+    options?: CompletionOptions<TModel, TInput>
+  ): Promise<InferredOutput<TInput>[]>
+
+  /** DEPRECATED: use generate instead
+   * Get or stream a completion from the specified (or preferred) model.
+   * @param input The input to use for the completion.
+   * @param options Options for the completion request.
+   * @returns A promise that resolves to an array of completion results.
+   */
+  getCompletion<TInput extends Input = Input>(
+    input: TInput,
+    options?: CompletionOptions<TModel, TInput>
+  ): Promise<InferredOutput<TInput>[]>
 
   /** Get the user's current model.
    * @returns A promise that resolves to the user's current model, or
@@ -147,7 +171,7 @@ declare global {
 
 // Checking against other window.ai implementations
 export function hasWindowAI() {
-  return typeof globalThis.window.ai?.getCompletion === "function"
+  return typeof globalThis.window.ai?.generateText === "function"
 
   // Ref: https://github.com/alexanderatallah/window.ai/pull/34#discussion_r1170544209
   // return (

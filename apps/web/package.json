@@ -15,7 +15,7 @@
     "@vercel/analytics": "^0.1.11",
     "@vercel/examples-ui": "^1.0.5",
     "clsx": "^1.2.1",
-    "next": "latest",
+    "next": "13.2.4",
     "react": "latest",
     "react-cookie": "^4.1.1",
     "react-dom": "latest",
@@ -27,7 +27,6 @@
     "@types/node": "^18.15.11",
     "@types/react": "^18.0.35",
     "autoprefixer": "^10.4.14",
-    "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.22",
     "tailwindcss": "3.3.1",
     "typescript": "5.0.4"

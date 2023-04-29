@@ -34,7 +34,7 @@
 		  const currentModel = await window.ai.getCurrentModel();
 
 		  // Get completions from the window.ai API
-		  const completion = await window.ai.getCompletion(
+		  const [ completion ] = await window.ai.generateText(
 			  {prompt: promptValue}
 		  );
 
