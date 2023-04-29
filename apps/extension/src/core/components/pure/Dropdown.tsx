@@ -10,7 +10,7 @@ export function Dropdown<T>({
 }: {
   styled?: boolean
   children: React.ReactNode
-  choices: T[]
+  choices: Readonly<T[]>
   getLabel?: (choice: T) => string
   onSelect: (choice: T) => void
 }) {

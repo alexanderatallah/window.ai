@@ -61,7 +61,7 @@ export abstract class BaseManager<T extends BaseModel> {
   async save(obj: T): Promise<boolean> {
     const [warning, isNew] = await Promise.all([
       this.store.set(obj.id, obj),
-      this.indexBy(obj, null, primaryIndexName)
+      this.indexBy(obj, undefined, primaryIndexName)
     ])
 
     if (warning) {
@@ -76,10 +76,10 @@ export abstract class BaseManager<T extends BaseModel> {
   // O(<index size>) :(
   async indexBy(
     obj: T,
-    key: string | null,
+    key: string | undefined,
     indexName: string
   ): Promise<boolean> {
-    const index = this._getIndex(indexName, key || undefined)
+    const index = this._getIndex(indexName, key)
     const ids = (await this.store.get<string[]>(index)) || []
 
     const isNew = !ids.includes(obj.id)

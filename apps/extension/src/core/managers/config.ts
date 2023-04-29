@@ -17,14 +17,14 @@ export enum AuthType {
   APIKey = "key"
 }
 
-const APIKeyURL: { [K in ModelID]: string } = {
+const APIKeyURL: Record<ModelID, string> = {
   [ModelID.GPT3]: "https://platform.openai.com/account/api-keys",
   [ModelID.GPT4]: "https://platform.openai.com/account/api-keys",
   [ModelID.Together]: "https://api.together.xyz/",
   [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys"
 }
 
-const defaultAPILabel: { [K in ModelID]: string } = {
+const defaultAPILabel: Record<ModelID, string> = {
   [ModelID.GPT3]: "OpenAI: GPT-3.5",
   [ModelID.GPT4]: "OpenAI: GPT-4",
   [ModelID.Together]: "Together: GPT NeoXT 20B",

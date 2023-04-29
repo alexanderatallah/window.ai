@@ -93,8 +93,8 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
         </code>
       </Accordion>
       <Dropdown
-        choices={["ask", "allow"]}
-        onSelect={async (permission: "ask" | "allow") =>
+        choices={["ask", "allow"] as const}
+        onSelect={async (permission) =>
           setObject({
             ...transaction.origin,
             permissions: permission

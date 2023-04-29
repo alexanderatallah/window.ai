@@ -61,7 +61,7 @@ export type CompletionRequest = {
 export type CompletionResponse = Result<Output[], ErrorCode | string>
 
 export type ModelRequest = ModelProviderOptions
-export type ModelResponse = Result<{ model: ModelID | undefined }, ErrorCode>
+export type ModelResponse = Result<{ model?: ModelID }, ErrorCode>
 
 export type { EventRequest, EventResponse }
 

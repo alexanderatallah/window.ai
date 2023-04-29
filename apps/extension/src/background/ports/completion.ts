@@ -68,6 +68,7 @@ const handler: PlasmoMessaging.PortHandler<
     }
   } else {
     // TODO remove this code and make everything use modelRouter.stream
+    // WIP PR: https://github.com/alexanderatallah/window.ai/pull/50
     const result = await modelRouter.complete(txn)
 
     if (isOk(result)) {

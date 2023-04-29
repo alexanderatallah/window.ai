@@ -1,5 +1,5 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { Accordion } from "~core/components/pure/Accordion"
@@ -65,9 +65,12 @@ export function Settings() {
   const needsAPIKey = config?.auth === AuthType.APIKey
   const asksForAPIKey = needsAPIKey || isLocalModel // Some local models need keys, e.g. https://github.com/keldenl/gpt-llama.cpp
   const isExternal = config?.auth === AuthType.External
-  const isOpenAIAPI =
-    config?.auth === AuthType.APIKey &&
-    !!config?.models.find((m) => m === ModelID.GPT3 || m === ModelID.GPT4)
+  const isOpenAIAPI = useMemo(
+    () =>
+      needsAPIKey &&
+      !!config?.models.find((m) => m === ModelID.GPT3 || m === ModelID.GPT4),
+    [needsAPIKey, config]
+  )
 
   return (
     <div className="flex flex-col">
