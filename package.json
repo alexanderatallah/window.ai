@@ -39,7 +39,7 @@
       "svgo": "3.0.2"
     }
   },
-  "packageManager": "pnpm@7.18.2",
+  "packageManager": "pnpm@8.3.1",
   "keywords": [],
   "license": "MIT"
 }
