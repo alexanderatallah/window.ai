@@ -52,10 +52,16 @@ export const AgentMonitor = ({
   description = "Description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo esse suscipit, necessitatibus corrupti ducimus, labore autem saepe sint magni, iure voluptatibus deserunt voluptates corporis blanditiis obcaecati exercitationem beatae dolore porro." as ReactNode,
   messages = [] as ChatMessage[],
   isThinking = false,
-  children = null as ReactNode
+  children = null as ReactNode,
+  isDebugging = false
 }) => {
   return (
-    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2">
+    // TODO:
+    <div
+      className={clsx(
+        !isDebugging && "sm:w-1/2 md:w-1/3 lg:w-1/4",
+        "p-2 w-full"
+      )}>
       <div
         className={clsx(
           "flex flex-col rounded-lg transition-colors",
@@ -82,7 +88,8 @@ export const AgentMonitor = ({
         </div>
         <ul
           className={clsx(
-            "p-2 max-h-40 overflow-auto",
+            !isDebugging && "max-h-96",
+            "p-2 overflow-auto",
             "flex flex-col",
             "text-xs"
           )}>
