@@ -135,7 +135,7 @@ class ConfigManager extends BaseManager<Config> {
 
   async setDefault(config: Config) {
     await this.save(config)
-    const previous = (await this.defaultConfig.get("id")) as string | undefined
+    const previous = await this.defaultConfig.get("id")
     await this.defaultConfig.set("id", config.id)
     if (previous !== config.id) {
       Extension.sendToBackground(PortName.Events, {

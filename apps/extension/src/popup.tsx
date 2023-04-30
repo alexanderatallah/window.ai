@@ -33,42 +33,33 @@ function Popup() {
 
 function NavFrame() {
   const permissionPort = usePermissionPort()
-  const isPermissionRequest = !!permissionPort.data
+  const isPermissionRequest = !!permissionPort.requestId
   const { view, setSettingsShown, settingsShown } = useNav()
-  const timeout = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
     async function checkConfig() {
-      if (isPermissionRequest) {
-        return
-      }
-      const config = await configManager.getDefault()
       // This logic allows us to default the settings page on for first-time users
+      const config = await configManager.getDefault()
       if (!configManager.isCredentialed(config)) {
         setSettingsShown(true)
       }
     }
-    // HACK: wait for permission request to be set
-    if (timeout.current) {
-      clearTimeout(timeout.current)
-    }
-    timeout.current = setTimeout(checkConfig, 50)
-    return () => {
-      clearTimeout(timeout.current)
+    if (!isPermissionRequest) {
+      checkConfig()
     }
   }, [isPermissionRequest])
 
   return (
     <div className="h-full">
-      {isPermissionRequest ? (
+      {permissionPort.data ? (
         <PermissionRequest
           data={permissionPort.data}
           onResult={(permitted) =>
-            "requesterId" in permissionPort.data &&
+            permissionPort.requestId &&
             permissionPort.send({
               request: {
                 permitted,
-                requesterId: permissionPort.data.requesterId
+                requesterId: permissionPort.requestId
               }
             })
           }

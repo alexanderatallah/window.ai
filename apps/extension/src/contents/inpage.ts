@@ -52,7 +52,7 @@ export const windowAI: WindowAI<ModelID> = {
             if (!res.data[0].isPartial) {
               resolve(res.data)
             } else {
-              onStreamResult && onStreamResult(res.data[0], null)
+              onStreamResult && res.data.forEach((d) => onStreamResult(d, null))
             }
           } else {
             reject(res.error)
@@ -63,8 +63,7 @@ export const windowAI: WindowAI<ModelID> = {
     })
   },
 
-  // Deprecated
-  getCompletion(input, options = {}) {
+  async getCompletion(input, options = {}) {
     const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
     return windowAI.generateText(input, options).then((res) => {
       return shouldReturnMultiple ? res : (res[0] as any)
