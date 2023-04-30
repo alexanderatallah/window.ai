@@ -2,7 +2,7 @@ import { ErrorCode } from "window.ai"
 
 import { modelAPICallers } from "~core/llm"
 
-import { type Config, configManager } from "./managers/config"
+import { AuthType, type Config, configManager } from "./managers/config"
 import type { Transaction } from "./managers/transaction"
 import { type Result, unknownErr } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
@@ -31,8 +31,12 @@ export async function complete(
   }
 }
 
-export function isStreamable(config: Config): boolean {
-  return configManager.getCaller(config).config.isStreamable
+export function shouldStream(
+  config: Config,
+  userPrefersStream = true
+): boolean {
+  const canStream = configManager.getCaller(config).config.isStreamable
+  return canStream && (userPrefersStream || config.auth === AuthType.External)
 }
 
 export async function stream(
@@ -43,12 +47,15 @@ export async function stream(
     const caller = configManager.getCaller(config)
     const model = txn.model || configManager.getCurrentModel(config)
 
-    if (!isStreamable(config)) {
+    if (!shouldStream(config)) {
+      // TODO call complete() here
+      // https://github.com/alexanderatallah/window.ai/pull/50
       throw ErrorCode.InvalidRequest
     }
 
     if (txn.numOutputs && txn.numOutputs > 1) {
-      // Can't stream multiple outputs
+      // TODO Can't stream multiple outputs
+      // https://github.com/alexanderatallah/window.ai/issues/52
       throw ErrorCode.InvalidRequest
     }
 

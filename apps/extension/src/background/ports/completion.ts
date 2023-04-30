@@ -12,7 +12,7 @@ import { PortName } from "~core/constants"
 import { configManager } from "~core/managers/config"
 import { transactionManager } from "~core/managers/transaction"
 import * as modelRouter from "~core/model-router"
-import { err, isErr, isOk, ok } from "~core/utils/result-monad"
+import { type Err, err, isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
 import { requestAuth } from "./model"
@@ -41,7 +41,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   const config = await configManager.forModelWithDefault(txn.model)
 
-  if (request.shouldStream && modelRouter.isStreamable(config)) {
+  if (modelRouter.shouldStream(config, request.shouldStream)) {
     const replies: string[] = []
     const errors: string[] = []
 
@@ -55,7 +55,7 @@ const handler: PlasmoMessaging.PortHandler<
       } else {
         res.send({ response: result, id })
         errors.push(result.error)
-        if (isAuthError(result.error)) {
+        if (isAuthError(result)) {
           requestAuth(id)
         }
       }
@@ -83,7 +83,7 @@ const handler: PlasmoMessaging.PortHandler<
     } else {
       res.send({ response: result, id })
       txn.error = result.error
-      if (isAuthError(result.error)) {
+      if (isAuthError(result)) {
         requestAuth(id)
       }
     }
@@ -103,8 +103,11 @@ function getOutput(
     : { text: result, isPartial }
 }
 
-function isAuthError(error: string) {
-  return error.startsWith(ErrorCode.ModelRejectedRequest + ": 401")
+function isAuthError(error: Err<string>) {
+  const errorParts = error.error.split(": ")
+  return (
+    errorParts[0] === ErrorCode.ModelRejectedRequest && errorParts[1] === "401"
+  )
 }
 
 export default handler

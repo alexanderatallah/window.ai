@@ -214,9 +214,12 @@ export class Model {
       })
       responseData = response.data
     } catch (err: unknown) {
-      const asResponse = err as AxiosError
-      const errMessage = `${asResponse.response?.status}: ${asResponse}`
-      this.error(errMessage + "\n" + asResponse.response?.data)
+      if (!(err instanceof AxiosError)) {
+        this.error(`Unknown error: ${err}`)
+        throw err
+      }
+      const errMessage = `${err.response?.status}: ${err}`
+      this.error(errMessage + "\n" + err.response?.data)
       throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
     }
 
@@ -286,9 +289,12 @@ export class Model {
 
       return response.data.pipeThrough(transformStream)
     } catch (err: unknown) {
-      const asResponse = err as AxiosError
-      const errMessage = `${asResponse.response?.status}: ${asResponse}`
-      this.error(errMessage + "\n" + asResponse.response?.data)
+      if (!(err instanceof AxiosError)) {
+        this.error(`Unknown error: ${err}`)
+        throw err
+      }
+      const errMessage = `${err.response?.status}: ${err}`
+      this.error(errMessage + "\n" + err.response?.data)
       throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
     }
   }
