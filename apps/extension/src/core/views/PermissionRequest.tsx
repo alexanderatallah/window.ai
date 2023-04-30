@@ -1,5 +1,5 @@
 import { KeyIcon } from "@heroicons/react/24/solid"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
 import { Accordion } from "~core/components/pure/Accordion"
 import { Button } from "~core/components/pure/Button"
@@ -13,7 +13,7 @@ import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
 import { useConfig } from "~core/providers/config"
 import { useNav } from "~core/providers/nav"
-import { ModelID, isKnownModel } from "~public-interface"
+import { isKnownModel } from "~public-interface"
 
 export function PermissionRequest({
   data,

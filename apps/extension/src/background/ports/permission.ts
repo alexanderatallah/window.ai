@@ -3,10 +3,11 @@ import { ErrorCode } from "window.ai"
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import { RequestState } from "~background/lib/request-state"
-import type {
-  CompletionRequest,
-  PortRequest,
-  PortResponse
+import {
+  type CompletionRequest,
+  type PortRequest,
+  type PortResponse,
+  RequestInterruptType
 } from "~core/constants"
 import { POPUP_HEIGHT, POPUP_WIDTH, PortName } from "~core/constants"
 import { Extension } from "~core/extension"
@@ -54,7 +55,7 @@ const handler: PlasmoMessaging.PortHandler<
 export async function requestPermission(
   request: CompletionRequest,
   requestId: string
-) {
+): Promise<Result<true, ErrorCode>> {
   const originData = request.transaction.origin
   const origin = await originManager.getOrInit(originData.id, originData)
   if (origin.permissions === "allow") {
@@ -63,7 +64,8 @@ export async function requestPermission(
   }
 
   const window = await Extension.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
-    requestId
+    requestId,
+    requestInterruptType: RequestInterruptType.Permission
   })
 
   if (window.id) {

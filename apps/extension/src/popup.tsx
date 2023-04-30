@@ -1,17 +1,18 @@
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 
 import { NavBar } from "~core/components/NavBar"
-import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { SlidingPane } from "~core/components/pure/SlidingPane"
 import { configManager } from "~core/managers/config"
 import { ConfigProvider } from "~core/providers/config"
 import { NavProvider, useNav } from "~core/providers/nav"
 import { Activity } from "~core/views/Activity"
 import { Apps } from "~core/views/Apps"
-import { PermissionRequest } from "~core/views/PermissionRequest"
 import { Settings } from "~core/views/Settings"
 
 import "./style.css"
+
+import { useParams } from "~core/components/hooks/useParams"
+import { RequestInterrupt } from "~core/views/RequestInterrupt"
 
 function Popup() {
   return (
@@ -32,8 +33,7 @@ function Popup() {
 }
 
 function NavFrame() {
-  const permissionPort = usePermissionPort()
-  const isPermissionRequest = !!permissionPort.requestId
+  const { requestId } = useParams()
   const { view, setSettingsShown, settingsShown } = useNav()
 
   useEffect(() => {
@@ -44,26 +44,15 @@ function NavFrame() {
         setSettingsShown(true)
       }
     }
-    if (!isPermissionRequest) {
+    if (!requestId) {
       checkConfig()
     }
-  }, [isPermissionRequest])
+  }, [requestId])
 
   return (
     <div className="h-full">
-      {permissionPort.data ? (
-        <PermissionRequest
-          data={permissionPort.data}
-          onResult={(permitted) =>
-            permissionPort.requestId &&
-            permissionPort.send({
-              request: {
-                permitted,
-                requesterId: permissionPort.requestId
-              }
-            })
-          }
-        />
+      {requestId ? (
+        <RequestInterrupt />
       ) : (
         <div className="flex flex-col h-full">
           <div className="flex-none">
