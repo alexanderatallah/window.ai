@@ -1,6 +1,7 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { useEffect, useMemo, useState } from "react"
 
+import { useParams } from "~core/components/hooks/useParams"
 import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { Accordion } from "~core/components/pure/Accordion"
 import { Button } from "~core/components/pure/Button"
@@ -10,6 +11,7 @@ import { Splitter } from "~core/components/pure/Splitter"
 import { Text } from "~core/components/pure/Text"
 import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
+import { RequestInterruptType } from "~core/constants"
 import { AuthType, type Config, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
 import { ModelID } from "~public-interface"
@@ -28,6 +30,7 @@ const configSettings: ConfigSetting[] = [
 export function Settings() {
   const { config, setConfig } = useConfig()
   const { data } = usePermissionPort()
+  const { requestId } = useParams()
   const [apiKey, setApiKey] = useState("")
   const [url, setUrl] = useState("")
 
@@ -78,9 +81,17 @@ export function Settings() {
         Configuration
       </Text>
       <div className="my-4">
-        <Text size="xs" dimming="less">
-          Change your model settings here.
-        </Text>
+        {requestId ? (
+          <div className="bg-rose-700 text-white rounded-md py-4 px-6">
+            {config?.authMetadata && config.auth === AuthType.External
+              ? "Authentication error. Please sign in again."
+              : "Please finish setting up the model below."}
+          </div>
+        ) : (
+          <Text size="xs" dimming="less">
+            Change your model settings here.
+          </Text>
+        )}
       </div>
       {showDefaultConfigDropdown && (
         <Well>

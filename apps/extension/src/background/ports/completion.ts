@@ -15,6 +15,7 @@ import * as modelRouter from "~core/model-router"
 import { err, isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
+import { requestAuth } from "./model"
 import { requestPermission } from "./permission"
 
 const handler: PlasmoMessaging.PortHandler<
@@ -54,10 +55,9 @@ const handler: PlasmoMessaging.PortHandler<
       } else {
         res.send({ response: result, id })
         errors.push(result.error)
-        // TODO handle auth errors
-        // if (isAuthError(result.error)) {
-        //   await requestAuth()
-        // }
+        if (isAuthError(result.error)) {
+          requestAuth(id)
+        }
       }
     }
 
@@ -83,6 +83,9 @@ const handler: PlasmoMessaging.PortHandler<
     } else {
       res.send({ response: result, id })
       txn.error = result.error
+      if (isAuthError(result.error)) {
+        requestAuth(id)
+      }
     }
   }
 
@@ -100,11 +103,8 @@ function getOutput(
     : { text: result, isPartial }
 }
 
-// function isAuthError(error: string) {
-//   return (
-//     error.startsWith(ErrorCode.ModelRejectedRequest) &&
-//     error.split(": ")[1].startsWith("401")
-//   )
-// }
+function isAuthError(error: string) {
+  return error.startsWith(ErrorCode.ModelRejectedRequest + ": 401")
+}
 
 export default handler

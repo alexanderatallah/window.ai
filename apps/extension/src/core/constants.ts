@@ -19,6 +19,17 @@ export enum PortName {
   Events = "events"
 }
 
+export enum RequestInterruptType {
+  Permission = "permission",
+  Authentication = "auth"
+}
+
+export function isRequestInterruptType(
+  value: string
+): value is RequestInterruptType {
+  return (Object.values(RequestInterruptType) as string[]).includes(value)
+}
+
 export interface PortRequest {
   [PortName.Completion]: { id: RequestID; request: CompletionRequest }
   [PortName.Permission]: {

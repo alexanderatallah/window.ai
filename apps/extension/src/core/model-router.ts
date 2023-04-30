@@ -4,7 +4,7 @@ import { modelAPICallers } from "~core/llm"
 
 import { type Config, configManager } from "./managers/config"
 import type { Transaction } from "./managers/transaction"
-import type { Result } from "./utils/result-monad"
+import { type Result, unknownErr } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
@@ -27,7 +27,7 @@ export async function complete(
     })
     return ok(result)
   } catch (error) {
-    return err(`${error}`)
+    return unknownErr(error)
   }
 }
 
@@ -62,9 +62,8 @@ export async function stream(
     })
     return readableStreamToGenerator(stream)
   } catch (error) {
-    const message = error instanceof Error ? error.message : `${error}`
     async function* generator() {
-      yield err(message)
+      yield unknownErr(error)
     }
     return generator()
   }
