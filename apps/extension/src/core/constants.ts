@@ -30,6 +30,11 @@ export function isRequestInterruptType(
   return (Object.values(RequestInterruptType) as string[]).includes(value)
 }
 
+export type PopupParams = {
+  requestId: RequestID
+  requestInterruptType: RequestInterruptType
+}
+
 export interface PortRequest {
   [PortName.Completion]: { id: RequestID; request: CompletionRequest }
   [PortName.Permission]: {
