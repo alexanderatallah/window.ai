@@ -188,6 +188,15 @@ importers:
       react-wrap-balancer:
         specifier: ^0.4.0
         version: 0.4.0(react@18.2.0)
+      xterm:
+        specifier: 5.1.0
+        version: 5.1.0
+      xterm-addon-fit:
+        specifier: 0.7.0
+        version: 0.7.0(xterm@5.1.0)
+      xterm-addon-webgl:
+        specifier: 0.14.0
+        version: 0.14.0(xterm@5.1.0)
     devDependencies:
       '@radix-ui/colors':
         specifier: 0.1.8
@@ -8596,6 +8605,26 @@ packages:
   /xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
+    dev: false
+
+  /xterm-addon-fit@0.7.0(xterm@5.1.0):
+    resolution: {integrity: sha512-tQgHGoHqRTgeROPnvmtEJywLKoC/V9eNs4bLLz7iyJr1aW/QFzRwfd3MGiJ6odJd9xEfxcW36/xRU47JkD5NKQ==}
+    peerDependencies:
+      xterm: ^5.0.0
+    dependencies:
+      xterm: 5.1.0
+    dev: false
+
+  /xterm-addon-webgl@0.14.0(xterm@5.1.0):
+    resolution: {integrity: sha512-zcxL4RVVjeS7NNFeKe5HHQI8OUEx3wZpE4EqLoTVipa2UrTR+qLsigo16UEp/yVcYBMhK7tsJ/AJokoEe/f0mw==}
+    peerDependencies:
+      xterm: ^5.0.0
+    dependencies:
+      xterm: 5.1.0
+    dev: false
+
+  /xterm@5.1.0:
+    resolution: {integrity: sha512-LovENH4WDzpwynj+OTkLyZgJPeDom9Gra4DMlGAgz6pZhIDCQ+YuO7yfwanY+gVbn/mmZIStNOnVRU/ikQuAEQ==}
     dev: false
 
   /xxhash-wasm@0.4.2:

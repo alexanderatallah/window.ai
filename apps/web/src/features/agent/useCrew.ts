@@ -4,7 +4,7 @@ import { useWindowAI } from "~core/components/hooks/useWindowAI"
 import {
   useAgentManager,
   type AgentConfig
-} from "~core/providers/useAgentManager"
+} from "~core/providers/agent-manager"
 import { useLog } from "~features/agent/useLog"
 
 const getSystemPrompt = (goal: string, ac: AgentConfig) =>

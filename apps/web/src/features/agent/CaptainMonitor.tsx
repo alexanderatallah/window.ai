@@ -1,4 +1,4 @@
-import { useAgentManager } from "~core/providers/useAgentManager"
+import { useAgentManager } from "~core/providers/agent-manager"
 import { AgentMonitor } from "~features/agent/AgentMonitor"
 
 export const CaptainMonitor = () => {

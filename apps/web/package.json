@@ -24,7 +24,10 @@
     "react-dom": "18.2.0",
     "react-syntax-highlighter": "^15.5.0",
     "react-wrap-balancer": "^0.4.0",
-    "puro": "0.8.4"
+    "puro": "0.8.4",
+    "xterm": "5.1.0",
+    "xterm-addon-fit": "0.7.0",
+    "xterm-addon-webgl": "0.14.0"
   },
   "devDependencies": {
     "window.ai": "workspace:*",

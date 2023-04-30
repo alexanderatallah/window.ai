@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import type { TextareaHTMLAttributes } from "react"
 import { useState, type FC } from "react"
-import { useAgentManager } from "~core/providers/useAgentManager"
+import { useAgentManager } from "~core/providers/agent-manager"
 import { AgentMonitor } from "~features/agent/AgentMonitor"
 
 const Input: FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = (props) => (

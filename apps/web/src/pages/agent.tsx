@@ -1,10 +1,13 @@
-import { AgentManagerProvider } from "~core/providers/useAgentManager"
+import { AgentManagerProvider } from "~core/providers/agent-manager"
+import { WebVMProvider } from "~core/providers/web-vm"
 import { AgentPlaygroundView } from "~views/AgentPlaygroundView"
 
 export default function AgentPlaygroundPage() {
   return (
-    <AgentManagerProvider>
-      <AgentPlaygroundView />
-    </AgentManagerProvider>
+    <WebVMProvider>
+      <AgentManagerProvider>
+        <AgentPlaygroundView />
+      </AgentManagerProvider>
+    </WebVMProvider>
   )
 }
