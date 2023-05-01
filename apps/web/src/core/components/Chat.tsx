@@ -46,27 +46,26 @@ export function Chat() {
 
   return (
     <div className="w-full pt-10">
-      <div className="rounded-2xl border-zinc-100 border p-6 w-full h-[360px] flex flex-col">
+      <div className="rounded-lg border-slate-11 border p-6 w-full h-[360px] flex flex-col">
         <div className="flex-grow overflow-y-auto pr-8 pl-4" ref={messagesRef}>
           {messages.map(({ content, role }, index) => (
             <ChatLine key={index} role={role} content={content} />
           ))}
-
           {loading && <LoadingChatLine />}
         </div>
         {messages.length < 2 && (
-          <span className="mx-auto flex flex-grow text-gray-600 clear-both text-sm">
+          <span className="mx-auto flex flex-grow text-slate-11 clear-both text-sm">
             Type a message to start the conversation
           </span>
         )}
         {permissionDenied && (
-          <span className="mx-auto flex flex-grow text-red-400 clear-both text-sm">
+          <span className="mx-auto flex flex-grow text-red-9 clear-both text-sm">
             window.ai permission denied!
           </span>
         )}
         {showInstallMessage && (
           <div className="flex flex-col gap-2 text-sm">
-            <p className="px-4 text-center text-gray-400">
+            <p className="px-4 text-center text-slate-11">
               window.ai not found on your browser!
             </p>
             <div className="grid grid-cols-2 gap-6">

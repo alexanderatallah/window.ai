@@ -16,9 +16,10 @@ export const initialMessages: ChatMessage[] = [
 
 export function useWindowAI(
   defaultMessages = initialMessages,
-  { cacheSize = 10, stream = false } = {}
+  { cacheSize = 10, stream = false, keep = 0 } = {}
 ) {
-  const [messages, setMessages] = useState<ChatMessage[]>(defaultMessages)
+  const messagesRef = useRef<ChatMessage[]>(defaultMessages)
+  const [messages, setMessages] = useState<ChatMessage[]>(messagesRef.current)
   const [isReady, setIsReady] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showInstallMessage, setShowInstallMessage] = useState(false)
@@ -40,27 +41,30 @@ export function useWindowAI(
   }, [])
 
   // send message to API /api/chat endpoint
-  const sendMessage = async (message: string) => {
+  const sendMessage = async (
+    message: string,
+    onData?: (data: string) => void
+  ) => {
     if (showInstallMessage || !windowAIRef.current) {
       return null
     }
 
     setLoading(true)
 
-    const newMessages: ChatMessage[] = [
-      ...messages,
+    const allMessages: ChatMessage[] = [
+      ...messagesRef.current,
       { role: "user", content: message }
     ]
 
-    setMessages(newMessages)
-
-    const messageCache = newMessages.slice(-cacheSize)
-
     const responseMsg: ChatMessage = { role: "assistant", content: "" }
-    const allMsgs = [...newMessages]
 
-    setMessages([...allMsgs, { ...responseMsg }])
+    setMessages((messagesRef.current = [...allMessages, { ...responseMsg }]))
     setPermissionDenied(false)
+
+    const keptMessages = allMessages.slice(0, keep)
+    const ctxMessages = allMessages.slice(keep)
+
+    const messageCache = [...keptMessages, ...ctxMessages.slice(-cacheSize)]
 
     try {
       if (stream) {
@@ -75,7 +79,12 @@ export function useWindowAI(
               }
 
               responseMsg.content += result?.message.content
-              setMessages([...allMsgs, { ...responseMsg }])
+              setMessages(
+                (messagesRef.current = [...allMessages, { ...responseMsg }])
+              )
+              if (onData && !!result) {
+                onData(result.message.content)
+              }
             }
           }
         )
@@ -89,25 +98,30 @@ export function useWindowAI(
           }
         )
         responseMsg.content = result.message.content
-        setMessages([...allMsgs, { ...responseMsg }])
+
+        setMessages(
+          (messagesRef.current = [...allMessages, { ...responseMsg }])
+        )
         return result
       }
     } catch (e) {
       console.error(e)
       if (e === ErrorCode.PermissionDenied) {
         setPermissionDenied(true)
-        setMessages((p) => {
-          p.pop()
-          return [...p]
+        setMessages(() => {
+          messagesRef.current.pop()
+          return (messagesRef.current = [...messagesRef.current])
         })
       } else {
-        setMessages([
-          ...messages,
-          {
-            role: "assistant",
-            content: "Sorry, I had an error. Please try again later."
-          }
-        ])
+        setMessages(
+          (messagesRef.current = [
+            ...messagesRef.current,
+            {
+              role: "assistant",
+              content: "Sorry, I had an error. Please try again later."
+            }
+          ])
+        )
       }
     } finally {
       setLoading(false)

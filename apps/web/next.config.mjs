@@ -25,6 +25,17 @@ const securityHeaders = [
   // }
 ]
 
+const webContainerHeaders = [
+  {
+    key: "Cross-Origin-Embedder-Policy",
+    value: "require-corp"
+  },
+  {
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin"
+  }
+]
+
 /**
  * @type {import('next').NextConfig}
  */
@@ -38,17 +49,12 @@ const baseConfig = {
         headers: securityHeaders
       },
       {
+        source: "/vm",
+        headers: [...webContainerHeaders]
+      },
+      {
         source: "/agent",
-        headers: [
-          {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "require-corp"
-          },
-          {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin"
-          }
-        ]
+        headers: [...webContainerHeaders]
       }
     ]
   }

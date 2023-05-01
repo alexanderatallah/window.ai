@@ -1,5 +1,6 @@
-/** @satisfies {import('@webcontainer/api').FileSystemTree} */
-export const expressFiles = {
+import { type FileSystemTree } from "@webcontainer/api"
+
+export const expressFiles: FileSystemTree = {
   "index.js": {
     file: {
       contents: `
@@ -8,7 +9,7 @@ const app = express();
 const port = 3111;
 
 app.get('/', (req, res) => {
-  res.send('Welcome to a WebContainers app! 🥳');
+  res.send('Hello world!');
 });
 
 app.listen(port, () => {

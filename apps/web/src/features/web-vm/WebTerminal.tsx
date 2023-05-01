@@ -2,13 +2,13 @@ import { useWebVM } from "~core/providers/web-vm"
 
 import "xterm/css/xterm.css"
 
-const WebTerminal = () => {
+export const WebTerminal = () => {
   const { render } = useWebVM()
 
   return (
-    <div className="flex justify-center w-full h-full">
+    <div className="flex justify-center w-full h-full bg-black rounded-md p-2">
       <div
-        className="flex w-full px-2 py-2 bg-black rounded-md"
+        className="flex w-full h-full"
         ref={(el) => {
           if (el) {
             render(el)
@@ -18,5 +18,3 @@ const WebTerminal = () => {
     </div>
   )
 }
-
-export default WebTerminal

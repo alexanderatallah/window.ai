@@ -6,11 +6,7 @@ import {
   oneLight
 } from "react-syntax-highlighter/dist/cjs/styles/prism"
 
-interface languageMap {
-  [key: string]: string | undefined
-}
-
-export const programmingLanguages: languageMap = {
+export const programmingLanguages = {
   javascript: ".js",
   python: ".py",
   java: ".java",
@@ -35,7 +31,9 @@ export const programmingLanguages: languageMap = {
   html: ".html",
   css: ".css"
   // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
-}
+} as const
+
+type ProgrammingLanguage = keyof typeof programmingLanguages
 
 export const generateRandomString = (length: number, lowercase = false) => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXY3456789" // excluding similar looking characters like Z, 2, I, 1, O, 0
@@ -47,12 +45,12 @@ export const generateRandomString = (length: number, lowercase = false) => {
 }
 
 interface Props {
-  language: string
+  language: ProgrammingLanguage
   value: string
 }
 
 // pulled from https://github.com/mckaywrigley/chatbot-ui/blob/main/utils/app/codeblock.ts
-export const CodeBlock: FC<Props> = memo(({ language, value }) => {
+export const CodeBlock: FC<Props> = ({ language, value }) => {
   const [isCopied, setIsCopied] = useState<Boolean>(false)
 
   const copyToClipboard = () => {
@@ -72,11 +70,11 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
   return (
     <div className="codeblock relative font-sans text-[16px] group">
       <div className="flex items-center justify-between py-1.5 px-4">
-        <span className="text-xs lowercase text-white">{language}</span>
+        <span className="text-xs lowercase">{language}</span>
 
         <div className="flex items-center">
           <button
-            className="flex gap-1.5 items-center rounded bg-none p-1 text-xs text-white group-hover:text-black"
+            className="flex gap-1.5 items-center rounded bg-none p-1 text-xs text-slate-11 group-hover:text-slate-12"
             onClick={copyToClipboard}>
             {isCopied ? <IconCheck size={18} /> : <IconClipboard size={18} />}
             {isCopied ? "Copied!" : "Copy code"}
@@ -91,5 +89,4 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
       </SyntaxHighlighter>
     </div>
   )
-})
-CodeBlock.displayName = "CodeBlock"
+}
