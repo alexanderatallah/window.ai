@@ -101,9 +101,13 @@ export type EventListenerHandler<T> = (
 ) => void
 
 export type ModelProviderOptions = {
+  // baseUrl is used to identify the model provider
   baseUrl: string
-  metadata?: { email?: string; expiresAt?: number } // If undefined, logs out the user
-  shouldSetDefault?: boolean
+  // Session information for the current user. If undefined, means user is
+  // not signed in.
+  session?: { email?: string; expiresAt?: number }
+  // Whether to set this model provider as the default for the user.
+  shouldSetDefault?: boolean //
 }
 
 export const VALID_DOMAIN = "https://windowai.io" as const

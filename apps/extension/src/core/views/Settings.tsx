@@ -14,6 +14,7 @@ import { Well } from "~core/components/pure/Well"
 import { RequestInterruptType } from "~core/constants"
 import { AuthType, type Config, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
+import { objectEntries } from "~core/utils/utils"
 import { ModelID } from "~public-interface"
 
 type ConfigSetting = { auth: AuthType; model?: ModelID }
@@ -83,7 +84,7 @@ export function Settings() {
       <div className="my-4">
         {requestId ? (
           <div className="bg-rose-700 text-white rounded-md py-4 px-6">
-            {config?.authMetadata && config.auth === AuthType.External
+            {config?.session && config.auth === AuthType.External
               ? "Authentication error. Please sign in again."
               : "Please finish setting up the model below."}
           </div>
@@ -221,19 +222,19 @@ export function Settings() {
 function ExternalSettings({ config }: { config: Config }) {
   return (
     <div>
-      {config.authMetadata ? (
+      {config.session ? (
         <div className="flex flex-col justify-between">
           <table className="table-fixed mt-2">
             <tbody>
-              {Object.entries(config.authMetadata).map(([k, v]) => (
+              {objectEntries(config.session).map(([k, v]) => (
                 <tr key={k}>
                   <td className="text-xs opacity-30">{k}</td>
                   <td className="text-xs opacity-60">
                     {typeof v === "string"
                       ? v
-                      : typeof v === "number"
+                      : k === "expiresAt" && v
                       ? new Date(v * 1000).toLocaleString()
-                      : JSON.stringify(v)}
+                      : null}
                   </td>
                 </tr>
               ))}

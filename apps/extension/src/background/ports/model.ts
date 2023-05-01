@@ -22,13 +22,13 @@ const handler: PlasmoMessaging.PortHandler<
   if (request) {
     // TODO handle other model providers here by checking request.baseUrl
     // TODO request the user's permission to add the model provider
-    const { metadata, shouldSetDefault } = request
+    const { session, shouldSetDefault } = request
     const config =
       (await configManager.forAuthAndModel(AuthType.External)) ||
       configManager.init(AuthType.External)
     const newConfig = {
       ...config,
-      authMetadata: metadata
+      session
     }
     await configManager.save(newConfig)
     if (shouldSetDefault) {

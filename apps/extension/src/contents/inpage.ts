@@ -100,10 +100,10 @@ export const windowAI: WindowAI<ModelID> = {
     return requestId
   },
 
-  BETA_updateModelProvider({ baseUrl, metadata, shouldSetDefault }) {
+  BETA_updateModelProvider({ baseUrl, session, shouldSetDefault }) {
     const requestId = _relayRequest(PortName.Model, {
       baseUrl,
-      metadata,
+      session,
       shouldSetDefault
     })
     return new Promise((resolve, reject) => {

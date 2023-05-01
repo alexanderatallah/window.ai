@@ -41,7 +41,7 @@ export interface Config {
   baseUrl: string
   models: ModelID[]
 
-  authMetadata?: { email?: string; expiresAt?: number }
+  session?: { email?: string; expiresAt?: number }
   apiKey?: string
 }
 
@@ -127,7 +127,7 @@ class ConfigManager extends BaseManager<Config> {
     }
     switch (config.auth) {
       case AuthType.External:
-        return !!config.authMetadata
+        return !!config.session
       case AuthType.APIKey:
         return config.models.length ? !!config.apiKey : true
     }
