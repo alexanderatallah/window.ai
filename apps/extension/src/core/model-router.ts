@@ -1,24 +1,25 @@
 import { ErrorCode } from "window.ai"
 
-import { modelCallers } from "~core/llm"
+import { modelAPICallers } from "~core/llm"
 
-import { type Config, configManager } from "./managers/config"
+import { AuthType, type Config, configManager } from "./managers/config"
 import type { Transaction } from "./managers/transaction"
-import type { Result } from "./utils/result-monad"
+import { type Result, unknownErr } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
 export async function complete(
   txn: Transaction
 ): Promise<Result<string[], string>> {
-  const config = await configManager.getWithDefault(txn.model)
-  const caller = modelCallers[config.id]
+  const config = await configManager.forModelWithDefault(txn.model)
+  const caller = configManager.getCaller(config)
+  const model = txn.model || configManager.getCurrentModel(config)
 
   try {
     const result = await caller.complete(txn.input, {
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
-      model: txn.model || config.id,
+      model,
       max_tokens: txn.maxTokens,
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences,
@@ -26,34 +27,42 @@ export async function complete(
     })
     return ok(result)
   } catch (error) {
-    return err(`${error}`)
+    return unknownErr(error)
   }
 }
 
-export function isStreamable(config: Config): boolean {
-  return modelCallers[config.id].config.isStreamable
+export function shouldStream(
+  config: Config,
+  userPrefersStream = true
+): boolean {
+  const canStream = configManager.getCaller(config).config.isStreamable
+  return canStream && (userPrefersStream || config.auth === AuthType.External)
 }
 
 export async function stream(
   txn: Transaction
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const config = await configManager.getWithDefault(txn.model)
-    const caller = modelCallers[config.id]
+    const config = await configManager.forModelWithDefault(txn.model)
+    const caller = configManager.getCaller(config)
+    const model = txn.model || configManager.getCurrentModel(config)
 
-    if (!isStreamable(config)) {
+    if (!shouldStream(config)) {
+      // TODO call complete() here
+      // https://github.com/alexanderatallah/window.ai/pull/50
       throw ErrorCode.InvalidRequest
     }
 
     if (txn.numOutputs && txn.numOutputs > 1) {
-      // Can't stream multiple outputs
+      // TODO Can't stream multiple outputs
+      // https://github.com/alexanderatallah/window.ai/issues/52
       throw ErrorCode.InvalidRequest
     }
 
     const stream = await caller.stream(txn.input, {
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
-      model: txn.model || config.id,
+      model,
       max_tokens: txn.maxTokens,
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences
@@ -61,7 +70,7 @@ export async function stream(
     return readableStreamToGenerator(stream)
   } catch (error) {
     async function* generator() {
-      yield err(`${error}`)
+      yield unknownErr(error)
     }
     return generator()
   }
@@ -80,9 +89,9 @@ async function* readableStreamToGenerator(
         break
       }
       lastValue =
-        typeof value === "string" // True for browser (always true for local), false for Node.js
+        typeof value === "string"
           ? value
-          : decoder.decode(value, { stream: true })
+          : decoder.decode(value, { stream: true }) // only for node.js
       log("Got stream value: ", lastValue)
       yield ok(lastValue)
     }

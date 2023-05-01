@@ -68,7 +68,7 @@ export function useWindowAI(
 
     try {
       if (stream || typeof onData === "function") {
-        await windowAIRef.current.getCompletion(
+        const [result] = await windowAIRef.current.generateText(
           {
             messages: [...messageCache]
           },
@@ -89,8 +89,9 @@ export function useWindowAI(
             }
           }
         )
+        return result
       } else {
-        const [result] = await windowAIRef.current.getCompletion(
+        const [result] = await windowAIRef.current.generateText(
           {
             messages: [...messageCache]
           },

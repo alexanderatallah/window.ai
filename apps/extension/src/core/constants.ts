@@ -1,4 +1,10 @@
-import type { ErrorCode, InferredOutput, Input, RequestID } from "window.ai"
+import type {
+  ErrorCode,
+  InferredOutput,
+  Input,
+  ModelProviderOptions,
+  RequestID
+} from "window.ai"
 
 import type { EventRequest, EventResponse } from "~background/ports/events"
 import type { ModelID } from "~public-interface"
@@ -13,13 +19,24 @@ export enum PortName {
   Events = "events"
 }
 
+export enum RequestInterruptType {
+  Permission = "permission",
+  Authentication = "auth"
+}
+
+export function isRequestInterruptType(
+  value: string
+): value is RequestInterruptType {
+  return (Object.values(RequestInterruptType) as string[]).includes(value)
+}
+
 export interface PortRequest {
   [PortName.Completion]: { id: RequestID; request: CompletionRequest }
   [PortName.Permission]: {
     id?: RequestID
     request: { requesterId: RequestID; permitted?: boolean }
   }
-  [PortName.Model]: { id: RequestID; request: ModelRequest }
+  [PortName.Model]: { id: RequestID; request?: ModelRequest }
   [PortName.Events]: { id?: RequestID; request: EventRequest<unknown> }
 }
 
@@ -58,8 +75,8 @@ export type CompletionResponse<TInput extends Input = Input> = Result<
   ErrorCode | string
 >
 
-export type ModelRequest = {}
-export type ModelResponse = Result<{ model: ModelID }, ErrorCode>
+export type ModelRequest = ModelProviderOptions
+export type ModelResponse = Result<{ model?: ModelID }, ErrorCode>
 
 export type { EventRequest, EventResponse }
 

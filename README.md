@@ -99,12 +99,12 @@ This section shows why and how to get started, followed by a reference of `windo
 
 ### Getting started
 
-To leverage user-managed models in your app, simply call `await window.ai.getCompletion` with your prompt and options.
+To leverage user-managed models in your app, simply call `await window.ai.generateText` with your prompt and options.
 
 Example:
 
 ```ts
-const response: Output = await window.ai.getCompletion(
+const [ response ] : Output[] = await window.ai.generateText(
     { messages: [{role: "user", content: "Who are you?"}] }: Input
   )
 
@@ -116,7 +116,7 @@ All public types, including error messages, are documented in [this file](/apps/
 Example of streaming GPT-4 results to the console:
 
 ```ts
-await ai.getCompletion(
+await window.ai.generateText(
   {
     messages: [{ role: "user", content: "Who are you?" }]
   },
@@ -129,16 +129,16 @@ await ai.getCompletion(
 )
 ```
 
-Note that `getCompletion` will return an array, `Output[]`, if you specify `numOutputs > 1`.
+Note that `generateText` will return an array, `Output[]`, that only has multiple elements if `numOutputs > 1`.
 
 ### Functions
 
 The Window API is simple. Just a few functions:
 
-**Get completion**: get or stream a completion from the specified (or preferred) model.
+**Generate Text**: generate text from a specified model or the user-preferred model.
 
 ```ts
-window.ai.getCompletion(
+window.ai.generateText(
     input: Input,
     options: CompletionOptions = {}
   ): Promise<Output | Output[]>

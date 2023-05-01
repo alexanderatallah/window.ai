@@ -59,8 +59,8 @@ importers:
         specifier: ^2.0.16
         version: 2.0.17(react@18.2.0)
       '@plasmohq/messaging':
-        specifier: ^0.1.6
-        version: 0.1.8(react@18.2.0)
+        specifier: ^0.2.1
+        version: 0.2.1(react@18.2.0)
       '@plasmohq/storage':
         specifier: ^1.3.1
         version: 1.5.0(react@18.2.0)
@@ -2324,14 +2324,15 @@ packages:
     resolution: {integrity: sha512-TdeisHX+Z0Rfez4251eCX0czcqnWO1OfurQhSQDijcmcjVU7r+IXh0svg7s+UVpCiHTagQ/JY+bnweuqnGPFHQ==}
     dev: false
 
-  /@plasmohq/messaging@0.1.8(react@18.2.0):
-    resolution: {integrity: sha512-DXaFLR7O/QJc6TlOqTJV4uM029AaejE+bbqIDsxK+fp5k7u1xlDjdPORkN5BCKcpHVUH2GpPYO9zUrPy+5o12g==}
+  /@plasmohq/messaging@0.2.1(react@18.2.0):
+    resolution: {integrity: sha512-1x569S9NRbm6l7jVnJtmLPpYQxRRx5E7/kCKbqEZbIVuqKECWjOGfuONr3wSYqZUoys1TUIF7GQ8Tf9EceKL6w==}
     peerDependencies:
       react: ^16.8.6 || ^17 || ^18
     peerDependenciesMeta:
       react:
         optional: true
     dependencies:
+      nanoid: 4.0.2
       react: 18.2.0
     dev: false
 

@@ -6,17 +6,14 @@ import Image from "next/image"
 import {
   ANNOUNCEMENT_URL,
   DISCORD_URL,
-  EXTENSION_CHROME_URL,
   GITHUB_URL
 } from "~core/components/common"
 import { Button } from "~core/components/Button"
 import { GetExtensionButton } from "~core/components/GetExtensionButton"
 
-const windowaiExample = `// Get the active model from the window.ai API 
-await window.ai.getCurrentModel()
-
-// Get completions from the window.ai API
-await window.ai.getCompletion(
+const windowaiExample = `
+// Get text completions from a user's Window AI model
+await window.ai.generateText(
   {
     messages: [...last10messages],
   },

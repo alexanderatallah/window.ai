@@ -39,9 +39,11 @@ export abstract class BaseManager<T extends BaseModel> {
   async getIds(
     pageSize = 20,
     page = 0,
-    indexName = primaryIndexName
+    indexName?: string,
+    indexKey?: string
   ): Promise<string[]> {
-    const ids = (await this.store.get<string[]>(indexName)) || []
+    const index = this._getIndex(indexName, indexKey)
+    const ids = (await this.store.get<string[]>(index)) || []
     return ids.slice(pageSize * page, pageSize * (page + 1))
   }
 
@@ -59,7 +61,7 @@ export abstract class BaseManager<T extends BaseModel> {
   async save(obj: T): Promise<boolean> {
     const [warning, isNew] = await Promise.all([
       this.store.set(obj.id, obj),
-      this.indexBy(obj, null, primaryIndexName)
+      this.indexBy(obj, undefined, primaryIndexName)
     ])
 
     if (warning) {
@@ -74,10 +76,10 @@ export abstract class BaseManager<T extends BaseModel> {
   // O(<index size>) :(
   async indexBy(
     obj: T,
-    key: string | null,
+    key: string | undefined,
     indexName: string
   ): Promise<boolean> {
-    const index = key ? `${indexName}-${key}` : indexName
+    const index = this._getIndex(indexName, key)
     const ids = (await this.store.get<string[]>(index)) || []
 
     const isNew = !ids.includes(obj.id)
@@ -105,14 +107,14 @@ export abstract class BaseManager<T extends BaseModel> {
 
   // Note that this doesn't listen to changes of the contents of each object.
   // Just the indexName
-  useObjects(pageSize = 20, indexName = primaryIndexName) {
+  useObjects(pageSize = 20, indexName?: string, indexKey?: string) {
     const [page, _setPage] = useState<number>(0)
     const [_pageMode, _setPageMode] = useState<"paginate" | "append">("append")
     const [loading, _setLoading] = useState<boolean>(true)
     const [objects, _setObjects] = useState<T[]>([])
     const [_itemIds] = useStorage<string[]>(
       {
-        key: indexName,
+        key: this._getIndex(indexName, indexKey),
         instance: this.store
       },
       (v) => (v === undefined ? [] : v)
@@ -163,5 +165,9 @@ export abstract class BaseManager<T extends BaseModel> {
       goToPrevPage,
       goToNextPage
     }
+  }
+
+  private _getIndex(indexName = primaryIndexName, indexKey?: string) {
+    return indexKey ? `${indexName}-${indexKey}` : indexName
   }
 }

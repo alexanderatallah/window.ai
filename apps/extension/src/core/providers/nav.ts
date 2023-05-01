@@ -1,5 +1,5 @@
 import { createProvider } from "puro"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 
 export type NavView = "activity" | "apps"
 

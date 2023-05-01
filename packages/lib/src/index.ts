@@ -28,10 +28,12 @@ export function isMessagesInput(input: Input): input is MessagesInput {
 
 export type TextOutput = {
   text: string
+  isPartial?: boolean
 }
 
 export type MessageOutput = {
   message: ChatMessage
+  isPartial?: boolean
 }
 
 // Output can be either a string or a chat message, depending on which Input type you use.
@@ -98,22 +100,68 @@ export type EventListenerHandler<T> = (
   data: T | ErrorCode
 ) => void
 
+export type ModelProviderOptions = {
+  baseUrl: string
+  metadata?: { email?: string; expiresAt?: number } // If undefined, logs out the user
+  shouldSetDefault?: boolean
+}
+
 export const VALID_DOMAIN = "https://windowai.io" as const
 
 export interface WindowAI<TModel = string> {
+  /**
+   * Metadata containing the domain and version of the extension API
+   */
   __window_ai_metadata__: {
     domain: typeof VALID_DOMAIN
     version: string
   }
 
+  /** Generate text completions from the specified (or preferred) model.
+   * @param input The input to use for the completion.
+   * @param options Options for the completion request.
+   * @returns A promise that resolves to an array of completion results.
+   */
+  generateText<TInput extends Input = Input>(
+    input: TInput,
+    options?: CompletionOptions<TModel, TInput>
+  ): Promise<InferredOutput<TInput>[]>
+
+  /**
+   * Get or stream a completion from the specified (or preferred) model.
+   * @param input The input to use for the completion.
+   * @param options Options for the completion request.
+   * @returns A promise that resolves to an array of completion results.
+   * @deprecated Use generateText instead
+   */
   getCompletion<TInput extends Input = Input>(
     input: TInput,
     options?: CompletionOptions<TModel, TInput>
   ): Promise<InferredOutput<TInput>[]>
 
-  getCurrentModel(): Promise<TModel>
+  /** Get the user's current model.
+   * @returns A promise that resolves to the user's current model, or
+   *          undefined if not available.
+   */
+  getCurrentModel(): Promise<TModel | undefined>
 
+  /**
+   * Add an event listener for all event types.
+   * @param handler The handler to call when any event is emitted.
+   * @returns A request ID that can be used to remove the event listener.
+   */
   addEventListener<T>(handler: EventListenerHandler<T>): RequestID
+
+  /**
+   * Update the external model provider.
+   * @param options The options for the model provider.
+   *                If metadata is undefined, logs out the user.
+   * @returns A promise that resolves to the user's current model, or
+   *          undefined if not available.
+   */
+  BETA_updateModelProvider(
+    options: ModelProviderOptions
+  ): Promise<TModel | undefined>
 }
 
 declare global {
@@ -124,7 +172,7 @@ declare global {
 
 // Checking against other window.ai implementations
 export function hasWindowAI() {
-  return typeof globalThis.window.ai?.getCompletion === "function"
+  return typeof globalThis.window.ai?.generateText === "function"
 
   // Ref: https://github.com/alexanderatallah/window.ai/pull/34#discussion_r1170544209
   // return (
@@ -163,12 +211,5 @@ export async function waitForWindowAI(opts = DEFAULT_WAIT_OPTIONS) {
 export const getWindowAI = async (opts = DEFAULT_WAIT_OPTIONS) => {
   // wait until the window.ai object is available
   await waitForWindowAI(opts)
-
-  // Context: https://github.com/alexanderatallah/window.ai/pull/43#discussion_r1178316153
-  const _getCompletion = globalThis.window.ai.getCompletion
-  globalThis.window.ai.getCompletion = async (input, options = {}) => {
-    const output = await _getCompletion(input, options)
-    return Array.isArray(output) ? output : [output]
-  }
   return globalThis.window.ai
 }

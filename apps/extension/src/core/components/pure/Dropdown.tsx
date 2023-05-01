@@ -1,18 +1,23 @@
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid"
 import { useState } from "react"
 
-export function Dropdown<T extends string>({
+export function Dropdown<T>({
   styled = false,
   children,
   choices,
+  getLabel,
   onSelect
 }: {
   styled?: boolean
   children: React.ReactNode
-  choices: T[]
+  choices: Readonly<T[]>
+  getLabel?: (choice: T) => string
   onSelect: (choice: T) => void
 }) {
   const [isOpen, setIsOpen] = useState(false)
+  const getLabelOrDefault =
+    getLabel ||
+    ((choice) => (typeof choice === "string" ? choice : JSON.stringify(choice)))
 
   return (
     <div>
@@ -41,14 +46,14 @@ export function Dropdown<T extends string>({
           <div className="py-1" role="none">
             {choices.map((choice) => (
               <button
-                key={choice}
+                key={getLabelOrDefault(choice)}
                 className="block text-left w-full px-4 py-2 pr-8 text-slate-700 hover:bg-indigo-100 hover:text-indigo-900 focus:outline-none focus:bg-indigo-100 focus:text-indigo-900"
                 role="menuitem"
                 onClick={() => {
                   setIsOpen(false)
                   onSelect(choice)
                 }}>
-                {choice}
+                {getLabelOrDefault(choice)}
               </button>
             ))}
           </div>
