@@ -5,6 +5,7 @@ import { ChatLine, LoadingChatLine } from "./ChatLine"
 import { InputMessage } from "./InputMessage"
 import { DISCORD_URL, EXTENSION_CHROME_URL } from "./common"
 import { initialMessages, useWindowAI } from "./hooks/useWindowAI"
+import { GetExtensionButton } from "~core/components/GetExtensionButton"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
@@ -69,11 +70,7 @@ export function Chat() {
               window.ai not found on your browser!
             </p>
             <div className="grid grid-cols-2 gap-6">
-              <Button
-                onClick={() => window.open(EXTENSION_CHROME_URL, "_blank")}
-                className=" bg-indigo-600 hover:bg-indigo-500 ">
-                Get the extension
-              </Button>
+              <GetExtensionButton />
               <Button onClick={() => window.open(DISCORD_URL, "_blank")}>
                 Join the community
               </Button>
