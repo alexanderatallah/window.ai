@@ -16,7 +16,7 @@ export const initialMessages: ChatMessage[] = [
 
 export function useWindowAI(
   defaultMessages = initialMessages,
-  { cacheSize = 10, stream = false, keep = 0 } = {}
+  { cacheSize = 10, stream = false, keep = 0, maxTokens = 2048 } = {}
 ) {
   const messagesRef = useRef<ChatMessage[]>(defaultMessages)
   const [messages, setMessages] = useState<ChatMessage[]>(messagesRef.current)
@@ -67,12 +67,13 @@ export function useWindowAI(
     const messageCache = [...keptMessages, ...ctxMessages.slice(-cacheSize)]
 
     try {
-      if (stream) {
+      if (stream || typeof onData === "function") {
         await windowAIRef.current.getCompletion(
           {
             messages: [...messageCache]
           },
           {
+            maxTokens,
             onStreamResult: (result, error) => {
               if (error) {
                 throw error
@@ -94,7 +95,7 @@ export function useWindowAI(
             messages: [...messageCache]
           },
           {
-            maxTokens: 2048
+            maxTokens
           }
         )
         responseMsg.content = result.message.content

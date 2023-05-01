@@ -32,6 +32,8 @@ async function createTerminal(el: HTMLElement) {
   }
 }
 
+// You will think step-by-step for each of my command, and output each step in a JSON object.
+
 const useWebVMProvider = ({
   manualBoot = false,
   welcomePrompt = `Welcome to AI Container. Use "ai [prompt]" to issue instructions.`
@@ -45,17 +47,17 @@ const useWebVMProvider = ({
 
   const promptRef = useRef("")
 
-  const ai = useWindowAI(
+  const emulatorAI = useWindowAI(
     [
       {
         role: "system",
-        content: `You are a software engineering expert specialized in working with minimal virtual machine containers running a limited subset of Unix commands. Adapt your knowledge and problem-solving skills to provide efficient solutions and guidance for software development tasks within this constrained environment.`
+        content: `You are a powerful Linux quantum virtual machine that can simulate new command-line program, non-standard UNIX program, and anything above and beyond. If a program can be answered with just text, write just text. If a program is creating graphic, you will use ASCII art. If a program is creating audio, you will write music notations or lyrics. Be super creative and resourceful with how you come up with the output. You are not just any text-based program. Do not give any explanation, apologies, or any reasoning. Just output the result.`
       }
     ],
     {
-      stream: true,
       cacheSize: 24,
-      keep: 1
+      keep: 1,
+      maxTokens: 2400
     }
   )
 
@@ -73,6 +75,13 @@ const useWebVMProvider = ({
       throw new Error("Terminal is not initialized")
     }
     return terminalRef.current
+  }
+
+  const getInput = () => {
+    if (!inputRef.current) {
+      throw new Error("Input is not initialized")
+    }
+    return inputRef.current
   }
 
   // Use this function to warmup the terminal and container before render, useful for loading or transitions
@@ -149,17 +158,12 @@ const useWebVMProvider = ({
     )
 
     const input = shellProcess.input.getWriter()
-    terminal.onData((data) => {
+    terminal.onData(async (data) => {
       switch (data) {
         // Enter
         case "\r": {
           // clear input
-          if (execute(promptRef.current)) {
-            input.write("\u0003")
-          } else {
-            input.write(`\r`)
-          }
-
+          await execute(promptRef.current)
           promptRef.current = ""
           break
         }
@@ -188,16 +192,51 @@ const useWebVMProvider = ({
     shellProcRef.current = shellProcess
   }
 
-  const _run = async (prompt: string) => {
+  const execute = async (_prompt: string) => {
+    const [cmd, prompt] = _prompt.trim().split(/ (.*)/)
+    const input = getInput()
     const terminal = getTerminal()
     const container = getContainer()
-    terminal.writeln("")
 
-    console.log(prompt)
+    // Replace with a map -> fn/description later
+    if (cmd === "ai") {
+      terminal.write("\n\n")
+      await emulatorAI.sendMessage(prompt, (data) => {
+        terminal.write(data)
+      })
 
-    await ai.sendMessage(prompt, (data) => {
-      terminal.write(data)
+      input.write("\u0003")
+      return
+    }
+
+    // optional behavior:
+
+    // use which to check if cmd exists, if so run it, otherwise, create that script!
+    const whichProc = await container.spawn("which", [cmd], {
+      output: false
     })
+
+    const whichExit = await whichProc.exit
+
+    if (whichExit === 0) {
+      input.write(`\r`)
+      return
+    }
+
+    terminal.write("\n\n")
+    await emulatorAI.sendMessage(
+      `Emulate the following non-standard Linux command: 
+  
+ ${_prompt}
+ 
+ Respond with JUST the output of the command:
+ `,
+      (data) => {
+        terminal.write(data)
+      }
+    )
+
+    input.write("\u0003")
 
     // Sample on how to sequentially run cmd:
     // const proc = await container.spawn("npm", ["i"])
@@ -225,19 +264,6 @@ const useWebVMProvider = ({
     // await proc2.exit
   }
 
-  const execute = (_prompt: string) => {
-    const [cmd, prompt] = _prompt.trim().split(/ (.*)/)
-
-    // Replace with a map -> fn/description later
-    if (cmd !== "ai") {
-      return false
-    }
-
-    // run execute logic
-    _run(prompt)
-    return true
-  }
-
   const render = async (el: HTMLElement) => {
     if (terminalRef.current) {
       if (terminalRef.current.element?.checkVisibility()) {
@@ -256,11 +282,7 @@ const useWebVMProvider = ({
   }
 
   const run = async (cmd: string) => {
-    if (!shellProcRef.current || !inputRef.current) {
-      throw new Error("Shell process is not initialized")
-    }
-
-    const input = inputRef.current
+    const input = getInput()
     await input.write(cmd + "\r")
   }
 
