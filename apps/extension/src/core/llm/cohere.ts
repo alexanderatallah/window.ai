@@ -46,6 +46,7 @@ export function init(
           top_p,
           stop_sequences,
           modelProvider,
+          num_generations,
           ...optsToSend
         } = req
         const fullPrompt =
@@ -58,7 +59,8 @@ export function init(
           ...optsToSend,
           stop_sequences: ["\n<human>", ...stop_sequences],
           prompt: fullPrompt,
-          p: top_p
+          p: top_p,
+          num_generations
         }
       },
       transformResponse: (res) => {

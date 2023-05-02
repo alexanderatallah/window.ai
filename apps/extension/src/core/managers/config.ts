@@ -156,7 +156,8 @@ class ConfigManager extends BaseManager<Config> {
       }
       await this.defaultConfig.remove("id")
     }
-    return this.init(AuthType.External)
+    // TODO switch to authtype external
+    return this.init(AuthType.APIKey, ModelID.GPT3)
   }
 
   // TODO: allow multiple custom models
@@ -199,11 +200,16 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   async forAuthAndModel(auth: AuthType, modelId?: ModelID) {
-    const forAuth = await this.filter({ auth })
+    let forAuth: Config[]
     if (!modelId) {
-      return forAuth[0]
+      forAuth =
+        auth === AuthType.APIKey
+          ? await this.filter({ auth, model: null }) // Local model is special case (no model ID)
+          : await this.filter({ auth })
+    } else {
+      forAuth = await this.filter({ auth, model: modelId })
     }
-    return forAuth.find((c) => c.models.includes(modelId))
+    return forAuth[0]
   }
 
   getCallerForAuth(auth: AuthType, modelId?: ModelID) {

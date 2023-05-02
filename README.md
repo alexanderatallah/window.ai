@@ -131,6 +131,8 @@ await window.ai.generateText(
 
 Note that `generateText` will return an array, `Output[]`, that only has multiple elements if `numOutputs > 1`.
 
+This **does not guarantee that the length of the return result will equal `numOutputs`**. If the model doesn't support multiple choices, then only one choice will be present in the array.
+
 ### Functions
 
 The Window API is simple. Just a few functions:

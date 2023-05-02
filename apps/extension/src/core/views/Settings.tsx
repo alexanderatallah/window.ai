@@ -20,7 +20,7 @@ import { ModelID } from "~public-interface"
 type ConfigSetting = { auth: AuthType; model?: ModelID }
 
 const configSettings: ConfigSetting[] = [
-  { auth: AuthType.External },
+  // { auth: AuthType.External },
   { auth: AuthType.APIKey, model: ModelID.GPT3 },
   { auth: AuthType.APIKey, model: ModelID.GPT4 },
   { auth: AuthType.APIKey, model: ModelID.Together },

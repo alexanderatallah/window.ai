@@ -72,7 +72,8 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   stopSequences?: string[]
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: TModel
-  // How many completion choices to generate. Defaults to 1.
+  // How many completion choices to attempt to generate. Defaults to 1. If the
+  // model doesn't support more than one, then an array with a single element will be returned.
   numOutputs?: number
 }
 
