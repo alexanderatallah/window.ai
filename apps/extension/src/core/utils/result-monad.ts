@@ -10,6 +10,8 @@ export type Err<E> = {
 
 export const ok = <T>(data: T): Ok<T> => ({ __kind: "OK", data })
 export const err = <E>(error: E): Err<E> => ({ __kind: "ERR", error })
+export const unknownErr = (error: unknown): Err<string> =>
+  err(error instanceof Error ? error.message : `${error}`)
 
 export type Result<T, E> = Ok<T> | Err<E>
 

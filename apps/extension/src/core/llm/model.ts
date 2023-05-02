@@ -184,8 +184,7 @@ export class Model {
       getPath,
       cacheGet,
       cacheSet,
-      transformResponse,
-      authPrefix
+      transformResponse
     } = this.config
     const opts: Required<RequestOptions> = {
       ...this.defaultOptions,
@@ -211,15 +210,16 @@ export class Model {
       const response = await this.api.post(getPath(request), payload, {
         baseURL: opts.baseUrl,
         timeout: opts.timeout,
-        headers: {
-          Authorization: `${authPrefix}${opts.apiKey || ""}`
-        }
+        headers: this._getRequestHeaders(opts)
       })
       responseData = response.data
     } catch (err: unknown) {
-      const asResponse = err as AxiosError
-      const errMessage = `${asResponse.response?.status}: ${asResponse}`
-      this.error(errMessage + "\n" + asResponse.response?.data)
+      if (!(err instanceof AxiosError)) {
+        this.error(`Unknown error: ${err}`)
+        throw err
+      }
+      const errMessage = `${err.response?.status}: ${err}`
+      this.error(errMessage + "\n" + err.response?.data)
       throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
     }
 
@@ -251,8 +251,7 @@ export class Model {
       ...definedValues(requestOpts),
       stream: true
     }
-    const { transformResponse, transformForRequest, authPrefix, getPath } =
-      this.config
+    const { transformResponse, transformForRequest, getPath } = this.config
     const request = this.getRequestIdentifierData(requestPrompt, opts)
     const id = objectHash(request)
     const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
@@ -265,7 +264,6 @@ export class Model {
       stream: payload["stream"]
     })
 
-    let stream: ReadableStream<string>
     try {
       const response = await this.api.post<ReadableStream<string>>(
         getPath(request),
@@ -273,15 +271,15 @@ export class Model {
         {
           timeout: opts.timeout,
           responseType: "stream",
-          headers: {
-            Authorization: `${authPrefix}${opts.apiKey || ""}`
-          }
+          headers: this._getRequestHeaders(opts)
         }
       )
 
+      const decoder = new TextDecoder()
       const transformStream = new TransformStream({
         transform: (chunk, controller) => {
-          this._executeTransform(chunk, transformResponse, {
+          const chunkStr = decoder.decode(chunk)
+          this._executeTransform(chunkStr, transformResponse, {
             onEnd: () => controller.terminate(),
             onError: (err) => controller.error(err),
             onResult: (result) => controller.enqueue(result)
@@ -289,18 +287,27 @@ export class Model {
         }
       })
 
-      stream = response.data.pipeThrough(transformStream)
+      return response.data.pipeThrough(transformStream)
     } catch (err: unknown) {
-      const asResponse = err as AxiosError
-      const errMessage = `${asResponse.response?.status}: ${asResponse}`
-      this.error(errMessage + "\n" + asResponse.response?.data)
+      if (!(err instanceof AxiosError)) {
+        this.error(`Unknown error: ${err}`)
+        throw err
+      }
+      const errMessage = `${err.response?.status}: ${err}`
+      this.error(errMessage + "\n" + err.response?.data)
       throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
     }
-    return stream
+  }
+
+  protected _getRequestHeaders(opts: Required<RequestOptions>) {
+    const { authPrefix } = this.config
+    return {
+      Authorization: `${authPrefix}${opts.apiKey || ""}`
+    }
   }
 
   private _executeTransform(
-    chunk: BufferSource,
+    chunkStr: string,
     transformResponse: (responseData: Record<string, any>) => string[],
     {
       onEnd,
@@ -312,17 +319,24 @@ export class Model {
       onResult: (result: string) => void
     }
   ) {
-    const chunkStr = new TextDecoder().decode(chunk)
     let fullResult = ""
+    // this.log("Batched chunk: ", chunkStr)
     for (const chunkDataRes of parseDataChunks(chunkStr)) {
       if (chunkDataRes === this.config.endOfStreamSentinel) {
-        this.log("End:", chunkDataRes)
+        this.log(
+          "End: ",
+          chunkDataRes,
+          "Full chunk: ",
+          chunkStr,
+          "Running result: ",
+          fullResult
+        )
+        if (fullResult) {
+          // The last data is empty and just has the finish_reason,
+          // but there might have been data earlier in the chunk
+          onResult(fullResult)
+        }
         onEnd()
-        return
-      } else if (!chunkDataRes) {
-        const e = new Error(`Returned no data: ${chunkStr}`)
-        this.error(e)
-        onError(e)
         return
       } else {
         const chunkData = JSON.parse(chunkDataRes)

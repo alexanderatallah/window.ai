@@ -36,10 +36,10 @@ export const windowAI: WindowAI<ModelID> = {
     domain: VALID_DOMAIN,
     version
   },
-  async getCompletion(input, options = {}) {
+
+  async generateText(input, options = {}) {
     const { onStreamResult } = _validateOptions(options)
     const shouldStream = !!onStreamResult
-    const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
     const requestId = _relayRequest(PortName.Completion, {
       transaction: transactionManager.init(input, _getOriginData(), options),
       shouldStream
@@ -49,8 +49,11 @@ export const windowAI: WindowAI<ModelID> = {
         requestId,
         (res) => {
           if (isOk(res)) {
-            resolve(shouldReturnMultiple ? res.data : (res.data[0] as any))
-            onStreamResult && onStreamResult(res.data[0], null)
+            if (!res.data[0].isPartial) {
+              resolve(res.data)
+            } else {
+              onStreamResult && res.data.forEach((d) => onStreamResult(d, null))
+            }
           } else {
             reject(res.error)
             onStreamResult && onStreamResult(null, res.error)
@@ -60,8 +63,15 @@ export const windowAI: WindowAI<ModelID> = {
     })
   },
 
+  async getCompletion(input, options = {}) {
+    const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
+    return windowAI.generateText(input, options).then((res) => {
+      return shouldReturnMultiple ? res : (res[0] as any)
+    })
+  },
+
   async getCurrentModel() {
-    const requestId = _relayRequest(PortName.Model, {})
+    const requestId = _relayRequest(PortName.Model, undefined)
     return new Promise((resolve, reject) => {
       _addResponseListener<ModelResponse>(requestId, (res) => {
         if (isOk(res)) {
@@ -88,6 +98,23 @@ export const windowAI: WindowAI<ModelID> = {
       }
     })
     return requestId
+  },
+
+  BETA_updateModelProvider({ baseUrl, session, shouldSetDefault }) {
+    const requestId = _relayRequest(PortName.Model, {
+      baseUrl,
+      session,
+      shouldSetDefault
+    })
+    return new Promise((resolve, reject) => {
+      _addResponseListener<ModelResponse>(requestId, (res) => {
+        if (isOk(res)) {
+          resolve(res.data.model)
+        } else {
+          reject(res.error)
+        }
+      })
+    })
   }
 }
 

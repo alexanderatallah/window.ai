@@ -13,16 +13,13 @@ import Tooltip from "../components/Tooltip"
 import { Button } from "../components/Button"
 
 const windowaiExample = `
-// Get the active model from the window.ai API 
-await window.ai.getCurrentModel()
-
-// Get completions from the window.ai API
-await window.ai.getCompletion(
+// Get text completions from a user's Window AI model
+await window.ai.generateText(
   {
     messages: [...last10messages],
   },
   {
-    onStreamResult: (result: any, error: any) => {
+    onStreamResult: (result, error) => {
       console.log(result.message.content)
     },
   })

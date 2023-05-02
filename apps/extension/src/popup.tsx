@@ -1,17 +1,18 @@
 import { useEffect } from "react"
 
 import { NavBar } from "~core/components/NavBar"
-import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { SlidingPane } from "~core/components/pure/SlidingPane"
 import { configManager } from "~core/managers/config"
-import { ModelProvider } from "~core/providers/model"
+import { ConfigProvider } from "~core/providers/config"
 import { NavProvider, useNav } from "~core/providers/nav"
 import { Activity } from "~core/views/Activity"
 import { Apps } from "~core/views/Apps"
-import { PermissionRequest } from "~core/views/PermissionRequest"
 import { Settings } from "~core/views/Settings"
 
 import "./style.css"
+
+import { useParams } from "~core/components/hooks/useParams"
+import { RequestInterrupt } from "~core/views/RequestInterrupt"
 
 function Popup() {
   return (
@@ -23,41 +24,35 @@ function Popup() {
         " text-sm font-sans"
       }>
       <NavProvider>
-        <ModelProvider>
+        <ConfigProvider>
           <NavFrame />
-        </ModelProvider>
+        </ConfigProvider>
       </NavProvider>
     </main>
   )
 }
 
 function NavFrame() {
-  const port = usePermissionPort()
+  const { requestId } = useParams()
   const { view, setSettingsShown, settingsShown } = useNav()
 
   useEffect(() => {
     async function checkConfig() {
+      // This logic allows us to default the settings page on for first-time users
       const config = await configManager.getDefault()
-      if (configManager.isIncomplete(config)) {
-        // This logic allows us to default the settings page on for first-time users
+      if (!configManager.isCredentialed(config)) {
         setSettingsShown(true)
       }
     }
-    checkConfig()
-  }, [])
+    if (!requestId) {
+      checkConfig()
+    }
+  }, [requestId])
 
   return (
     <div className="h-full">
-      {port?.data ? (
-        <PermissionRequest
-          data={port.data}
-          onResult={(permitted) =>
-            "requesterId" in port.data &&
-            port.send({
-              request: { permitted, requesterId: port.data.requesterId }
-            })
-          }
-        />
+      {requestId ? (
+        <RequestInterrupt />
       ) : (
         <div className="flex flex-col h-full">
           <div className="flex-none">

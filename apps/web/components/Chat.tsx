@@ -100,7 +100,7 @@ export function Chat() {
     setPermissionDenied(false)
 
     try {
-      await windowAIRef.current.getCompletion(
+      await windowAIRef.current.generateText(
         {
           messages: [...last10messages]
         },

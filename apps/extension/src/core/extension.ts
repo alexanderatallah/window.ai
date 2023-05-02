@@ -1,6 +1,11 @@
 import browser from "webextension-polyfill"
 
-import type { PortEvent, PortRequest, PortResponse } from "~core/constants"
+import type {
+  PopupParams,
+  PortEvent,
+  PortRequest,
+  PortResponse
+} from "~core/constants"
 import { PortName } from "~core/constants"
 import { log } from "~core/utils/utils"
 
@@ -79,7 +84,7 @@ export const Extension = {
   async openPopup(
     width: number,
     height: number,
-    params?: Record<string, string>
+    params?: PopupParams
   ): Promise<browser.Windows.Window> {
     let left = 0
     let top = 0

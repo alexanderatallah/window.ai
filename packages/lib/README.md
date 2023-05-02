@@ -19,6 +19,6 @@ import { getWindowAI } from 'window.ai';
 const ai = await getWindowAI()
 
 ai.getCurrentModel()
-ai.getCompletion(...)
+ai.generateText(...)
 ai.addEventListener(...)
 ```
