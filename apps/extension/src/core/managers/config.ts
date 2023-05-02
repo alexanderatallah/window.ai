@@ -156,8 +156,7 @@ class ConfigManager extends BaseManager<Config> {
       }
       await this.defaultConfig.remove("id")
     }
-    // TODO switch to authtype external
-    return this.init(AuthType.APIKey, ModelID.GPT3)
+    return this.init(AuthType.External)
   }
 
   // TODO: allow multiple custom models
