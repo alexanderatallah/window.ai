@@ -72,7 +72,7 @@ export const useCodeAI = () => {
     return
 
     const result = await callAI(
-      `Provide a set of bash commands to create a file structure for a project to \"${input}\", separated by new line.`,
+      `Create a list of bash command to initialize the directory structure of a project with the goal of: \"${input}\". Each command should be separated by a new line.`,
       onData
     )
 

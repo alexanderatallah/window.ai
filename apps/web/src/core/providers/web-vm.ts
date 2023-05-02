@@ -9,8 +9,6 @@ import { useWindowAI } from "~core/components/hooks/useWindowAI"
 import { useCodeAI } from "~features/agent/useCodeAI"
 import { parseCmd } from "~core/utils/parser"
 
-import ansiEsc from "isomorphic-ansi-escapes/dist/index"
-
 async function createTerminal(el: HTMLElement) {
   const [{ Terminal }, { WebglAddon }, { FitAddon }] = await Promise.all([
     import("xterm"),
