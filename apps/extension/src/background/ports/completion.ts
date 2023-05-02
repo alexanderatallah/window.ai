@@ -2,20 +2,27 @@ import {
   ErrorCode,
   type InferredOutput,
   type Input,
+  type RequestID,
   isMessagesInput
 } from "window.ai"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
-import type { PortRequest, PortResponse } from "~core/constants"
+import {
+  POPUP_HEIGHT,
+  POPUP_WIDTH,
+  type PortRequest,
+  type PortResponse,
+  RequestInterruptType
+} from "~core/constants"
 import { PortName } from "~core/constants"
+import { Extension } from "~core/extension"
 import { configManager } from "~core/managers/config"
 import { transactionManager } from "~core/managers/transaction"
 import * as modelRouter from "~core/model-router"
 import { type Err, err, isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
-import { requestAuth } from "./model"
 import { requestPermission } from "./permission"
 
 const handler: PlasmoMessaging.PortHandler<
@@ -108,6 +115,13 @@ function isAuthError(error: Err<string>) {
   return (
     errorParts[0] === ErrorCode.ModelRejectedRequest && errorParts[1] === "401"
   )
+}
+
+async function requestAuth(requestId: RequestID) {
+  await Extension.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
+    requestInterruptType: RequestInterruptType.Authentication,
+    requestId
+  })
 }
 
 export default handler

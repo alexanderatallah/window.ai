@@ -1,5 +1,11 @@
 # window.ai
 
+## 0.2.0
+
+### Minor Changes
+
+- new always-array generateText() api, better type inference, BETA_updateModelProvider api
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
+import type { RequestID } from "window.ai"
 
 import { RequestInterruptType, isRequestInterruptType } from "~core/constants"
 
 export function useParams() {
-  const [requestId, setRequestId] = useState<string>()
+  const [requestId, setRequestId] = useState<RequestID>()
   const [requestInterruptType, setRequestInterruptType] =
     useState<RequestInterruptType>()
 

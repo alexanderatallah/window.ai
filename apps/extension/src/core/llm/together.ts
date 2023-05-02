@@ -62,6 +62,7 @@ export function init(
           max_tokens,
           top_p,
           temperature,
+          n: num_generations,
           stop: ["\n<human>", ...stop_sequences],
           prompt: fullPrompt
         }
