@@ -31,7 +31,11 @@ export const useCodeAI = () => {
   )
 
   // Prompting the agent for output until it reaches the end indicator
-  const callAI = async (input: string, onData?: (data: string) => void) => {
+  const callAI = async (
+    input: string,
+    onData?: (data: string) => void,
+    loopLimit = 4
+  ) => {
     const result = await ai.sendMessage(input, onData)
 
     if (!result) {
@@ -39,14 +43,16 @@ export const useCodeAI = () => {
     }
 
     let output = result.message.content
+    let loopCount = 0
 
-    while (!output.endsWith(END_INDICATOR)) {
+    while (!output.endsWith(END_INDICATOR) || loopCount < loopLimit) {
       const continuedResult = await ai.sendMessage(CONT_MESSAGE, onData)
       if (!continuedResult) {
         output += END_INDICATOR
       } else {
         output += continuedResult.message.content
       }
+      loopCount++
     }
 
     return output.replace(END_INDICATOR, "")
