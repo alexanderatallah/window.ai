@@ -6,6 +6,10 @@ import { WebContainer, type WebContainerProcess } from "@webcontainer/api"
 import type { FitAddon } from "xterm-addon-fit"
 import { expressFiles } from "~features/web-vm/sample-files"
 import { useWindowAI } from "~core/components/hooks/useWindowAI"
+import { useCodeAI } from "~features/agent/useCodeAI"
+import { parseCmd } from "~core/utils/parser"
+
+import ansiEsc from "isomorphic-ansi-escapes/dist/index"
 
 async function createTerminal(el: HTMLElement) {
   const [{ Terminal }, { WebglAddon }, { FitAddon }] = await Promise.all([
@@ -32,11 +36,24 @@ async function createTerminal(el: HTMLElement) {
   }
 }
 
+export const TERMINAL_INPUT_KEY = {
+  ENTER: 13,
+  BACK: 8,
+  UP: 38,
+  DOWN: 40,
+  LEFT: 37,
+  RIGHT: 39
+}
+
 // You will think step-by-step for each of my command, and output each step in a JSON object.
 
 const useWebVMProvider = ({
   manualBoot = false,
-  welcomePrompt = `Welcome to AI Container. Use "ai [prompt]" to issue instructions.`
+  welcomePrompt = `Welcome to AI Container: 
+  - Use "ai [prompt]" to issue any instructions
+  - Use "code [prompt]" to automate software engineering
+  - Non-standard unix commands will be simulated
+  `
 }) => {
   const terminalRef = useRef<Terminal>()
   const fitAddonRef = useRef<FitAddon>()
@@ -47,7 +64,9 @@ const useWebVMProvider = ({
 
   const promptRef = useRef("")
 
-  const emulatorAI = useWindowAI(
+  const codeAI = useCodeAI()
+
+  const shellAI = useWindowAI(
     [
       {
         role: "system",
@@ -56,8 +75,7 @@ const useWebVMProvider = ({
     ],
     {
       cacheSize: 24,
-      keep: 1,
-      maxTokens: 2400
+      keep: 1
     }
   )
 
@@ -152,26 +170,119 @@ const useWebVMProvider = ({
     shellProcess.output.pipeTo(
       new WritableStream({
         write(data) {
-          terminal.write(data)
+          // console.log(data)
+          // if data is a flush, rewrite the welcome prompt
+          if (data === "\u001B[0J") {
+            terminal.write(data)
+            terminal.writeln(welcomePrompt)
+          } else {
+            terminal.write(data)
+          }
         }
       })
     )
 
     const input = shellProcess.input.getWriter()
+
+    const history: string[] = []
+    let historyPtr = 0
+    let cursorPtr = 0
+
+    /**
+     * BUGS (FIX THEM IF YOU FIND THIS USEFUL)
+     * - the cursor goes foobar if tab or any speical empty space is used
+     * - cursor up/down is kinda foobar with the manual clean
+     */
+
     terminal.onData(async (data) => {
       switch (data) {
         // Enter
         case "\r": {
           // clear input
           await execute(promptRef.current)
+
+          if (
+            promptRef.current.length > 0 &&
+            !history.includes(promptRef.current)
+          ) {
+            history.push(promptRef.current)
+          }
+
           promptRef.current = ""
+
+          cursorPtr = 0
+          historyPtr = history.length
           break
         }
-        // Backspace (DEL)
+        // Left arrow (←)
+        case "\u001b[D": {
+          if (cursorPtr > 0) {
+            cursorPtr = Math.max(0, cursorPtr - 1)
+          }
+          input.write(data)
+          break
+        }
+        // Right arrow (→)
+        case "\u001b[C": {
+          if (cursorPtr < promptRef.current.length) {
+            cursorPtr = Math.min(cursorPtr + 1, promptRef.current.length - 1)
+          }
+          input.write(data)
+          break
+        }
+        // Up arrow (↑)
+        case "\u001b[A": {
+          if (history.length > 0) {
+            historyPtr = Math.max(0, historyPtr - 1)
+            promptRef.current = history[historyPtr]
+            terminal.write(`\x1B[2K\x1B[0G${promptRef.current}`)
+          }
+          break
+        }
+        // Down arrow (↓)
+        case "\u001b[B": {
+          if (historyPtr < history.length) {
+            historyPtr = Math.min(history.length, historyPtr + 1)
+            // clear terminal
+            promptRef.current = ""
+            if (historyPtr < history.length) {
+              promptRef.current = history[historyPtr]
+            }
+            terminal.write(`\x1B[2K\x1B[0G${promptRef.current}`)
+          }
+          break
+        }
+
+        case "\f": {
+          promptRef.current = ""
+          cursorPtr = 0
+          input.write(data)
+          break
+        }
+
+        // Delete
+        case "\u001b[3~": {
+          if (promptRef.current.length > 0) {
+            promptRef.current =
+              promptRef.current.slice(0, cursorPtr) +
+              promptRef.current.slice(cursorPtr + 1)
+
+            cursorPtr = Math.min(promptRef.current.length, cursorPtr)
+          }
+
+          input.write(data)
+          break
+        }
+
+        // Backspace
         case "\u007F": {
           if (promptRef.current.length > 0) {
-            promptRef.current = promptRef.current.slice(0, -1)
+            cursorPtr = Math.max(0, cursorPtr - 1)
+            promptRef.current =
+              promptRef.current.slice(0, cursorPtr) +
+              promptRef.current.slice(cursorPtr + 1)
           }
+
           input.write(data)
           break
         }
@@ -179,13 +290,26 @@ const useWebVMProvider = ({
           if (
             (data >= String.fromCharCode(0x20) &&
               data <= String.fromCharCode(0x7e)) ||
-            data >= "\u00a0"
+            data >= "\u00a0" ||
+            data.length > 1
           ) {
-            promptRef.current += data
+            promptRef.current =
+              promptRef.current.slice(0, cursorPtr) +
+              data +
+              promptRef.current.slice(cursorPtr)
+
+            cursorPtr += data.length
           }
           input.write(data)
         }
       }
+
+      // console.log({
+      //   prompt: promptRef.current,
+      //   cursorPtr,
+      //   historyPtr,
+      //   history
+      // })
     })
 
     inputRef.current = input
@@ -193,15 +317,31 @@ const useWebVMProvider = ({
   }
 
   const execute = async (_prompt: string) => {
-    const [cmd, prompt] = _prompt.trim().split(/ (.*)/)
+    const [cmd, prompt] = parseCmd(_prompt)
+
     const input = getInput()
     const terminal = getTerminal()
     const container = getContainer()
 
+    if (cmd === "code") {
+      terminal.write("\n\n")
+      await codeAI.execute(
+        {
+          input: prompt,
+          container
+        },
+        (data) => {
+          terminal.write(data)
+        }
+      )
+      input.write("\u0003")
+      return
+    }
+
     // Replace with a map -> fn/description later
     if (cmd === "ai") {
       terminal.write("\n\n")
-      await emulatorAI.sendMessage(prompt, (data) => {
+      await shellAI.sendMessage(prompt, (data) => {
         terminal.write(data)
       })
 
@@ -224,7 +364,7 @@ const useWebVMProvider = ({
     }
 
     terminal.write("\n\n")
-    await emulatorAI.sendMessage(
+    await shellAI.sendMessage(
       `Emulate the following non-standard Linux command: 
   
  ${_prompt}

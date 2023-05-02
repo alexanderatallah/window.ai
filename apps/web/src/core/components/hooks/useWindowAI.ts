@@ -74,6 +74,7 @@ export function useWindowAI(
           },
           {
             maxTokens,
+
             onStreamResult: (result, error) => {
               if (error) {
                 throw error
@@ -130,10 +131,15 @@ export function useWindowAI(
     }
   }
 
+  const clear = () => {
+    setMessages((messagesRef.current = [...defaultMessages]))
+  }
+
   return {
     isReady,
     messages,
     sendMessage,
+    clear,
     loading,
     showInstallMessage,
     permissionDenied

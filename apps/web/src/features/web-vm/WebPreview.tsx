@@ -1,6 +1,5 @@
 import { useWebVM } from "~core/providers/web-vm"
 
-import "xterm/css/xterm.css"
 import clsx from "clsx"
 
 export const WebPreview = () => {
