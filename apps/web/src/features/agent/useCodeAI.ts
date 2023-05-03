@@ -2,7 +2,6 @@ import type { WebContainer } from "@webcontainer/api"
 import { posix } from "path"
 import { useWindowAI } from "~core/components/hooks/useWindowAI"
 import { parseCmd } from "~core/utils/parser"
-import { useLog } from "~features/agent/useLog"
 import { extractCodeBlocks } from "~features/agent/utils"
 
 const CONT_MESSAGE = "===CONTINUE_CODEAI==="
@@ -19,8 +18,6 @@ const getSystemPrompt = () =>
 // Crew can propose that a new agent should be hired
 // Crew are spawn autonomously, will have a runtime, and will communicate back its result to the agentManager at each action
 export const useCodeAI = () => {
-  const log = useLog()
-
   const ai = useWindowAI(
     [
       {
@@ -30,7 +27,8 @@ export const useCodeAI = () => {
     ],
     {
       cacheSize: 20,
-      keep: 1
+      prefixMessageCount: 1,
+      temperature: 0
     }
   )
 
@@ -81,55 +79,99 @@ export const useCodeAI = () => {
 
     // return
 
-    const result = await callAI(
-      `Create a list of bash command to initialize the directory structure of a project with the goal of: \"${input}\". Each command should be separated by a new line. Wrap them inside a markdown code block. Do not use npm to initialize the project - create the package.json manually. You may use cd, mkdir, and touch only.`,
+    const scaffoldProjectResult = await callAI(
+      `Create a list of bash command to initialize the directory structure of a project with the goal of: \"${input}\". Each command should be separated by a new line. Wrap them inside a markdown code block. Do not use npm to initialize the project - create the package.json manually. The current directory should be the project root. You may use cd, mkdir, and touch only.`,
       onData
     )
 
-    const bashLines = extractCodeBlocks(result)
-      .join("\n")
-      .split("\n")
-      .filter((cmd) => !cmd.startsWith("#"))
+    onData?.("\n")
 
-    let cwd = ""
-
-    for (const line of bashLines) {
-      const [cmd, prompt] = parseCmd(line)
-
-      try {
-        switch (cmd) {
-          case "cd": {
-            cwd = posix.join(cwd, prompt)
-            break
-          }
-          case "mkdir": {
-            await container.fs.mkdir(posix.join(cwd, prompt))
-            break
-          }
-          case "touch": {
-            const contentResp = await callAI(
-              `The content for the file "${prompt}" is:`,
-              onData
-            )
-
-            const fileContent = extractCodeBlocks(contentResp).join("\n")
-
-            await container.fs.writeFile(posix.join(cwd, prompt), fileContent)
-            break
-          }
-          default: {
-            break
-          }
-        }
-      } catch {}
-    }
-
+    await runBash(
+      getBashLines(scaffoldProjectResult),
+      container,
+      callAI,
+      onData
+    )
     // Define a set of command for file system operation
-
     // Define a set of command for npm/script spawning operation
+
+    const runProjectResult = await callAI(
+      `Create a list of bash command to start the project created. Each command should be separated by a new line. Wrap them inside a markdown code block. You may only use npm.`,
+      onData
+    )
+
+    onData?.("\n")
+
+    await runBash(getBashLines(runProjectResult), container, callAI, onData)
   }
 
   return {
     execute
+  }
+}
+
+function getBashLines(scaffoldProjectResult: string) {
+  return extractCodeBlocks(scaffoldProjectResult)
+    .join("\n")
+    .split("\n")
+    .filter((cmd) => !cmd.startsWith("#"))
+}
+
+async function runBash(
+  bashLines: string[],
+  container: WebContainer,
+  callAI: (
+    input: string,
+    onData?: (data: string) => void,
+    loopLimit?: number
+  ) => Promise<string>,
+  onData?: (data: string) => void
+) {
+  let cwd = ""
+
+  for (const line of bashLines) {
+    const [cmd, prompt] = parseCmd(line)
+
+    try {
+      switch (cmd) {
+        case "cd": {
+          cwd = posix.join(cwd, prompt)
+          break
+        }
+        case "mkdir": {
+          await container.fs.mkdir(posix.join(cwd, prompt))
+          break
+        }
+        case "touch": {
+          const contentResp = await callAI(
+            `The content for the file "${prompt}" is:`,
+            onData
+          )
+
+          onData?.("\n")
+
+          const fileContent = extractCodeBlocks(contentResp).join("\n")
+
+          await container.fs.writeFile(posix.join(cwd, prompt), fileContent)
+          break
+        }
+        case "npm": {
+          const proc = await container.spawn("npm", prompt.split(" "))
+          proc.output.pipeTo(
+            new WritableStream({
+              write(data) {
+                onData?.(data)
+              }
+            })
+          )
+
+          await proc.exit
+        }
+
+        default: {
+          break
+        }
+      }
+    } catch {}
   }
 }

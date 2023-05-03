@@ -73,7 +73,7 @@ const useWebVMProvider = ({
     ],
     {
       cacheSize: 24,
-      keep: 1
+      prefixMessageCount: 1
     }
   )
 

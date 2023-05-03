@@ -16,7 +16,13 @@ export const initialMessages: ChatMessage[] = [
 
 export function useWindowAI(
   defaultMessages = initialMessages,
-  { cacheSize = 10, stream = false, keep = 0, maxTokens = 2048 } = {}
+  {
+    cacheSize = 10,
+    stream = false,
+    prefixMessageCount = 0,
+    maxTokens = 2048,
+    temperature = 0.7
+  } = {}
 ) {
   const messagesRef = useRef<ChatMessage[]>(defaultMessages)
   const [messages, setMessages] = useState<ChatMessage[]>(messagesRef.current)
@@ -61,8 +67,8 @@ export function useWindowAI(
     setMessages((messagesRef.current = [...allMessages, { ...responseMsg }]))
     setPermissionDenied(false)
 
-    const keptMessages = allMessages.slice(0, keep)
-    const ctxMessages = allMessages.slice(keep)
+    const keptMessages = allMessages.slice(0, prefixMessageCount)
+    const ctxMessages = allMessages.slice(prefixMessageCount)
 
     const messageCache = [...keptMessages, ...ctxMessages.slice(-cacheSize)]
 
@@ -74,7 +80,7 @@ export function useWindowAI(
           },
           {
             maxTokens,
-
+            temperature,
             onStreamResult: (result, error) => {
               if (error) {
                 throw error
@@ -97,7 +103,8 @@ export function useWindowAI(
             messages: [...messageCache]
           },
           {
-            maxTokens
+            maxTokens,
+            temperature
           }
         )
         responseMsg.content = result.message.content
