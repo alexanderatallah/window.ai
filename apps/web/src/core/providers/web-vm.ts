@@ -107,7 +107,7 @@ const useWebVMProvider = ({
       const container = await WebContainer.boot({
         workdirName: "ai-container"
       })
-      await container.mount(expressFiles)
+      // await container.mount(expressFiles)
       container.on("port", (_port, type, url) => {
         switch (type) {
           case "open":
@@ -167,14 +167,14 @@ const useWebVMProvider = ({
 
     shellProcess.output.pipeTo(
       new WritableStream({
-        write(data) {
-          // console.log(data)
+        write(shellData) {
+          console.log({ shellData })
           // if data is a flush, rewrite the welcome prompt
-          if (data === "\u001B[0J") {
-            terminal.write(data)
+          if (shellData === "\u001B[0J") {
+            terminal.write(shellData)
             terminal.writeln(welcomePrompt)
           } else {
-            terminal.write(data)
+            terminal.write(shellData)
           }
         }
       })
@@ -191,7 +191,6 @@ const useWebVMProvider = ({
      * - the cursor goes foobar if tab or any speical empty space is used
      * - cursor up/down is kinda foobar with the manual clean
      */
-
     terminal.onData(async (data) => {
       switch (data) {
         // Enter
@@ -220,6 +219,10 @@ const useWebVMProvider = ({
           input.write(data)
           break
         }
+        // CTRL + Left arrow (←)
+        case "\u001b[1;5D": {
+        }
+
         // Right arrow (→)
         case "\u001b[C": {
           if (cursorPtr < promptRef.current.length) {
@@ -233,7 +236,9 @@ const useWebVMProvider = ({
           if (history.length > 0) {
             historyPtr = Math.max(0, historyPtr - 1)
             promptRef.current = history[historyPtr]
-            terminal.write(`\x1B[2K\x1B[0G${promptRef.current}`)
+            if (historyPtr > 0) {
+              terminal.write(`\x1B[2J\x1B[0;0H > ${promptRef.current}`)
+            }
           }
           break
         }
@@ -246,7 +251,7 @@ const useWebVMProvider = ({
             if (historyPtr < history.length) {
               promptRef.current = history[historyPtr]
             }
-            terminal.write(`\x1B[2K\x1B[0G${promptRef.current}`)
+            terminal.write(`\x1B[2J\x1B[0;0H > ${promptRef.current}`)
           }
           break
         }
@@ -285,29 +290,22 @@ const useWebVMProvider = ({
           break
         }
         default: {
-          if (
-            (data >= String.fromCharCode(0x20) &&
-              data <= String.fromCharCode(0x7e)) ||
-            data >= "\u00a0" ||
-            data.length > 1
-          ) {
-            promptRef.current =
-              promptRef.current.slice(0, cursorPtr) +
-              data +
-              promptRef.current.slice(cursorPtr)
+          promptRef.current =
+            promptRef.current.slice(0, cursorPtr) +
+            data +
+            promptRef.current.slice(cursorPtr)
 
-            cursorPtr += data.length
-          }
+          cursorPtr += data.length
           input.write(data)
         }
       }
 
-      // console.log({
-      //   prompt: promptRef.current,
-      //   cursorPtr,
-      //   historyPtr,
-      //   history
-      // })
+      console.log({
+        prompt: promptRef.current,
+        cursorPtr,
+        historyPtr,
+        history
+      })
     })
 
     inputRef.current = input

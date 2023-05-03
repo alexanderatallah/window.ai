@@ -1,14 +1,18 @@
 import type { WebContainer } from "@webcontainer/api"
+import { posix } from "path"
 import { useWindowAI } from "~core/components/hooks/useWindowAI"
 import { parseCmd } from "~core/utils/parser"
 import { useLog } from "~features/agent/useLog"
+import { extractCodeBlocks } from "~features/agent/utils"
 
 const CONT_MESSAGE = "===CONTINUE_CODEAI==="
 
 const END_INDICATOR = "===END_OUTPUT_CODEAI==="
 
+//  Available to you are nodejs and npm, as well as the ability to create, read, update, delete files. Do not give any explanation, apologies, or any reasoning. Be concise and accurate.
+
 const getSystemPrompt = () =>
-  `You are a world-class software engineer well-versed in creating full-stack software, leveraging the nodejs ecosystem. Available to you are nodejs and npm, as well as the ability to create, read, update, delete files. Do not give any explanation, apologies, or any reasoning. Be concise and accurate. I will periodically interject with "${CONT_MESSAGE}" to prompt you to keep going. End each of your answer with "${END_INDICATOR}".`
+  `You are a world-class software engineer well-versed in creating full-stack software, leveraging the nodejs ecosystem. Available to you are nodejs, npm and a very minimal UNIX shell. Do not give any explanation, apologies, or any reasoning. Be concise and accurate. I will periodically interject with "${CONT_MESSAGE}" to prompt you to keep going. End each of your answer with "${END_INDICATOR}".`
 
 // A crew implements the OODA loop
 // Crew has access to the agent pool
@@ -25,7 +29,7 @@ export const useCodeAI = () => {
       }
     ],
     {
-      cacheSize: 10,
+      cacheSize: 20,
       keep: 1
     }
   )
@@ -45,7 +49,7 @@ export const useCodeAI = () => {
     let output = result.message.content
     let loopCount = 0
 
-    while (!output.endsWith(END_INDICATOR) || loopCount < loopLimit) {
+    while (!output.endsWith(END_INDICATOR) && loopCount < loopLimit) {
       const continuedResult = await ai.sendMessage(CONT_MESSAGE, onData)
       if (!continuedResult) {
         output += END_INDICATOR
@@ -73,43 +77,51 @@ export const useCodeAI = () => {
       return
     }
 
-    await callAI(input, onData)
+    // await callAI(input, onData)
 
-    return
+    // return
 
     const result = await callAI(
-      `Create a list of bash command to initialize the directory structure of a project with the goal of: \"${input}\". Each command should be separated by a new line.`,
+      `Create a list of bash command to initialize the directory structure of a project with the goal of: \"${input}\". Each command should be separated by a new line. Wrap them inside a markdown code block. Do not use npm to initialize the project - create the package.json manually. You may use cd, mkdir, and touch only.`,
       onData
     )
 
-    const bashLines = result.split("\n").filter((cmd) => !cmd.startsWith("#"))
+    const bashLines = extractCodeBlocks(result)
+      .join("\n")
+      .split("\n")
+      .filter((cmd) => !cmd.startsWith("#"))
 
     let cwd = ""
 
     for (const line of bashLines) {
       const [cmd, prompt] = parseCmd(line)
 
-      switch (cmd) {
-        case "cd": {
-          cwd = prompt
-          break
+      try {
+        switch (cmd) {
+          case "cd": {
+            cwd = posix.join(cwd, prompt)
+            break
+          }
+          case "mkdir": {
+            await container.fs.mkdir(posix.join(cwd, prompt))
+            break
+          }
+          case "touch": {
+            const contentResp = await callAI(
+              `The content for the file "${prompt}" is:`,
+              onData
+            )
+
+            const fileContent = extractCodeBlocks(contentResp).join("\n")
+
+            await container.fs.writeFile(posix.join(cwd, prompt), fileContent)
+            break
+          }
+          default: {
+            break
+          }
         }
-        case "mkdir": {
-          await container.fs.mkdir(prompt)
-          break
-        }
-        case "touch": {
-          const fileContent = await callAI(
-            `Provide the content for file "${prompt}"`
-          )
-          await container.fs.writeFile(prompt, fileContent)
-          break
-        }
-        default: {
-          onData?.(`Invalid command: ${cmd}`)
-          break
-        }
-      }
+      } catch {}
     }
 
     // Define a set of command for file system operation
