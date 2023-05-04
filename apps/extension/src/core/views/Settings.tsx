@@ -243,9 +243,10 @@ function ExternalSettings({ config }: { config: Config }) {
           <Button
             appearance="secondary"
             wide
-            onClick={() =>
+            onClick={() => {
               window.open(configManager.getExternalConfigURL(config), "_blank")
-            }>
+              window.close()
+            }}>
             Manage
           </Button>
         </div>
@@ -253,9 +254,10 @@ function ExternalSettings({ config }: { config: Config }) {
         <Button
           appearance="primary"
           wide
-          onClick={() =>
+          onClick={() => {
             window.open(configManager.getExternalConfigURL(config), "_blank")
-          }>
+            window.close()
+          }}>
           Sign Up
         </Button>
       )}

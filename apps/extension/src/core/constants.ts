@@ -21,7 +21,8 @@ export enum PortName {
 
 export enum RequestInterruptType {
   Permission = "permission",
-  Authentication = "auth"
+  Authentication = "auth",
+  Payment = "payment"
 }
 
 export function isRequestInterruptType(

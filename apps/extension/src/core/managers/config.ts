@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid"
-import { EventType } from "window.ai"
+import { EventType, type ModelProviderOptions } from "window.ai"
 
 import { Storage } from "@plasmohq/storage"
 
@@ -41,7 +41,7 @@ export interface Config {
   baseUrl: string
   models: ModelID[]
 
-  session?: { email?: string; expiresAt?: number }
+  session?: ModelProviderOptions["session"]
   apiKey?: string
 }
 
@@ -244,10 +244,7 @@ class ConfigManager extends BaseManager<Config> {
   getExternalConfigURL(config: Config) {
     switch (config.auth) {
       case AuthType.External:
-        return (
-          (process.env.PLASMO_PUBLIC_OPENROUTER_URI ||
-            "https://openrouter.ai") + "/signin"
-        )
+        return config.session?.settingsUrl ?? "https://openrouter.ai/pricing"
       case AuthType.APIKey:
         const model = this.getCurrentModel(config)
         if (!model) {

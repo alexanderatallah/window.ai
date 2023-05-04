@@ -106,7 +106,12 @@ export type ModelProviderOptions = {
   baseUrl: string
   // Session information for the current user. If undefined, means user is
   // not signed in.
-  session?: { email?: string; expiresAt?: number }
+  session?: {
+    email?: string
+    expiresAt?: number
+    paymentUrl?: string
+    settingsUrl?: string
+  }
   // Whether to set this model provider as the default for the user.
   shouldSetDefault?: boolean //
 }
