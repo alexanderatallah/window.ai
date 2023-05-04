@@ -103,6 +103,8 @@ export const useCodeAI = () => {
     onData?.("\n")
 
     await runBash(getBashLines(runProjectResult), container, callAI, onData)
+
+    onData?.("Press CTRL + C or CMD + C to exit.")
   }
 
   return {
