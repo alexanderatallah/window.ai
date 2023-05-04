@@ -35,6 +35,7 @@ export interface RequestOptions {
   baseUrl?: string
   apiKey?: string | null
   model?: string | null
+  origin?: string | null
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
@@ -57,7 +58,7 @@ export interface RequestPrompt
 
 export type RequestData = Omit<
   Required<RequestOptions>,
-  "user_identifier" | "timeout" | "apiKey" | "adapter" // These do not affect output of the model
+  "user_identifier" | "timeout" | "apiKey" | "origin" | "adapter" // These do not affect output of the model
 > &
   Pick<Required<ModelConfig>, "modelProvider"> & // To distinguish btw providers with same-name models
   RequestPrompt
@@ -84,6 +85,7 @@ export class Model {
     this.defaultOptions = {
       baseUrl: this.config.defaultBaseUrl,
       model: null,
+      origin: null,
       apiKey: null,
       timeout: 25000,
       user_identifier: null,
@@ -302,7 +304,8 @@ export class Model {
   protected _getRequestHeaders(opts: Required<RequestOptions>) {
     const { authPrefix } = this.config
     return {
-      Authorization: `${authPrefix}${opts.apiKey || ""}`
+      Authorization: `${authPrefix}${opts.apiKey || ""}`,
+      "HTTP-Referer": opts.origin
     }
   }
 

@@ -3,6 +3,7 @@ import { ErrorCode } from "window.ai"
 import { modelAPICallers } from "~core/llm"
 
 import { AuthType, type Config, configManager } from "./managers/config"
+import { originManager } from "./managers/origin"
 import type { Transaction } from "./managers/transaction"
 import { type Result, unknownErr } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
@@ -20,6 +21,7 @@ export async function complete(
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
       model,
+      origin: originManager.url(txn.origin),
       max_tokens: txn.maxTokens,
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences,
@@ -63,6 +65,7 @@ export async function stream(
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
       model,
+      origin: originManager.url(txn.origin),
       max_tokens: txn.maxTokens,
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences
