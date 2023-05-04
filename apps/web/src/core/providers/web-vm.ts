@@ -4,10 +4,11 @@ import { type Terminal } from "xterm"
 
 import { WebContainer, type WebContainerProcess } from "@webcontainer/api"
 import type { FitAddon } from "xterm-addon-fit"
-import { expressFiles } from "~features/web-vm/sample-files"
 import { useWindowAI } from "~core/components/hooks/useWindowAI"
+import { getInputBufferFromCursor, parseCmd } from "~core/utils/terminal-parser"
 import { useCodeAI } from "~features/agent/useCodeAI"
-import { parseCmd } from "~core/utils/parser"
+import { binDirectory } from "~features/web-vm/files"
+import { posix } from "path"
 
 async function createTerminal(el: HTMLElement) {
   const [{ Terminal }, { WebglAddon }, { FitAddon }] = await Promise.all([
@@ -34,19 +35,46 @@ async function createTerminal(el: HTMLElement) {
   }
 }
 
-export const TERMINAL_INPUT_KEY = {
-  ENTER: 13,
-  BACK: 8,
-  UP: 38,
-  DOWN: 40,
-  LEFT: 37,
-  RIGHT: 39
+const WORKING_BIN_PATH = ".bin"
+const JSH_HISTORY_PATH = "/home/.jsh_history"
+
+// Use this bin cache for temp memory cache
+// TODO: can probably read the file itself OR make this into a map to store the AI-generated script itself
+const binCache = new Set<string>()
+
+const addBin = async (cmd: string, container: WebContainer) => {
+  // Use this to read past cmd history if needed:
+  // const proc = await container.spawn("cat", [JSH_HISTORY_PATH])
+  // const { value: historyEntries } = await proc.output.getReader().read()
+
+  if (binCache.has(cmd)) {
+    return
+  }
+
+  binCache.add(cmd)
+  // Just make empty file for now
+  const cmdBinPath = posix.join(WORKING_BIN_PATH, cmd)
+  await container.fs.writeFile(cmdBinPath, "")
+  const chmodProc = await container.spawn("chmod", ["+x", cmdBinPath], {
+    output: false
+  })
+
+  await chmodProc.exit
 }
+
+// TODO: Make this a cool map or something
+const customCommandList = ["ai", "code"] as const
+type CustomCommand = (typeof customCommandList)[number]
+
+const customCommandSet = new Set(customCommandList)
+const isCustomCommand = (cmd: any): cmd is CustomCommand =>
+  customCommandSet.has(cmd)
 
 // You will think step-by-step for each of my command, and output each step in a JSON object.
 
 const useWebVMProvider = ({
   manualBoot = false,
+  workdirName = "ai-container",
   welcomePrompt = `Welcome to AI Container: 
   - Use "ai [prompt]" to issue any instructions
   - Use "code [prompt]" to automate software engineering
@@ -60,8 +88,6 @@ const useWebVMProvider = ({
   const bootingRef = useRef(false)
   const inputRef = useRef<WritableStreamDefaultWriter<string>>()
 
-  const promptRef = useRef("")
-
   const codeAI = useCodeAI()
 
   const shellAI = useWindowAI(
@@ -72,6 +98,7 @@ const useWebVMProvider = ({
       }
     ],
     {
+      temperature: 0,
       cacheSize: 24,
       prefixMessageCount: 1
     }
@@ -105,9 +132,14 @@ const useWebVMProvider = ({
     if (!containerRef.current && !bootingRef.current) {
       bootingRef.current = true
       const container = await WebContainer.boot({
-        workdirName: "ai-container"
+        workdirName
       })
-      // await container.mount(expressFiles)
+      /**
+       * Use the .bin dir to store runable scripts
+       * TODO: potentially generate working scripts on the fly
+       * For now, it acts as a way to allow any command to be found in PATH, and thus get registered into jsh_history
+       */
+      await container.fs.mkdir(".bin")
       container.on("port", (_port, type, url) => {
         switch (type) {
           case "open":
@@ -162,13 +194,15 @@ const useWebVMProvider = ({
       terminal: {
         rows: terminal.rows,
         cols: terminal.cols
+      },
+      env: {
+        PATH: `${container.path}:/home/${workdirName}/.bin`
       }
     })
 
     shellProcess.output.pipeTo(
       new WritableStream({
         write(shellData) {
-          console.log({ shellData })
           // if data is a flush, rewrite the welcome prompt
           if (shellData === "\u001B[0J") {
             terminal.write(shellData)
@@ -181,131 +215,45 @@ const useWebVMProvider = ({
     )
 
     const input = shellProcess.input.getWriter()
+    let inputPrompt = ""
+    let multiline = false
 
-    const history: string[] = []
-    let historyPtr = 0
-    let cursorPtr = 0
-
-    /**
-     * BUGS (FIX THEM IF YOU FIND THIS USEFUL)
-     * - the cursor goes foobar if tab or any speical empty space is used
-     * - cursor up/down is kinda foobar with the manual clean
-     */
     terminal.onData(async (data) => {
       switch (data) {
         // Enter
         case "\r": {
-          // clear input
-          await execute(promptRef.current)
+          // Store the prompt into jsh_history somehow as the top item
+          const tempLine = getInputBufferFromCursor(terminal)
+          const indexOfCadet = tempLine.indexOf("❯ ")
+          if (multiline) {
+            inputPrompt += tempLine.substring(
+              indexOfCadet + 2,
+              tempLine.length - 1
+            )
 
-          if (
-            promptRef.current.length > 0 &&
-            !history.includes(promptRef.current)
-          ) {
-            history.push(promptRef.current)
+            input.write(data)
+          } else {
+            inputPrompt += tempLine?.substring(indexOfCadet + 2)
+
+            // DEBUG: swap these lines
+            await execute(inputPrompt)
+            // input.write(data)
+            inputPrompt = ""
           }
 
-          promptRef.current = ""
-
-          cursorPtr = 0
-          historyPtr = history.length
+          multiline = false
           break
         }
-        // Left arrow (←)
-        case "\u001b[D": {
-          if (cursorPtr > 0) {
-            cursorPtr = Math.max(0, cursorPtr - 1)
-          }
-          input.write(data)
-          break
-        }
-        // CTRL + Left arrow (←)
-        case "\u001b[1;5D": {
-        }
-
-        // Right arrow (→)
-        case "\u001b[C": {
-          if (cursorPtr < promptRef.current.length) {
-            cursorPtr = Math.min(cursorPtr + 1, promptRef.current.length - 1)
-          }
-          input.write(data)
-          break
-        }
-        // Up arrow (↑)
-        case "\u001b[A": {
-          if (history.length > 0) {
-            historyPtr = Math.max(0, historyPtr - 1)
-            promptRef.current = history[historyPtr]
-            if (historyPtr > 0) {
-              terminal.write(`\x1B[2J\x1B[0;0H > ${promptRef.current}`)
-            }
-          }
-          break
-        }
-        // Down arrow (↓)
-        case "\u001b[B": {
-          if (historyPtr < history.length) {
-            historyPtr = Math.min(history.length, historyPtr + 1)
-            // clear terminal
-            promptRef.current = ""
-            if (historyPtr < history.length) {
-              promptRef.current = history[historyPtr]
-            }
-            terminal.write(`\x1B[2J\x1B[0;0H > ${promptRef.current}`)
-          }
-          break
-        }
-
-        case "\f": {
-          promptRef.current = ""
-          cursorPtr = 0
-          input.write(data)
-          break
-        }
-
-        // Delete
-        case "\u001b[3~": {
-          if (promptRef.current.length > 0) {
-            promptRef.current =
-              promptRef.current.slice(0, cursorPtr) +
-              promptRef.current.slice(cursorPtr + 1)
-
-            cursorPtr = Math.min(promptRef.current.length, cursorPtr)
-          }
-
-          input.write(data)
-          break
-        }
-
-        // Backspace
-        case "\u007F": {
-          if (promptRef.current.length > 0) {
-            cursorPtr = Math.max(0, cursorPtr - 1)
-            promptRef.current =
-              promptRef.current.slice(0, cursorPtr) +
-              promptRef.current.slice(cursorPtr + 1)
-          }
-
+        case "\\": {
+          multiline = true
           input.write(data)
           break
         }
         default: {
-          promptRef.current =
-            promptRef.current.slice(0, cursorPtr) +
-            data +
-            promptRef.current.slice(cursorPtr)
-
-          cursorPtr += data.length
+          multiline = false
           input.write(data)
         }
       }
-
-      console.log({
-        prompt: promptRef.current,
-        cursorPtr,
-        historyPtr,
-        history
-      })
     })
 
     inputRef.current = input
@@ -319,33 +267,34 @@ const useWebVMProvider = ({
     const terminal = getTerminal()
     const container = getContainer()
 
-    if (cmd === "code") {
-      terminal.write("\n\n")
-      await codeAI.execute(
-        {
-          input: prompt,
-          container
-        },
-        (data) => {
-          terminal.write(data)
-        }
-      )
-      input.write("\u0003")
-      return
-    }
-
     // Replace with a map -> fn/description later
-    if (cmd === "ai") {
+    if (isCustomCommand(cmd)) {
+      await addBin(cmd, container)
       terminal.write("\n\n")
-      await shellAI.sendMessage(prompt, (data) => {
-        terminal.write(data)
-      })
 
-      input.write("\u0003")
+      switch (cmd) {
+        case "ai": {
+          await shellAI.sendMessage(prompt, (d) => terminal.write(d))
+          break
+        }
+
+        case "code": {
+          await codeAI.execute(
+            {
+              input: prompt,
+              container
+            },
+            (d) => terminal.write(d)
+          )
+          break
+        }
+      }
+
+      input.write("\r")
       return
     }
 
-    // optional behavior:
+    // OPTIONAL behavior:
 
     // use which to check if cmd exists, if so run it, otherwise, create that script!
     const whichProc = await container.spawn("which", [cmd], {
@@ -359,9 +308,10 @@ const useWebVMProvider = ({
       return
     }
 
+    await addBin(cmd, container)
     terminal.write("\n\n")
     await shellAI.sendMessage(
-      `Emulate the following non-standard Linux command: 
+      `What is a creative output for the following command? 
   
  ${_prompt}
  
@@ -372,7 +322,7 @@ const useWebVMProvider = ({
       }
     )
 
-    input.write("\u0003")
+    input.write("\r")
 
     // Sample on how to sequentially run cmd:
     // const proc = await container.spawn("npm", ["i"])
