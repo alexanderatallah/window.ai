@@ -244,7 +244,7 @@ class ConfigManager extends BaseManager<Config> {
   getExternalConfigURL(config: Config) {
     switch (config.auth) {
       case AuthType.External:
-        return config.session?.settingsUrl ?? "https://openrouter.ai/pricing"
+        return config.session?.settingsUrl ?? "https://openrouter.ai/account"
       case AuthType.APIKey:
         const model = this.getCurrentModel(config)
         if (!model) {

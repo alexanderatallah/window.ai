@@ -45,7 +45,7 @@ export function PaymentRequest({
           </Text>
           <div className="text-center">
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              Please retry after configuring {config?.label}
+              This model requires more credits.
             </p>
           </div>
           <div className="mt-4">

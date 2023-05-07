@@ -324,7 +324,11 @@ export class Model {
   ) {
     let fullResult = ""
     // this.log("Batched chunk: ", chunkStr)
-    for (const chunkDataRes of parseDataChunks(chunkStr)) {
+    const chunks = parseDataChunks(chunkStr)
+    if (chunks.length > 1) {
+      this.log("Batched chunk: ", chunkStr)
+    }
+    for (const chunkDataRes of chunks) {
       if (chunkDataRes === this.config.endOfStreamSentinel) {
         this.log(
           "End: ",

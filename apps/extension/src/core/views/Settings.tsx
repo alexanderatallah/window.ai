@@ -194,23 +194,25 @@ export function Settings() {
                 .
               </Text>
             )}
-            <Accordion title="Advanced" initiallyOpened={isLocalModel}>
-              <Input
-                placeholder="Base URL"
-                type="url"
-                name="base-url"
-                value={url || config?.baseUrl || ""}
-                onChange={(val) => setUrl(val)}
-                onBlur={saveAll}
-              />
-              <label
-                htmlFor={"base-url"}
-                className="block text-xs font-medium opacity-60 mt-2">
-                {isLocalModel
-                  ? "Use any base URL, including localhost."
-                  : "Optionally use this to set a proxy. Only change if you know what you're doing."}
-              </label>
-            </Accordion>
+            {!isExternal && (
+              <Accordion title="Advanced" initiallyOpened={isLocalModel}>
+                <Input
+                  placeholder="Base URL"
+                  type="url"
+                  name="base-url"
+                  value={url || config?.baseUrl || ""}
+                  onChange={(val) => setUrl(val)}
+                  onBlur={saveAll}
+                />
+                <label
+                  htmlFor={"base-url"}
+                  className="block text-xs font-medium opacity-60 mt-2">
+                  {isLocalModel
+                    ? "Use any base URL, including localhost."
+                    : "Optionally use this to set a proxy. Only change if you know what you're doing."}
+                </label>
+              </Accordion>
+            )}
           </div>
         </Well>
       </div>
@@ -225,18 +227,12 @@ function ExternalSettings({ config }: { config: Config }) {
         <div className="flex flex-col justify-between">
           <table className="table-fixed mt-2">
             <tbody>
-              {objectEntries(config.session).map(([k, v]) => (
-                <tr key={k}>
-                  <td className="text-xs opacity-30">{k}</td>
-                  <td className="text-xs opacity-60">
-                    {typeof v === "string"
-                      ? v
-                      : k === "expiresAt" && v
-                      ? new Date(v * 1000).toLocaleString()
-                      : null}
-                  </td>
-                </tr>
-              ))}
+              {/* {objectEntries(config.session).map(([k, v]) => ( */}
+              <tr>
+                <td className="text-xs opacity-30">email</td>
+                <td className="text-xs opacity-60">{config.session.email}</td>
+              </tr>
+              {/* ))} */}
             </tbody>
           </table>
           <div className="mt-6"></div>
@@ -251,15 +247,19 @@ function ExternalSettings({ config }: { config: Config }) {
           </Button>
         </div>
       ) : (
-        <Button
-          appearance="primary"
-          wide
-          onClick={() => {
-            window.open(configManager.getExternalConfigURL(config), "_blank")
-            window.close()
-          }}>
-          Sign Up
-        </Button>
+        <div>
+          <Text dimming="less">Easiest way to access to OpenAI models.</Text>
+          <div className="mt-4"></div>
+          <Button
+            appearance="primary"
+            wide
+            onClick={() => {
+              window.open(configManager.getExternalConfigURL(config), "_blank")
+              window.close()
+            }}>
+            Sign in with Google
+          </Button>
+        </div>
       )}
     </div>
   )
