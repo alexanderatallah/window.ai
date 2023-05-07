@@ -34,7 +34,7 @@ export function AppsItem({ origin }: { origin: Origin }) {
         </div>
         <Splitter />
         <Dropdown
-          choices={["allow", "ask"]}
+          choices={["allow", "ask"] as const}
           onSelect={(permission) =>
             setObject({
               ...origin,
