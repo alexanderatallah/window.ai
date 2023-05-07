@@ -137,11 +137,12 @@ export interface WindowAI<TModel = string> {
     options?: CompletionOptions<TModel, TInput>
   ): Promise<InferredOutput<TInput>[]>
 
-  /** DEPRECATED: use generate instead
+  /**
    * Get or stream a completion from the specified (or preferred) model.
    * @param input The input to use for the completion.
    * @param options Options for the completion request.
    * @returns A promise that resolves to an array of completion results.
+   * @deprecated use generateText instead
    */
   getCompletion<TInput extends Input = Input>(
     input: TInput,
