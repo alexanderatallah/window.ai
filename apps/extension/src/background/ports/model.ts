@@ -28,7 +28,7 @@ const handler: PlasmoMessaging.PortHandler<
       configManager.init(AuthType.External)
     const newConfig = {
       ...config,
-      session
+      session: session !== undefined ? session : config.session
     }
     await configManager.save(newConfig)
     if (shouldSetDefault) {

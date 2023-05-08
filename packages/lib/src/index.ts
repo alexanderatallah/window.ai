@@ -104,14 +104,14 @@ export type EventListenerHandler<T> = (
 export type ModelProviderOptions = {
   // baseUrl is used to identify the model provider
   baseUrl: string
-  // Session information for the current user. If undefined, means user is
-  // not signed in.
+  // Session information for the current user. Set to null
+  // to sign out the user
   session?: {
     email?: string
     expiresAt?: number
     paymentUrl?: string
     settingsUrl?: string
-  }
+  } | null
   // Whether to set this model provider as the default for the user.
   shouldSetDefault?: boolean //
 }
