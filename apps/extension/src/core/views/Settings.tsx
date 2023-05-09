@@ -45,9 +45,7 @@ export function Settings() {
   }, [config])
 
   async function saveDefaultConfig(authType: AuthType, modelId?: ModelID) {
-    const config =
-      (await configManager.forAuthAndModel(authType, modelId)) ||
-      configManager.init(authType, modelId)
+    const config = await configManager.getOrInit(authType, modelId)
     await configManager.setDefault(config)
     setConfig(config)
   }

@@ -104,6 +104,13 @@ class ConfigManager extends BaseManager<Config> {
     return isNew
   }
 
+  async getOrInit(authType: AuthType, modelId?: ModelID): Promise<Config> {
+    return (
+      (await this.forAuthAndModel(authType, modelId)) ||
+      this.init(authType, modelId)
+    )
+  }
+
   async forModel(modelId: ModelID): Promise<Config> {
     const configId = await this.modelHandlers.get(modelId)
     if (configId) {
@@ -117,8 +124,7 @@ class ConfigManager extends BaseManager<Config> {
       }
       await this.modelHandlers.remove(modelId)
     }
-    // TODO include Token auth possibilities?
-    return this.init(AuthType.APIKey, modelId)
+    return this.getOrInit(AuthType.APIKey, modelId)
   }
 
   isCredentialed(config: Config): boolean {
@@ -156,7 +162,7 @@ class ConfigManager extends BaseManager<Config> {
       }
       await this.defaultConfig.remove("id")
     }
-    return this.init(AuthType.External)
+    return this.getOrInit(AuthType.External)
   }
 
   // TODO: allow multiple custom models
@@ -167,15 +173,8 @@ class ConfigManager extends BaseManager<Config> {
     if (isKnownModel(model)) {
       return this.forModel(model)
     }
-    // TEMP: Handle unknown models using one custom model
-    const configs = await this.filter({
-      auth: AuthType.APIKey,
-      model: null
-    })
-    if (configs.length > 0) {
-      return configs[0]
-    }
-    return this.init(AuthType.APIKey)
+    // Local model handles unknowns
+    return this.getOrInit(AuthType.APIKey)
   }
 
   // Filtering for `null` looks for configs that don't have any models
