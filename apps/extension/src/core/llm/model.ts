@@ -44,7 +44,7 @@ export interface RequestOptions {
   temperature?: number
   timeout?: number
   user_identifier?: string | null
-  max_tokens?: number | null
+  max_tokens?: number
   stream?: boolean
   adapter?: AxiosRequestConfig["adapter"] | null
 }
@@ -304,7 +304,7 @@ export class Model {
   protected _getRequestHeaders(opts: Required<RequestOptions>) {
     const { authPrefix } = this.config
     return {
-      Authorization: `${authPrefix}${opts.apiKey || ""}`,
+      Authorization: opts.apiKey ? `${authPrefix}${opts.apiKey}` : undefined,
       "HTTP-Referer": opts.origin
     }
   }

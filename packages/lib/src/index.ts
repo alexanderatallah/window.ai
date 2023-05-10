@@ -108,6 +108,7 @@ export type ModelProviderOptions = {
   // to sign out the user
   session?: {
     email?: string
+    walletAddress?: string
     expiresAt?: number
     paymentUrl?: string
     settingsUrl?: string

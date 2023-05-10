@@ -219,17 +219,22 @@ export function Settings() {
 }
 
 function ExternalSettings({ config }: { config: Config }) {
+  const { session } = config
   return (
     <div>
-      {config.session ? (
+      {session ? (
         <div className="flex flex-col justify-between">
           <table className="table-fixed mt-2">
             <tbody>
-              {/* {objectEntries(config.session).map(([k, v]) => ( */}
-              <tr>
-                <td className="text-xs opacity-30">email</td>
-                <td className="text-xs opacity-60">{config.session.email}</td>
-              </tr>
+              {/* {objectEntries(session).map(([k, v]) => ( */}
+              {objectEntries(session)
+                .filter(([attr]) => ["email", "walletAddress"].includes(attr))
+                .map(([attr, val]) => (
+                  <tr>
+                    <td className="text-xs opacity-30">{attr}</td>
+                    <td className="text-xs opacity-60">{val}</td>
+                  </tr>
+                ))}
               {/* ))} */}
             </tbody>
           </table>
@@ -246,7 +251,7 @@ function ExternalSettings({ config }: { config: Config }) {
         </div>
       ) : (
         <div>
-          <Text dimming="less">Easiest way to access to OpenAI models.</Text>
+          <Text dimming="less">Access OpenAI models for free.</Text>
           <div className="mt-4"></div>
           <Button
             appearance="primary"
