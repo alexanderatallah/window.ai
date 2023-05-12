@@ -1,10 +1,13 @@
-import { IconCheck, IconClipboard, IconDownload } from "@tabler/icons-react"
-import { type FC, memo, useState } from "react"
+// use client
+import { IconCheck, IconClipboard } from "@tabler/icons-react"
+import clsx from "clsx"
+import { useMemo, useState, type FC } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import {
   oneDark,
   oneLight
 } from "react-syntax-highlighter/dist/cjs/styles/prism"
+import { useMatchMedia } from "~core/components/hooks/useMatchMedia"
 
 export const programmingLanguages = {
   javascript: ".js",
@@ -66,9 +69,18 @@ export const CodeBlock: FC<Props> = ({ language, value }) => {
       }, 2000)
     })
   }
+  const isDarkTheme = useMatchMedia("(prefers-color-scheme: dark)")
+  const editorTheme = useMemo(
+    () => (isDarkTheme ? oneDark : oneLight),
+    [isDarkTheme]
+  )
+
+  if (isDarkTheme === undefined) {
+    return null
+  }
 
   return (
-    <div className="codeblock relative font-sans text-[16px] group">
+    <div className={clsx("codeblock relative font-sans text-[16px] group")}>
       <div className="flex items-center justify-between py-1.5 px-4">
         <span className="text-xs lowercase">{language}</span>
 
@@ -83,11 +95,7 @@ export const CodeBlock: FC<Props> = ({ language, value }) => {
       </div>
       <SyntaxHighlighter
         language={language}
-        style={
-          window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? oneDark
-            : oneLight
-        }
+        style={editorTheme}
         customStyle={{ margin: 0 }}>
         {value}
       </SyntaxHighlighter>
