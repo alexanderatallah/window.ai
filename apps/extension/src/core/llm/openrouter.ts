@@ -1,5 +1,6 @@
 import { type ChatMessage } from "window.ai"
 
+import { getExternalConfigBaseURL } from "~core/utils/utils"
 import { ModelID } from "~public-interface"
 
 import type { ModelConfig, RequestOptions } from "./model"
@@ -15,8 +16,6 @@ export function init(
   opts: RequestOptions
 ): Model {
   // Configurable to localhost in extension UI
-  const host =
-    process.env.PLASMO_PUBLIC_OPENROUTER_URI || "https://openrouter.ai"
   return new Model(
     {
       modelProvider: "openrouter",
@@ -27,7 +26,7 @@ export function init(
           : req.model === ModelID.GPT4
           ? OpenAIModelId.GPT4
           : req.model,
-      defaultBaseUrl: `${host}/api/v1`,
+      defaultBaseUrl: `${getExternalConfigBaseURL()}/api/v1`,
       getPath: () => "/chat/completions",
       debug: config.debug,
       endOfStreamSentinel: "[DONE]",

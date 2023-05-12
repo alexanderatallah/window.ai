@@ -13,13 +13,13 @@ import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
 import { AuthType, type Config, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
-import { objectEntries } from "~core/utils/utils"
+import { camelToWords, objectEntries } from "~core/utils/utils"
 import { ModelID } from "~public-interface"
 
 type ConfigSetting = { auth: AuthType; model?: ModelID }
 
 const configSettings: ConfigSetting[] = [
-  { auth: AuthType.External },
+  { auth: AuthType.External }, // OpenRouter
   { auth: AuthType.APIKey, model: ModelID.GPT3 },
   { auth: AuthType.APIKey, model: ModelID.GPT4 },
   { auth: AuthType.APIKey, model: ModelID.Together },
@@ -224,18 +224,16 @@ function ExternalSettings({ config }: { config: Config }) {
     <div>
       {session ? (
         <div className="flex flex-col justify-between">
-          <table className="table-fixed mt-2">
+          <table className="table-fixed mt-2 w-full">
             <tbody>
-              {/* {objectEntries(session).map(([k, v]) => ( */}
               {objectEntries(session)
                 .filter(([attr]) => ["email", "walletAddress"].includes(attr))
                 .map(([attr, val]) => (
-                  <tr>
-                    <td className="text-xs opacity-30">{attr}</td>
-                    <td className="text-xs opacity-60">{val}</td>
+                  <tr key={attr}>
+                    <td className="text-xs opacity-30">{camelToWords(attr)}</td>
+                    <td className="text-xs opacity-60 truncate">{val}</td>
                   </tr>
                 ))}
-              {/* ))} */}
             </tbody>
           </table>
           <div className="mt-6"></div>
@@ -260,7 +258,7 @@ function ExternalSettings({ config }: { config: Config }) {
               window.open(configManager.getExternalConfigURL(config), "_blank")
               window.close()
             }}>
-            Sign in with Google
+            Sign in
           </Button>
         </div>
       )}

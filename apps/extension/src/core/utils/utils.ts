@@ -45,6 +45,20 @@ export function messagesToPrompt(messages: ChatMessage[]): string {
   )
 }
 
+export function camelToWords(str: string): string {
+  return (
+    str
+      // Insert a space before all caps
+      .replace(/([A-Z])/g, " $1")
+      // Lowercase all characters
+      .toLowerCase()
+  )
+}
+
+export function getExternalConfigBaseURL(): string {
+  return process.env.PLASMO_PUBLIC_OPENROUTER_URI || "https://openrouter.ai"
+}
+
 export function formatDate(timestampMs: number): string {
   const date = new Date(timestampMs)
   return date.toLocaleString()

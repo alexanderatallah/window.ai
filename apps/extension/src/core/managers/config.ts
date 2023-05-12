@@ -6,6 +6,7 @@ import { Storage } from "@plasmohq/storage"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { local, modelAPICallers, openrouter } from "~core/llm"
+import { getExternalConfigBaseURL } from "~core/utils/utils"
 import { ModelID, isKnownModel } from "~public-interface"
 
 import { BaseManager } from "./base"
@@ -243,7 +244,9 @@ class ConfigManager extends BaseManager<Config> {
   getExternalConfigURL(config: Config) {
     switch (config.auth) {
       case AuthType.External:
-        return config.session?.settingsUrl ?? "https://openrouter.ai/account"
+        return (
+          config.session?.settingsUrl ?? `${getExternalConfigBaseURL()}/account`
+        )
       case AuthType.APIKey:
         const model = this.getCurrentModel(config)
         if (!model) {
