@@ -46,8 +46,8 @@ export function Chat() {
   }, [messages])
 
   return (
-    <div className="w-full pt-10">
-      <div className="rounded-lg border-slate-11 border p-6 w-full h-[360px] flex flex-col">
+    <div className="w-full h-full pt-10">
+      <div className="rounded-lg border-slate-11 border p-6 w-full h-full md:h-[320px] flex flex-col">
         <div className="flex-grow overflow-y-auto pr-8 pl-4" ref={messagesRef}>
           {messages.map(({ content, role }, index) => (
             <ChatLine key={index} role={role} content={content} />

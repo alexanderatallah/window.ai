@@ -62,7 +62,7 @@ function Home() {
       <Section>
         <div className="flex justify-between w-full md:space-x-4 md:flex-row flex-col space-y-8 md:space-y-0">
           <CodeBlock language="javascript" value={windowaiExample} />
-          <div className="w-full">
+          <div className="w-full h-screen">
             <Chat />
           </div>
         </div>

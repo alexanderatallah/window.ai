@@ -83,7 +83,11 @@ export const CodeBlock: FC<Props> = ({ language, value }) => {
       </div>
       <SyntaxHighlighter
         language={language}
-        style={oneLight}
+        style={
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? oneDark
+            : oneLight
+        }
         customStyle={{ margin: 0 }}>
         {value}
       </SyntaxHighlighter>
