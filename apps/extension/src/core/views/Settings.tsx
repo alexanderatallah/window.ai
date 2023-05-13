@@ -229,9 +229,13 @@ function ExternalSettings({ config }: { config: Config }) {
               {objectEntries(session)
                 .filter(([attr]) => ["email", "walletAddress"].includes(attr))
                 .map(([attr, val]) => (
-                  <tr key={attr}>
-                    <td className="text-xs opacity-30">{camelToWords(attr)}</td>
-                    <td className="text-xs opacity-60 truncate">{val}</td>
+                  <tr key={attr} className="grid grid-cols-7">
+                    <td className="text-xs opacity-30 truncate col-span-2">
+                      {camelToWords(attr)}
+                    </td>
+                    <td className="text-xs opacity-60 truncate col-span-5">
+                      {val}
+                    </td>
                   </tr>
                 ))}
             </tbody>

@@ -26,7 +26,7 @@ export function Dropdown<T>({
         className={
           "inline-flex justify-center w-full rounded-md px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 " +
           (styled
-            ? "border shadow-sm dark:bg-indigo-500 bg-indigo-100 text-indigo-700 dark:text-white hover:bg-indigo-200 hover:dark:bg-indigo-700 border-indigo-300 dark:border-indigo-400 focus:ring-indigo-500"
+            ? "border shadow-sm dark:bg-slate-600 bg-indigo-100 text-indigo-700 dark:text-white hover:bg-indigo-200 hover:dark:bg-slate-800 border-indigo-300 dark:border-slate-500 focus:ring-indigo-500"
             : "")
         }
         id="options-menu"

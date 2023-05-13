@@ -55,7 +55,7 @@ export function camelToWords(str: string): string {
   )
 }
 
-export function getExternalConfigBaseURL(): string {
+export function getExternalConfigURL(): string {
   return process.env.PLASMO_PUBLIC_OPENROUTER_URI || "https://openrouter.ai"
 }
 

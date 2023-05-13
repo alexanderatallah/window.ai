@@ -1,6 +1,6 @@
 import { type ChatMessage } from "window.ai"
 
-import { getExternalConfigBaseURL } from "~core/utils/utils"
+import { getExternalConfigURL } from "~core/utils/utils"
 import { ModelID } from "~public-interface"
 
 import type { ModelConfig, RequestOptions } from "./model"
@@ -26,7 +26,7 @@ export function init(
           : req.model === ModelID.GPT4
           ? OpenAIModelId.GPT4
           : req.model,
-      defaultBaseUrl: `${getExternalConfigBaseURL()}/api/v1`,
+      defaultBaseUrl: `${getExternalConfigURL()}/api/v1`,
       getPath: () => "/chat/completions",
       debug: config.debug,
       endOfStreamSentinel: "[DONE]",
