@@ -1,0 +1,6 @@
+transformers
+Flask
+llama_index
+openai
+langchain
+python-dotenv

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Codegen by Example</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+	<style>
+		body {
+			margin: 20px;
+			padding: 0;
+			font-family: Arial, sans-serif;
+		}
+		.row {
+			margin-bottom: 20px;
+		}
+		.instructions {
+			font-weight: bold;
+		}
+		span {
+			margin-bottom: 5px;
+			display: block;
+		}
+		.textarea {
+			display: block;
+			width: 80%;
+			margin: 0 auto;
+			height: 100%;
+			border: 1px solid #ccc;
+			resize: none;
+			padding: 10px;
+			font-size: 16px;
+			line-height: 1.5;
+			font-family: "Courier New", monospace;
+			background-color: #fff;
+			color: #333;
+		}
+		#code-output {
+			font-family: "Courier New", monospace;
+			background-color: #fff;
+			color: #333;
+			white-space: pre-wrap;
+		}
+		#instruction-input {
+			font-family: "Arial";
+		}
+
+		button#submit {
+			display: block;
+			width: 30%;
+			margin: 0 auto;
+			margin-bottom: 40px;
+			height: 50px;
+		}
+	</style>
+</head>
+<body>
+	<div class="row">
+		<h1>Multiple models demo: codegen by example </h1>
+		<span><i>This is a Window demo app which shows how you can use multiple local models on the same endpoint.</i></span>
+		<ol>
+			<li>First, give example code that you want ChatGPT to generate code with. That snippet is embedded into a vector index which helps us fit it into the context window of ChatGPT (if your snippet is long). For the sake of the demo, it is saved locally on disk for persistent storage.</li>
+			<li>Then in the following textbox, you can prompt ChatGPT to generate code based on the code snippet.</li>
+			<li>Finally, ChatGPT is used to query the embedding with your instructions, and the output is displayed in the final row.</li>
+		</ol>
+		<span>An example is given below of ChatGPT learning to write connector functions for a `server.py` file which serves large language models to Window.ai.</span>
+	</div>
+	<form id="code-form" method="POST">
+		<div class="row">
+			<span class="instructions">Code Input:</span>
+			<span>Placeholder example below from: https://huggingface.co/jordiclive/instruction-tuned-gpt-neox-20b</span>
+			<textarea id="code-input" class="textarea" rows="10">
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+
+name = "jordiclive/instruction-tuned-gpt-neox-20b"
+model = AutoModelForCausalLM.from_pretrained(name, device_map=chip_map, torch_dtype=torch.float16)# load_in_8bit=True )
+tokenizer = AutoTokenizer.from_pretrained(name)
+
+def generate_from_model(model, tokenizer):
+    encoded_input = tokenizer(text, return_tensors='pt')
+    output_sequences = model.generate(
+                                    input_ids=encoded_input['input_ids'].cuda(0),
+                                    do_sample=True,
+                                    max_new_tokens=35,
+                                    num_return_sequences=1,
+                                    top_p=0.95,
+                                    temperature=0.5,
+                                    penalty_alpha=0.6,
+                                    top_k=4,
+                                    output_scores=True,
+                                    return_dict_in_generate=True,
+                                    repetition_penalty=1.03,
+                                    eos_token_id=0,
+                                    use_cache=True
+                                  )
+    gen_sequences = output_sequences.sequences[:, encoded_input['input_ids'].shape[-1]:]
+    for sequence in gen_sequences:
+        new_line=tokenizer.decode(sequence, skip_special_tokens=True)
+        print(new_line)
+
+text = "User: Will big tech A.I be adulterated with advertisement?\n\nOA:"
+generate_from_model(model,tokenizer)
+
+			</textarea>
+		</div>
+		<div class="row">
+			<span class="instructions">Instructions:</span>
+			<textarea id="instruction-input" class="textarea" rows="10">
+The below is an example of a function pattern called `import_and_return_<model>`.
+
+def import_and_return_tk_instruct_3b_def():
+    """Example import function for Huggingface model. Returns model, tokenizer,
+    and code for running the model."""
+    tokenizer = AutoTokenizer.from_pretrained(ALLENAI_INSTRUCT3B_MODEL)
+    model = AutoModelForSeq2SeqLM.from_pretrained(ALLENAI_INSTRUCT3B_MODEL)
+
+    def model_fn(model, string, tokenizer):
+        input_ids = tokenizer.encode(string, return_tensors="pt")
+        output = model.generate(input_ids, max_length=10)
+        output = tokenizer.decode(output[0], skip_special_tokens=True)
+        return output
+
+    return model, tokenizer, model_fn
+
+As you can see, it
+- Is named `import_and_return_<model>`.
+- Returns a model, tokenizer, and model_fn. The model_fn can then be called like (model_fn).
+
+Please write `import_and_return_instruct_tuned_gpt_neox-20b` given the below code. Please write only Python code, with no comments.
+
+			</textarea>
+		</div>
+		<div class="submit-button">
+		  <button id="submit" type="button">Submit</button>
+		</div>
+		<hr />
+	</form>
+	<div class="row">
+		<span class="instructions">Code Output:</span>
+		<div id="code-output" rows="10" readonly></textarea>
+	</div>
+</body>
+<script>
+	$(document).ready(function() {
+		async function handleSubmit(e) {
+			e.preventDefault();
+			const completionsResults = document.getElementById("code-output");
+			completionsResults.textContent = "Loading..."
+
+			// Get the model and prompt values from the input elements
+			const instruction = document.getElementById("instruction-input").value;
+			const codeExample = document.getElementById("code-input").value;
+
+			// Step 1: Embed.
+			const currModel = await window.ai.getCurrentModel();
+			const _ = await window.ai.getCompletion(
+				{prompt: codeExample}, {"model": "embedding"}
+			);
+
+			// Step 2: Query.
+			const completion = await window.ai.getCompletion(
+				{prompt: instruction}, {"model": "codegen"}
+			)
+
+			// Set the results.
+			completionsResults.textContent = completion["text"];
+		}
+
+		document.getElementById("submit").addEventListener('click', handleSubmit);
+	});
+	
+</script>
+</html>
