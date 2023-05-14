@@ -7,15 +7,22 @@ export function NoActivity() {
         Nothing here yet
       </Text>
       <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
-        Join the{" "}
+        <a
+          className="text-indigo-800 font-medium dark:text-white"
+          href="https://openrouter.ai"
+          target="_blank"
+          rel="noreferrer">
+          Explore
+        </a>{" "}
+        window.ai apps, or join the{" "}
         <a
           className="text-indigo-800 font-medium dark:text-white"
           href="https://discord.gg/vDAvbuySYv"
           target="_blank"
           rel="noreferrer">
-          Discord server
-        </a>{" "}
-        to explore window.ai apps.
+          community
+        </a>
+        .
       </p>
     </div>
   )
