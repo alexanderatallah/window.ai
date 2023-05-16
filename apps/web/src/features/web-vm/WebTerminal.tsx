@@ -1,4 +1,4 @@
-import { useWebVM } from "~core/providers/web-vm"
+import { useWebVM } from "~features/web-vm/web-vm-provider"
 
 import "xterm/css/xterm.css"
 

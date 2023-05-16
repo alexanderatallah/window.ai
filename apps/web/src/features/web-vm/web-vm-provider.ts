@@ -4,8 +4,11 @@ import { type Terminal } from "xterm"
 
 import { WebContainer, type WebContainerProcess } from "@webcontainer/api"
 import type { FitAddon } from "xterm-addon-fit"
-import { useWindowAI } from "~core/components/hooks/useWindowAI"
-import { getInputBufferFromCursor, parseCmd } from "~core/utils/terminal-parser"
+import { useWindowAI } from "~core/hooks/useWindowAI"
+import {
+  getInputBufferFromCursor,
+  parseCmd
+} from "~features/web-vm/terminal-parser"
 import { useCodeAI } from "~features/agent/useCodeAI"
 import { binDirectory } from "~features/web-vm/files"
 import { posix } from "path"

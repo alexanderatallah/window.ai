@@ -1,5 +1,5 @@
 import { InputMessage } from "~core/components/InputMessage"
-import { useAgentManager } from "~core/providers/agent-manager"
+import { useAgentManager } from "~features/agent/agent-manager-provider"
 import { AgentHiringCard } from "~features/agent/AgentHiringCard"
 import { CaptainMonitor } from "~features/agent/CaptainMonitor"
 import { CrewMonitor } from "~features/agent/CrewMonitor"

@@ -4,7 +4,7 @@ import { Button } from "./Button"
 import { ChatLine, LoadingChatLine } from "./ChatLine"
 import { InputMessage } from "./InputMessage"
 import { DISCORD_URL, EXTENSION_CHROME_URL } from "./common"
-import { initialMessages, useWindowAI } from "./hooks/useWindowAI"
+import { initialMessages, useWindowAI } from "../hooks/useWindowAI"
 import { GetExtensionButton } from "~core/components/GetExtensionButton"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"

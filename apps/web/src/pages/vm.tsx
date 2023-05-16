@@ -1,5 +1,5 @@
 import Head from "next/head"
-import { WebVMProvider } from "~core/providers/web-vm"
+import { WebVMProvider } from "~features/web-vm/web-vm-provider"
 import { AIContainerView } from "~views/AIContainerView"
 
 export default function AIContainerPage() {

@@ -1,7 +1,7 @@
 import { createProvider } from "puro"
 import { useCallback, useContext, useMemo, useState } from "react"
 import extractJson from "@airthium/extract-json-from-string"
-import { useWindowAI } from "~core/components/hooks/useWindowAI"
+import { useWindowAI } from "~core/hooks/useWindowAI"
 import { isMessageOutput } from "window.ai"
 
 import { nanoid } from "nanoid"

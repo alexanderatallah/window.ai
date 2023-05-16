@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react"
-import { useArrayRef } from "~core/components/hooks/useArrayRef"
-import { useWindowAI } from "~core/components/hooks/useWindowAI"
+import { useArrayRef } from "~core/hooks/useArrayRef"
+import { useWindowAI } from "~core/hooks/useWindowAI"
 import {
   useAgentManager,
   type AgentConfig
-} from "~core/providers/agent-manager"
+} from "~features/agent/agent-manager-provider"
 import { useLog } from "~features/agent/useLog"
 
 const getSystemPrompt = (goal: string, ac: AgentConfig) =>

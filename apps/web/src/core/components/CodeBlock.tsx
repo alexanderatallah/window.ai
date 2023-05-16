@@ -7,7 +7,7 @@ import {
   oneDark,
   oneLight
 } from "react-syntax-highlighter/dist/cjs/styles/prism"
-import { useMatchMedia } from "~core/components/hooks/useMatchMedia"
+import { useMatchMedia } from "~core/hooks/useMatchMedia"
 
 export const programmingLanguages = {
   javascript: ".js",
