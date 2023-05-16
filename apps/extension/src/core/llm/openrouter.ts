@@ -11,14 +11,14 @@ export enum OpenAIModelId {
   GPT4 = "gpt-4"
 }
 export function init(
-  config: Pick<ModelConfig, "debug"> &
+  config: Pick<ModelConfig, "debug" | "identifier"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
 ): Model {
   // Configurable to localhost in extension UI
   return new Model(
     {
-      modelProvider: "openrouter",
+      ...config,
       isStreamable: true,
       overrideModelParam: (req) =>
         req.model === ModelID.GPT3
@@ -28,15 +28,12 @@ export function init(
           : req.model,
       defaultBaseUrl: `${getExternalConfigURL()}/api/v1`,
       getPath: () => "/chat/completions",
-      debug: config.debug,
       endOfStreamSentinel: "[DONE]",
-      cacheGet: config.cacheGet,
-      cacheSet: config.cacheSet,
       transformForRequest: (req, meta) => {
         const {
           stop_sequences,
           num_generations,
-          modelProvider,
+          identifier,
           prompt,
           baseUrl,
           ...optsToSend

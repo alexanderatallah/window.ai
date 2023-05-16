@@ -39,10 +39,10 @@ export interface Config {
   id: string
   auth: AuthType
   label: string
-  baseUrl: string
   models: ModelID[]
 
   session?: ModelProviderOptions["session"]
+  baseUrl?: string
   apiKey?: string
 }
 
@@ -76,15 +76,13 @@ class ConfigManager extends BaseManager<Config> {
           id,
           auth,
           label,
-          models: [ModelID.GPT3, ModelID.GPT4],
-          baseUrl: caller.config.defaultBaseUrl
+          models: [ModelID.GPT3, ModelID.GPT4]
         }
       case AuthType.APIKey:
         return {
           id,
           auth,
           models: modelId ? [modelId] : [],
-          baseUrl: caller.config.defaultBaseUrl,
           label
         }
     }
@@ -96,10 +94,6 @@ class ConfigManager extends BaseManager<Config> {
     if (isNew) {
       // Index by auth type
       await this.indexBy(config, config.auth, authIndexName)
-    }
-
-    for (const modelId of config.models) {
-      await this.modelHandlers.set(modelId, config.id)
     }
 
     return isNew
@@ -129,9 +123,6 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   isCredentialed(config: Config): boolean {
-    if (!config.baseUrl) {
-      return false
-    }
     switch (config.auth) {
       case AuthType.External:
         return !!config.session
@@ -142,6 +133,9 @@ class ConfigManager extends BaseManager<Config> {
 
   async setDefault(config: Config) {
     await this.save(config)
+    for (const modelId of config.models) {
+      await this.modelHandlers.set(modelId, config.id)
+    }
     const previous = await this.defaultConfig.get("id")
     await this.defaultConfig.set("id", config.id)
     if (previous !== config.id) {

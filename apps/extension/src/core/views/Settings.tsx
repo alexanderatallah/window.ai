@@ -56,8 +56,8 @@ export function Settings() {
     }
     return configManager.save({
       ...config,
-      apiKey: apiKey,
-      baseUrl: url
+      apiKey: apiKey || undefined,
+      baseUrl: url || undefined
     })
   }
 
@@ -198,7 +198,7 @@ export function Settings() {
                   placeholder="Base URL"
                   type="url"
                   name="base-url"
-                  value={url || config?.baseUrl || ""}
+                  value={url}
                   onChange={(val) => setUrl(val)}
                   onBlur={saveAll}
                 />

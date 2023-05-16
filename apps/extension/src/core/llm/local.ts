@@ -10,21 +10,18 @@ export enum AlpacaModelId {
 }
 
 export function init(
-  config: Pick<ModelConfig, "debug"> &
-    Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">> = {},
+  config: Pick<ModelConfig, "debug" | "identifier"> &
+    Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
 ): Model {
   return new Model(
     {
-      modelProvider: "local",
+      ...config,
       isStreamable: true,
       defaultBaseUrl: "http://127.0.0.1:8000",
       getPath: () => "/completions",
-      debug: config.debug,
-      cacheGet: config.cacheGet,
-      cacheSet: config.cacheSet,
       transformForRequest: (req) => {
-        const { prompt, messages, modelProvider, ...optsToSend } = req
+        const { prompt, messages, identifier, ...optsToSend } = req
         const fullPrompt =
           prompt !== undefined
             ? prompt

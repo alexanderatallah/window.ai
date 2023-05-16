@@ -57,8 +57,17 @@ function ActivityRow({
         className="self-start mx-2 my-1 w-5 rounded-full"
         faviconFor={transaction.origin.domain}
       />
-      <div className="col-span-6">
-        <Text truncate>{input}</Text>
+      <div className="col-span-6 relative">
+        <div className="flex flex-row">
+          <div className="truncate flex-1">
+            <Text truncate>{input}</Text>
+          </div>
+          {transaction.model && (
+            <div className="uppercase text-[10px] font-bold bg-slate-300 dark:bg-slate-900 py-0 px-2 rounded-md">
+              {transaction.model}
+            </div>
+          )}
+        </div>
         <Text lines={2} size="xs" dimming="less">
           {output === undefined ? (
             <span className="italic">No response</span>

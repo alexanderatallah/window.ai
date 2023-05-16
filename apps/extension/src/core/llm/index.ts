@@ -15,9 +15,18 @@ import { init as initTogether } from "./together"
 const DEFAULT_MAX_TOKENS = 256
 const shouldDebugModels = process.env.NODE_ENV !== "production"
 
+export enum ModelProvider {
+  OpenAI = "openai",
+  Cohere = "cohere",
+  Together = "together",
+  Local = "local",
+  OpenRouter = "openrouter"
+}
+
 export const local = initLocal(
   {
-    debug: shouldDebugModels
+    debug: shouldDebugModels,
+    identifier: ModelProvider.Local
   },
   {
     // TODO consider switching from axios to fetch, since fetchAdapter
@@ -28,7 +37,8 @@ export const local = initLocal(
 
 export const openrouter = initOpenRouter(
   {
-    debug: shouldDebugModels
+    debug: shouldDebugModels,
+    identifier: ModelProvider.OpenRouter
   },
   {
     max_tokens: DEFAULT_MAX_TOKENS,
@@ -38,7 +48,8 @@ export const openrouter = initOpenRouter(
 
 export const openai = initOpenAI(
   {
-    debug: shouldDebugModels
+    debug: shouldDebugModels,
+    identifier: ModelProvider.OpenAI
   },
   {
     max_tokens: DEFAULT_MAX_TOKENS,
@@ -48,7 +59,8 @@ export const openai = initOpenAI(
 
 export const together = initTogether(
   {
-    debug: shouldDebugModels
+    debug: shouldDebugModels,
+    identifier: ModelProvider.Together
   },
   {
     max_tokens: DEFAULT_MAX_TOKENS,
@@ -59,7 +71,8 @@ export const together = initTogether(
 
 export const cohere = initCohere(
   {
-    debug: shouldDebugModels
+    debug: shouldDebugModels,
+    identifier: ModelProvider.Cohere
   },
   {
     max_tokens: DEFAULT_MAX_TOKENS,

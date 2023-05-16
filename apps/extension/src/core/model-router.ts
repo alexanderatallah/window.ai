@@ -1,6 +1,6 @@
 import { ErrorCode } from "window.ai"
 
-import { modelAPICallers } from "~core/llm"
+import { ModelProvider, modelAPICallers } from "~core/llm"
 
 import { AuthType, type Config, configManager } from "./managers/config"
 import { originManager } from "./managers/origin"
@@ -37,8 +37,15 @@ export function shouldStream(
   config: Config,
   userPrefersStream = true
 ): boolean {
-  const canStream = configManager.getCaller(config).config.isStreamable
-  return canStream && (userPrefersStream || config.auth === AuthType.External)
+  const caller = configManager.getCaller(config)
+  const canStream = caller.config.isStreamable
+  if (!canStream) {
+    return false
+  }
+  if (caller.config.identifier === ModelProvider.OpenRouter) {
+    return true
+  }
+  return userPrefersStream
 }
 
 export async function stream(

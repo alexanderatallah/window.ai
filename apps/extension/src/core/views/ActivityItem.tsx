@@ -9,7 +9,7 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)
   return (
     <div className="pb-8">
-      <div className="grid grid-cols-6">
+      <div className="grid grid-cols-6 mb-2">
         <Logo
           className="w-7 self-top mr-3 mt-4"
           faviconFor={transaction.origin.domain}
@@ -35,7 +35,13 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
         {formatDate(transaction.timestamp)}
       </div> */}
 
-      <p className="mt-6">
+      {transaction.model && (
+        <p className="mt-4">
+          <b>Model:</b> {transaction.model}
+        </p>
+      )}
+
+      <p className="mt-4">
         <b>Prompt:</b> {transactionManager.formatInput(transaction)}
       </p>
 

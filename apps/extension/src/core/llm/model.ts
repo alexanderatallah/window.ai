@@ -10,7 +10,7 @@ import { definedValues, parseDataChunks } from "~core/utils/utils"
 // These options are specific to the model shape and archetype
 export interface ModelConfig {
   defaultBaseUrl: string
-  modelProvider: string
+  identifier: string
   isStreamable: boolean
   getPath: (request: RequestData) => string
   transformForRequest: (
@@ -60,7 +60,7 @@ export type RequestData = Omit<
   Required<RequestOptions>,
   "user_identifier" | "timeout" | "apiKey" | "origin" | "adapter" // These do not affect output of the model
 > &
-  Pick<Required<ModelConfig>, "modelProvider"> & // To distinguish btw providers with same-name models
+  Pick<Required<ModelConfig>, "identifier"> & // To distinguish btw providers with same-name models
   RequestPrompt
 
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
@@ -143,13 +143,13 @@ export class Model {
 
   log(...args: unknown[]): void {
     if (this.config.debug) {
-      console.log(`[MODEL ${this.config.modelProvider}]: `, ...args)
+      console.log(`[MODEL ${this.config.identifier}]: `, ...args)
     }
   }
 
   error(...args: unknown[]): void {
     if (this.config.debug) {
-      console.error(`[MODEL ${this.config.modelProvider}]: `, ...args)
+      console.error(`[MODEL ${this.config.identifier}]: `, ...args)
     }
   }
 
@@ -160,7 +160,7 @@ export class Model {
     const ret = {
       ...requestPrompt,
       model: opts.model,
-      modelProvider: this.config.modelProvider,
+      identifier: this.config.identifier,
       temperature: opts.temperature,
       top_p: opts.top_p,
       frequency_penalty: opts.frequency_penalty,
@@ -271,6 +271,7 @@ export class Model {
         getPath(request),
         payload,
         {
+          baseURL: opts.baseUrl,
           timeout: opts.timeout,
           responseType: "stream",
           headers: this._getRequestHeaders(opts)
@@ -305,6 +306,7 @@ export class Model {
     const { authPrefix } = this.config
     return {
       Authorization: opts.apiKey ? `${authPrefix}${opts.apiKey}` : undefined,
+      "X-API-KEY": opts.apiKey || undefined,
       "HTTP-Referer": opts.origin
     }
   }
