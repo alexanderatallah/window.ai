@@ -57,6 +57,8 @@ export type InferredOutput<TInput> = TInput extends MessagesInput
 export interface CompletionOptions<TModel, TInput extends Input = Input> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
+  // NOT GUARANTEED to return results by every model, so make sure you handle the promise
+  // and only use this to improve UX.
   onStreamResult?: (
     result: InferredOutput<TInput> | null,
     error: string | null
@@ -104,9 +106,15 @@ export type EventListenerHandler<T> = (
 export type ModelProviderOptions = {
   // baseUrl is used to identify the model provider
   baseUrl: string
-  // Session information for the current user. If undefined, means user is
-  // not signed in.
-  session?: { email?: string; expiresAt?: number }
+  // Session information for the current user. Set to null
+  // to sign out the user
+  session?: {
+    email?: string
+    walletAddress?: string
+    expiresAt?: number
+    paymentUrl?: string
+    settingsUrl?: string
+  } | null
   // Whether to set this model provider as the default for the user.
   shouldSetDefault?: boolean //
 }

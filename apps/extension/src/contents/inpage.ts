@@ -39,10 +39,10 @@ export const windowAI: WindowAI<ModelID> = {
 
   async generateText(input, options = {}) {
     const { onStreamResult } = _validateOptions(options)
-    const shouldStream = !!onStreamResult
+    const hasStreamHandler = !!onStreamResult
     const requestId = _relayRequest(PortName.Completion, {
       transaction: transactionManager.init(input, _getOriginData(), options),
-      shouldStream
+      hasStreamHandler
     })
     return new Promise((resolve, reject) => {
       _addResponseListener<CompletionResponse<typeof input>>(

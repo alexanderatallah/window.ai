@@ -1,11 +1,12 @@
 import { v4 as uuidv4 } from "uuid"
-import { EventType } from "window.ai"
+import { EventType, type ModelProviderOptions } from "window.ai"
 
 import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { local, modelAPICallers, openrouter } from "~core/llm"
+import { getExternalConfigURL } from "~core/utils/utils"
 import { ModelID, isKnownModel } from "~public-interface"
 
 import { BaseManager } from "./base"
@@ -38,10 +39,10 @@ export interface Config {
   id: string
   auth: AuthType
   label: string
-  baseUrl: string
   models: ModelID[]
 
-  session?: { email?: string; expiresAt?: number }
+  session?: ModelProviderOptions["session"]
+  baseUrl?: string
   apiKey?: string
 }
 
@@ -75,15 +76,13 @@ class ConfigManager extends BaseManager<Config> {
           id,
           auth,
           label,
-          models: [ModelID.GPT3, ModelID.GPT4],
-          baseUrl: caller.config.defaultBaseUrl
+          models: [ModelID.GPT3, ModelID.GPT4]
         }
       case AuthType.APIKey:
         return {
           id,
           auth,
           models: modelId ? [modelId] : [],
-          baseUrl: caller.config.defaultBaseUrl,
           label
         }
     }
@@ -97,11 +96,14 @@ class ConfigManager extends BaseManager<Config> {
       await this.indexBy(config, config.auth, authIndexName)
     }
 
-    for (const modelId of config.models) {
-      await this.modelHandlers.set(modelId, config.id)
-    }
-
     return isNew
+  }
+
+  async getOrInit(authType: AuthType, modelId?: ModelID): Promise<Config> {
+    return (
+      (await this.forAuthAndModel(authType, modelId)) ||
+      this.init(authType, modelId)
+    )
   }
 
   async forModel(modelId: ModelID): Promise<Config> {
@@ -117,14 +119,10 @@ class ConfigManager extends BaseManager<Config> {
       }
       await this.modelHandlers.remove(modelId)
     }
-    // TODO include Token auth possibilities?
-    return this.init(AuthType.APIKey, modelId)
+    return this.getOrInit(AuthType.APIKey, modelId)
   }
 
   isCredentialed(config: Config): boolean {
-    if (!config.baseUrl) {
-      return false
-    }
     switch (config.auth) {
       case AuthType.External:
         return !!config.session
@@ -135,6 +133,9 @@ class ConfigManager extends BaseManager<Config> {
 
   async setDefault(config: Config) {
     await this.save(config)
+    for (const modelId of config.models) {
+      await this.modelHandlers.set(modelId, config.id)
+    }
     const previous = await this.defaultConfig.get("id")
     await this.defaultConfig.set("id", config.id)
     if (previous !== config.id) {
@@ -156,8 +157,7 @@ class ConfigManager extends BaseManager<Config> {
       }
       await this.defaultConfig.remove("id")
     }
-    // TODO switch to authtype external
-    return this.init(AuthType.APIKey, ModelID.GPT3)
+    return this.getOrInit(AuthType.External)
   }
 
   // TODO: allow multiple custom models
@@ -168,15 +168,8 @@ class ConfigManager extends BaseManager<Config> {
     if (isKnownModel(model)) {
       return this.forModel(model)
     }
-    // TEMP: Handle unknown models using one custom model
-    const configs = await this.filter({
-      auth: AuthType.APIKey,
-      model: null
-    })
-    if (configs.length > 0) {
-      return configs[0]
-    }
-    return this.init(AuthType.APIKey)
+    // Local model handles unknowns
+    return this.getOrInit(AuthType.APIKey)
   }
 
   // Filtering for `null` looks for configs that don't have any models
@@ -245,10 +238,7 @@ class ConfigManager extends BaseManager<Config> {
   getExternalConfigURL(config: Config) {
     switch (config.auth) {
       case AuthType.External:
-        return (
-          (process.env.PLASMO_PUBLIC_OPENROUTER_URI ||
-            "https://openrouter.ai") + "/signin"
-        )
+        return config.session?.settingsUrl ?? getExternalConfigURL()
       case AuthType.APIKey:
         const model = this.getCurrentModel(config)
         if (!model) {

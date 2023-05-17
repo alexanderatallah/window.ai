@@ -10,7 +10,7 @@ import { definedValues, parseDataChunks } from "~core/utils/utils"
 // These options are specific to the model shape and archetype
 export interface ModelConfig {
   defaultBaseUrl: string
-  modelProvider: string
+  identifier: string
   isStreamable: boolean
   getPath: (request: RequestData) => string
   transformForRequest: (
@@ -35,6 +35,7 @@ export interface RequestOptions {
   baseUrl?: string
   apiKey?: string | null
   model?: string | null
+  origin?: string | null
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
@@ -43,7 +44,7 @@ export interface RequestOptions {
   temperature?: number
   timeout?: number
   user_identifier?: string | null
-  max_tokens?: number | null
+  max_tokens?: number
   stream?: boolean
   adapter?: AxiosRequestConfig["adapter"] | null
 }
@@ -57,9 +58,9 @@ export interface RequestPrompt
 
 export type RequestData = Omit<
   Required<RequestOptions>,
-  "user_identifier" | "timeout" | "apiKey" | "adapter" // These do not affect output of the model
+  "user_identifier" | "timeout" | "apiKey" | "origin" | "adapter" // These do not affect output of the model
 > &
-  Pick<Required<ModelConfig>, "modelProvider"> & // To distinguish btw providers with same-name models
+  Pick<Required<ModelConfig>, "identifier"> & // To distinguish btw providers with same-name models
   RequestPrompt
 
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
@@ -84,6 +85,7 @@ export class Model {
     this.defaultOptions = {
       baseUrl: this.config.defaultBaseUrl,
       model: null,
+      origin: null,
       apiKey: null,
       timeout: 42000,
       user_identifier: null,
@@ -141,13 +143,13 @@ export class Model {
 
   log(...args: unknown[]): void {
     if (this.config.debug) {
-      console.log(`[MODEL ${this.config.modelProvider}]: `, ...args)
+      console.log(`[MODEL ${this.config.identifier}]: `, ...args)
     }
   }
 
   error(...args: unknown[]): void {
     if (this.config.debug) {
-      console.error(`[MODEL ${this.config.modelProvider}]: `, ...args)
+      console.error(`[MODEL ${this.config.identifier}]: `, ...args)
     }
   }
 
@@ -158,7 +160,7 @@ export class Model {
     const ret = {
       ...requestPrompt,
       model: opts.model,
-      modelProvider: this.config.modelProvider,
+      identifier: this.config.identifier,
       temperature: opts.temperature,
       top_p: opts.top_p,
       frequency_penalty: opts.frequency_penalty,
@@ -269,6 +271,7 @@ export class Model {
         getPath(request),
         payload,
         {
+          baseURL: opts.baseUrl,
           timeout: opts.timeout,
           responseType: "stream",
           headers: this._getRequestHeaders(opts)
@@ -302,7 +305,9 @@ export class Model {
   protected _getRequestHeaders(opts: Required<RequestOptions>) {
     const { authPrefix } = this.config
     return {
-      Authorization: `${authPrefix}${opts.apiKey || ""}`
+      Authorization: opts.apiKey ? `${authPrefix}${opts.apiKey}` : undefined,
+      "X-API-KEY": opts.apiKey || undefined,
+      "HTTP-Referer": opts.origin
     }
   }
 
@@ -321,7 +326,11 @@ export class Model {
   ) {
     let fullResult = ""
     // this.log("Batched chunk: ", chunkStr)
-    for (const chunkDataRes of parseDataChunks(chunkStr)) {
+    const chunks = parseDataChunks(chunkStr)
+    if (chunks.length > 1) {
+      this.log("Batched chunk: ", chunkStr)
+    }
+    for (const chunkDataRes of chunks) {
       if (chunkDataRes === this.config.endOfStreamSentinel) {
         this.log(
           "End: ",

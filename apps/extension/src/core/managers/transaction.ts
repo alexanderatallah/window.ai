@@ -19,12 +19,12 @@ export interface Transaction<TInput = Input> {
   timestamp: number
   origin: OriginData
   input: Input
+  numOutputs: number
 
   temperature?: number
   maxTokens?: number
   stopSequences?: string[]
   model?: ModelID | string
-  numOutputs?: number
 
   outputs?: InferredOutput<TInput>[]
   error?: string
@@ -43,7 +43,13 @@ class TransactionManager extends BaseManager<Transaction> {
     options: CompletionOptions<ModelID, TInput>
   ): Transaction {
     this._validateInput(input)
-    const { temperature, maxTokens, stopSequences, model, numOutputs } = options
+    const {
+      temperature,
+      maxTokens,
+      stopSequences,
+      model,
+      numOutputs = 1
+    } = options
     return {
       id: uuidv4(),
       origin,
@@ -55,6 +61,19 @@ class TransactionManager extends BaseManager<Transaction> {
       model,
       numOutputs
     }
+  }
+
+  // Override to set numOutputs on old data
+  async _batchFetch(ids: string[]): Promise<Transaction[]> {
+    return Promise.all(
+      ids.map(async (id) => {
+        const raw = await this.store.get<Transaction>(id)
+        if (raw.numOutputs === undefined) {
+          raw.numOutputs = 1
+        }
+        return raw
+      })
+    )
   }
 
   async save(txn: Transaction): Promise<boolean> {

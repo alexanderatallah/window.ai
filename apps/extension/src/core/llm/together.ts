@@ -19,20 +19,17 @@ export enum TogetherModelId {
 // }
 
 export function init(
-  config: Pick<ModelConfig, "debug"> &
+  config: Pick<ModelConfig, "debug" | "identifier"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
 ) {
   return new Model(
     {
-      modelProvider: "together",
+      ...config,
       isStreamable: false,
       defaultBaseUrl: "https://api.together.xyz",
       getPath: () => "/inference",
       overrideModelParam: () => TogetherModelId.GPT_NEOXT_20B_v2,
-      debug: config.debug,
-      cacheGet: config.cacheGet,
-      cacheSet: config.cacheSet,
       customHeaders: {
         "User-Agent": "window.ai/1.0"
       },
@@ -42,7 +39,7 @@ export function init(
           messages,
           stop_sequences,
           num_generations,
-          modelProvider,
+          identifier,
           frequency_penalty,
           presence_penalty,
           max_tokens,

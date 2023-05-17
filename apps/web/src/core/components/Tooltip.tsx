@@ -3,10 +3,12 @@ import { useState, type ReactNode } from "react"
 
 export function Tooltip({
   children,
-  content
+  content,
+  above = false
 }: {
-  children: ReactNode
-  content: ReactNode
+  above?: boolean
+  children: React.ReactNode
+  content: React.ReactNode
 }) {
   const [visible, setVisible] = useState(false)
 
@@ -27,7 +29,8 @@ export function Tooltip({
       {visible && (
         <span
           className={clsx(
-            "absolute z-10 top-full left-0",
+            above ? "bottom-full" : "top-full",
+            "absolute z-10 left-0",
             "mt-2 p-3 w-52 bg-slate-9 text-slate-12 text-xs rounded-md shadow-lg"
           )}>
           {content}
