@@ -11,16 +11,15 @@ import { Splitter } from "~core/components/pure/Splitter"
 import { Text } from "~core/components/pure/Text"
 import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
-import { RequestInterruptType } from "~core/constants"
 import { AuthType, type Config, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
-import { objectEntries } from "~core/utils/utils"
+import { camelToWords, objectEntries } from "~core/utils/utils"
 import { ModelID } from "~public-interface"
 
 type ConfigSetting = { auth: AuthType; model?: ModelID }
 
 const configSettings: ConfigSetting[] = [
-  // { auth: AuthType.External },
+  { auth: AuthType.External }, // OpenRouter
   { auth: AuthType.APIKey, model: ModelID.GPT3 },
   { auth: AuthType.APIKey, model: ModelID.GPT4 },
   { auth: AuthType.APIKey, model: ModelID.Together },
@@ -46,9 +45,7 @@ export function Settings() {
   }, [config])
 
   async function saveDefaultConfig(authType: AuthType, modelId?: ModelID) {
-    const config =
-      (await configManager.forAuthAndModel(authType, modelId)) ||
-      configManager.init(authType, modelId)
+    const config = await configManager.getOrInit(authType, modelId)
     await configManager.setDefault(config)
     setConfig(config)
   }
@@ -59,8 +56,8 @@ export function Settings() {
     }
     return configManager.save({
       ...config,
-      apiKey: apiKey,
-      baseUrl: url
+      apiKey: apiKey || undefined,
+      baseUrl: url || undefined
     })
   }
 
@@ -195,23 +192,25 @@ export function Settings() {
                 .
               </Text>
             )}
-            <Accordion title="Advanced" initiallyOpened={isLocalModel}>
-              <Input
-                placeholder="Base URL"
-                type="url"
-                name="base-url"
-                value={url || config?.baseUrl || ""}
-                onChange={(val) => setUrl(val)}
-                onBlur={saveAll}
-              />
-              <label
-                htmlFor={"base-url"}
-                className="block text-xs font-medium opacity-60 mt-2">
-                {isLocalModel
-                  ? "Use any base URL, including localhost."
-                  : "Optionally use this to set a proxy. Only change if you know what you're doing."}
-              </label>
-            </Accordion>
+            {!isExternal && (
+              <Accordion title="Advanced" initiallyOpened={isLocalModel}>
+                <Input
+                  placeholder="Base URL"
+                  type="url"
+                  name="base-url"
+                  value={url}
+                  onChange={(val) => setUrl(val)}
+                  onBlur={saveAll}
+                />
+                <label
+                  htmlFor={"base-url"}
+                  className="block text-xs font-medium opacity-60 mt-2">
+                  {isLocalModel
+                    ? "Use any base URL, including localhost."
+                    : "Optionally use this to set a proxy. Only change if you know what you're doing."}
+                </label>
+              </Accordion>
+            )}
           </div>
         </Well>
       </div>
@@ -220,45 +219,52 @@ export function Settings() {
 }
 
 function ExternalSettings({ config }: { config: Config }) {
+  const { session } = config
   return (
     <div>
-      {config.session ? (
+      {session ? (
         <div className="flex flex-col justify-between">
-          <table className="table-fixed mt-2">
+          <table className="table-fixed mt-2 w-full">
             <tbody>
-              {objectEntries(config.session).map(([k, v]) => (
-                <tr key={k}>
-                  <td className="text-xs opacity-30">{k}</td>
-                  <td className="text-xs opacity-60">
-                    {typeof v === "string"
-                      ? v
-                      : k === "expiresAt" && v
-                      ? new Date(v * 1000).toLocaleString()
-                      : null}
-                  </td>
-                </tr>
-              ))}
+              {objectEntries(session)
+                .filter(([attr]) => ["email", "walletAddress"].includes(attr))
+                .map(([attr, val]) => (
+                  <tr key={attr} className="grid grid-cols-7">
+                    <td className="text-xs opacity-30 truncate col-span-2">
+                      {camelToWords(attr)}
+                    </td>
+                    <td className="text-xs opacity-60 truncate col-span-5">
+                      {val}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
           <div className="mt-6"></div>
           <Button
             appearance="secondary"
             wide
-            onClick={() =>
+            onClick={() => {
               window.open(configManager.getExternalConfigURL(config), "_blank")
-            }>
+              window.close()
+            }}>
             Manage
           </Button>
         </div>
       ) : (
-        <Button
-          appearance="primary"
-          wide
-          onClick={() =>
-            window.open(configManager.getExternalConfigURL(config), "_blank")
-          }>
-          Sign Up
-        </Button>
+        <div>
+          <Text dimming="less">Access OpenAI models for free.</Text>
+          <div className="mt-4"></div>
+          <Button
+            appearance="primary"
+            wide
+            onClick={() => {
+              window.open(configManager.getExternalConfigURL(config), "_blank")
+              window.close()
+            }}>
+            Sign in
+          </Button>
+        </div>
       )}
     </div>
   )

@@ -3,6 +3,7 @@ import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
 import { Spinner } from "~core/components/pure/Spinner"
 import { RequestInterruptType } from "~core/constants"
 import { AuthRequest } from "~core/views/AuthRequest"
+import { PaymentRequest } from "~core/views/PaymentRequest"
 
 import { PermissionRequest } from "./PermissionRequest"
 
@@ -27,5 +28,10 @@ export function RequestInterrupt() {
     />
   ) : requestInterruptType === RequestInterruptType.Authentication ? (
     <AuthRequest data={permissionPort.data} onResult={() => window.close()} />
+  ) : requestInterruptType === RequestInterruptType.Payment ? (
+    <PaymentRequest
+      data={permissionPort.data}
+      onResult={() => window.close()}
+    />
   ) : null
 }

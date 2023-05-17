@@ -2,8 +2,10 @@ import React, { useState } from "react"
 
 export function Tooltip({
   children,
-  content
+  content,
+  above = false
 }: {
+  above?: boolean
   children: React.ReactNode
   content: React.ReactNode
 }) {
@@ -24,7 +26,10 @@ export function Tooltip({
       onMouseLeave={hideTooltip}>
       {children}
       {visible && (
-        <span className="absolute z-10 left-1/2 transform -translate-x-1/2 top-full mt-2 p-3  w-52 bg-slate-900 text-slate-100 text-xs rounded-md shadow-lg">
+        <span
+          className={`absolute z-10 left-1/2 transform -translate-x-1/2 ${
+            above ? "bottom-full" : "top-full"
+          } mt-2 p-3 w-52 bg-slate-900 text-slate-100 text-xs rounded-md shadow-lg`}>
           {content}
         </span>
       )}

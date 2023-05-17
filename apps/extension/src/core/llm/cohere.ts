@@ -22,7 +22,7 @@ export enum CohereModelId {
 // }
 
 export function init(
-  config: Pick<ModelConfig, "debug"> &
+  config: Pick<ModelConfig, "debug" | "identifier"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
   options: RequestOptions
 ) {
@@ -30,7 +30,6 @@ export function init(
     {
       ...config,
       isStreamable: false,
-      modelProvider: "cohere",
       defaultBaseUrl: "https://api.cohere.ai",
       getPath: () => "/generate",
       authPrefix: "BEARER ",
@@ -45,7 +44,7 @@ export function init(
           messages,
           top_p,
           stop_sequences,
-          modelProvider,
+          identifier,
           num_generations,
           ...optsToSend
         } = req

@@ -48,10 +48,11 @@ const handler: PlasmoMessaging.PortHandler<
 
   const config = await configManager.forModelWithDefault(txn.model)
 
-  if (modelRouter.shouldStream(config, request.shouldStream)) {
+  if (modelRouter.shouldStream(config, request)) {
     const replies: string[] = []
     const errors: string[] = []
 
+    console.log("STREAMING")
     const results = await modelRouter.stream(txn)
 
     for await (const result of results) {
@@ -62,9 +63,7 @@ const handler: PlasmoMessaging.PortHandler<
       } else {
         res.send({ response: result, id })
         errors.push(result.error)
-        if (isAuthError(result)) {
-          requestAuth(id)
-        }
+        maybeInterrupt(id, result)
       }
     }
 
@@ -90,9 +89,7 @@ const handler: PlasmoMessaging.PortHandler<
     } else {
       res.send({ response: result, id })
       txn.error = result.error
-      if (isAuthError(result)) {
-        requestAuth(id)
-      }
+      maybeInterrupt(id, result)
     }
   }
 
@@ -110,16 +107,28 @@ function getOutput(
     : { text: result, isPartial }
 }
 
-function isAuthError(error: Err<string>) {
+function maybeInterrupt(id: RequestID, result: Err<string>) {
+  if (isErrorCode(result, 401)) {
+    requestInterrupt(id, RequestInterruptType.Authentication)
+  } else if (isErrorCode(result, 402)) {
+    requestInterrupt(id, RequestInterruptType.Payment)
+  }
+}
+
+function isErrorCode(error: Err<string>, code: 401 | 402) {
   const errorParts = error.error.split(": ")
   return (
-    errorParts[0] === ErrorCode.ModelRejectedRequest && errorParts[1] === "401"
+    errorParts[0] === ErrorCode.ModelRejectedRequest &&
+    errorParts[1] === code.toString()
   )
 }
 
-async function requestAuth(requestId: RequestID) {
+async function requestInterrupt(
+  requestId: RequestID,
+  type: RequestInterruptType
+) {
   await Extension.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
-    requestInterruptType: RequestInterruptType.Authentication,
+    requestInterruptType: type,
     requestId
   })
 }
