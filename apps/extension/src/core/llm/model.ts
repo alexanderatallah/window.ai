@@ -87,7 +87,7 @@ export class Model {
       model: null,
       origin: null,
       apiKey: null,
-      timeout: 25000,
+      timeout: 42000,
       user_identifier: null,
       frequency_penalty: 0,
       presence_penalty: 0,

@@ -74,7 +74,7 @@ export enum ContentMessageType {
 
 export type CompletionRequest = {
   transaction: Transaction
-  shouldStream?: boolean
+  hasStreamHandler: boolean
 }
 export type CompletionResponse<TInput extends Input = Input> = Result<
   InferredOutput<TInput>[],

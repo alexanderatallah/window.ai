@@ -33,7 +33,8 @@ export abstract class BaseManager<T extends BaseModel> {
   abstract init(...args: unknown[]): T
 
   async get(id: string): Promise<T | undefined> {
-    return this.store.get<T | undefined>(id)
+    const batch = await this._batchFetch([id])
+    return batch[0]
   }
 
   async getIds(
@@ -90,7 +91,8 @@ export abstract class BaseManager<T extends BaseModel> {
     return isNew
   }
 
-  async fetchById(ids: string[]): Promise<T[]> {
+  // Root method for loading from storage
+  async _batchFetch(ids: string[]): Promise<T[]> {
     return Promise.all(ids.map((id) => this.store.get<T>(id)))
   }
 
@@ -127,7 +129,7 @@ export abstract class BaseManager<T extends BaseModel> {
           pageSize * page,
           pageSize * (page + 1)
         )
-        const fetched = await this.fetchById(pageTxnIds)
+        const fetched = await this._batchFetch(pageTxnIds)
         const allObjects =
           _pageMode === "append" ? [...objects, ...fetched] : fetched
         _setObjects(allObjects)

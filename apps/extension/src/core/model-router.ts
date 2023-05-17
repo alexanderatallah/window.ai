@@ -1,8 +1,7 @@
-import { ErrorCode } from "window.ai"
+import { ModelProvider } from "~core/llm"
 
-import { ModelProvider, modelAPICallers } from "~core/llm"
-
-import { AuthType, type Config, configManager } from "./managers/config"
+import type { CompletionRequest } from "./constants"
+import { type Config, configManager } from "./managers/config"
 import { originManager } from "./managers/origin"
 import type { Transaction } from "./managers/transaction"
 import { type Result, unknownErr } from "./utils/result-monad"
@@ -35,17 +34,16 @@ export async function complete(
 
 export function shouldStream(
   config: Config,
-  userPrefersStream = true
+  request: CompletionRequest
 ): boolean {
   const caller = configManager.getCaller(config)
-  const canStream = caller.config.isStreamable
+  // TODO allow > 1 numOutputs
+  const canStream =
+    caller.config.isStreamable && request.transaction.numOutputs === 1
   if (!canStream) {
     return false
   }
-  if (caller.config.identifier === ModelProvider.OpenRouter) {
-    return true
-  }
-  return userPrefersStream
+  return request.hasStreamHandler
 }
 
 export async function stream(
@@ -55,18 +53,6 @@ export async function stream(
     const config = await configManager.forModelWithDefault(txn.model)
     const caller = configManager.getCaller(config)
     const model = txn.model || configManager.getCurrentModel(config)
-
-    if (!shouldStream(config)) {
-      // TODO call complete() here
-      // https://github.com/alexanderatallah/window.ai/pull/50
-      throw ErrorCode.InvalidRequest
-    }
-
-    if (txn.numOutputs && txn.numOutputs > 1) {
-      // TODO Can't stream multiple outputs
-      // https://github.com/alexanderatallah/window.ai/issues/52
-      throw ErrorCode.InvalidRequest
-    }
 
     const stream = await caller.stream(txn.input, {
       apiKey: config.apiKey,

@@ -48,10 +48,11 @@ const handler: PlasmoMessaging.PortHandler<
 
   const config = await configManager.forModelWithDefault(txn.model)
 
-  if (modelRouter.shouldStream(config, request.shouldStream)) {
+  if (modelRouter.shouldStream(config, request)) {
     const replies: string[] = []
     const errors: string[] = []
 
+    console.log("STREAMING")
     const results = await modelRouter.stream(txn)
 
     for await (const result of results) {

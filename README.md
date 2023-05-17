@@ -116,7 +116,7 @@ All public types, including error messages, are documented in [this file](/apps/
 Example of streaming GPT-4 results to the console:
 
 ```ts
-await window.ai.generateText(
+const [ { message } ] = await window.ai.generateText(
   {
     messages: [{ role: "user", content: "Who are you?" }]
   },
@@ -124,14 +124,19 @@ await window.ai.generateText(
     temperature: 0.7,
     maxTokens: 800,
     model: ModelID.GPT4,
+    // Handle partial results if they can be streamed in
     onStreamResult: (res) => console.log(res.message.content)
   }
 )
+console.log("Full ChatML response: ", message)
 ```
 
 Note that `generateText` will return an array, `Output[]`, that only has multiple elements if `numOutputs > 1`.
 
 This **does not guarantee that the length of the return result will equal `numOutputs`**. If the model doesn't support multiple choices, then only one choice will be present in the array.
+
+The `onStreamResult` handler is similar. You should rely on the promise resolution and only use this
+handler to improve UX, since not all models and config options support it.
 
 ### Functions
 
@@ -143,15 +148,16 @@ The Window API is simple. Just a few functions:
 window.ai.generateText(
     input: Input,
     options: CompletionOptions = {}
-  ): Promise<Output | Output[]>
+  ): Promise<Output[]>
 ```
 
 `Input` is either a `{ prompt : string }` or `{ messages: ChatMessage[]}`. Examples: see [getting started](#🧑‍💻-getting-started) above.
 
-**Current model**: get the user's currently preferred model ID.
+**Current model**: get the user's currently preferred model. Will be undefined if their chosen model 
+provider doesn't have a model lookup, or the model is unknown.
 
 ```ts
-window.ai.getCurrentModel(): Promise<ModelID>
+window.ai.getCurrentModel(): Promise<ModelID | undefined>
 ```
 
 **Listen to events**: to listen to events emitted by the extension, such as whenever the preferred model changes, here's what you do:
@@ -173,6 +179,9 @@ This options dictionary allows you to specify options for the completion request
 export interface CompletionOptions {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
+  // This only works if 1) the chosen model supports streaming and
+  // 2) `numOutputs` below is not > 1. Otherwise, it will be ignored, and the
+  // whole result will be in the promise's resolution
   onStreamResult?: (result: Output | null, error: string | null) => unknown
 
   // What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
