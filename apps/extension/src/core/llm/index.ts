@@ -40,10 +40,7 @@ export const openrouter = initOpenRouter(
     debug: shouldDebugModels,
     identifier: ModelProvider.OpenRouter
   },
-  {
-    max_tokens: DEFAULT_MAX_TOKENS,
-    presence_penalty: 0 // Using negative numbers causes 500s from davinci
-  }
+  {}
 )
 
 export const openai = initOpenAI(
@@ -65,7 +62,6 @@ export const together = initTogether(
   {
     max_tokens: DEFAULT_MAX_TOKENS,
     temperature: 0.8
-    // stop_sequences: ['\n'],
   }
 )
 
@@ -77,7 +73,6 @@ export const cohere = initCohere(
   {
     max_tokens: DEFAULT_MAX_TOKENS,
     temperature: 0.9
-    // stop_sequences: ['\n'],
   }
 )
 

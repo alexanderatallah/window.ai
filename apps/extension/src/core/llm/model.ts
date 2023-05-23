@@ -39,12 +39,12 @@ export interface RequestOptions {
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
-  stop_sequences?: string[]
+  stop_sequences?: string[] | null
   num_generations?: number
   temperature?: number
   timeout?: number
   user_identifier?: string | null
-  max_tokens?: number
+  max_tokens?: number | null
   stream?: boolean
   adapter?: AxiosRequestConfig["adapter"] | null
 }
@@ -93,9 +93,9 @@ export class Model {
       presence_penalty: 0,
       temperature: 0, // OpenAI defaults to 1
       top_p: 1, // OpenAI default, rec. not change unless temperature = 1
-      stop_sequences: [], // OpenAI default
+      stop_sequences: null, // OpenAI default
       num_generations: 1,
-      max_tokens: 16, // OpenAI default, low for safety
+      max_tokens: null,
       stream: false,
       adapter: null,
       ...definedValues(opts)

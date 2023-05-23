@@ -51,8 +51,8 @@ export function init(
         return {
           ...optsToSend,
           messages,
-          user: meta.user_identifier || undefined,
-          stop: stop_sequences.length ? stop_sequences : undefined,
+          user: meta.user_identifier ?? undefined,
+          stop: stop_sequences ?? undefined,
           n: num_generations
         }
       },

@@ -25,6 +25,7 @@ export function init(
           identifier,
           prompt,
           baseUrl,
+          max_tokens,
           ...optsToSend
         } = req
         let messages = optsToSend.messages || []
@@ -40,8 +41,9 @@ export function init(
         return {
           ...optsToSend,
           messages,
-          user: meta.user_identifier || undefined,
-          stop: stop_sequences.length ? stop_sequences : undefined,
+          user: meta.user_identifier ?? undefined,
+          stop: stop_sequences ?? undefined,
+          max_tokens: max_tokens ?? undefined,
           n: num_generations
         }
       },
