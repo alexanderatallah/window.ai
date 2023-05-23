@@ -1,5 +1,5 @@
 export { hasWindowAI, getWindowAI, waitForWindowAI } from "./init"
-export { parseModelID, ModelID } from "./model-id"
+export { parseModelID, ModelID } from "./model"
 
 declare global {
   interface Window {
