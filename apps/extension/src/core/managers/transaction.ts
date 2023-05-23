@@ -3,12 +3,11 @@ import {
   type CompletionOptions,
   type InferredOutput,
   type Input,
+  type ModelID,
   isMessagesInput,
   isPromptInput,
   isTextOutput
 } from "window.ai"
-
-import type { ModelID } from "~public-interface"
 
 import { BaseManager } from "./base"
 import type { OriginData } from "./origin"

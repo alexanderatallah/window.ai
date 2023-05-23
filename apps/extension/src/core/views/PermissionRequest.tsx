@@ -1,5 +1,6 @@
 import { KeyIcon } from "@heroicons/react/24/solid"
 import { useEffect } from "react"
+import { parseModelID } from "window.ai"
 
 import { Accordion } from "~core/components/pure/Accordion"
 import { Button } from "~core/components/pure/Button"
@@ -13,7 +14,6 @@ import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
 import { useConfig } from "~core/providers/config"
 import { useNav } from "~core/providers/nav"
-import { isKnownModel } from "~public-interface"
 
 export function PermissionRequest({
   data,
@@ -83,7 +83,7 @@ function TransactionPermission({ transaction }: { transaction: Transaction }) {
       </Text>
       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
         This app is requesting permission to access {config?.label}
-        {requestedModel && !isKnownModel(requestedModel)
+        {requestedModel && !parseModelID(requestedModel)
           ? ` (${requestedModel})`
           : ""}
       </p>

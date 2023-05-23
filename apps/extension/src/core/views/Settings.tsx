@@ -1,5 +1,6 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { useEffect, useMemo, useState } from "react"
+import { ModelID } from "window.ai"
 
 import { useParams } from "~core/components/hooks/useParams"
 import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
@@ -14,14 +15,15 @@ import { Well } from "~core/components/pure/Well"
 import { AuthType, type Config, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
 import { camelToWords, objectEntries } from "~core/utils/utils"
-import { ModelID } from "~public-interface"
 
 type ConfigSetting = { auth: AuthType; model?: ModelID }
 
 const configSettings: ConfigSetting[] = [
   { auth: AuthType.External }, // OpenRouter
-  { auth: AuthType.APIKey, model: ModelID.GPT3 },
-  { auth: AuthType.APIKey, model: ModelID.GPT4 },
+  { auth: AuthType.APIKey, model: ModelID.GPT_3 },
+  { auth: AuthType.APIKey, model: ModelID.GPT_4 },
+  { auth: AuthType.APIKey, model: ModelID.Claude_Instant_V1_100k },
+  { auth: AuthType.APIKey, model: ModelID.Claude_V1_100k },
   { auth: AuthType.APIKey, model: ModelID.Together },
   { auth: AuthType.APIKey, model: ModelID.Cohere },
   { auth: AuthType.APIKey } // Local model
@@ -69,7 +71,7 @@ export function Settings() {
   const isOpenAIAPI = useMemo(
     () =>
       needsAPIKey &&
-      !!config?.models.find((m) => m === ModelID.GPT3 || m === ModelID.GPT4),
+      !!config?.models.find((m) => m === ModelID.GPT_3 || m === ModelID.GPT_4),
     [needsAPIKey, config]
   )
 
@@ -138,7 +140,7 @@ export function Settings() {
             )}
             {isExternal && <ExternalSettings config={config} />}
             <div className="mt-3"></div>
-            {needsAPIKey && (
+            {needsAPIKey && !isLocalModel && (
               <Text dimming="less" size="xs">
                 {apiKey ? "Monitor your" : "Obtain an"} API key{" "}
                 <a
@@ -150,15 +152,7 @@ export function Settings() {
                 </a>{" "}
                 <Tooltip
                   content={
-                    <span>
-                      API keys are only stored in your browser. For OpenAI, you
-                      must have a paid account, otherwise your key will be
-                      rate-limited excessively.
-                      <br />
-                      <br />
-                      An API key is required for the OpenAI and Cohere models,
-                      but not for Together or Local (running on your computer).
-                    </span>
+                    <span>API keys are only stored in your browser.</span>
                   }>
                   <InformationCircleIcon className="w-3 inline -mt-1 opacity-50" />
                 </Tooltip>
@@ -174,7 +168,7 @@ export function Settings() {
                   rel="noreferrer">
                   paid account
                 </a>
-                .
+                . Use OpenRouter if you do not have one.
               </Text>
             )}
             {isLocalModel && (
@@ -253,7 +247,9 @@ function ExternalSettings({ config }: { config: Config }) {
         </div>
       ) : (
         <div>
-          <Text dimming="less">Access OpenAI models for free.</Text>
+          <Text dimming="less">
+            Easiest way to access OpenAI and Anthropic models.
+          </Text>
           <div className="mt-4"></div>
           <Button
             appearance="primary"

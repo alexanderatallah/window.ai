@@ -1,3 +1,12 @@
+export { hasWindowAI, getWindowAI, waitForWindowAI } from "./init"
+export { parseModelID, ModelID } from "./model-id"
+
+declare global {
+  interface Window {
+    ai: WindowAI
+  }
+}
+
 // ChatML is a simple markup language for chat messages. More available here:
 // https://github.com/openai/openai-python/blob/main/chatml.md
 export type ChatMessage = {
@@ -175,54 +184,4 @@ export interface WindowAI<TModel = string> {
   BETA_updateModelProvider(
     options: ModelProviderOptions
   ): Promise<TModel | undefined>
-}
-
-declare global {
-  interface Window {
-    ai: WindowAI
-  }
-}
-
-// Checking against other window.ai implementations
-export function hasWindowAI() {
-  return typeof globalThis.window.ai?.generateText === "function"
-
-  // Ref: https://github.com/alexanderatallah/window.ai/pull/34#discussion_r1170544209
-  // return (
-  //   !!globalThis.window.ai?.__window_ai_metadata__ &&
-  //   window.ai.__window_ai_metadata__.domain === VALID_DOMAIN
-  // )
-}
-
-const DEFAULT_WAIT_OPTIONS = {
-  interval: 100,
-  timeout: 2_400 // https://github.com/alexanderatallah/window.ai/pull/34#discussion_r1170545022
-}
-
-export async function waitForWindowAI(opts = DEFAULT_WAIT_OPTIONS) {
-  if (hasWindowAI()) {
-    return
-  }
-
-  await new Promise((resolve, reject) => {
-    let counter = 0
-    const timerInterval = setInterval(() => {
-      counter += opts.interval
-      if (counter > opts.timeout) {
-        clearInterval(timerInterval)
-        reject(new Error("window.ai not found"))
-      }
-
-      if (hasWindowAI()) {
-        clearInterval(timerInterval)
-        resolve(true)
-      }
-    }, opts.interval)
-  })
-}
-
-export const getWindowAI = async (opts = DEFAULT_WAIT_OPTIONS) => {
-  // wait until the window.ai object is available
-  await waitForWindowAI(opts)
-  return globalThis.window.ai
 }

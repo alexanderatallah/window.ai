@@ -7,6 +7,7 @@ import {
   VALID_DOMAIN,
   type WindowAI
 } from "window.ai"
+import type { ModelID } from "window.ai"
 
 import type {
   CompletionResponse,
@@ -20,7 +21,6 @@ import { originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import type { Result } from "~core/utils/result-monad"
 import { isOk } from "~core/utils/result-monad"
-import type { ModelID } from "~public-interface"
 
 import { version } from "../../package.json"
 
