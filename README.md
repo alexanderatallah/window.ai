@@ -34,7 +34,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
     - [Getting started](#getting-started)
     - [Functions](#functions)
     - [CompletionOptions](#completionoptions)
-    - [Model IDs](#model-ids)
+    - [Model ID Standard](#model-id-standard)
     - [Error codes](#error-codes)
     - [Community tools](#community-tools)
   - [🧠 Local model setup](#-local-model-setup)
@@ -206,10 +206,10 @@ export interface CompletionOptions {
 }
 ```
 
-### Model IDs
+### Model ID Standard
 
 `ModelID` is an enum of the available models, which are available as a
-TypeScript enum inside window.ai. See the [README](/packages/lib/README.md).
+TypeScript enum inside `window.ai`. See the library's [README](/packages/lib/README.md).
 
 ### Error codes
 
