@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 import {
   type EventListenerHandler,
   EventType,
+  type ModelID,
   type RequestID,
   VALID_DOMAIN,
   type WindowAI
@@ -20,7 +21,6 @@ import { originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import type { Result } from "~core/utils/result-monad"
 import { isOk } from "~core/utils/result-monad"
-import type { ModelID } from "~public-interface"
 
 import { version } from "../../package.json"
 

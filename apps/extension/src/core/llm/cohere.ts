@@ -4,9 +4,9 @@ import type { ModelConfig, RequestOptions } from "./model"
 import { Model } from "./model"
 
 export enum CohereModelId {
-  XlargeNightly = "command-xlarge-nightly",
-  Xlarge = "xlarge",
-  Medium = "medium"
+  XlargeNightly = "command-nightly",
+  Xlarge = "command",
+  Medium = "command-light"
 }
 
 // export const CohereModels = {
