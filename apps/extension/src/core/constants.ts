@@ -2,10 +2,10 @@ import type {
   ErrorCode,
   InferredOutput,
   Input,
+  ModelID,
   ModelProviderOptions,
   RequestID
 } from "window.ai"
-import type { ModelID } from "window.ai"
 
 import type { EventRequest, EventResponse } from "~background/ports/events"
 

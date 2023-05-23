@@ -3,11 +3,11 @@ import { v4 as uuidv4 } from "uuid"
 import {
   type EventListenerHandler,
   EventType,
+  type ModelID,
   type RequestID,
   VALID_DOMAIN,
   type WindowAI
 } from "window.ai"
-import type { ModelID } from "window.ai"
 
 import type {
   CompletionResponse,
