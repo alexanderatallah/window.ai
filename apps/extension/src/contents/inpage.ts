@@ -31,7 +31,7 @@ export const config: PlasmoCSConfig = {
   // run_at: "document_start" // This causes some Next.js pages (e.g. Plasmo docs) to break
 }
 
-export const windowAI: WindowAI<ModelID> = {
+export const windowAI: WindowAI<ModelID | string> = {
   __window_ai_metadata__: {
     domain: VALID_DOMAIN,
     version
@@ -109,7 +109,7 @@ export const windowAI: WindowAI<ModelID> = {
     return new Promise((resolve, reject) => {
       _addResponseListener<ModelResponse>(requestId, (res) => {
         if (isOk(res)) {
-          resolve(res.data.model)
+          resolve()
         } else {
           reject(res.error)
         }

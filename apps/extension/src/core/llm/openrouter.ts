@@ -17,6 +17,7 @@ export function init(
       isStreamable: true,
       defaultBaseUrl: `${getExternalConfigURL()}/api/v1`,
       getPath: () => "/chat/completions",
+      getRoutePath: () => "/model",
       endOfStreamSentinel: "[DONE]",
       transformForRequest: (req, meta) => {
         const {

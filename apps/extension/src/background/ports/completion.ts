@@ -44,7 +44,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   const txn = request.transaction
   const config = await configManager.forModelWithDefault(txn.model)
-  txn.routedModel = modelRouter.getRoute(config, txn)
+  txn.routedModel = txn.model || (await configManager.getModel(config, txn))
   // Save the incomplete txn
   await transactionManager.save(txn)
 
