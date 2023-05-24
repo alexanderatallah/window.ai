@@ -42,19 +42,18 @@ function Home() {
 
         <div className="grid grid-cols-6 gap-6">
           <Text className="text-zinc-600 md:col-span-4 col-span-6">
-            In this example, a simple chatbot is implemented in one file, with{" "}
-            <strong>no backend.</strong>
-            <br />
             Users, not developers, choose which model to use with apps{" "}
             <Link className="underline" href={GITHUB_URL} target="_blank">
               built on window.ai
             </Link>
-            .
+            . <br />
+            This example shows a chatbot implemented with{" "}
+            <strong>no API keys</strong> and no backend.
           </Text>
           <a
             href={EXTENSION_CHROME_URL}
             target="_blank"
-            className="inline-flex items-center gap-2 justify-center rounded-md py-2 px-3 text-sm outline-offset-2 transition active:transition-none
+            className="inline-flex items-center gap-2 justify-center rounded-md py-2 px-3 text-sm outline-offset-2 transition active:transition-none max-h-12
         font-semibold text-zinc-10 active:bg-zinc-800 active:text-zinc-100/70
            bg-indigo-600 hover:bg-indigo-500 md:col-span-2 col-span-6 text-white">
             Get the extension
@@ -78,8 +77,11 @@ function Home() {
               <Text variant="h2">You control your AI</Text>
               <Text className="text-zinc-600">
                 The Window extension allows you to configure the models you use
-                on the web. You can choose from OpenAI, Together, Cohere, or
-                even an AI{" "}
+                on the web. No API keys needed.
+                <br />
+                <br />
+                You can choose from OpenAI, Anthropic, Together, Cohere, or even
+                an AI{" "}
                 <Link
                   className="underline"
                   href="https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api"
