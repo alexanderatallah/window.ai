@@ -1,3 +1,5 @@
+import type { ModelID } from "window.ai"
+
 import { ModelProvider } from "~core/llm"
 
 import type { CompletionRequest } from "./constants"
@@ -8,12 +10,20 @@ import { type Result, unknownErr } from "./utils/result-monad"
 import { err, ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
+export function getRoute(
+  config: Config,
+  txn: Transaction
+): ModelID | string | undefined {
+  // TODO make request to model provider to get the model
+  return txn.model || configManager.getCurrentModel(config)
+}
+
 export async function complete(
+  config: Config,
   txn: Transaction
 ): Promise<Result<string[], string>> {
-  const config = await configManager.forModelWithDefault(txn.model)
   const caller = configManager.getCaller(config)
-  const model = txn.model || configManager.getCurrentModel(config)
+  const model = txn.routedModel
 
   try {
     const result = await caller.complete(txn.input, {
@@ -47,12 +57,12 @@ export function shouldStream(
 }
 
 export async function stream(
+  config: Config,
   txn: Transaction
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const config = await configManager.forModelWithDefault(txn.model)
     const caller = configManager.getCaller(config)
-    const model = txn.model || configManager.getCurrentModel(config)
+    const model = txn.routedModel
 
     const stream = await caller.stream(txn.input, {
       apiKey: config.apiKey,

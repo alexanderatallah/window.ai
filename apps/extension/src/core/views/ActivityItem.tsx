@@ -7,6 +7,7 @@ import { formatDate } from "~core/utils/utils"
 
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)
+  const model = transactionManager.getRoutedModel(transaction)
   return (
     <div className="pb-8">
       <div className="grid grid-cols-6 mb-2">
@@ -35,9 +36,9 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
         {formatDate(transaction.timestamp)}
       </div> */}
 
-      {transaction.model && (
+      {model && (
         <p className="mt-4">
-          <b>Model:</b> {transaction.model}
+          <b>Model:</b> {model}
         </p>
       )}
 

@@ -43,17 +43,16 @@ const handler: PlasmoMessaging.PortHandler<
   }
 
   const txn = request.transaction
+  const config = await configManager.forModelWithDefault(txn.model)
+  txn.routedModel = modelRouter.getRoute(config, txn)
   // Save the incomplete txn
   await transactionManager.save(txn)
-
-  const config = await configManager.forModelWithDefault(txn.model)
 
   if (modelRouter.shouldStream(config, request)) {
     const replies: string[] = []
     const errors: string[] = []
 
-    console.log("STREAMING")
-    const results = await modelRouter.stream(txn)
+    const results = await modelRouter.stream(config, txn)
 
     for await (const result of results) {
       if (isOk(result)) {
@@ -80,7 +79,7 @@ const handler: PlasmoMessaging.PortHandler<
   } else {
     // TODO remove this code and make everything use modelRouter.stream
     // WIP PR: https://github.com/alexanderatallah/window.ai/pull/50
-    const result = await modelRouter.complete(txn)
+    const result = await modelRouter.complete(config, txn)
 
     if (isOk(result)) {
       const outputs = result.data.map((d) => getOutput(txn.input, d))
@@ -93,7 +92,7 @@ const handler: PlasmoMessaging.PortHandler<
     }
   }
 
-  // Update the completion with the reply
+  // Update the completion with the reply and model used
   await transactionManager.save(txn)
 }
 

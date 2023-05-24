@@ -10,6 +10,7 @@ import {
 } from "window.ai"
 
 import { BaseManager } from "./base"
+import { configManager } from "./config"
 import type { OriginData } from "./origin"
 import { originManager } from "./origin"
 
@@ -24,6 +25,7 @@ export interface Transaction<TInput = Input> {
   maxTokens?: number
   stopSequences?: string[]
   model?: ModelID | string
+  routedModel?: ModelID | string
 
   outputs?: InferredOutput<TInput>[]
   error?: string
@@ -89,6 +91,11 @@ class TransactionManager extends BaseManager<Transaction> {
     }
 
     return isNew
+  }
+
+  getRoutedModel(txn: Transaction): ModelID | string | undefined {
+    // Backward compat: use .model if routedModel undefined
+    return txn.routedModel || txn.model
   }
 
   formatInput(txn: Transaction): string {

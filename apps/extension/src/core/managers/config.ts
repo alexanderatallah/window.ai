@@ -236,7 +236,6 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   getCurrentModel(config: Config): ModelID | undefined {
-    // TODO: support multiple models per config
     if (config.models.length > 1) {
       return undefined
     }

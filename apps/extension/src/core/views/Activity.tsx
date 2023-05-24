@@ -49,6 +49,7 @@ function ActivityRow({
 }) {
   const input = transactionManager.formatInput(transaction)
   const output = transactionManager.formatOutput(transaction)
+  const model = transactionManager.getRoutedModel(transaction)
   return (
     <div
       className={`p-2 h-[4.5rem] grid grid-cols-7 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700`}
@@ -62,9 +63,9 @@ function ActivityRow({
           <div className="truncate flex-1">
             <Text truncate>{input}</Text>
           </div>
-          {transaction.model && (
+          {model && (
             <div className="uppercase text-[10px] font-bold bg-slate-300 dark:bg-slate-900 py-0 px-2 rounded-md">
-              {transaction.model}
+              {model}
             </div>
           )}
         </div>
