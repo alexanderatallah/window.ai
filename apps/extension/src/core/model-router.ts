@@ -7,15 +7,32 @@ import { type Config, configManager } from "./managers/config"
 import { originManager } from "./managers/origin"
 import type { Transaction } from "./managers/transaction"
 import { type Result, unknownErr } from "./utils/result-monad"
-import { err, ok } from "./utils/result-monad"
+import { ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
-export function getRoute(
+const NO_TXN_REFERRER = "__no_txn_origin__"
+
+export async function route(
   config: Config,
-  txn: Transaction
-): ModelID | string | undefined {
-  // TODO make request to model provider to get the model
-  return txn.model || configManager.getCurrentModel(config)
+  txn?: Transaction
+): Promise<Result<ModelID | string, string>> {
+  const caller = configManager.getCaller(config)
+
+  const input = txn?.input || { prompt: "" }
+  try {
+    const result = await caller.route(input, {
+      apiKey: config.apiKey,
+      baseUrl: config.baseUrl,
+      origin: txn ? originManager.url(txn.origin) : NO_TXN_REFERRER,
+      max_tokens: txn?.maxTokens,
+      temperature: txn?.temperature,
+      stop_sequences: txn?.stopSequences,
+      num_generations: txn?.numOutputs
+    })
+    return ok(result)
+  } catch (error) {
+    return unknownErr(error)
+  }
 }
 
 export async function complete(

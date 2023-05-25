@@ -181,7 +181,5 @@ export interface WindowAI<TModel = string> {
    * @returns A promise that resolves to the user's current model, or
    *          undefined if not available.
    */
-  BETA_updateModelProvider(
-    options: ModelProviderOptions
-  ): Promise<TModel | undefined>
+  BETA_updateModelProvider(options: ModelProviderOptions): Promise<void>
 }

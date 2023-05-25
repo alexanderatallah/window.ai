@@ -20,6 +20,7 @@ export interface ModelConfig {
   transformResponse: (res: unknown) => string[]
 
   // Optionals
+  getRoutePath?: (request: RequestData) => string | null
   overrideModelParam?: (request: RequestData) => string | null
   customHeaders?: Record<string, string>
   authPrefix?: string
@@ -133,6 +134,7 @@ export class Model {
       adapter: fetchAdapter,
       ...definedValues(config),
       // Functions throw a ts error when placed above the spread
+      getRoutePath: config.getRoutePath || ((request: RequestData) => null),
       overrideModelParam:
         config.overrideModelParam || ((request: RequestData) => request.model),
       cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
@@ -175,6 +177,61 @@ export class Model {
       ...ret,
       model: this.config.overrideModelParam(ret)
     }
+  }
+
+  async route(
+    requestPrompt: RequestPrompt,
+    requestOpts: RequestOptions = {}
+  ): Promise<string> {
+    const { transformForRequest, getRoutePath } = this.config
+    const opts: Required<RequestOptions> = {
+      ...this.defaultOptions,
+      ...definedValues(requestOpts)
+    }
+    const request = this.getRequestIdentifierData(requestPrompt, opts)
+    const modelRoutePath = getRoutePath(request)
+    if (!modelRoutePath) {
+      const e = new Error(
+        `No model route path found for model ${this.config.identifier}`
+      )
+      this.error(e)
+      throw e
+    }
+    const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
+    const payload = transformForRequest(request, opts)
+    this.log(`ROUTING: ${promptSnippet}...`, {
+      modelId: request.model,
+      suffix: payload["suffix"],
+      max_tokens: payload["max_tokens"],
+      stop_sequences: payload["stop_sequences"]
+    })
+    let responseData: Record<string, any>
+    try {
+      const response = await this.api.post(modelRoutePath, payload, {
+        baseURL: opts.baseUrl,
+        timeout: opts.timeout,
+        headers: this._getRequestHeaders(opts)
+      })
+      responseData = response.data
+    } catch (err: unknown) {
+      if (!(err instanceof AxiosError)) {
+        this.error(`Unknown error: ${err}`)
+        throw err
+      }
+      const errMessage = `${err.response?.status}: ${err}`
+      this.error(errMessage + "\n" + err.response?.data)
+      throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
+    }
+
+    const model = responseData.id
+    if (typeof model !== "string") {
+      const e = new Error(
+        `Returned an invalid model: ${JSON.stringify(responseData)}`
+      )
+      this.error(e)
+      throw e
+    }
+    return model
   }
 
   async complete(

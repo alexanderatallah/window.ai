@@ -11,9 +11,12 @@ import { Storage } from "@plasmohq/storage"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { local, modelAPICallers, openrouter } from "~core/llm"
+import { unwrap } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
+import * as modelRouter from "../model-router"
 import { BaseManager } from "./base"
+import type { Transaction } from "./transaction"
 
 export enum AuthType {
   // Let another site handle all authentication
@@ -149,7 +152,7 @@ class ConfigManager extends BaseManager<Config> {
       Extension.sendToBackground(PortName.Events, {
         request: {
           event: EventType.ModelChanged,
-          data: { model: configManager.getCurrentModel(config) }
+          data: { model: configManager.sync_getModel(config) }
         }
       })
     }
@@ -232,10 +235,21 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   getCaller(config: Config) {
-    return this.getCallerForAuth(config.auth, this.getCurrentModel(config))
+    return this.getCallerForAuth(config.auth, this.sync_getModel(config))
   }
 
-  getCurrentModel(config: Config): ModelID | undefined {
+  async predictModel(
+    config: Config,
+    txn?: Transaction
+  ): Promise<ModelID | string> {
+    const currentModel = this.sync_getModel(config)
+    if (currentModel) {
+      return currentModel
+    }
+    return unwrap(await modelRouter.route(config, txn))
+  }
+
+  sync_getModel(config: Config): ModelID | undefined {
     if (config.models.length > 1) {
       return undefined
     }
@@ -247,7 +261,7 @@ class ConfigManager extends BaseManager<Config> {
       case AuthType.External:
         return config.session?.settingsUrl ?? getExternalConfigURL()
       case AuthType.APIKey:
-        const model = this.getCurrentModel(config)
+        const model = this.sync_getModel(config)
         if (!model) {
           // Assume local model
           return "https://github.com/alexanderatallah/window.ai#-local-model-setup"
