@@ -152,7 +152,7 @@ class ConfigManager extends BaseManager<Config> {
       Extension.sendToBackground(PortName.Events, {
         request: {
           event: EventType.ModelChanged,
-          data: { model: configManager.sync_getModel(config) }
+          data: { model: configManager.getModel(config) }
         }
       })
     }
@@ -235,21 +235,21 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   getCaller(config: Config) {
-    return this.getCallerForAuth(config.auth, this.sync_getModel(config))
+    return this.getCallerForAuth(config.auth, this.getModel(config))
   }
 
   async predictModel(
     config: Config,
     txn?: Transaction
   ): Promise<ModelID | string> {
-    const currentModel = this.sync_getModel(config)
+    const currentModel = this.getModel(config)
     if (currentModel) {
       return currentModel
     }
     return unwrap(await modelRouter.route(config, txn))
   }
 
-  sync_getModel(config: Config): ModelID | undefined {
+  getModel(config: Config): ModelID | undefined {
     if (config.models.length > 1) {
       return undefined
     }
@@ -261,7 +261,7 @@ class ConfigManager extends BaseManager<Config> {
       case AuthType.External:
         return config.session?.settingsUrl ?? getExternalConfigURL()
       case AuthType.APIKey:
-        const model = this.sync_getModel(config)
+        const model = this.getModel(config)
         if (!model) {
           // Assume local model
           return "https://github.com/alexanderatallah/window.ai#-local-model-setup"
