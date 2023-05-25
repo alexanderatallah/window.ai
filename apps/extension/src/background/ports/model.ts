@@ -21,7 +21,7 @@ const handler: PlasmoMessaging.PortHandler<
   const { id, request } = req.body
   if (!request) {
     const config = await configManager.getDefault()
-    const model = await configManager.getModel(config)
+    const model = await configManager.predictModel(config)
     return res.send({
       id,
       response: ok({ model })

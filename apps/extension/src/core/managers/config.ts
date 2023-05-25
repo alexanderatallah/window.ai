@@ -238,10 +238,13 @@ class ConfigManager extends BaseManager<Config> {
     return this.getCallerForAuth(config.auth, this.sync_getModel(config))
   }
 
-  async getModel(config: Config, txn?: Transaction): Promise<ModelID | string> {
-    const syncModel = this.sync_getModel(config)
-    if (syncModel) {
-      return syncModel
+  async predictModel(
+    config: Config,
+    txn?: Transaction
+  ): Promise<ModelID | string> {
+    const currentModel = this.sync_getModel(config)
+    if (currentModel) {
+      return currentModel
     }
     return unwrap(await modelRouter.route(config, txn))
   }
