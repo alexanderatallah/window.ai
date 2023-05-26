@@ -5,6 +5,7 @@ import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
 import { type ChatMessage, ErrorCode } from "window.ai"
 
+import { type Err, type Result, err, ok } from "~core/utils/result-monad"
 import { definedValues, parseDataChunks } from "~core/utils/utils"
 
 // These options are specific to the model shape and archetype
@@ -182,7 +183,7 @@ export class Model {
   async route(
     requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
-  ): Promise<string> {
+  ): Promise<Result<string, ErrorCode>> {
     const { transformForRequest, getRoutePath } = this.config
     const opts: Required<RequestOptions> = {
       ...this.defaultOptions,
@@ -214,24 +215,22 @@ export class Model {
       })
       responseData = response.data
     } catch (err: unknown) {
-      throw this._formatError(err)
+      return this._handleModelAPIError(err)
     }
 
     const model = responseData.id
     if (typeof model !== "string") {
-      const e = new Error(
-        `Returned an invalid model: ${JSON.stringify(responseData)}`
-      )
+      const e = new Error(`Invalid response: ${JSON.stringify(responseData)}`)
       this.error(e)
       throw e
     }
-    return model
+    return ok(model)
   }
 
   async complete(
     requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
-  ): Promise<string[]> {
+  ): Promise<Result<string[], ErrorCode>> {
     const {
       transformForRequest,
       getPath,
@@ -249,7 +248,7 @@ export class Model {
     const cached = await cacheGet(id)
     if (cached) {
       this.log(`\nCACHE HIT for id ${id}: ${promptSnippet}...`)
-      return cached
+      return ok(cached)
     }
     const payload = transformForRequest(request, opts)
     this.log(`COMPLETING id ${id}: ${promptSnippet}...`, {
@@ -267,7 +266,7 @@ export class Model {
       })
       responseData = response.data
     } catch (err: unknown) {
-      throw this._formatError(err)
+      return this._handleModelAPIError(err)
     }
 
     this.log("RESPONSE for id " + id)
@@ -286,13 +285,13 @@ export class Model {
       completion: result
     })
     this.log("SAVED TO CACHE: " + id)
-    return result
+    return ok(result)
   }
 
   async stream(
     requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
-  ): Promise<ReadableStream<string>> {
+  ): Promise<Result<ReadableStream<string>, ErrorCode>> {
     const opts: Required<RequestOptions> = {
       ...this.defaultOptions,
       ...definedValues(requestOpts),
@@ -335,9 +334,9 @@ export class Model {
         }
       })
 
-      return response.data.pipeThrough(transformStream)
+      return ok(response.data.pipeThrough(transformStream))
     } catch (err: unknown) {
-      throw this._formatError(err)
+      return this._handleModelAPIError(err)
     }
   }
 
@@ -403,20 +402,22 @@ export class Model {
     onResult(fullResult)
   }
 
-  private _formatError(err: unknown): Error {
-    if (!(err instanceof AxiosError)) {
-      const errorStr = `Unknown error: ${err}`
+  private _handleModelAPIError(error: unknown): Err<ErrorCode> {
+    if (!(error instanceof AxiosError)) {
+      const errorStr = `Unknown error: ${error}`
       this.error(errorStr)
-      return new Error(errorStr)
+      throw new Error(errorStr)
     }
-    if (err.response?.status === 401) {
-      return new Error(ErrorCode.NotAuthenticated)
+    if (error.response?.status === 401) {
+      return err(ErrorCode.NotAuthenticated)
     }
-    if (err.response?.status === 402) {
-      return new Error(ErrorCode.PaymentRequired)
+    if (error.response?.status === 402) {
+      return err(ErrorCode.PaymentRequired)
     }
-    const errMessage = `${err.response?.status}: ${err}`
-    this.error(`Unknown Axios error: ` + errMessage + "\n" + err.response?.data)
-    return new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
+    const errMessage = `${error.response?.status}: ${error}`
+    this.error(
+      `Unknown Axios error: ` + errMessage + "\n" + error.response?.data
+    )
+    throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
   }
 }

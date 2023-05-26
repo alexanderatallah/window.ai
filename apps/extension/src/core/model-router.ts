@@ -4,7 +4,7 @@ import type { CompletionRequest } from "./constants"
 import { type Config, configManager } from "./managers/config"
 import { originManager } from "./managers/origin"
 import type { Transaction } from "./managers/transaction"
-import { type Result, unknownErr } from "./utils/result-monad"
+import { type Result, unknownErr, unwrap } from "./utils/result-monad"
 import { ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
@@ -27,7 +27,7 @@ export async function route(
       stop_sequences: txn?.stopSequences,
       num_generations: txn?.numOutputs
     })
-    return ok(result)
+    return result
   } catch (error) {
     return unknownErr(error)
   }
@@ -36,7 +36,7 @@ export async function route(
 export async function complete(
   config: Config,
   txn: Transaction
-): Promise<Result<string[], string>> {
+): Promise<Result<string[], ErrorCode | string>> {
   const caller = configManager.getCaller(config)
   const model = txn.routedModel
 
@@ -51,7 +51,7 @@ export async function complete(
       stop_sequences: txn.stopSequences,
       num_generations: txn.numOutputs
     })
-    return ok(result)
+    return result
   } catch (error) {
     return unknownErr(error)
   }
@@ -74,7 +74,7 @@ export function shouldStream(
 export async function stream(
   config: Config,
   txn: Transaction
-): Promise<AsyncGenerator<Result<string, string>>> {
+): Promise<AsyncGenerator<Result<string, ErrorCode | string>>> {
   try {
     const caller = configManager.getCaller(config)
     const model = txn.routedModel
@@ -88,7 +88,7 @@ export async function stream(
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences
     })
-    return readableStreamToGenerator(stream)
+    return readableStreamToGenerator(unwrap(stream))
   } catch (error) {
     async function* generator() {
       yield unknownErr(error)
@@ -118,7 +118,7 @@ async function* readableStreamToGenerator(
     }
   } catch (error) {
     console.error("Streaming error: ", error, lastValue)
-    throw error
+    yield unknownErr(error)
   } finally {
     reader.releaseLock()
   }
