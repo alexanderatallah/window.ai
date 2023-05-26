@@ -43,7 +43,7 @@ export const openrouter = initOpenRouter(
   {}
 )
 
-export const openai = initOpenAI(
+export const openaiDirect = initOpenAI(
   {
     debug: shouldDebugModels,
     identifier: ModelProvider.OpenAI
@@ -54,7 +54,7 @@ export const openai = initOpenAI(
   }
 )
 
-export const together = initTogether(
+export const togetherDirect = initTogether(
   {
     debug: shouldDebugModels,
     identifier: ModelProvider.Together
@@ -65,7 +65,7 @@ export const together = initTogether(
   }
 )
 
-export const cohere = initCohere(
+export const cohereDirect = initCohere(
   {
     debug: shouldDebugModels,
     identifier: ModelProvider.Cohere
@@ -76,13 +76,20 @@ export const cohere = initCohere(
   }
 )
 
-export const modelAPICallers: { [K in ModelID]: Model } = {
-  [ModelID.GPT_3]: openai,
-  [ModelID.GPT_4]: openai,
-  [ModelID.Cohere]: cohere,
-  [ModelID.Together]: together,
-  [ModelID.Claude_Instant_V1]: openrouter,
-  [ModelID.Claude_Instant_V1_100k]: openrouter,
-  [ModelID.Claude_V1]: openrouter,
-  [ModelID.Claude_V1_100k]: openrouter
+export function getCaller(model: ModelID, baseUrl?: string): Model {
+  switch (model) {
+    case ModelID.Cohere:
+      return cohereDirect
+    case ModelID.Together:
+      return togetherDirect
+    case ModelID.GPT_3:
+    case ModelID.GPT_4:
+      // Use OpenRouter unless user overrode baseUrl
+      return baseUrl ? openaiDirect : openrouter
+    case ModelID.Claude_Instant_V1:
+    case ModelID.Claude_Instant_V1_100k:
+    case ModelID.Claude_V1:
+    case ModelID.Claude_V1_100k:
+      return openrouter
+  }
 }

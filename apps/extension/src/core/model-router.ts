@@ -14,7 +14,7 @@ export async function route(
   config: Config,
   txn?: Transaction
 ): Promise<Result<ModelID | string, ErrorCode | string>> {
-  const caller = configManager.getCaller(config)
+  const caller = configManager.getModelCaller(config)
 
   const input = txn?.input || { prompt: "" }
   try {
@@ -37,7 +37,7 @@ export async function complete(
   config: Config,
   txn: Transaction
 ): Promise<Result<string[], ErrorCode | string>> {
-  const caller = configManager.getCaller(config)
+  const caller = configManager.getModelCaller(config)
   const model = txn.routedModel
 
   try {
@@ -61,7 +61,7 @@ export function shouldStream(
   config: Config,
   request: CompletionRequest
 ): boolean {
-  const caller = configManager.getCaller(config)
+  const caller = configManager.getModelCaller(config)
   // TODO allow > 1 numOutputs
   const canStream =
     caller.config.isStreamable && request.transaction.numOutputs === 1
@@ -76,7 +76,7 @@ export async function stream(
   txn: Transaction
 ): Promise<AsyncGenerator<Result<string, ErrorCode | string>>> {
   try {
-    const caller = configManager.getCaller(config)
+    const caller = configManager.getModelCaller(config)
     const model = txn.routedModel
 
     const stream = await caller.stream(txn.input, {
