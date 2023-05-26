@@ -84,7 +84,7 @@ export function Settings() {
       </Text>
       <div className="my-4">
         {requestId ? (
-          <div className="bg-rose-700 text-white rounded-md py-4 px-6">
+          <div className="bg-rose-700 dark:text-rose-300 text-white rounded-md py-4 px-6">
             {config?.session && config.auth === AuthType.External
               ? "Authentication error. Please sign in again."
               : "Please finish setting up the model below."}
@@ -259,7 +259,9 @@ function ExternalSettings({ config }: { config: Config }) {
                 <td
                   className={
                     "text-xs opacity-60 truncate col-span-5 " +
-                    (shouldLogInAgain ? "text-rose-700 " : "")
+                    (shouldLogInAgain
+                      ? "text-rose-700 dark:text-rose-300 "
+                      : "")
                   }>
                   {defaultModel ??
                     (shouldLogInAgain ? (

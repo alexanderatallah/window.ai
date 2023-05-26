@@ -4,7 +4,7 @@ import type { CompletionRequest } from "./constants"
 import { type Config, configManager } from "./managers/config"
 import { originManager } from "./managers/origin"
 import type { Transaction } from "./managers/transaction"
-import { type Result, err, unknownErr } from "./utils/result-monad"
+import { type Result, unknownErr } from "./utils/result-monad"
 import { ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 

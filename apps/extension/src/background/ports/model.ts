@@ -33,7 +33,7 @@ const handler: PlasmoMessaging.PortHandler<
   const config = await configManager.getOrInit(AuthType.External)
   const newConfig = {
     ...config,
-    baseUrl: undefined,
+    baseUrl: undefined, // Fixes an issue where localhost interferes with prod
     session: session !== undefined ? session : config.session
   }
   // console.info("Saving new config: ", newConfig, " old config: ", config)

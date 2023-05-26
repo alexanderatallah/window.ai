@@ -214,11 +214,7 @@ export class Model {
       })
       responseData = response.data
     } catch (err: unknown) {
-      if (!(err instanceof AxiosError)) {
-        this.error(`Unknown error: ${err}`)
-      }
-      // TODO migrate other endpoints to use this too
-      throw err
+      throw this._formatError(err)
     }
 
     const model = responseData.id
@@ -271,16 +267,7 @@ export class Model {
       })
       responseData = response.data
     } catch (err: unknown) {
-      if (!(err instanceof AxiosError)) {
-        this.error(`Unknown error: ${err}`)
-        throw err
-      }
-      if (err.response?.status === 401) {
-        throw new Error(ErrorCode.NotAuthenticated)
-      }
-      const errMessage = `${err.response?.status}: ${err}`
-      this.error(errMessage + "\n" + err.response?.data)
-      throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
+      throw this._formatError(err)
     }
 
     this.log("RESPONSE for id " + id)
@@ -350,13 +337,7 @@ export class Model {
 
       return response.data.pipeThrough(transformStream)
     } catch (err: unknown) {
-      if (!(err instanceof AxiosError)) {
-        this.error(`Unknown error: ${err}`)
-        throw err
-      }
-      const errMessage = `${err.response?.status}: ${err}`
-      this.error(errMessage + "\n" + err.response?.data)
-      throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
+      throw this._formatError(err)
     }
   }
 
@@ -420,5 +401,22 @@ export class Model {
       }
     }
     onResult(fullResult)
+  }
+
+  private _formatError(err: unknown): Error {
+    if (!(err instanceof AxiosError)) {
+      const errorStr = `Unknown error: ${err}`
+      this.error(errorStr)
+      return new Error(errorStr)
+    }
+    if (err.response?.status === 401) {
+      return new Error(ErrorCode.NotAuthenticated)
+    }
+    if (err.response?.status === 402) {
+      return new Error(ErrorCode.PaymentRequired)
+    }
+    const errMessage = `${err.response?.status}: ${err}`
+    this.error(`Unknown Axios error: ` + errMessage + "\n" + err.response?.data)
+    return new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
   }
 }

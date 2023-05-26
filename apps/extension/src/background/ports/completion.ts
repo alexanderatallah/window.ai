@@ -2,7 +2,6 @@ import {
   ErrorCode,
   type InferredOutput,
   type Input,
-  ModelID,
   type RequestID,
   isMessagesInput
 } from "window.ai"
@@ -104,7 +103,7 @@ async function getCompletionModel(
   id: RequestID,
   config: Config,
   txn: Transaction
-): Promise<ModelID | string> {
+): Promise<string> {
   if (txn.model) {
     return txn.model
   }
@@ -126,20 +125,12 @@ function getOutput(
     : { text: result, isPartial }
 }
 
-async function maybeInterrupt(id: RequestID, result: Err<string>) {
-  if (isErrorCode(result, 401)) {
+async function maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
+  if (result.error === ErrorCode.NotAuthenticated) {
     return requestInterrupt(id, RequestInterruptType.Authentication)
-  } else if (isErrorCode(result, 402)) {
+  } else if (result.error === ErrorCode.PaymentRequired) {
     return requestInterrupt(id, RequestInterruptType.Payment)
   }
-}
-
-function isErrorCode(error: Err<string>, code: 401 | 402) {
-  const errorParts = error.error.split(": ")
-  return (
-    errorParts[0] === ErrorCode.ModelRejectedRequest &&
-    errorParts[1] === code.toString()
-  )
 }
 
 async function requestInterrupt(
