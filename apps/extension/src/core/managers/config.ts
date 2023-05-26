@@ -1,8 +1,10 @@
 import { v4 as uuidv4 } from "uuid"
 import {
+  ErrorCode,
   EventType,
   ModelID,
   type ModelProviderOptions,
+  isKnownError,
   parseModelID
 } from "window.ai"
 
@@ -11,7 +13,7 @@ import { Storage } from "@plasmohq/storage"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { local, modelAPICallers, openrouter } from "~core/llm"
-import { unwrap } from "~core/utils/result-monad"
+import { type Result, isErr, isOk, ok, unwrap } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
 import * as modelRouter from "../model-router"
@@ -241,12 +243,12 @@ class ConfigManager extends BaseManager<Config> {
   async predictModel(
     config: Config,
     txn?: Transaction
-  ): Promise<ModelID | string> {
+  ): Promise<Result<ModelID | string, ErrorCode | string>> {
     const currentModel = this.getModel(config)
     if (currentModel) {
-      return currentModel
+      return ok(currentModel)
     }
-    return unwrap(await modelRouter.route(config, txn))
+    return modelRouter.route(config, txn)
   }
 
   getModel(config: Config): ModelID | undefined {

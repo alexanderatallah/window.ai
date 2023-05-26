@@ -94,7 +94,12 @@ export enum ErrorCode {
   PermissionDenied = "PERMISSION_DENIED",
   RequestNotFound = "REQUEST_NOT_FOUND",
   InvalidRequest = "INVALID_REQUEST",
+  PaymentRequired = "PAYMENT_REQUIRED",
   ModelRejectedRequest = "MODEL_REJECTED_REQUEST"
+}
+
+export function isKnownError(err: string): err is ErrorCode {
+  return Object.values(ErrorCode).includes(err as ErrorCode)
 }
 
 // Event types emitted by the extension API

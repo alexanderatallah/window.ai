@@ -1,6 +1,6 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { useEffect, useMemo, useState } from "react"
-import { ModelID } from "window.ai"
+import { ErrorCode, ModelID } from "window.ai"
 
 import { useParams } from "~core/components/hooks/useParams"
 import { usePermissionPort } from "~core/components/hooks/usePermissionPort"
@@ -14,6 +14,7 @@ import Tooltip from "~core/components/pure/Tooltip"
 import { Well } from "~core/components/pure/Well"
 import { AuthType, type Config, configManager } from "~core/managers/config"
 import { useConfig } from "~core/providers/config"
+import { isOk } from "~core/utils/result-monad"
 import { camelToWords, objectEntries } from "~core/utils/utils"
 
 type ConfigSetting = { auth: AuthType; model?: ModelID }
@@ -82,7 +83,7 @@ export function Settings() {
       </Text>
       <div className="my-4">
         {requestId ? (
-          <div className="bg-rose-700 text-white rounded-md py-4 px-6">
+          <div className="bg-rose-700 dark:text-rose-300 text-white rounded-md py-4 px-6">
             {config?.session && config.auth === AuthType.External
               ? "Authentication error. Please sign in again."
               : "Please finish setting up the model below."}
@@ -213,6 +214,24 @@ export function Settings() {
 }
 
 function ExternalSettings({ config }: { config: Config }) {
+  const [defaultModel, setDefaultModel] = useState<string>()
+  const [shouldLogInAgain, setShouldLogInAgain] = useState<boolean>(false)
+
+  useEffect(() => {
+    async function loadDefaultModel() {
+      if (configManager.getModel(config)) {
+        return
+      }
+      const res = await configManager.predictModel(config)
+      if (isOk(res)) {
+        setDefaultModel(res.data)
+      } else if (res.error === ErrorCode.NotAuthenticated) {
+        setShouldLogInAgain(true)
+      }
+    }
+    loadDefaultModel()
+  }, [])
+
   const { session } = config
   return (
     <div>
@@ -232,6 +251,25 @@ function ExternalSettings({ config }: { config: Config }) {
                     </td>
                   </tr>
                 ))}
+              <tr className="grid grid-cols-7">
+                <td className="text-xs opacity-30 truncate col-span-2">
+                  route
+                </td>
+                <td
+                  className={
+                    "text-xs opacity-60 truncate col-span-5 " +
+                    (shouldLogInAgain
+                      ? "text-rose-700 dark:text-rose-300 "
+                      : "")
+                  }>
+                  {defaultModel ??
+                    (shouldLogInAgain ? (
+                      "error: click Manage to fix"
+                    ) : (
+                      <span className="opacity-30">loading...</span>
+                    ))}
+                </td>
+              </tr>
             </tbody>
           </table>
           <div className="mt-6"></div>
