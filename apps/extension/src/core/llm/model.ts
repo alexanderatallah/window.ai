@@ -216,11 +216,9 @@ export class Model {
     } catch (err: unknown) {
       if (!(err instanceof AxiosError)) {
         this.error(`Unknown error: ${err}`)
-        throw err
       }
-      const errMessage = `${err.response?.status}: ${err}`
-      this.error(errMessage + "\n" + err.response?.data)
-      throw new Error(ErrorCode.ModelRejectedRequest + ": " + errMessage)
+      // TODO migrate other endpoints to use this too
+      throw err
     }
 
     const model = responseData.id
@@ -276,6 +274,9 @@ export class Model {
       if (!(err instanceof AxiosError)) {
         this.error(`Unknown error: ${err}`)
         throw err
+      }
+      if (err.response?.status === 401) {
+        throw new Error(ErrorCode.NotAuthenticated)
       }
       const errMessage = `${err.response?.status}: ${err}`
       this.error(errMessage + "\n" + err.response?.data)

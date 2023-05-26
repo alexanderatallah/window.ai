@@ -97,6 +97,10 @@ export enum ErrorCode {
   ModelRejectedRequest = "MODEL_REJECTED_REQUEST"
 }
 
+export function isKnownError(err: string): err is ErrorCode {
+  return Object.values(ErrorCode).includes(err as ErrorCode)
+}
+
 // Event types emitted by the extension API
 export enum EventType {
   // Fired when the user's model is changed.

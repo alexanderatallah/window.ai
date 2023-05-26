@@ -1,12 +1,10 @@
-import type { ModelID } from "window.ai"
-
-import { ModelProvider } from "~core/llm"
+import { ErrorCode, type ModelID } from "window.ai"
 
 import type { CompletionRequest } from "./constants"
 import { type Config, configManager } from "./managers/config"
 import { originManager } from "./managers/origin"
 import type { Transaction } from "./managers/transaction"
-import { type Result, unknownErr } from "./utils/result-monad"
+import { type Result, err, unknownErr } from "./utils/result-monad"
 import { ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
@@ -15,7 +13,7 @@ const NO_TXN_REFERRER = "__no_txn_origin__"
 export async function route(
   config: Config,
   txn?: Transaction
-): Promise<Result<ModelID | string, string>> {
+): Promise<Result<ModelID | string, ErrorCode | string>> {
   const caller = configManager.getCaller(config)
 
   const input = txn?.input || { prompt: "" }

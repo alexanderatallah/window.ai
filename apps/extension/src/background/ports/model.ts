@@ -5,7 +5,7 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { type PortRequest, type PortResponse } from "~core/constants"
 import { PortName } from "~core/constants"
 import { AuthType, configManager } from "~core/managers/config"
-import { err, ok } from "~core/utils/result-monad"
+import { err, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
 const handler: PlasmoMessaging.PortHandler<
@@ -21,10 +21,10 @@ const handler: PlasmoMessaging.PortHandler<
   const { id, request } = req.body
   if (!request) {
     const config = await configManager.getDefault()
-    const model = await configManager.predictModel(config)
+    const result = await configManager.predictModel(config)
     return res.send({
       id,
-      response: ok({ model })
+      response: isOk(result) ? ok({ model: result.data }) : result
     })
   }
   // TODO handle other model providers here by checking request.baseUrl
@@ -33,6 +33,7 @@ const handler: PlasmoMessaging.PortHandler<
   const config = await configManager.getOrInit(AuthType.External)
   const newConfig = {
     ...config,
+    baseUrl: undefined,
     session: session !== undefined ? session : config.session
   }
   // console.info("Saving new config: ", newConfig, " old config: ", config)
