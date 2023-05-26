@@ -1,3 +1,5 @@
+import type { ModelID } from "window.ai"
+
 import { ModelProvider } from "~core/llm"
 
 import type { CompletionRequest } from "./constants"
@@ -5,15 +7,40 @@ import { type Config, configManager } from "./managers/config"
 import { originManager } from "./managers/origin"
 import type { Transaction } from "./managers/transaction"
 import { type Result, unknownErr } from "./utils/result-monad"
-import { err, ok } from "./utils/result-monad"
+import { ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
+const NO_TXN_REFERRER = "__no_txn_origin__"
+
+export async function route(
+  config: Config,
+  txn?: Transaction
+): Promise<Result<ModelID | string, string>> {
+  const caller = configManager.getCaller(config)
+
+  const input = txn?.input || { prompt: "" }
+  try {
+    const result = await caller.route(input, {
+      apiKey: config.apiKey,
+      baseUrl: config.baseUrl,
+      origin: txn ? originManager.url(txn.origin) : NO_TXN_REFERRER,
+      max_tokens: txn?.maxTokens,
+      temperature: txn?.temperature,
+      stop_sequences: txn?.stopSequences,
+      num_generations: txn?.numOutputs
+    })
+    return ok(result)
+  } catch (error) {
+    return unknownErr(error)
+  }
+}
+
 export async function complete(
+  config: Config,
   txn: Transaction
 ): Promise<Result<string[], string>> {
-  const config = await configManager.forModelWithDefault(txn.model)
   const caller = configManager.getCaller(config)
-  const model = txn.model || configManager.getCurrentModel(config)
+  const model = txn.routedModel
 
   try {
     const result = await caller.complete(txn.input, {
@@ -47,12 +74,12 @@ export function shouldStream(
 }
 
 export async function stream(
+  config: Config,
   txn: Transaction
 ): Promise<AsyncGenerator<Result<string, string>>> {
   try {
-    const config = await configManager.forModelWithDefault(txn.model)
     const caller = configManager.getCaller(config)
-    const model = txn.model || configManager.getCurrentModel(config)
+    const model = txn.routedModel
 
     const stream = await caller.stream(txn.input, {
       apiKey: config.apiKey,

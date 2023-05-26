@@ -1,15 +1,10 @@
 import { type ChatMessage } from "window.ai"
 
 import { getExternalConfigURL } from "~core/utils/utils"
-import { ModelID } from "~public-interface"
 
 import type { ModelConfig, RequestOptions } from "./model"
 import { Model } from "./model"
 
-export enum OpenAIModelId {
-  GPT3_5_Turbo = "gpt-3.5-turbo",
-  GPT4 = "gpt-4"
-}
 export function init(
   config: Pick<ModelConfig, "debug" | "identifier"> &
     Partial<Pick<ModelConfig, "cacheGet" | "cacheSet">>,
@@ -20,14 +15,9 @@ export function init(
     {
       ...config,
       isStreamable: true,
-      overrideModelParam: (req) =>
-        req.model === ModelID.GPT3
-          ? OpenAIModelId.GPT3_5_Turbo
-          : req.model === ModelID.GPT4
-          ? OpenAIModelId.GPT4
-          : req.model,
       defaultBaseUrl: `${getExternalConfigURL()}/api/v1`,
       getPath: () => "/chat/completions",
+      getRoutePath: () => "/model",
       endOfStreamSentinel: "[DONE]",
       transformForRequest: (req, meta) => {
         const {
@@ -36,6 +26,7 @@ export function init(
           identifier,
           prompt,
           baseUrl,
+          max_tokens,
           ...optsToSend
         } = req
         let messages = optsToSend.messages || []
@@ -51,8 +42,9 @@ export function init(
         return {
           ...optsToSend,
           messages,
-          user: meta.user_identifier || undefined,
-          stop: stop_sequences.length ? stop_sequences : undefined,
+          user: meta.user_identifier ?? undefined,
+          stop: stop_sequences ?? undefined,
+          max_tokens: max_tokens ?? undefined,
           n: num_generations
         }
       },

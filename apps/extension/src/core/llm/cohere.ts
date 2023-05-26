@@ -4,9 +4,9 @@ import type { ModelConfig, RequestOptions } from "./model"
 import { Model } from "./model"
 
 export enum CohereModelId {
-  XlargeNightly = "command-xlarge-nightly",
-  Xlarge = "xlarge",
-  Medium = "medium"
+  XlargeNightly = "command-nightly",
+  Xlarge = "command",
+  Medium = "command-light"
 }
 
 // export const CohereModels = {
@@ -56,7 +56,7 @@ export function init(
             : undefined
         return {
           ...optsToSend,
-          stop_sequences: ["\n<human>", ...stop_sequences],
+          stop_sequences,
           prompt: fullPrompt,
           p: top_p,
           num_generations

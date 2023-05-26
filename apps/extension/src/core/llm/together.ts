@@ -60,7 +60,7 @@ export function init(
           top_p,
           temperature,
           n: num_generations,
-          stop: ["\n<human>", ...stop_sequences],
+          stop: ["\n<human>", ...(stop_sequences ?? [])],
           prompt: fullPrompt
         }
       },

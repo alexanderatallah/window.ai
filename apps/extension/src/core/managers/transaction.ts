@@ -3,14 +3,14 @@ import {
   type CompletionOptions,
   type InferredOutput,
   type Input,
+  type ModelID,
   isMessagesInput,
   isPromptInput,
   isTextOutput
 } from "window.ai"
 
-import type { ModelID } from "~public-interface"
-
 import { BaseManager } from "./base"
+import { configManager } from "./config"
 import type { OriginData } from "./origin"
 import { originManager } from "./origin"
 
@@ -25,6 +25,7 @@ export interface Transaction<TInput = Input> {
   maxTokens?: number
   stopSequences?: string[]
   model?: ModelID | string
+  routedModel?: ModelID | string
 
   outputs?: InferredOutput<TInput>[]
   error?: string
@@ -40,7 +41,7 @@ class TransactionManager extends BaseManager<Transaction> {
   init<TInput extends Input>(
     input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID, TInput>
+    options: CompletionOptions<ModelID | string, TInput>
   ): Transaction {
     this._validateInput(input)
     const {
@@ -90,6 +91,11 @@ class TransactionManager extends BaseManager<Transaction> {
     }
 
     return isNew
+  }
+
+  getRoutedModel(txn: Transaction): ModelID | string | undefined {
+    // Backward compat: use .model if routedModel undefined
+    return txn.routedModel || txn.model
   }
 
   formatInput(txn: Transaction): string {

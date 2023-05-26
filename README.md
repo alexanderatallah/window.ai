@@ -34,7 +34,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
     - [Getting started](#getting-started)
     - [Functions](#functions)
     - [CompletionOptions](#completionoptions)
-    - [Model IDs](#model-ids)
+    - [Model ID Standard](#model-id-standard)
     - [Error codes](#error-codes)
     - [Community tools](#community-tools)
   - [🧠 Local model setup](#-local-model-setup)
@@ -123,7 +123,7 @@ const [ { message } ] = await window.ai.generateText(
   {
     temperature: 0.7,
     maxTokens: 800,
-    model: ModelID.GPT4,
+    model: ModelID.GPT_4,
     // Handle partial results if they can be streamed in
     onStreamResult: (res) => console.log(res.message.content)
   }
@@ -206,21 +206,10 @@ export interface CompletionOptions {
 }
 ```
 
-### Model IDs
+### Model ID Standard
 
-ModelID is an enum of the available models:
-
-```ts
-// NOTE: this is an evolving standard, and may change in the future.
-// "/" Splits the organization's name from the model name
-export enum ModelID {
-  GPT3 = "openai/gpt3.5",
-  GPT4 = "openai/gpt4",
-  GPTNeo = "together/gpt-neoxt-20B",
-  Cohere = "cohere/xlarge",
-  Local = "local"
-}
-```
+`ModelID` is an enum of the available models, which are available as a
+TypeScript enum inside `window.ai`. See the library's [README](/packages/lib/README.md).
 
 ### Error codes
 
@@ -270,7 +259,7 @@ This endpoint accepts a request body containing the following parameters:
 
 - `prompt`: The prompt(s) to generate completions for, encoded as a `string`. OR you can use ChatML format via `messages`:
 - `messages` an array of `ChatMessage`s.
-- `model`: a string representing the type of model being requested. ex: `ModelID.GPT4`
+- `model`: a string representing the type of model being requested. ex: `ModelID.GPT_4`
 - `max_tokens`: The maximum number of tokens to generate in the completion.
 - `temperature`: What sampling temperature to use, between 0 and 2.
 - `stop_sequences`: A string or array of strings where the API will stop generating further tokens. The returned text will not contain the stop sequence.

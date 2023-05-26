@@ -1,35 +1,28 @@
 import { v4 as uuidv4 } from "uuid"
-import { EventType, type ModelProviderOptions } from "window.ai"
+import {
+  EventType,
+  ModelID,
+  type ModelProviderOptions,
+  parseModelID
+} from "window.ai"
 
 import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { local, modelAPICallers, openrouter } from "~core/llm"
+import { unwrap } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
-import { ModelID, isKnownModel } from "~public-interface"
 
+import * as modelRouter from "../model-router"
 import { BaseManager } from "./base"
+import type { Transaction } from "./transaction"
 
 export enum AuthType {
   // Let another site handle all authentication
   External = "external",
   // Use an API key
   APIKey = "key"
-}
-
-const APIKeyURL: Record<ModelID, string> = {
-  [ModelID.GPT3]: "https://platform.openai.com/account/api-keys",
-  [ModelID.GPT4]: "https://platform.openai.com/account/api-keys",
-  [ModelID.Together]: "https://api.together.xyz/",
-  [ModelID.Cohere]: "https://dashboard.cohere.ai/api-keys"
-}
-
-const defaultAPILabel: Record<ModelID, string> = {
-  [ModelID.GPT3]: "OpenAI: GPT-3.5",
-  [ModelID.GPT4]: "OpenAI: GPT-4",
-  [ModelID.Together]: "Together: GPT NeoXT 20B",
-  [ModelID.Cohere]: "Cohere: Xlarge"
 }
 
 const authIndexName = "byAuth"
@@ -68,7 +61,6 @@ class ConfigManager extends BaseManager<Config> {
 
   init(auth: AuthType, modelId?: ModelID): Config {
     const id = uuidv4()
-    const caller = this.getCallerForAuth(auth, modelId)
     const label = this.getLabelForAuth(auth, modelId)
     switch (auth) {
       case AuthType.External:
@@ -76,7 +68,14 @@ class ConfigManager extends BaseManager<Config> {
           id,
           auth,
           label,
-          models: [ModelID.GPT3, ModelID.GPT4]
+          models: [
+            ModelID.GPT_3,
+            ModelID.GPT_4,
+            ModelID.Claude_Instant_V1,
+            ModelID.Claude_Instant_V1_100k,
+            ModelID.Claude_V1,
+            ModelID.Claude_V1_100k
+          ]
         }
       case AuthType.APIKey:
         return {
@@ -86,6 +85,17 @@ class ConfigManager extends BaseManager<Config> {
           label
         }
     }
+  }
+
+  async get(id: string): Promise<Config | undefined> {
+    const config = await super.get(id)
+    if (config) {
+      const defaultModels = this.init(config.auth, config.models[0]).models
+      // HACK: Override old models with new defaults
+      // we should probably just not store models in the config
+      config.models = defaultModels
+    }
+    return config
   }
 
   async save(config: Config): Promise<boolean> {
@@ -142,7 +152,7 @@ class ConfigManager extends BaseManager<Config> {
       Extension.sendToBackground(PortName.Events, {
         request: {
           event: EventType.ModelChanged,
-          data: { model: configManager.getCurrentModel(config) }
+          data: { model: configManager.getModel(config) }
         }
       })
     }
@@ -161,11 +171,12 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   // TODO: allow multiple custom models
-  async forModelWithDefault(model?: string): Promise<Config> {
-    if (!model) {
+  async forModelWithDefault(rawModel?: string): Promise<Config> {
+    if (!rawModel) {
       return this.getDefault()
     }
-    if (isKnownModel(model)) {
+    const model = parseModelID(rawModel)
+    if (model) {
       return this.forModel(model)
     }
     // Local model handles unknowns
@@ -219,16 +230,26 @@ class ConfigManager extends BaseManager<Config> {
       case AuthType.External:
         return "OpenRouter"
       case AuthType.APIKey:
-        return modelId ? defaultAPILabel[modelId] : "Local"
+        return modelId ? defaultAPILabel(modelId) : "Local"
     }
   }
 
   getCaller(config: Config) {
-    return this.getCallerForAuth(config.auth, this.getCurrentModel(config))
+    return this.getCallerForAuth(config.auth, this.getModel(config))
   }
 
-  getCurrentModel(config: Config): ModelID | undefined {
-    // TODO: support multiple models per config
+  async predictModel(
+    config: Config,
+    txn?: Transaction
+  ): Promise<ModelID | string> {
+    const currentModel = this.getModel(config)
+    if (currentModel) {
+      return currentModel
+    }
+    return unwrap(await modelRouter.route(config, txn))
+  }
+
+  getModel(config: Config): ModelID | undefined {
     if (config.models.length > 1) {
       return undefined
     }
@@ -240,14 +261,52 @@ class ConfigManager extends BaseManager<Config> {
       case AuthType.External:
         return config.session?.settingsUrl ?? getExternalConfigURL()
       case AuthType.APIKey:
-        const model = this.getCurrentModel(config)
+        const model = this.getModel(config)
         if (!model) {
           // Assume local model
           return "https://github.com/alexanderatallah/window.ai#-local-model-setup"
         }
-        return APIKeyURL[model]
+        return APIKeyURL(model)
     }
   }
 }
 
 export const configManager = new ConfigManager()
+
+function defaultAPILabel(model: ModelID): string {
+  switch (model) {
+    case ModelID.GPT_3:
+      return "OpenAI: GPT-3.5 Turbo"
+    case ModelID.GPT_4:
+      return "OpenAI: GPT-4"
+    case ModelID.Together:
+      return "Together: GPT NeoXT 20B"
+    case ModelID.Cohere:
+      return "Cohere: Command"
+    case ModelID.Claude_Instant_V1:
+      return "Anthropic: Claude Instant"
+    case ModelID.Claude_Instant_V1_100k:
+      return "Anthropic: Claude Instant 100k"
+    case ModelID.Claude_V1:
+      return "Anthropic: Claude"
+    case ModelID.Claude_V1_100k:
+      return "Anthropic: Claude 100k"
+  }
+}
+
+function APIKeyURL(model: ModelID): string {
+  switch (model) {
+    case ModelID.GPT_3:
+    case ModelID.GPT_4:
+      return "https://platform.openai.com/account/api-keys"
+    case ModelID.Together:
+      return "https://api.together.xyz/"
+    case ModelID.Cohere:
+      return "https://dashboard.cohere.ai/api-keys"
+    case ModelID.Claude_Instant_V1:
+    case ModelID.Claude_Instant_V1_100k:
+    case ModelID.Claude_V1:
+    case ModelID.Claude_V1_100k:
+      return "https://console.anthropic.com/account/keys"
+  }
+}

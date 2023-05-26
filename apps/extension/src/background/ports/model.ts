@@ -19,27 +19,27 @@ const handler: PlasmoMessaging.PortHandler<
   }
 
   const { id, request } = req.body
-  if (request) {
-    // TODO handle other model providers here by checking request.baseUrl
-    // TODO request the user's permission to add the model provider
-    const { session, shouldSetDefault } = request
-    const config = await configManager.getOrInit(AuthType.External)
-    const newConfig = {
-      ...config,
-      session: session !== undefined ? session : config.session
-    }
-    // console.info("Saving new config: ", newConfig, " old config: ", config)
-    await configManager.save(newConfig)
-    if (shouldSetDefault) {
-      await configManager.setDefault(newConfig)
-    }
+  if (!request) {
+    const config = await configManager.getDefault()
+    const model = await configManager.predictModel(config)
+    return res.send({
+      id,
+      response: ok({ model })
+    })
   }
-
-  const config = await configManager.getDefault()
-  res.send({
-    id,
-    response: ok({ model: configManager.getCurrentModel(config) })
-  })
+  // TODO handle other model providers here by checking request.baseUrl
+  // TODO request the user's permission to add the model provider
+  const { session, shouldSetDefault } = request
+  const config = await configManager.getOrInit(AuthType.External)
+  const newConfig = {
+    ...config,
+    session: session !== undefined ? session : config.session
+  }
+  // console.info("Saving new config: ", newConfig, " old config: ", config)
+  await configManager.save(newConfig)
+  if (shouldSetDefault) {
+    await configManager.setDefault(newConfig)
+  }
 }
 
 export default handler

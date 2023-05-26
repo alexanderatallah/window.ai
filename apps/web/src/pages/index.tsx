@@ -45,15 +45,14 @@ function Home() {
         </Text>
 
         <div className="grid grid-cols-6 gap-6">
-          <Text className="md:col-span-4 col-span-6">
-            In this example, a simple chatbot is implemented in one file, with{" "}
-            <strong>no backend.</strong>
-            <br />
+          <Text className="text-zinc-9 md:col-span-4 col-span-6">
             Users, not developers, choose which model to use with apps{" "}
             <Link className="underline" href={GITHUB_URL} target="_blank">
               built on window.ai
             </Link>
-            .
+            . <br />
+            This example shows a chatbot implemented with{" "}
+            <strong>no API keys</strong> and no backend.
           </Text>
           <GetExtensionButton className="md:col-span-2 col-span-6" />
         </div>
@@ -77,8 +76,11 @@ function Home() {
               </Text>
               <Text>
                 The Window extension allows you to configure the models you use
-                on the web. You can choose from OpenAI, Together, Cohere, or
-                even an AI{" "}
+                on the web. No API keys needed.
+                <br />
+                <br />
+                You can choose from OpenAI, Anthropic, Together, Cohere, or even
+                an AI{" "}
                 <Link
                   className="underline"
                   href="https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api"

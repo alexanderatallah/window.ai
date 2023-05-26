@@ -1,4 +1,4 @@
-import { ModelID } from "~public-interface"
+import { ModelID } from "window.ai"
 
 import { init as initCohere } from "./cohere"
 import { init as initLocal } from "./local"
@@ -40,10 +40,7 @@ export const openrouter = initOpenRouter(
     debug: shouldDebugModels,
     identifier: ModelProvider.OpenRouter
   },
-  {
-    max_tokens: DEFAULT_MAX_TOKENS,
-    presence_penalty: 0 // Using negative numbers causes 500s from davinci
-  }
+  {}
 )
 
 export const openai = initOpenAI(
@@ -65,7 +62,6 @@ export const together = initTogether(
   {
     max_tokens: DEFAULT_MAX_TOKENS,
     temperature: 0.8
-    // stop_sequences: ['\n'],
   }
 )
 
@@ -77,13 +73,16 @@ export const cohere = initCohere(
   {
     max_tokens: DEFAULT_MAX_TOKENS,
     temperature: 0.9
-    // stop_sequences: ['\n'],
   }
 )
 
 export const modelAPICallers: { [K in ModelID]: Model } = {
-  [ModelID.GPT3]: openai,
-  [ModelID.GPT4]: openai,
+  [ModelID.GPT_3]: openai,
+  [ModelID.GPT_4]: openai,
   [ModelID.Cohere]: cohere,
-  [ModelID.Together]: together
+  [ModelID.Together]: together,
+  [ModelID.Claude_Instant_V1]: openrouter,
+  [ModelID.Claude_Instant_V1_100k]: openrouter,
+  [ModelID.Claude_V1]: openrouter,
+  [ModelID.Claude_V1_100k]: openrouter
 }

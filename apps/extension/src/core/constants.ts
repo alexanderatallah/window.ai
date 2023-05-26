@@ -2,12 +2,12 @@ import type {
   ErrorCode,
   InferredOutput,
   Input,
+  ModelID,
   ModelProviderOptions,
   RequestID
 } from "window.ai"
 
 import type { EventRequest, EventResponse } from "~background/ports/events"
-import type { ModelID } from "~public-interface"
 
 import type { Transaction } from "./managers/transaction"
 import type { Result } from "./utils/result-monad"
@@ -82,7 +82,7 @@ export type CompletionResponse<TInput extends Input = Input> = Result<
 >
 
 export type ModelRequest = ModelProviderOptions
-export type ModelResponse = Result<{ model?: ModelID }, ErrorCode>
+export type ModelResponse = Result<{ model?: ModelID | string }, ErrorCode>
 
 export type { EventRequest, EventResponse }
 

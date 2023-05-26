@@ -1,5 +1,11 @@
 # window.ai
 
+## 0.2.1
+
+### Patch Changes
+
+- Add Model ID standard and parser
+
 ## 0.2.0
 
 ### Minor Changes

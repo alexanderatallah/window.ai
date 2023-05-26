@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 import {
   type EventListenerHandler,
   EventType,
+  type ModelID,
   type RequestID,
   VALID_DOMAIN,
   type WindowAI
@@ -20,7 +21,6 @@ import { originManager } from "~core/managers/origin"
 import { transactionManager } from "~core/managers/transaction"
 import type { Result } from "~core/utils/result-monad"
 import { isOk } from "~core/utils/result-monad"
-import type { ModelID } from "~public-interface"
 
 import { version } from "../../package.json"
 
@@ -31,7 +31,7 @@ export const config: PlasmoCSConfig = {
   // run_at: "document_start" // This causes some Next.js pages (e.g. Plasmo docs) to break
 }
 
-export const windowAI: WindowAI<ModelID> = {
+export const windowAI: WindowAI<ModelID | string> = {
   __window_ai_metadata__: {
     domain: VALID_DOMAIN,
     version
@@ -109,7 +109,7 @@ export const windowAI: WindowAI<ModelID> = {
     return new Promise((resolve, reject) => {
       _addResponseListener<ModelResponse>(requestId, (res) => {
         if (isOk(res)) {
-          resolve(res.data.model)
+          resolve()
         } else {
           reject(res.error)
         }
