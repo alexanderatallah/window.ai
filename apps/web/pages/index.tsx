@@ -9,20 +9,20 @@ import {
   EXTENSION_CHROME_URL,
   GITHUB_URL
 } from "../components/common"
-import Tooltip from "../components/Tooltip"
 import { Button } from "../components/Button"
 
 const windowaiExample = `
-// Get text completions from a user's Window AI model
+// Code for streaming a response
+// from a user's Window AI model
 await window.ai.generateText(
   {
-    messages: [...last10messages],
+    prompt: "Hello world!"
   },
   {
-    onStreamResult: (result, error) => {
-      console.log(result.message.content)
-    },
-  })
+    onStreamResult: (res) =>
+      console.log(result.text)
+  }
+)
 `
 
 const Section = ({ children }: any) => {
@@ -63,9 +63,11 @@ function Home() {
 
       <Section>
         <div className="flex justify-between w-full md:space-x-4 md:flex-row flex-col space-y-8 md:space-y-0">
-          <CodeBlock language="js" value={windowaiExample} />
-          <div className="w-full">
+          <div className="flex-1">
             <Chat />
+          </div>
+          <div className="w-full md:w-96">
+            <CodeBlock language="js" value={windowaiExample} />
           </div>
         </div>
       </Section>
