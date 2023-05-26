@@ -12,7 +12,7 @@ import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
-import { local, modelAPICallers, openrouter } from "~core/llm"
+import { getCaller, local, openrouter } from "~core/llm"
 import { type Result, isErr, isOk, ok, unwrap } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
@@ -218,15 +218,6 @@ class ConfigManager extends BaseManager<Config> {
     return forAuth[0]
   }
 
-  getCallerForAuth(auth: AuthType, modelId?: ModelID) {
-    switch (auth) {
-      case AuthType.External:
-        return openrouter
-      case AuthType.APIKey:
-        return modelId ? modelAPICallers[modelId] : local
-    }
-  }
-
   getLabelForAuth(auth: AuthType, modelId?: ModelID) {
     switch (auth) {
       case AuthType.External:
@@ -236,8 +227,14 @@ class ConfigManager extends BaseManager<Config> {
     }
   }
 
-  getCaller(config: Config) {
-    return this.getCallerForAuth(config.auth, this.getModel(config))
+  getModelCaller(config: Config) {
+    const modelId = this.getModel(config)
+    switch (config.auth) {
+      case AuthType.External:
+        return openrouter
+      case AuthType.APIKey:
+        return modelId ? getCaller(modelId, config.baseUrl) : local
+    }
   }
 
   async predictModel(
