@@ -4,7 +4,6 @@ import {
   EventType,
   ModelID,
   type ModelProviderOptions,
-  isKnownError,
   parseModelID
 } from "window.ai"
 
@@ -12,8 +11,8 @@ import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
-import { getCaller, local, openrouter } from "~core/llm"
-import { type Result, isErr, isOk, ok, unwrap } from "~core/utils/result-monad"
+import { getCaller, openrouter } from "~core/llm"
+import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
 import * as modelRouter from "../model-router"
@@ -228,16 +227,16 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   async getModelCaller(config: Config) {
-    const modelId = this.getModel(config)
-    switch (config.auth) {
-      case AuthType.External:
-        return openrouter
-      case AuthType.APIKey:
-        const canUseOpenRouter =
-          !config.baseUrl &&
-          this.isCredentialed(await this.forAuthAndModel(AuthType.External))
-        return modelId ? getCaller(modelId, !canUseOpenRouter) : local
+    const shouldProxyApiKeyConfig = async () => {
+      return (
+        !config.baseUrl &&
+        this.isCredentialed(await this.forAuthAndModel(AuthType.External))
+      )
     }
+
+    const canUseOpenRouter =
+      config.auth === AuthType.External || (await shouldProxyApiKeyConfig())
+    return getCaller(this.getModel(config), !canUseOpenRouter)
   }
 
   async predictModel(

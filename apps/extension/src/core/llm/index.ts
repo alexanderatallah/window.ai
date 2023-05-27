@@ -76,7 +76,10 @@ export const cohereDirect = initCohere(
   }
 )
 
-export function getCaller(model: ModelID, shouldPreferDirect?: boolean): Model {
+export function getCaller(
+  model?: ModelID,
+  shouldPreferDirect?: boolean
+): Model {
   switch (model) {
     case ModelID.Cohere:
       return cohereDirect
@@ -91,5 +94,7 @@ export function getCaller(model: ModelID, shouldPreferDirect?: boolean): Model {
     case ModelID.Claude_V1:
     case ModelID.Claude_V1_100k:
       return openrouter
+    case undefined:
+      return local
   }
 }
