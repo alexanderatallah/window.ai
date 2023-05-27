@@ -203,7 +203,7 @@ export function Settings() {
                   className="block text-xs font-medium opacity-60 mt-2">
                   {isLocalModel
                     ? "Use any base URL, including localhost."
-                    : 'Optionally set a proxy or go directly to the model\'s original API, e.g. "https://api.openai.com/v1"'}
+                    : "Optionally set a proxy, or use the model's original base URL."}
                 </label>
               </Accordion>
             )}
