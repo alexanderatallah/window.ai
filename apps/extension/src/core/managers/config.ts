@@ -4,7 +4,6 @@ import {
   EventType,
   ModelID,
   type ModelProviderOptions,
-  isKnownError,
   parseModelID
 } from "window.ai"
 
@@ -12,8 +11,8 @@ import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
-import { getCaller, local, openrouter } from "~core/llm"
-import { type Result, isErr, isOk, ok, unwrap } from "~core/utils/result-monad"
+import { getCaller, openrouter } from "~core/llm"
+import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
 import * as modelRouter from "../model-router"
@@ -227,14 +226,21 @@ class ConfigManager extends BaseManager<Config> {
     }
   }
 
-  getModelCaller(config: Config) {
-    const modelId = this.getModel(config)
-    switch (config.auth) {
-      case AuthType.External:
-        return openrouter
-      case AuthType.APIKey:
-        return modelId ? getCaller(modelId, config.baseUrl) : local
+  isLocal(config: Config) {
+    return config.auth === AuthType.APIKey && config.models.length === 0
+  }
+
+  async getModelCaller(config: Config) {
+    const isOpenRouterAuthed = async () => {
+      return this.isCredentialed(await this.forAuthAndModel(AuthType.External))
     }
+
+    const canProxy =
+      config.auth === AuthType.External ||
+      // Only proxy w OpenRouter if user has authed and hasn't set a custom base url
+      (!config.baseUrl && !this.isLocal(config) && (await isOpenRouterAuthed()))
+
+    return getCaller(this.getModel(config), !canProxy)
   }
 
   async predictModel(
@@ -253,6 +259,14 @@ class ConfigManager extends BaseManager<Config> {
       return undefined
     }
     return config.models[0]
+  }
+
+  async getBaseUrl(config: Config) {
+    if (config.baseUrl) {
+      return config.baseUrl
+    }
+    const caller = await this.getModelCaller(config)
+    return caller.config.defaultBaseUrl
   }
 
   getExternalConfigURL(config: Config) {

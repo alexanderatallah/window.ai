@@ -23,7 +23,14 @@ import {
   transactionManager
 } from "~core/managers/transaction"
 import * as modelRouter from "~core/model-router"
-import { type Err, err, isErr, isOk, ok } from "~core/utils/result-monad"
+import {
+  type Err,
+  type Result,
+  err,
+  isErr,
+  isOk,
+  ok
+} from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
@@ -47,11 +54,17 @@ const handler: PlasmoMessaging.PortHandler<
 
   const txn = request.transaction
   const config = await configManager.forModelWithDefault(txn.model)
-  txn.routedModel = await getCompletionModel(id, config, txn)
-  // Save the incomplete txn
+
+  const predictedModel = await _getCompletionModel(config, txn)
+  if (!isOk(predictedModel)) {
+    _maybeInterrupt(id, predictedModel)
+    return res.send({ response: predictedModel, id })
+  }
+  txn.routedModel = predictedModel.data
+
   await transactionManager.save(txn)
 
-  if (modelRouter.shouldStream(config, request)) {
+  if (await modelRouter.shouldStream(config, request)) {
     const replies: string[] = []
     const errors: string[] = []
 
@@ -59,19 +72,19 @@ const handler: PlasmoMessaging.PortHandler<
 
     for await (const result of results) {
       if (isOk(result)) {
-        const outputs = [getOutput(txn.input, result.data, true)]
+        const outputs = [_getOutput(txn.input, result.data, true)]
         res.send({ response: ok(outputs), id })
         replies.push(result.data)
       } else {
         res.send({ response: result, id })
         errors.push(result.error)
-        maybeInterrupt(id, result)
+        _maybeInterrupt(id, result)
       }
     }
 
     // Collect the replies and errors onto the txn
     txn.outputs = replies.length
-      ? [getOutput(txn.input, replies.join(""))]
+      ? [_getOutput(txn.input, replies.join(""))]
       : undefined
     txn.error = errors.join("") || undefined
 
@@ -85,13 +98,13 @@ const handler: PlasmoMessaging.PortHandler<
     const result = await modelRouter.complete(config, txn)
 
     if (isOk(result)) {
-      const outputs = result.data.map((d) => getOutput(txn.input, d))
+      const outputs = result.data.map((d) => _getOutput(txn.input, d))
       res.send({ response: ok(outputs), id })
       txn.outputs = outputs
     } else {
       res.send({ response: result, id })
       txn.error = result.error
-      maybeInterrupt(id, result)
+      _maybeInterrupt(id, result)
     }
   }
 
@@ -99,23 +112,17 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
 }
 
-async function getCompletionModel(
-  id: RequestID,
+async function _getCompletionModel(
   config: Config,
   txn: Transaction
-): Promise<string> {
+): Promise<Result<string, string>> {
   if (txn.model) {
-    return txn.model
+    return ok(txn.model)
   }
-  const res = await configManager.predictModel(config, txn)
-  if (!isOk(res)) {
-    await maybeInterrupt(id, res)
-    throw res.error
-  }
-  return res.data
+  return configManager.predictModel(config, txn)
 }
 
-function getOutput(
+function _getOutput(
   input: Input,
   result: string,
   isPartial?: boolean
@@ -125,15 +132,15 @@ function getOutput(
     : { text: result, isPartial }
 }
 
-async function maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
+async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
   if (result.error === ErrorCode.NotAuthenticated) {
-    return requestInterrupt(id, RequestInterruptType.Authentication)
+    return _requestInterrupt(id, RequestInterruptType.Authentication)
   } else if (result.error === ErrorCode.PaymentRequired) {
-    return requestInterrupt(id, RequestInterruptType.Payment)
+    return _requestInterrupt(id, RequestInterruptType.Payment)
   }
 }
 
-async function requestInterrupt(
+async function _requestInterrupt(
   requestId: RequestID,
   type: RequestInterruptType
 ) {

@@ -408,7 +408,9 @@ export class Model {
       this.error(errorStr)
       throw new Error(errorStr)
     }
-    if (error.response?.status === 401) {
+    // Network errors are like auth errors when interacting with localhost
+    const isNetworkError = error.code === "ERR_NETWORK"
+    if (error.response?.status === 401 || isNetworkError) {
       return err(ErrorCode.NotAuthenticated)
     }
     if (error.response?.status === 402) {
