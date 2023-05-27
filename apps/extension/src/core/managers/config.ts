@@ -261,6 +261,14 @@ class ConfigManager extends BaseManager<Config> {
     return config.models[0]
   }
 
+  async getBaseUrl(config: Config) {
+    if (config.baseUrl) {
+      return config.baseUrl
+    }
+    const caller = await this.getModelCaller(config)
+    return caller.config.defaultBaseUrl
+  }
+
   getExternalConfigURL(config: Config) {
     switch (config.auth) {
       case AuthType.External:

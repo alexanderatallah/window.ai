@@ -36,6 +36,7 @@ export function Settings() {
   const { requestId } = useParams()
   const [apiKey, setApiKey] = useState("")
   const [url, setUrl] = useState("")
+  const [urlPlaceholder, setUrlPlaceholder] = useState("Base URL")
 
   // Only show dropdown if there is no permission request
   // or if the permission request is for the default model
@@ -45,6 +46,7 @@ export function Settings() {
   useEffect(() => {
     setApiKey(config?.apiKey || "")
     setUrl(config?.baseUrl || "")
+    config && configManager.getBaseUrl(config).then(setUrlPlaceholder)
   }, [config])
 
   async function saveDefaultConfig(authType: AuthType, modelId?: ModelID) {
@@ -189,7 +191,7 @@ export function Settings() {
             {!isExternal && (
               <Accordion title="Advanced" initiallyOpened={isLocalModel}>
                 <Input
-                  placeholder="Base URL"
+                  placeholder={urlPlaceholder}
                   type="url"
                   name="base-url"
                   value={url}
@@ -201,7 +203,7 @@ export function Settings() {
                   className="block text-xs font-medium opacity-60 mt-2">
                   {isLocalModel
                     ? "Use any base URL, including localhost."
-                    : 'Optionally use this to set a proxy, e.g. "https://api.openai.com/v1"'}
+                    : 'Optionally set a proxy or go directly to the model\'s original API, e.g. "https://api.openai.com/v1"'}
                 </label>
               </Accordion>
             )}
