@@ -57,7 +57,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   const predictedModel = await _getCompletionModel(config, txn)
   if (!isOk(predictedModel)) {
-    await _maybeInterrupt(id, predictedModel)
+    _maybeInterrupt(id, predictedModel)
     return res.send({ response: predictedModel, id })
   }
   txn.routedModel = predictedModel.data
