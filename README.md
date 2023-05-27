@@ -255,6 +255,7 @@ Here are instructions for setting up an [Alpaca](https://github.com/tatsu-lab/st
 
 **POST `/completions`**
 
+Generate text to complete a prompt or list of messages.
 This endpoint accepts a request body containing the following parameters:
 
 - `prompt`: The prompt(s) to generate completions for, encoded as a `string`. OR you can use ChatML format via `messages`:
@@ -277,6 +278,23 @@ This endpoint should return an object that looks like:
   choices: Array<{ text: string }>
 }
 ```
+
+**POST `/model`**
+
+Get the model that will be used for the given prompt and completion options
+This endpoint accepts a request body containing the same parameters as the `/completions` endpoint above.
+
+**Return value:**
+
+This endpoint should return an object that looks like:
+
+```ts
+{
+  id: string
+}
+```
+
+Where `id` is a string identifying the model, such as a known [ModelID](#model-id-standard).
 
 More WIP thinking [here](https://alexatallah.notion.site/RFC-LLM-API-Standard-c8f15d24bd2f4ab98b656f08cdc1c4fb).
 

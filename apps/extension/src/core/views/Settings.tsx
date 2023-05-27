@@ -64,8 +64,7 @@ export function Settings() {
     })
   }
 
-  const isLocalModel =
-    config?.auth === AuthType.APIKey && config?.models.length === 0
+  const isLocalModel = config && configManager.isLocal(config)
   const needsAPIKey = config?.auth === AuthType.APIKey
   const asksForAPIKey = needsAPIKey || isLocalModel // Some local models need keys, e.g. https://github.com/keldenl/gpt-llama.cpp
   const isExternal = config?.auth === AuthType.External

@@ -20,6 +20,7 @@ export function init(
       isStreamable: true,
       defaultBaseUrl: "http://127.0.0.1:8000",
       getPath: () => "/completions",
+      getRoutePath: () => "/model",
       transformForRequest: (req) => {
         const { prompt, messages, identifier, ...optsToSend } = req
         const fullPrompt =

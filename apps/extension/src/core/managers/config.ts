@@ -226,16 +226,21 @@ class ConfigManager extends BaseManager<Config> {
     }
   }
 
+  isLocal(config: Config) {
+    return config.auth === AuthType.APIKey && config.models.length === 0
+  }
+
   async getModelCaller(config: Config) {
     const isOpenRouterAuthed = async () => {
       return this.isCredentialed(await this.forAuthAndModel(AuthType.External))
     }
 
-    const canUseOpenRouter =
+    const canProxy =
       config.auth === AuthType.External ||
-      // Only use OpenRouter if user has authed and hasn't set a custom base url
-      (!config.baseUrl && (await isOpenRouterAuthed()))
-    return getCaller(this.getModel(config), !canUseOpenRouter)
+      // Only proxy w OpenRouter if user has authed and hasn't set a custom base url
+      (!config.baseUrl && !this.isLocal(config) && (await isOpenRouterAuthed()))
+
+    return getCaller(this.getModel(config), !canProxy)
   }
 
   async predictModel(

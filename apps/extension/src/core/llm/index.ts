@@ -95,6 +95,6 @@ export function getCaller(
     case ModelID.Claude_V1_100k:
       return openrouter
     case undefined:
-      return local
+      return shouldPreferDirect ? local : openrouter
   }
 }
