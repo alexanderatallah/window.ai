@@ -51,7 +51,7 @@ const handler: PlasmoMessaging.PortHandler<
   // Save the incomplete txn
   await transactionManager.save(txn)
 
-  if (modelRouter.shouldStream(config, request)) {
+  if (await modelRouter.shouldStream(config, request)) {
     const replies: string[] = []
     const errors: string[] = []
 

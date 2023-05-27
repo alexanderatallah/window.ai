@@ -227,13 +227,16 @@ class ConfigManager extends BaseManager<Config> {
     }
   }
 
-  getModelCaller(config: Config) {
+  async getModelCaller(config: Config) {
     const modelId = this.getModel(config)
     switch (config.auth) {
       case AuthType.External:
         return openrouter
       case AuthType.APIKey:
-        return modelId ? getCaller(modelId, config.baseUrl) : local
+        const canUseOpenRouter =
+          !config.baseUrl &&
+          this.isCredentialed(await this.forAuthAndModel(AuthType.External))
+        return modelId ? getCaller(modelId, !canUseOpenRouter) : local
     }
   }
 
