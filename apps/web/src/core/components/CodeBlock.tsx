@@ -1,16 +1,15 @@
-import { IconCheck, IconClipboard, IconDownload } from "@tabler/icons-react"
-import { FC, memo, useState } from "react"
+// use client
+import { IconCheck, IconClipboard } from "@tabler/icons-react"
+import clsx from "clsx"
+import { useMemo, useState, type FC } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import {
   oneDark,
   oneLight
 } from "react-syntax-highlighter/dist/cjs/styles/prism"
+import { useMatchMedia } from "~core/hooks/useMatchMedia"
 
-interface languageMap {
-  [key: string]: string | undefined
-}
-
-export const programmingLanguages: languageMap = {
+export const programmingLanguages = {
   javascript: ".js",
   python: ".py",
   java: ".java",
@@ -35,7 +34,9 @@ export const programmingLanguages: languageMap = {
   html: ".html",
   css: ".css"
   // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
-}
+} as const
+
+type ProgrammingLanguage = keyof typeof programmingLanguages
 
 export const generateRandomString = (length: number, lowercase = false) => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXY3456789" // excluding similar looking characters like Z, 2, I, 1, O, 0
@@ -47,12 +48,12 @@ export const generateRandomString = (length: number, lowercase = false) => {
 }
 
 interface Props {
-  language: string
+  language: ProgrammingLanguage
   value: string
 }
 
 // pulled from https://github.com/mckaywrigley/chatbot-ui/blob/main/utils/app/codeblock.ts
-export const CodeBlock: FC<Props> = memo(({ language, value }) => {
+export const CodeBlock: FC<Props> = ({ language, value }) => {
   const [isCopied, setIsCopied] = useState<Boolean>(false)
 
   const copyToClipboard = () => {
@@ -68,15 +69,24 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
       }, 2000)
     })
   }
+  const isDarkTheme = useMatchMedia("(prefers-color-scheme: dark)")
+  const editorTheme = useMemo(
+    () => (isDarkTheme ? oneDark : oneLight),
+    [isDarkTheme]
+  )
+
+  if (isDarkTheme === undefined) {
+    return null
+  }
 
   return (
-    <div className="codeblock relative font-sans text-[16px] group">
-      <div className="flex items-center justify-between py-2 px-4">
-        <span className="text-xs lowercase text-white">{language}</span>
+    <div className={clsx("codeblock relative font-sans h-[360px] group")}>
+      <div className="flex items-center justify-between h-10 px-4">
+        <span className="text-xs lowercase">{language}</span>
 
         <div className="flex items-center">
           <button
-            className="flex gap-1.5 items-center rounded bg-none p-1 text-xs text-white group-hover:text-black"
+            className="flex gap-1.5 items-center rounded bg-none p-1 text-xs text-slate-11 group-hover:text-slate-12"
             onClick={copyToClipboard}>
             {isCopied ? <IconCheck size={18} /> : <IconClipboard size={18} />}
             {isCopied ? "Copied!" : "Copy code"}
@@ -85,11 +95,10 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
       </div>
       <SyntaxHighlighter
         language={language}
-        style={oneLight}
-        customStyle={{ margin: 0, paddingTop: 0, paddingBottom: 20 }}>
+        style={editorTheme}
+        customStyle={{ margin: 0, paddingTop: 16, height: "100%" }}>
         {value}
       </SyntaxHighlighter>
     </div>
   )
-})
-CodeBlock.displayName = "CodeBlock"
+}

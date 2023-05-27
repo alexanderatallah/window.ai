@@ -159,7 +159,7 @@ export interface WindowAI<TModel = string> {
    * @param input The input to use for the completion.
    * @param options Options for the completion request.
    * @returns A promise that resolves to an array of completion results.
-   * @deprecated use generateText instead
+   * @deprecated Use generateText instead
    */
   getCompletion<TInput extends Input = Input>(
     input: TInput,

@@ -1,4 +1,5 @@
-import React, { useState } from "react"
+import clsx from "clsx"
+import { useState, type ReactNode } from "react"
 
 export function Tooltip({
   children,
@@ -27,9 +28,11 @@ export function Tooltip({
       {children}
       {visible && (
         <span
-          className={`absolute z-10 left-1/2 transform -translate-x-1/2 ${
-            above ? "bottom-full" : "top-full"
-          } mt-2 p-3 w-52 bg-slate-900 text-slate-100 text-xs rounded-md shadow-lg`}>
+          className={clsx(
+            above ? "bottom-full" : "top-full",
+            "absolute z-10 left-0",
+            "mt-2 p-3 w-52 bg-slate-9 text-slate-12 text-xs rounded-md shadow-lg"
+          )}>
           {content}
         </span>
       )}
