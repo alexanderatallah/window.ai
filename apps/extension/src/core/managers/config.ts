@@ -227,15 +227,14 @@ class ConfigManager extends BaseManager<Config> {
   }
 
   async getModelCaller(config: Config) {
-    const shouldProxyApiKeyConfig = async () => {
-      return (
-        !config.baseUrl &&
-        this.isCredentialed(await this.forAuthAndModel(AuthType.External))
-      )
+    const isOpenRouterAuthed = async () => {
+      return this.isCredentialed(await this.forAuthAndModel(AuthType.External))
     }
 
     const canUseOpenRouter =
-      config.auth === AuthType.External || (await shouldProxyApiKeyConfig())
+      config.auth === AuthType.External ||
+      // Only use OpenRouter if user has authed and hasn't set a custom base url
+      (!config.baseUrl && (await isOpenRouterAuthed()))
     return getCaller(this.getModel(config), !canUseOpenRouter)
   }
 
