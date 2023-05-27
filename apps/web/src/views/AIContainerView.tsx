@@ -1,9 +1,9 @@
-import { WebPreview } from "~features/web-vm/WebPreview"
+import { WebPreview } from "~demo/web-vm/WebPreview"
 
 import dynamic from "next/dynamic"
 
 const WebTerminal = dynamic(
-  () => import("~features/web-vm/WebTerminal").then((m) => m.WebTerminal),
+  () => import("~demo/web-vm/WebTerminal").then((m) => m.WebTerminal),
   {
     ssr: false
   }

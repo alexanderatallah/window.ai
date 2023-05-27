@@ -4,8 +4,8 @@ import { useWindowAI } from "~core/hooks/useWindowAI"
 import {
   useAgentManager,
   type AgentConfig
-} from "~features/agent/agent-manager-provider"
-import { useLog } from "~features/agent/useLog"
+} from "~demo/agent/agent-manager-provider"
+import { useLog } from "~demo/agent/useLog"
 
 const getSystemPrompt = (goal: string, ac: AgentConfig) =>
   `I am ${ac.name}, ${ac.description}. My purpose is to ${ac.purpose}. I am a member of a larger project whose goal is to ${goal}. We will be utilizing the OODA loop, going through each phase one by one after each of your message which will provide me with relevant input guidance.`

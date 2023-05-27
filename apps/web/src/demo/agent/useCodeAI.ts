@@ -1,8 +1,8 @@
 import type { WebContainer } from "@webcontainer/api"
 import { posix } from "path"
 import { useWindowAI } from "~core/hooks/useWindowAI"
-import { parseCmd } from "~features/web-vm/terminal-parser"
-import { extractCodeBlocks } from "~features/agent/utils"
+import { parseCmd } from "~demo/web-vm/terminal-parser"
+import { extractCodeBlocks } from "~demo/agent/utils"
 
 const CONT_MESSAGE = "===CONTINUE_CODEAI==="
 

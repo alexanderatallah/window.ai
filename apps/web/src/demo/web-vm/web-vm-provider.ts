@@ -8,9 +8,9 @@ import { useWindowAI } from "~core/hooks/useWindowAI"
 import {
   getInputBufferFromCursor,
   parseCmd
-} from "~features/web-vm/terminal-parser"
-import { useCodeAI } from "~features/agent/useCodeAI"
-import { binDirectory } from "~features/web-vm/files"
+} from "~demo/web-vm/terminal-parser"
+import { useCodeAI } from "~demo/agent/useCodeAI"
+import { binDirectory } from "~demo/web-vm/files"
 import { posix } from "path"
 
 async function createTerminal(el: HTMLElement) {

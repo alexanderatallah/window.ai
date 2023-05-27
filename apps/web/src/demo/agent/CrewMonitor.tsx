@@ -1,5 +1,5 @@
-import { AgentMonitor } from "~features/agent/AgentMonitor"
-import { OODAState, useCrew } from "~features/agent/useCrew"
+import { AgentMonitor } from "~demo/agent/AgentMonitor"
+import { OODAState, useCrew } from "~demo/agent/useCrew"
 
 export const CrewMonitor = ({ id = "" }) => {
   const { agent, state, log } = useCrew({ id })

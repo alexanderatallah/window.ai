@@ -5,7 +5,7 @@ import { useWindowAI } from "~core/hooks/useWindowAI"
 import { isMessageOutput } from "window.ai"
 
 import { nanoid } from "nanoid"
-import { useLog } from "~features/agent/useLog"
+import { useLog } from "~demo/agent/useLog"
 
 export type AgentConfig = {
   name: string

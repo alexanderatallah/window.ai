@@ -1,8 +1,8 @@
 import { InputMessage } from "~core/components/InputMessage"
-import { useAgentManager } from "~features/agent/agent-manager-provider"
-import { AgentHiringCard } from "~features/agent/AgentHiringCard"
-import { CaptainMonitor } from "~features/agent/CaptainMonitor"
-import { CrewMonitor } from "~features/agent/CrewMonitor"
+import { useAgentManager } from "~demo/agent/agent-manager-provider"
+import { AgentHiringCard } from "~demo/agent/AgentHiringCard"
+import { CaptainMonitor } from "~demo/agent/CaptainMonitor"
+import { CrewMonitor } from "~demo/agent/CrewMonitor"
 
 // Create a screen writing mobile application with a novel UX that no one has seen before, ensure the design is great
 export function AgentPlaygroundView() {
