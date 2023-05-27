@@ -14,6 +14,7 @@ import {
 } from "~core/components/common"
 import "~style.css"
 import { Button } from "~core/components/Button"
+import { GetExtensionButton } from "~core/components/GetExtensionButton"
 
 function Layout({ children }: any) {
   return (
@@ -21,11 +22,9 @@ function Layout({ children }: any) {
       <div className="bg-slate-1 text-slate-11">{children}</div>
       <footer className="py-10 w-full mt-auto border-t border-slate-9 flex items-center justify-end bg-slate-2 z-20 px-20">
         <div className="flex items-center gap-4">
-          <Button
-            onClick={() => window.open(EXTENSION_CHROME_URL, "_blank")}
-            className="bg-indigo-9 hover:bg-indigo-10 text-white">
-            Get the extension
-          </Button>
+          <div className="w-40">
+            <GetExtensionButton />
+          </div>
           <Link href={DISCORD_URL}>
             <Discord className="w-6 h-6 text-slate-11 hover:text-slate-12" />
           </Link>

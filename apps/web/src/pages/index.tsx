@@ -12,15 +12,15 @@ import { Button } from "~core/components/Button"
 import { GetExtensionButton } from "~core/components/GetExtensionButton"
 
 const windowaiExample = `
-// Get text completions from a user's Window AI model
+// Code for streaming a response
+// from a user's Window AI model
 await window.ai.generateText(
   {
-    messages: [...last10messages],
+    prompt: "Hello world!"
   },
   {
-    onStreamResult: (result, error) => {
-      console.log(result.message.content)
-    }
+    onStreamResult: (res) =>
+      console.log(result.text)
   }
 )
 `
@@ -54,15 +54,19 @@ function Home() {
             This example shows a chatbot implemented with{" "}
             <strong>no API keys</strong> and no backend.
           </Text>
-          <GetExtensionButton className="md:col-span-2 col-span-6" />
+          <div className="md:col-span-2 col-span-6">
+            <GetExtensionButton />
+          </div>
         </div>
       </section>
 
       <Section>
         <div className="flex justify-between w-full md:space-x-4 md:flex-row flex-col space-y-8 md:space-y-0">
-          <CodeBlock language="javascript" value={windowaiExample} />
           <div className="w-full h-screen md:h-auto">
             <Chat />
+          </div>
+          <div className="w-full md:w-96">
+            <CodeBlock language="javascript" value={windowaiExample} />
           </div>
         </div>
       </Section>
@@ -144,10 +148,10 @@ function Home() {
                   docs
                 </Link>
               </Text>
-              <GetExtensionButton />
-              <Button onClick={() => window.open(DISCORD_URL, "_blank")}>
-                Join the community
-              </Button>
+              <GetExtensionButton isPlain className="w-44" />
+              <Link href={DISCORD_URL} target="_blank" className="w-44">
+                <Button>Join the community</Button>
+              </Link>
             </div>
             <video
               width="500"

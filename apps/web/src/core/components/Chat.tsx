@@ -6,6 +6,7 @@ import { InputMessage } from "./InputMessage"
 import { DISCORD_URL, EXTENSION_CHROME_URL } from "./common"
 import { initialMessages, useWindowAI } from "../hooks/useWindowAI"
 import { GetExtensionButton } from "~core/components/GetExtensionButton"
+import Link from "next/link"
 
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
@@ -47,7 +48,7 @@ export function Chat() {
 
   return (
     <div className="w-full h-full pt-10">
-      <div className="rounded-lg border-slate-11 border p-6 w-full h-full md:h-[320px] flex flex-col">
+      <div className="rounded-md border border-slate-6 p-6 w-full h-full md:h-[360px] flex flex-col">
         <div className="flex-grow overflow-y-auto pr-8 pl-4" ref={messagesRef}>
           {messages.map(({ content, role }, index) => (
             <ChatLine key={index} role={role} content={content} />
@@ -70,10 +71,10 @@ export function Chat() {
               window.ai not found on your browser!
             </p>
             <div className="grid grid-cols-2 gap-6">
-              <GetExtensionButton />
-              <Button onClick={() => window.open(DISCORD_URL, "_blank")}>
-                Join the community
-              </Button>
+              <GetExtensionButton isPlain />
+              <Link href={DISCORD_URL} target="_blank">
+                <Button>Join the community</Button>
+              </Link>
             </div>
           </div>
         )}

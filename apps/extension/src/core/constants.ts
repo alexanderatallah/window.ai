@@ -82,7 +82,10 @@ export type CompletionResponse<TInput extends Input = Input> = Result<
 >
 
 export type ModelRequest = ModelProviderOptions
-export type ModelResponse = Result<{ model?: ModelID | string }, ErrorCode>
+export type ModelResponse = Result<
+  { model?: ModelID | string },
+  ErrorCode | string
+>
 
 export type { EventRequest, EventResponse }
 

@@ -17,8 +17,11 @@ import {
 } from "~core/constants"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
-import { configManager } from "~core/managers/config"
-import { transactionManager } from "~core/managers/transaction"
+import { type Config, configManager } from "~core/managers/config"
+import {
+  type Transaction,
+  transactionManager
+} from "~core/managers/transaction"
 import * as modelRouter from "~core/model-router"
 import { type Err, err, isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
@@ -44,7 +47,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   const txn = request.transaction
   const config = await configManager.forModelWithDefault(txn.model)
-  txn.routedModel = txn.model || (await configManager.predictModel(config, txn))
+  txn.routedModel = await getCompletionModel(id, config, txn)
   // Save the incomplete txn
   await transactionManager.save(txn)
 
@@ -96,6 +99,22 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
 }
 
+async function getCompletionModel(
+  id: RequestID,
+  config: Config,
+  txn: Transaction
+): Promise<string> {
+  if (txn.model) {
+    return txn.model
+  }
+  const res = await configManager.predictModel(config, txn)
+  if (!isOk(res)) {
+    await maybeInterrupt(id, res)
+    throw res.error
+  }
+  return res.data
+}
+
 function getOutput(
   input: Input,
   result: string,
@@ -106,20 +125,12 @@ function getOutput(
     : { text: result, isPartial }
 }
 
-function maybeInterrupt(id: RequestID, result: Err<string>) {
-  if (isErrorCode(result, 401)) {
-    requestInterrupt(id, RequestInterruptType.Authentication)
-  } else if (isErrorCode(result, 402)) {
-    requestInterrupt(id, RequestInterruptType.Payment)
+async function maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
+  if (result.error === ErrorCode.NotAuthenticated) {
+    return requestInterrupt(id, RequestInterruptType.Authentication)
+  } else if (result.error === ErrorCode.PaymentRequired) {
+    return requestInterrupt(id, RequestInterruptType.Payment)
   }
-}
-
-function isErrorCode(error: Err<string>, code: 401 | 402) {
-  const errorParts = error.error.split(": ")
-  return (
-    errorParts[0] === ErrorCode.ModelRejectedRequest &&
-    errorParts[1] === code.toString()
-  )
 }
 
 async function requestInterrupt(

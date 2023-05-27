@@ -80,8 +80,8 @@ export const CodeBlock: FC<Props> = ({ language, value }) => {
   }
 
   return (
-    <div className={clsx("codeblock relative font-sans text-[16px] group")}>
-      <div className="flex items-center justify-between py-1.5 px-4">
+    <div className={clsx("codeblock relative font-sans h-[360px] group")}>
+      <div className="flex items-center justify-between h-10 px-4">
         <span className="text-xs lowercase">{language}</span>
 
         <div className="flex items-center">
@@ -96,7 +96,7 @@ export const CodeBlock: FC<Props> = ({ language, value }) => {
       <SyntaxHighlighter
         language={language}
         style={editorTheme}
-        customStyle={{ margin: 0 }}>
+        customStyle={{ margin: 0, paddingTop: 16, height: "100%" }}>
         {value}
       </SyntaxHighlighter>
     </div>
