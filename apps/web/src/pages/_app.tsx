@@ -20,7 +20,7 @@ function Layout({ children }: any) {
   return (
     <div className="h-screen flex flex-col">
       <div className="bg-slate-1 text-slate-11">{children}</div>
-      <footer className="py-10 w-full mt-auto border-t border-slate-9 flex items-center justify-end bg-slate-2 z-20 px-20">
+      <footer className="py-10 w-full mt-auto flex items-center justify-end bg-slate-2 z-20 px-20">
         <div className="flex items-center gap-4">
           <div className="w-40">
             <GetExtensionButton />

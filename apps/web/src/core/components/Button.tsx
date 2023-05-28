@@ -1,7 +1,7 @@
 import clsx from "clsx"
 
 export function Button({
-  className = "bg-slate-9 hover:bg-slate-9/70 active:bg-slate-10 text-slate-12 active:text-slate-12/70 w-full text-sm",
+  className = "bg-slate-8 hover:bg-slate-8/70 active:bg-slate-10 text-slate-12 active:text-slate-12/70 w-full text-sm",
   ...props
 }: any) {
   return (
