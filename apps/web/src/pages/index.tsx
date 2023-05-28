@@ -71,7 +71,7 @@ function Home() {
         </div>
       </Section>
 
-      <div className="bg-slate-4">
+      <div className="bg-slate-3">
         <Section>
           <div className="w-full flex flex-col sm:flex-row justify-between items-center ">
             <div className="max-w-lg p-10 flex flex-col space-y-4">
@@ -126,7 +126,7 @@ function Home() {
         </div>
       </Section>
 
-      <div className="bg-slate-4">
+      <div className="bg-slate-3">
         <Section>
           <div className="justify-between w-full flex flex-col sm:flex-row items-center">
             <div className="max-w-lg p-10 flex flex-col space-y-4">
