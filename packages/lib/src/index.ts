@@ -154,6 +154,14 @@ export interface WindowAI<TModel = string> {
     options?: CompletionOptions<TModel, TInput>
   ): Promise<InferredOutput<TInput>[]>
 
+  /** Generate a 3D object from a the specified model.
+   * @param input The input to use for the completion.
+   * @returns A promise that resolves a single 3d object generation.
+   */
+  generate3DObject<TInput extends Input = Input>(
+    input: TInput,
+  ): Promise<{mediaURL: string}>
+
   /**
    * Get or stream a completion from the specified (or preferred) model.
    * @param input The input to use for the completion.

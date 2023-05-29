@@ -12,6 +12,7 @@ import {
 import type {
   CompletionResponse,
   EventResponse,
+  GenerationResponse,
   ModelResponse,
   PortRequest
 } from "~core/constants"
@@ -62,6 +63,32 @@ export const windowAI: WindowAI<ModelID | string> = {
       )
     })
   },
+
+  async generate3DObject(input){
+    const requestId = _relayRequest(PortName.Generation, {
+      transaction: transactionManager.init(input, _getOriginData(), {}),
+      hasStreamHandler: false
+    })
+    // no stream handler
+    return new Promise((resolve, reject) => {
+      _addResponseListener<GenerationResponse>(
+        requestId,
+        (res) => {
+          if (isOk(res)) {
+            if (!res.data.mediaURL){
+              resolve(res.data)
+            } else {
+              // onStreamResult && res.data.forEach((d) => onStreamResult(d, null))
+            }
+          } else {
+            reject(res.error)
+            // onStreamResult && onStreamResult(null, res.error)
+          }
+        }
+      )
+    })
+  },
+
 
   async getCompletion(input, options = {}) {
     const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
@@ -177,10 +204,8 @@ window.addEventListener(
     if (source !== window || !data.portName) {
       return
     }
-
     if (data.type === ContentMessageType.Response) {
       const msg = data as { id: RequestID; response: unknown }
-
       const handlers = new Set([
         ...(_responseListeners.get(msg.id) || []),
         ...(_responseListeners.get(null) || [])

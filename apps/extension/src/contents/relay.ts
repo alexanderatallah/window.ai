@@ -13,9 +13,10 @@ export const config: PlasmoCSConfig = {
 
 const ports: Record<PortName, Port | undefined> = {
   [PortName.Completion]: undefined,
+  [PortName.Generation]: undefined,
   [PortName.Model]: undefined,
   [PortName.Events]: undefined,
-  [PortName.Permission]: undefined
+  [PortName.Permission]: undefined,
 }
 
 function connectWithRetry(portName: PortName): Port {

@@ -14,9 +14,10 @@ import type { Result } from "./utils/result-monad"
 
 export enum PortName {
   Completion = "completion",
+  Generation = "generation",
   Permission = "permission",
   Model = "model",
-  Events = "events"
+  Events = "events",
 }
 
 export enum RequestInterruptType {
@@ -38,6 +39,7 @@ export type PopupParams = {
 
 export interface PortRequest {
   [PortName.Completion]: { id: RequestID; request: CompletionRequest }
+  [PortName.Generation]: { id: RequestID; request: GenerationRequest }
   [PortName.Permission]: {
     id?: RequestID
     request: { requesterId: RequestID; permitted?: boolean }
@@ -49,6 +51,9 @@ export interface PortRequest {
 export interface PortResponse {
   [PortName.Completion]:
     | { id: RequestID; response: CompletionResponse }
+    | { id?: RequestID; error: ErrorCode.InvalidRequest }
+  [PortName.Generation]:
+    | { id: RequestID; response: GenerationResponse }
     | { id?: RequestID; error: ErrorCode.InvalidRequest }
   [PortName.Permission]:
     | { requesterId: RequestID; requester: CompletionRequest }
@@ -76,6 +81,18 @@ export type CompletionRequest = {
   transaction: Transaction
   hasStreamHandler: boolean
 }
+
+export type GenerationRequest = {
+  transaction: Transaction
+  hasStreamHandler: boolean
+}
+
+export type GenerationResponse = Result<
+  {mediaURL: string},
+  ErrorCode | string
+>
+
+
 export type CompletionResponse<TInput extends Input = Input> = Result<
   InferredOutput<TInput>[],
   ErrorCode | string
