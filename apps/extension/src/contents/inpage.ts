@@ -75,11 +75,8 @@ export const windowAI: WindowAI<ModelID | string> = {
         requestId,
         (res) => {
           if (isOk(res)) {
-            if (!res.data.mediaURL){
-              resolve(res.data)
-            } else {
-              // onStreamResult && res.data.forEach((d) => onStreamResult(d, null))
-            }
+            // console.log(res.data)
+            resolve(res.data)
           } else {
             reject(res.error)
             // onStreamResult && onStreamResult(null, res.error)

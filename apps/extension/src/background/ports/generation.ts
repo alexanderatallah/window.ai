@@ -97,7 +97,8 @@ import {
     // use fetch for the api request only
     //   post https://35c5-35-185-211-5.ngrok-free.app/generate with {prompt: "prompt"}
     console.log("INPUT", txn.input)
-    const result =  await fetch("https://8f58-34-151-105-232.ngrok-free.app/generation", {
+    const SERVER_ENDPOINT = "https://8d84-34-82-182-178.ngrok-free.app"
+    const result =  await fetch(`${SERVER_ENDPOINT}/generation`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -107,12 +108,16 @@ import {
     .then((response) => response.json())
     .then((data) => {
         console.log("Success:", data);
+        txn.outputs = [{"text" : data.url}]
+        res.send({ response: ok([data.url]), id })
         return data
     })
     .catch((error) => {
+        res.send({ response: ok(["GENERATION_FAILED"]), id })
+        txn.error = "GENERATION_FAILED"
+        _maybeInterrupt(id, result)
         console.error("Error:", error);
     });
-    console.log(result)
 
         // {
         //     "prompt": txn.input,
@@ -126,7 +131,6 @@ import {
     // console.log(result)
 
         // const outputs: [String] = [result.data.url]
-        res.send({ response: ok([result]), id })
   
     //   if (isOk(result)) {
     //     // const outputs = result.data.map((d) => _getOutput(txn.input, d))
@@ -141,7 +145,7 @@ import {
     // // }
   
     // Update the completion with the reply and model used
-    // await transactionManager.save(txn)
+    await transactionManager.save(txn)
   }
   
   async function _getCompletionModel(
