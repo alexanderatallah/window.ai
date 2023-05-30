@@ -97,7 +97,7 @@ import {
     // use fetch for the api request only
     //   post https://35c5-35-185-211-5.ngrok-free.app/generate with {prompt: "prompt"}
     console.log("INPUT", txn.input)
-    const result =  await fetch("https://e45f-35-185-211-5.ngrok-free.app/generation", {
+    const result =  await fetch("https://8f58-34-151-105-232.ngrok-free.app/generation", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -184,3 +184,5 @@ import {
   
   export default handler
   
+
+
