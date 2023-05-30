@@ -1,6 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import type { PortResponse } from "~core/constants"
+import type { PortEvent, PortResponse } from "~core/constants"
 import { ContentMessageType, PortName } from "~core/constants"
 import type { Port } from "~core/extension"
 import { Extension } from "~core/extension"
@@ -11,30 +11,25 @@ export const config: PlasmoCSConfig = {
   run_at: "document_start"
 }
 
-const ports: Record<PortName, Port | undefined> = {
-  [PortName.Completion]: undefined,
-  [PortName.Model]: undefined,
-  [PortName.Events]: undefined,
-  [PortName.Permission]: undefined
+const portStates: Record<
+  PortName,
+  { port?: Port; listener?: (message: PortEvent[PortName], port: Port) => void }
+> = {
+  [PortName.Completion]: {},
+  [PortName.Model]: {},
+  [PortName.Events]: {},
+  [PortName.Permission]: {}
 }
 
-function connectWithRetry(portName: PortName): Port {
+function initPortState(portName: PortName) {
   log(`Connecting to ${portName} port`)
+  const portState = portStates[portName]
   const port = Extension.connectToBackground(portName, () =>
-    connectWithRetry(portName)
+    initPortState(portName)
   )
-  ports[portName] = port
-  return port
-}
-
-;(Object.keys(ports) as PortName[]).forEach((portName) => {
-  if (portName === PortName.Permission) {
-    // Only used for background script
-    return
-  }
-  const port = connectWithRetry(portName)
-  // Handle responses from background script
-  Extension.addPortListener<typeof portName, PortResponse>((msg) => {
+  portState.port = port
+  // TODO do we need to remove the old listener from the old port?
+  portState.listener = (msg) => {
     if (!("response" in msg)) {
       // TODO handle invalid requests
       console.error(`Invalid request`, msg)
@@ -47,7 +42,20 @@ function connectWithRetry(portName: PortName): Port {
       response: msg.response
     }
     window.postMessage(res, "*")
-  }, port)
+  }
+  // Handle responses from background script
+  Extension.addPortListener<typeof portName, PortResponse>(
+    portState.listener,
+    port
+  )
+}
+
+;(Object.keys(portStates) as PortName[]).forEach((portName) => {
+  if (portName === PortName.Permission) {
+    // Only used for background script
+    return
+  }
+  initPortState(portName)
 })
 
 // Listen to all other incoming messages as events
@@ -73,7 +81,7 @@ window.addEventListener("message", (event) => {
   // We only accept messages to our window and a port
 
   const portName = data.portName as PortName
-  const port = ports[portName]
+  const port = portStates[portName].port
   if (source !== window || !port) {
     return
   }
