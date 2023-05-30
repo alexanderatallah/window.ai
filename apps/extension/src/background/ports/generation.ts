@@ -97,7 +97,7 @@ import {
     // use fetch for the api request only
     //   post https://35c5-35-185-211-5.ngrok-free.app/generate with {prompt: "prompt"}
     console.log("INPUT", txn.input)
-    const SERVER_ENDPOINT = "https://8d84-34-82-182-178.ngrok-free.app"
+    const SERVER_ENDPOINT = "https://6b91-34-82-21-104.ngrok-free.app"
     const result =  await fetch(`${SERVER_ENDPOINT}/generation`, {
         method: "POST",
         headers: {
