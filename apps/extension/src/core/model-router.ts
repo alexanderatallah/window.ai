@@ -56,30 +56,30 @@ export async function complete(
     return unknownErr(error)
   }
 }
+//TODO: MAKE THIS WORk
+// export async function generateMedia(
+//   config: Config,
+//   txn: Transaction
+// ): Promise<Result<string[], ErrorCode | string>> {
+//   const caller = await configManager.getModelCaller(config)
+//   const model = txn.routedModel
 
-export async function generateMedia(
-  config: Config,
-  txn: Transaction
-): Promise<Result<string[], ErrorCode | string>> {
-  const caller = await configManager.getModelCaller(config)
-  const model = txn.routedModel
-
-  try {
-    const result = await caller.complete(txn.input, {
-      apiKey: config.apiKey,
-      baseUrl: config.baseUrl,
-      model,
-      origin: originManager.url(txn.origin),
-      max_tokens: txn.maxTokens,
-      temperature: txn.temperature,
-      stop_sequences: txn.stopSequences,
-      num_generations: txn.numOutputs
-    })
-    return result
-  } catch (error) {
-    return unknownErr(error)
-  }
-}
+//   try {
+//     const result = await caller.complete(txn.input, {
+//       apiKey: config.apiKey,
+//       baseUrl: config.baseUrl,
+//       model,
+//       origin: originManager.url(txn.origin),
+//       max_tokens: txn.maxTokens,
+//       temperature: txn.temperature,
+//       stop_sequences: txn.stopSequences,
+//       num_generations: txn.numOutputs
+//     })
+//     return result
+//   } catch (error) {
+//     return unknownErr(error)
+//   }
+// }
 
 
 export async function shouldStream(
