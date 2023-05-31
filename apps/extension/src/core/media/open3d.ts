@@ -26,7 +26,7 @@ export function init(
       ...config,
     //   isStreamable: true,
       // overrideModelParam: (req) => req.model?.split("/")[1] ?? null,
-      defaultBaseUrl: "https://0710-35-244-85-121.ngrok-free.app",
+      defaultBaseUrl: "https://4c41-35-204-165-234.ngrok-free.app",
       getPath: () => "/generation",
     //   endOfStreamSentinel: "[DONE]",
       transformForRequest: (req, meta) => {
@@ -51,9 +51,10 @@ export function init(
         return {
           ...optsToSend,
           prompt,
-        //   user: meta.user_identifier ?? undefined,
+          user: meta.user_identifier ?? undefined,
         //   stop: stop_sequences ?? undefined,
-          n: num_generations
+          num_outputs: num_generations,
+          num_inference_steps: optsToSend.num_inference_steps,
         }
       },
       transformResponse: (res) => {
@@ -67,7 +68,7 @@ export function init(
         // // We default to "" since the "assistant" role is initially sent
         // // with no content
         // return messages.map((m) => m.content || "")
-        return anyRes["urls"]
+        return anyRes["uris"]
       }
     },
     opts

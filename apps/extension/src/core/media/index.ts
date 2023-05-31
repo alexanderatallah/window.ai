@@ -25,9 +25,9 @@ export const open3d = initOpen3D(
       identifier: MediaModelProvider.OpenRouter
     },
     {
-     
+      num_inference_steps: DEFAULT_OBJECT_INFERENCE_STEPS
+    }
   )
-  
 
 export function getMediaCaller(
   model?: ModelID,

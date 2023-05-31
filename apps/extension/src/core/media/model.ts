@@ -3,7 +3,7 @@ import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
-import { type ChatMessage, ErrorCode } from "window.ai"
+import { type ChatMessage, ErrorCode, MediaType } from "window.ai"
 
 import { type Err, type Result, err, ok } from "~core/utils/result-monad"
 import { definedValues, parseDataChunks } from "~core/utils/utils"
@@ -42,6 +42,8 @@ export interface RequestOptions {
 //   top_p?: number
 //   stop_sequences?: string[] | null
   num_generations?: number
+  num_inference_steps?:number
+  type?: MediaType
 //   temperature?: number
   timeout?: number
   user_identifier?: string | null
@@ -85,16 +87,11 @@ export class MediaModel {
       model: null,
       origin: null,
       apiKey: null,
-      timeout: 42000,
+      timeout: 60000,
       user_identifier: null,
-    //   frequency_penalty: 0,
-    //   presence_penalty: 0,
-    //   temperature: 0, // OpenAI defaults to 1
-    //   top_p: 1, // OpenAI default, rec. not change unless temperature = 1
-    //   stop_sequences: null, // OpenAI default
       num_generations: 1,
-    //   max_tokens: null,
-    //   stream: false,
+      type: MediaType.Object,
+      num_inference_steps: 32,
       adapter: null,
       ...definedValues(opts)
     }
@@ -166,6 +163,8 @@ export class MediaModel {
     //   presence_penalty: opts.presence_penalty,
     //   stop_sequences: opts.stop_sequences,
       num_generations: opts.num_generations,
+      type: opts.type,
+      num_inference_steps: opts.num_inference_steps,
     //   max_tokens: opts.max_tokens,
     //   stream: opts.stream,
       baseUrl: opts.baseUrl
@@ -261,12 +260,13 @@ export class MediaModel {
         headers: this._getRequestHeaders(opts)
       })
       responseData = response.data
+      console.log(responseData)
     } catch (err: unknown) {
       return this._handleModelAPIError(err)
     }
 
     this.log("RESPONSE for id " + id)
-    return ok([responseData.url]);
+    // return ok([responseData.url]);
     const result = transformResponse(responseData)
     if (!result[0]) {
       const e = new Error(
@@ -275,7 +275,7 @@ export class MediaModel {
       this.error(e)
       throw e
     }
-
+    // TODO: Look at cache because devs might want images to be regenerated w the same prompt
     await cacheSet({
       id,
       prompt: request,

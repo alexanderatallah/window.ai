@@ -72,15 +72,31 @@ const handler: PlasmoMessaging.PortHandler<
   // TODO: rename to uris
   // const r = await modelRouter.complete(config, txn)
   const r  = await getMediaCaller(txn.routedModel as ModelID)
-  const result = await r.complete(txn.input as any)
-  const response: MediaOutput = {
-    "urls": result.data
-  }
+  // const result = await caller.complete(txn.input, {
+  //   apiKey: config.apiKey,
+  //   baseUrl: config.baseUrl,
+  //   model,
+  //   origin: originManager.url(txn.origin),
+  //   max_tokens: txn.maxTokens,
+  //   temperature: txn.temperature,
+  //   stop_sequences: txn.stopSequences,
+  //   num_generations: txn.numOutputs
+  // })
+
+  const result = await r.complete(txn.input as any, {
+    apiKey: config.apiKey,
+    baseUrl: config.baseUrl,
+    model: txn.routedModel,
+    origin: txn.origin,
+    num_generations: txn.numOutputs,
+    num_inference_steps: txn.numInferenceSteps,
+  })
   // if (isOk(result)) {
   //   const outputs = result.data.map((d) => _getOutput(txn.input, d))
-  res.send({ response: ok(response), id })
-  
-  txn.outputs = response
+  const outputs = result.data
+  res.send({ response: ok(outputs), id })
+
+  txn.outputs = outputs
   // } else {
   //   res.send({ response: result, id })
   //   txn.error = result.error
