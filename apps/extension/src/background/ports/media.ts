@@ -1,11 +1,7 @@
 import {
   ErrorCode,
-  type InferredOutput,
-  type Input,
   type RequestID,
-  isMessagesInput,
   ModelID,
-  type MediaOutput
 } from "window.ai"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
@@ -24,7 +20,7 @@ import {
   type Transaction,
   transactionManager
 } from "~core/managers/transaction"
-import * as modelRouter from "~core/model-router"
+// import * as modelRouter from "~core/model-router"
 import {
   type Err,
   type Result,
@@ -111,7 +107,8 @@ async function _getMediaModel(
   if(txn.type === "object"){
     return  Promise.resolve(ok(ModelID.OpenRouter3D))
   }
-  return Promise.resolve(ok(ModelID.Dalle))
+  return Promise.resolve(ok(ModelID.OpenRouter3D))
+  // return Promise.resolve(ok(ModelID.Dalle))
 }
 
 async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
