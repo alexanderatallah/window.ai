@@ -13,7 +13,7 @@ export const config: PlasmoCSConfig = {
 
 const ports: Record<PortName, Port | undefined> = {
   [PortName.Completion]: undefined,
-  [PortName.Generation]: undefined,
+  [PortName.Media]: undefined,
   [PortName.Model]: undefined,
   [PortName.Events]: undefined,
   [PortName.Permission]: undefined,
@@ -72,7 +72,6 @@ window.addEventListener("message", (event) => {
   const { source, data } = event
 
   // We only accept messages to our window and a port
-
   const portName = data.portName as PortName
   const port = ports[portName]
   if (source !== window || !port) {

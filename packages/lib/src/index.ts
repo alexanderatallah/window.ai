@@ -7,12 +7,18 @@ declare global {
   }
 }
 
+export enum MediaTypes {
+  Object = "object",
+}
+
 // ChatML is a simple markup language for chat messages. More available here:
 // https://github.com/openai/openai-python/blob/main/chatml.md
 export type ChatMessage = {
   role: "system" | "user" | "assistant"
   content: string
 }
+
+
 
 export type ChatRole = ChatMessage["role"]
 
@@ -24,8 +30,13 @@ export type MessagesInput = {
   messages: ChatMessage[]
 }
 
+export type MediaInput = {
+  type: MediaTypes
+  prompt: string
+}
+
 // Input allows you to specify either a prompt string or a list of chat messages.
-export type Input = PromptInput | MessagesInput
+export type Input = PromptInput | MessagesInput | MediaInput
 
 export function isPromptInput(input: Input): input is PromptInput {
   return "prompt" in input
@@ -33,6 +44,10 @@ export function isPromptInput(input: Input): input is PromptInput {
 
 export function isMessagesInput(input: Input): input is MessagesInput {
   return "messages" in input
+}
+
+export function isMediaInput(input: Input): input is MediaInput {
+  return "type" in input
 }
 
 export type TextOutput = {
@@ -45,8 +60,12 @@ export type MessageOutput = {
   isPartial?: boolean
 }
 
+export type MediaOutput = {
+  urls: string[]
+}
+
 // Output can be either a string or a chat message, depending on which Input type you use.
-export type Output = TextOutput | MessageOutput
+export type Output = TextOutput | MessageOutput | MediaOutput
 
 export function isTextOutput(output: Output): output is TextOutput {
   return "text" in output
@@ -56,10 +75,16 @@ export function isMessageOutput(output: Output): output is MessageOutput {
   return "message" in output
 }
 
+export function isMediaOutput(output: Output): output is MediaOutput {
+  return "urls" in output
+}
+
 export type InferredOutput<TInput> = TInput extends MessagesInput
   ? MessageOutput
   : TInput extends PromptInput
   ? TextOutput
+  : TInput extends MediaInput
+  ? MediaOutput
   : Output
 
 // CompletionOptions allows you to specify options for the completion request.
@@ -154,13 +179,13 @@ export interface WindowAI<TModel = string> {
     options?: CompletionOptions<TModel, TInput>
   ): Promise<InferredOutput<TInput>[]>
 
-  /** Generate a 3D object from a the specified model.
+  /** Generates media from a specified model.
    * @param input The input to use for the completion.
-   * @returns A promise that resolves a single 3d object generation.
+   * @returns A promise that resolves a media generatio.
    */
-  generate3DObject<TInput extends Input = Input>(
+  generateMedia< TInput extends Input = Input>(
     input: TInput,
-  ): Promise<{mediaURL: string}>
+  ): Promise<MediaOutput>
 
   /**
    * Get or stream a completion from the specified (or preferred) model.

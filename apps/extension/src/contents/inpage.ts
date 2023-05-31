@@ -6,13 +6,14 @@ import {
   type ModelID,
   type RequestID,
   VALID_DOMAIN,
-  type WindowAI
+  type WindowAI,
+  type MediaOutput
 } from "window.ai"
 
 import type {
   CompletionResponse,
   EventResponse,
-  GenerationResponse,
+  MediaResponse,
   ModelResponse,
   PortRequest
 } from "~core/constants"
@@ -64,22 +65,18 @@ export const windowAI: WindowAI<ModelID | string> = {
     })
   },
 
-  async generate3DObject(input){
-    const requestId = _relayRequest(PortName.Generation, {
+  async generateMedia(input){
+    const requestId = _relayRequest(PortName.Media, {
       transaction: transactionManager.init(input, _getOriginData(), {}),
-      hasStreamHandler: false
     })
-    // no stream handler
     return new Promise((resolve, reject) => {
-      _addResponseListener<GenerationResponse>(
+      _addResponseListener<MediaResponse>(
         requestId,
         (res) => {
           if (isOk(res)) {
-            // console.log(res.data)
             resolve(res.data)
           } else {
             reject(res.error)
-            // onStreamResult && onStreamResult(null, res.error)
           }
         }
       )
@@ -192,11 +189,12 @@ function _addResponseListener<T extends Result<any, string>>(
   _responseListeners.set(requestId, handlerSet)
 }
 
+
 window.addEventListener(
   "message",
   (event) => {
     const { source, data } = event
-
+    
     // We only accept messages our window and a port
     if (source !== window || !data.portName) {
       return
@@ -207,6 +205,7 @@ window.addEventListener(
         ...(_responseListeners.get(msg.id) || []),
         ...(_responseListeners.get(null) || [])
       ])
+      
       if (handlers.size === 0) {
         throw new Error(`No handlers found for request ${msg.id}`)
       }

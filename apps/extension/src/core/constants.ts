@@ -2,6 +2,7 @@ import type {
   ErrorCode,
   InferredOutput,
   Input,
+  MediaOutput,
   ModelID,
   ModelProviderOptions,
   RequestID
@@ -14,7 +15,7 @@ import type { Result } from "./utils/result-monad"
 
 export enum PortName {
   Completion = "completion",
-  Generation = "generation",
+  Media = "media",
   Permission = "permission",
   Model = "model",
   Events = "events",
@@ -39,7 +40,7 @@ export type PopupParams = {
 
 export interface PortRequest {
   [PortName.Completion]: { id: RequestID; request: CompletionRequest }
-  [PortName.Generation]: { id: RequestID; request: GenerationRequest }
+  [PortName.Media]: { id: RequestID; request: MediaRequest }
   [PortName.Permission]: {
     id?: RequestID
     request: { requesterId: RequestID; permitted?: boolean }
@@ -52,8 +53,8 @@ export interface PortResponse {
   [PortName.Completion]:
     | { id: RequestID; response: CompletionResponse }
     | { id?: RequestID; error: ErrorCode.InvalidRequest }
-  [PortName.Generation]:
-    | { id: RequestID; response: GenerationResponse }
+  [PortName.Media]:
+    | { id: RequestID; response: MediaResponse }
     | { id?: RequestID; error: ErrorCode.InvalidRequest }
   [PortName.Permission]:
     | { requesterId: RequestID; requester: CompletionRequest }
@@ -82,13 +83,12 @@ export type CompletionRequest = {
   hasStreamHandler: boolean
 }
 
-export type GenerationRequest = {
+export type MediaRequest = {
   transaction: Transaction
-  hasStreamHandler: boolean
 }
 
-export type GenerationResponse = Result<
-  {mediaURL: string},
+export type MediaResponse<TInput extends Input = Input> = Result<
+  MediaOutput,
   ErrorCode | string
 >
 

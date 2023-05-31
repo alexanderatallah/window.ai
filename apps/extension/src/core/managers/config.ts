@@ -12,6 +12,7 @@ import { Storage } from "@plasmohq/storage"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { getCaller, openrouter } from "~core/llm"
+import { getMediaCaller } from "~core/media"
 import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
@@ -75,7 +76,8 @@ class ConfigManager extends BaseManager<Config> {
             ModelID.Claude_Instant_V1,
             ModelID.Claude_Instant_V1_100k,
             ModelID.Claude_V1,
-            ModelID.Claude_V1_100k
+            ModelID.Claude_V1_100k,
+            ModelID.OpenRouter3D,
           ]
         }
       case AuthType.APIKey:
@@ -240,6 +242,10 @@ class ConfigManager extends BaseManager<Config> {
       // Only proxy w OpenRouter if user has authed and hasn't set a custom base url
       (!config.baseUrl && !this.isLocal(config) && (await isOpenRouterAuthed()))
 
+    // // if media model, use media caller
+    // if (config.model === ModelID.OpenRouter3D) {
+    //   return getMediaCaller(config, !canProxy)
+    // }
     return getCaller(this.getModel(config), !canProxy)
   }
 
@@ -258,6 +264,7 @@ class ConfigManager extends BaseManager<Config> {
     if (config.models.length > 1) {
       return undefined
     }
+    console.log("GET MODEL", config.models[0])
     return config.models[0]
   }
 
@@ -304,6 +311,8 @@ function defaultAPILabel(model: ModelID): string {
       return "Anthropic: Claude"
     case ModelID.Claude_V1_100k:
       return "Anthropic: Claude 100k"
+    case ModelID.OpenRouter3D:
+      return "OpenRouter: 3D Model Generator"
   }
 }
 

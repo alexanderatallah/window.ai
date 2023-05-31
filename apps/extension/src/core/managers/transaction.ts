@@ -4,9 +4,11 @@ import {
   type InferredOutput,
   type Input,
   type ModelID,
+  type MediaOutput,
   isMessagesInput,
   isPromptInput,
-  isTextOutput
+  isTextOutput,
+  isMediaInput
 } from "window.ai"
 
 import { BaseManager } from "./base"
@@ -27,7 +29,7 @@ export interface Transaction<TInput = Input> {
   model?: ModelID | string
   routedModel?: ModelID | string
 
-  outputs?: InferredOutput<TInput>[]
+  outputs?: InferredOutput<TInput>[] | MediaOutput
   error?: string
 }
 
@@ -108,6 +110,9 @@ class TransactionManager extends BaseManager<Transaction> {
   formatOutput(txn: Transaction): string | undefined {
     if (!txn.outputs) {
       return undefined
+    }
+    if (isMediaInput(txn.input)) {
+      return txn.outputs.urls.join("\n")
     }
     return txn.outputs
       .map((t) =>

@@ -6,6 +6,7 @@ import { Model } from "./model"
 import { init as initOpenAI } from "./openai"
 import { init as initOpenRouter } from "./openrouter"
 import { init as initTogether } from "./together"
+import { init as initOpen3D } from "../media/open3d"
 
 // TODO configure basic in-memory lru cache
 // const cache = new Map<string, { completion: string }>()
@@ -42,6 +43,7 @@ export const openrouter = initOpenRouter(
   },
   {}
 )
+
 
 export const openaiDirect = initOpenAI(
   {

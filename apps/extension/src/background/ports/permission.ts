@@ -5,6 +5,7 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { RequestState } from "~background/lib/request-state"
 import {
   type CompletionRequest,
+  type MediaRequest,
   type PortRequest,
   type PortResponse,
   RequestInterruptType
@@ -53,7 +54,7 @@ const handler: PlasmoMessaging.PortHandler<
 }
 
 export async function requestPermission(
-  request: CompletionRequest,
+  request: CompletionRequest | MediaRequest,
   requestId: string
 ): Promise<Result<true, ErrorCode>> {
   const originData = request.transaction.origin

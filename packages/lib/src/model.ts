@@ -11,7 +11,8 @@ export enum ModelID {
   Claude_V1_100k = "anthropic/claude-v1-100k",
   // Other
   Together = "togethercomputer/GPT-NeoXT-Chat-Base-20B",
-  Cohere = "cohere/command-nightly"
+  Cohere = "cohere/command-nightly",
+  OpenRouter3D = "openrouter/three-d",
 }
 
 // Older namings that will be deprecated
