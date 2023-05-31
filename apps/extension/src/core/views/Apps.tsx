@@ -11,13 +11,9 @@ import { originManager } from "~core/managers/origin"
 
 import { AppsItem } from "./AppsItem"
 
-type Filter = "my-apps" | "trending" | "all"
-
 export function Apps() {
   const { objects, loading, appendNextPage } = originManager.useObjects(20)
-  const [filter, setFilter] = useState<Filter>("my-apps")
   const [selectedApp, selectApp] = useState<Origin | undefined>()
-  const filteredApps = objects.filter((o) => filter === "my-apps")
   const loaderRef = useRef<HTMLDivElement>(null)
 
   useInfiniteScroll(loaderRef, appendNextPage, objects.length > 0)
@@ -37,7 +33,7 @@ export function Apps() {
 
       {/* <div className="mb-8" /> */}
 
-      {filteredApps.map((origin: Origin) => (
+      {objects.map((origin: Origin) => (
         <AppsRow
           key={origin.id}
           origin={origin}
@@ -45,7 +41,7 @@ export function Apps() {
         />
       ))}
 
-      {filteredApps.length === 0 && !loading && <NoActivity />}
+      {objects.length === 0 && !loading && <NoActivity />}
 
       <div ref={loaderRef}>{loading && <Skeleton />}</div>
 
