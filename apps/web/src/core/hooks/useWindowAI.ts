@@ -82,6 +82,7 @@ export function useWindowAI(
             maxTokens,
             temperature,
             onStreamResult: (result, error) => {
+              setLoading(false)
               if (error) {
                 throw error
               }
@@ -147,7 +148,7 @@ export function useWindowAI(
     messages,
     sendMessage,
     clear,
-    loading,
+    loading, // Whether we're waiting for a stream to start or a completion to return in full
     showInstallMessage,
     permissionDenied
   }
