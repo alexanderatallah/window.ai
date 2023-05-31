@@ -26,7 +26,7 @@ export function init(
       ...config,
     //   isStreamable: true,
       // overrideModelParam: (req) => req.model?.split("/")[1] ?? null,
-      defaultBaseUrl: "https://4c41-35-204-165-234.ngrok-free.app",
+      defaultBaseUrl: "https://b3f5-34-83-238-221.ngrok-free.app",
       getPath: () => "/generation",
     //   endOfStreamSentinel: "[DONE]",
       transformForRequest: (req, meta) => {
