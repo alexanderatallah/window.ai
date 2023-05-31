@@ -93,14 +93,12 @@ function _initPortState(portName: PortName) {
   const port = Extension.connectToBackground(portName, () =>
     _initPortState(portName)
   )
-  // TODO do we need to remove the old port? May kill mid-flight streaming requests
   if (portState.listener && portState.port) {
     Extension.removePortListener(portState.listener, portState.port)
     delete portState.port
     delete portState.listener
   }
   portState.port = port
-  // TODO do we need to remove the old listener from the old port?
   portState.listener = (msg) => {
     if (!("response" in msg)) {
       // TODO handle invalid requests
