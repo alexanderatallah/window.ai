@@ -16,6 +16,11 @@
       "cache": false,
       "persistent": true
     },
+    "stage": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
+    },
     "start": {
       "cache": false
     },

@@ -26,6 +26,13 @@ export const Extension = {
     }
   },
 
+  removePortListener<PN extends PortName, PE extends PortEvent>(
+    listener: (message: PE[PN], port: Port) => void,
+    port: Port
+  ) {
+    port.onMessage.removeListener(listener)
+  },
+
   connectToBackground(name: PortName, onDisconnect?: () => void): Port {
     const port = browser.runtime.connect({ name })
     port.onDisconnect.addListener(() => {

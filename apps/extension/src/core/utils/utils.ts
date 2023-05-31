@@ -1,4 +1,3 @@
-import { Readable } from "stream"
 import type { ChatMessage } from "window.ai"
 
 export function log(...args: unknown[]) {
