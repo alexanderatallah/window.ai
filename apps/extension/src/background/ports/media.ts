@@ -69,10 +69,10 @@ const handler: PlasmoMessaging.PortHandler<
   txn.routedModel = predictedModel.data
 
   await transactionManager.save(txn)
-  // TODO: rename to uris
-  // const r = await modelRouter.complete(config, txn)
-  const r  = await getMediaCaller(txn.routedModel as ModelID)
-  const result = await r.complete(txn.input as any, {
+  // modelRouter is too abstracted to be used here yet, it uses a different request interface that expects String[]
+  // const result = await modelRouter.complete(config, txn)
+  const modelCaller  = await getMediaCaller(txn.routedModel as ModelID)
+  const result = await modelCaller.complete(txn.input as any, {
     apiKey: config.apiKey,
     baseUrl: config.baseUrl,
     model: txn.routedModel,
