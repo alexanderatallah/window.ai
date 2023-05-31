@@ -87,8 +87,8 @@ export type MediaRequest = {
   transaction: Transaction
 }
 
-export type MediaResponse<TInput extends Input = Input> = Result<
-  MediaOutput,
+export type MediaResponse<> = Result<
+  MediaOutput[],
   ErrorCode | string
 >
 

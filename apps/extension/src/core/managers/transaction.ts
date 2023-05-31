@@ -8,13 +8,26 @@ import {
   isMessagesInput,
   isPromptInput,
   isTextOutput,
-  isMediaInput
+  isMediaOutput,
+  MediaType,
+  type MediaOptions
 } from "window.ai"
 
 import { BaseManager } from "./base"
 import { configManager } from "./config"
 import type { OriginData } from "./origin"
 import { originManager } from "./origin"
+
+// export interface MediaOptions<TModel, TInput extends Input = Input> {
+//   // The type of media to generate.
+//   type?: MediaType
+//   // How many completion choices to attempt to generate. Defaults to 1. If the
+//   // model doesn't support more than one, then an array with a single element will be returned.
+//   numOutputs?: number
+//   // How many completion choices to attempt to generate. Defaults to 1. If the
+//   // model doesn't support more than one, then an array with a single element will be returned.
+//   numInferenceSteps?: number
+// }
 
 export interface Transaction<TInput = Input> {
   id: string
@@ -28,6 +41,10 @@ export interface Transaction<TInput = Input> {
   stopSequences?: string[]
   model?: ModelID | string
   routedModel?: ModelID | string
+
+  type?: MediaType
+  numInferenceSteps?:number
+
 
   outputs?: InferredOutput<TInput>[] | MediaOutput
   error?: string
@@ -43,28 +60,45 @@ class TransactionManager extends BaseManager<Transaction> {
   init<TInput extends Input>(
     input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID | string, TInput>
+    options: CompletionOptions<ModelID | string, TInput> & MediaOptions<ModelID | string, TInput>
   ): Transaction {
     this._validateInput(input)
+  
+    // Extracting parameters common to both CompletionOptions and MediaOptions
+    const {
+      model,
+      numOutputs = 1,
+    } = options
+  
+    // Extracting parameters specific to CompletionOptions
     const {
       temperature,
       maxTokens,
-      stopSequences,
-      model,
-      numOutputs = 1
-    } = options
+      stopSequences
+    } = options as CompletionOptions<ModelID | string, TInput>
+  
+    // Extracting parameters specific to MediaOptions
+    const {
+      type,
+      numInferenceSteps
+    } = options as MediaOptions<ModelID | string, TInput>
+  
     return {
       id: uuidv4(),
       origin,
       timestamp: Date.now(),
       input,
-      temperature,
-      maxTokens,
-      stopSequences,
       model,
-      numOutputs
+      numOutputs,
+      temperature, // may be undefined
+      maxTokens, // may be undefined
+      stopSequences, // may be undefined
+      type, // may be undefined
+      numInferenceSteps // may be undefined
     }
   }
+  
+  
 
   // Override to set numOutputs on old data
   async _batchFetch(ids: string[]): Promise<Transaction[]> {
@@ -111,11 +145,9 @@ class TransactionManager extends BaseManager<Transaction> {
     if (!txn.outputs) {
       return undefined
     }
-    if (isMediaInput(txn.input)) {
-      return txn.outputs.urls.join("\n")
-    }
     return txn.outputs
       .map((t) =>
+      isMediaOutput(t) ? t.uris.join("\n") :
         isTextOutput(t) ? t.text : `${t.message.role}: ${t.message.content}`
       )
       .join("\n")

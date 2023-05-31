@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-export enum MediaTypes {
+export enum MediaType {
   Object = "object",
 }
 
@@ -17,8 +17,6 @@ export type ChatMessage = {
   role: "system" | "user" | "assistant"
   content: string
 }
-
-
 
 export type ChatRole = ChatMessage["role"]
 
@@ -30,13 +28,8 @@ export type MessagesInput = {
   messages: ChatMessage[]
 }
 
-export type MediaInput = {
-  type: MediaTypes
-  prompt: string
-}
-
 // Input allows you to specify either a prompt string or a list of chat messages.
-export type Input = PromptInput | MessagesInput | MediaInput
+export type Input = PromptInput | MessagesInput
 
 export function isPromptInput(input: Input): input is PromptInput {
   return "prompt" in input
@@ -44,10 +37,6 @@ export function isPromptInput(input: Input): input is PromptInput {
 
 export function isMessagesInput(input: Input): input is MessagesInput {
   return "messages" in input
-}
-
-export function isMediaInput(input: Input): input is MediaInput {
-  return "type" in input
 }
 
 export type TextOutput = {
@@ -61,7 +50,7 @@ export type MessageOutput = {
 }
 
 export type MediaOutput = {
-  urls: string[]
+  uri: string
 }
 
 // Output can be either a string or a chat message, depending on which Input type you use.
@@ -76,15 +65,13 @@ export function isMessageOutput(output: Output): output is MessageOutput {
 }
 
 export function isMediaOutput(output: Output): output is MediaOutput {
-  return "urls" in output
+  return "uri" in output
 }
 
 export type InferredOutput<TInput> = TInput extends MessagesInput
   ? MessageOutput
   : TInput extends PromptInput
-  ? TextOutput
-  : TInput extends MediaInput
-  ? MediaOutput
+  ? TextOutput | MediaOutput
   : Output
 
 // CompletionOptions allows you to specify options for the completion request.
@@ -111,6 +98,20 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   // How many completion choices to attempt to generate. Defaults to 1. If the
   // model doesn't support more than one, then an array with a single element will be returned.
   numOutputs?: number
+}
+
+// MediaOptions allows you to specify options for your media request.
+export interface MediaOptions<TModel, TInput extends Input = Input> {
+  // The type of media to generate.
+  type?: MediaType
+  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
+  model?: TModel
+  // How many completion choices to attempt to generate. Defaults to 1. If the
+  // model doesn't support more than one, then an array with a single element will be returned.
+  numOutputs?: number
+  // How many completion choices to attempt to generate. Defaults to 1. If the
+  // model doesn't support more than one, then an array with a single element will be returned.
+  numInferenceSteps?: number
 }
 
 // Error codes emitted by the extension API
@@ -180,12 +181,14 @@ export interface WindowAI<TModel = string> {
   ): Promise<InferredOutput<TInput>[]>
 
   /** Generates media from a specified model.
-   * @param input The input to use for the completion.
-   * @returns A promise that resolves a media generatio.
+   * @param input The input to use for the generation.
+   * @param options Options for the generation request
+   * @returns A promise that resolves a media generation.
    */
   generateMedia< TInput extends Input = Input>(
     input: TInput,
-  ): Promise<MediaOutput>
+    options?: MediaOptions<TModel, TInput>
+  ): Promise<MediaOutput[]>
 
   /**
    * Get or stream a completion from the specified (or preferred) model.

@@ -65,9 +65,9 @@ export const windowAI: WindowAI<ModelID | string> = {
     })
   },
 
-  async generateMedia(input){
+  async generateMedia(input, options = {}){
     const requestId = _relayRequest(PortName.Media, {
-      transaction: transactionManager.init(input, _getOriginData(), {}),
+      transaction: transactionManager.init(input, _getOriginData(), options),
     })
     return new Promise((resolve, reject) => {
       _addResponseListener<MediaResponse>(
