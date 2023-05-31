@@ -114,16 +114,6 @@ async function _getMediaModel(
   return Promise.resolve(ok(ModelID.Dalle))
 }
 
-// function _getOutput(
-//   input: Input,
-//   result: string,
-//   isPartial?: boolean
-// ): InferredOutput<typeof input> {
-//   return isMessagesInput(input)
-//     ? { message: { role: "assistant", content: result }, isPartial }
-//     : { text: result, isPartial }
-// }
-
 async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
   if (result.error === ErrorCode.NotAuthenticated) {
     return _requestInterrupt(id, RequestInterruptType.Authentication)
