@@ -8,6 +8,7 @@ declare global {
 }
 
 export enum MediaType {
+  Image = "image",
   Object = "object",
 }
 

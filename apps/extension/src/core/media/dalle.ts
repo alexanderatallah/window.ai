@@ -1,3 +1,4 @@
+
 import type { MediaModelConfig, RequestOptions } from "./model"
 import { MediaModel } from "./model"
 
@@ -10,8 +11,8 @@ export function init(
   return new MediaModel(
     {
       ...config,
-      defaultBaseUrl: "https://b3f5-34-83-238-221.ngrok-free.app",
-      getPath: () => "/generation",
+      defaultBaseUrl: "https://api.openai.com/v1/images",
+      getPath: () => "/generations",
       transformForRequest: (req, meta) => {
         const {
         //   stop_sequences,
@@ -26,17 +27,16 @@ export function init(
           prompt,
           user: meta.user_identifier ?? undefined,
         //   stop: stop_sequences ?? undefined,
-          num_outputs: num_generations,
-          num_inference_steps: optsToSend.num_inference_steps,
+          n: num_generations,
+        //   need to find a standardized way to do this
+          size: "256x256"
+        //   num_inference_steps: optsToSend.num_inference_steps,
         }
       },
       transformResponse: (res) => {
         const anyRes = res as any
-        return anyRes["uris"].map((g: string) => {
-          return {
-            uri: g
-          }
-        })
+        // returns a list of strings that contains each response.data.data[i].url
+        return anyRes["data"].map((g: any) => g["url"])
       }
     },
     opts

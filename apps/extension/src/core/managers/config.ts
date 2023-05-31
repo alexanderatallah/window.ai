@@ -313,6 +313,8 @@ function defaultAPILabel(model: ModelID): string {
       return "Anthropic: Claude 100k"
     case ModelID.OpenRouter3D:
       return "OpenRouter: 3D Model Generator"
+    case ModelID.Dalle:
+      return "Dalle 2"
   }
 }
 

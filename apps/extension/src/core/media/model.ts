@@ -3,7 +3,7 @@ import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
-import { type ChatMessage, ErrorCode, MediaType } from "window.ai"
+import { type ChatMessage, ErrorCode, MediaType, type MediaOutput } from "window.ai"
 
 import { type Err, type Result, err, ok } from "~core/utils/result-monad"
 import { definedValues, parseDataChunks } from "~core/utils/utils"
@@ -17,7 +17,7 @@ export interface MediaModelConfig {
     request: RequestData,
     meta: RequestMetadata
   ) => Record<string, unknown>
-  transformResponse: (res: unknown) => string[]
+  transformResponse: (res: unknown) => MediaOutput[]
 
   // Optionals
   getRoutePath?: (request: RequestData) => string | null
@@ -40,7 +40,7 @@ export interface RequestOptions {
 //   frequency_penalty?: number
 //   presence_penalty?: number
 //   top_p?: number
-//   stop_sequences?: string[] | null
+//   stop_sequences?: MediaOutput[] | null
   num_generations?: number
   num_inference_steps?:number
   type?: MediaType
@@ -66,12 +66,12 @@ export type RequestData = Omit<
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
 
 // TODO cache statistics and log probs etc
-export type CacheGetter = (id: string) => Promise<string[] | null | undefined>
+export type CacheGetter = (id: string) => Promise<MediaOutput[] | null | undefined>
 
 export type CacheSetter = (data: {
   id: string
   prompt: RequestData
-  completion: string[]
+  completion: MediaOutput[]
 }) => Promise<unknown>
 
 export class MediaModel {
@@ -225,7 +225,7 @@ export class MediaModel {
   async complete(
     requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
-  ): Promise<Result<string[], ErrorCode>> {
+  ): Promise<Result<MediaOutput[], ErrorCode>> {
     const {
       transformForRequest,
       getPath,
@@ -260,7 +260,6 @@ export class MediaModel {
         headers: this._getRequestHeaders(opts)
       })
       responseData = response.data
-      console.log(responseData)
     } catch (err: unknown) {
       return this._handleModelAPIError(err)
     }

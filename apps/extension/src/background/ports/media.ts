@@ -72,17 +72,6 @@ const handler: PlasmoMessaging.PortHandler<
   // TODO: rename to uris
   // const r = await modelRouter.complete(config, txn)
   const r  = await getMediaCaller(txn.routedModel as ModelID)
-  // const result = await caller.complete(txn.input, {
-  //   apiKey: config.apiKey,
-  //   baseUrl: config.baseUrl,
-  //   model,
-  //   origin: originManager.url(txn.origin),
-  //   max_tokens: txn.maxTokens,
-  //   temperature: txn.temperature,
-  //   stop_sequences: txn.stopSequences,
-  //   num_generations: txn.numOutputs
-  // })
-
   const result = await r.complete(txn.input as any, {
     apiKey: config.apiKey,
     baseUrl: config.baseUrl,
@@ -91,17 +80,15 @@ const handler: PlasmoMessaging.PortHandler<
     num_generations: txn.numOutputs,
     num_inference_steps: txn.numInferenceSteps,
   })
-  // if (isOk(result)) {
-  //   const outputs = result.data.map((d) => _getOutput(txn.input, d))
-  const outputs = result.data
-  res.send({ response: ok(outputs), id })
-
-  txn.outputs = outputs
-  // } else {
-  //   res.send({ response: result, id })
-  //   txn.error = result.error
-  //   _maybeInterrupt(id, result)
-  // }
+  if (isOk(result)) {
+    const outputs = result.data
+    res.send({ response: ok(outputs), id })
+    txn.outputs = outputs
+  } else {
+    res.send({ response: result, id })
+    txn.error = result.error
+    _maybeInterrupt(id, result)
+  }
 
   // Update the completion with the reply and model used
   await transactionManager.save(txn)
@@ -121,8 +108,10 @@ async function _getMediaModel(
   config: Config,
   txn: Transaction
 ): Promise<Result<string, string>> {
-  // this just returns ModelID.OpenRouter3D no matter what, for now
-  return Promise.resolve(ok(ModelID.OpenRouter3D))
+  if(txn.type === "object"){
+    return  Promise.resolve(ok(ModelID.OpenRouter3D))
+  }
+  return Promise.resolve(ok(ModelID.Dalle))
 }
 
 // function _getOutput(

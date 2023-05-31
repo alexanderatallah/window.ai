@@ -1,6 +1,8 @@
 import { ModelID } from "window.ai"
 
 import { init as initOpen3D } from "./open3d"
+// import { init as initDalle } from "./dalle"
+
 // import { init as initLocal } from "./local"
 import { MediaModel } from "./model"
 // import { init as initOpenAI } from "./openai"
@@ -16,7 +18,8 @@ const DEFAULT_OBJECT_INFERENCE_STEPS = 32
 const shouldDebugModels = process.env.NODE_ENV !== "production"
 
 export enum MediaModelProvider {
-  OpenRouter = "openrouter"
+  OpenRouter = "openrouter",
+  // OpenAI = "openai",
 }
 
 export const open3d = initOpen3D(
@@ -29,12 +32,24 @@ export const open3d = initOpen3D(
     }
   )
 
+  // export const dalle = initDalle(
+  //   {
+  //     debug: shouldDebugModels,
+  //     identifier: MediaModelProvider.OpenAI,
+  //   },
+  //   {}
+  // )
+
 export function getMediaCaller(
   model?: ModelID,
   shouldPreferDirect?: boolean
 ): MediaModel {
   switch (model) {
     case ModelID.OpenRouter3D:
+      return open3d
+    // case ModelID.Dalle:
+    //   return dalle
+    case undefined:
       return open3d
   }
 }
