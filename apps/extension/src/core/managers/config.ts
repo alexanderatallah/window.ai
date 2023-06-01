@@ -242,10 +242,7 @@ class ConfigManager extends BaseManager<Config> {
       // Only proxy w OpenRouter if user has authed and hasn't set a custom base url
       (!config.baseUrl && !this.isLocal(config) && (await isOpenRouterAuthed()))
 
-    // // if media model, use media caller
-    // if (config.model === ModelID.OpenRouter3D) {
-    //   return getMediaCaller(config, !canProxy)
-    // }
+    //TODO: incorporate with media caller
     return getCaller(this.getModel(config), !canProxy)
   }
 
