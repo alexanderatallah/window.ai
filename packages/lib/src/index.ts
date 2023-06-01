@@ -114,6 +114,12 @@ export interface ThreeDOptions<TModel, TInput extends Input = Input> {
   numInferenceSteps?: number
 }
 
+// MediaGenerationOptions handles options different media generation types
+export interface MediaGenerationOptions<TModel, TInput extends Input = Input> extends ThreeDOptions<TModel, TInput> {
+  // type of media to generate
+  type?: MediaType
+}
+
 // Error codes emitted by the extension API
 export enum ErrorCode {
   NotAuthenticated = "NOT_AUTHENTICATED",
@@ -187,7 +193,7 @@ export interface WindowAI<TModel = string> {
    */
   BETA_generate3DObject< TInput extends Input = Input>(
     input: TInput,
-    options?: ThreeDOptions<TModel, TInput>
+    options?: MediaGenerationOptions<TModel, TInput>
   ): Promise<MediaOutput[]>
 
   /**

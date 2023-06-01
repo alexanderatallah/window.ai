@@ -7,6 +7,7 @@ import {
   type RequestID,
   VALID_DOMAIN,
   type WindowAI,
+  MediaType,
 } from "window.ai"
 
 import type {
@@ -64,7 +65,8 @@ export const windowAI: WindowAI<ModelID | string> = {
     })
   },
 
-  async BETA_generate3DObject(input, options = {}){
+  async BETA_generate3DObject(input, options ={}){
+    options.type = MediaType.Object
     const requestId = _relayRequest(PortName.Media, {
       transaction: transactionManager.init(input, _getOriginData(), options),
     })

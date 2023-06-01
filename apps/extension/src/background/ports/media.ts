@@ -2,6 +2,7 @@ import {
   ErrorCode,
   type RequestID,
   ModelID,
+  MediaType,
 } from "window.ai"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
@@ -102,8 +103,11 @@ async function _getMediaGenerationModel(
   config: Config,
   txn: Transaction
 ): Promise<Result<string, string>> {
-  if (txn.routedModel) {
-    return ok(txn.routedModel)
+  if (txn.model) {
+    return ok(txn.model)
+  }
+  if(txn.type == MediaType.Object){
+    return Promise.resolve(ok(ModelID.OpenRouter3D))
   }
   // fallback to openrouter for now
   return Promise.resolve(ok(ModelID.OpenRouter3D))
