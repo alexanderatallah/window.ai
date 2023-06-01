@@ -1,8 +1,8 @@
 import { ModelID } from "window.ai"
 
-import { init as initOpen3D } from "./three-d-objects/openrouter-three-d"
+import { init as initOpen3D } from "./objects/openrouter-three-d"
 
-import { ObjectGenerationModel } from "./three-d-objects/model"
+import { ObjectGenerationModel } from "./objects/model"
 
 // TODO configure basic in-memory lru cache
 // const cache = new Map<string, { completion: string }>()
