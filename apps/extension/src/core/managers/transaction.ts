@@ -144,7 +144,7 @@ class TransactionManager extends BaseManager<Transaction> {
     }
     return txn.outputs
       .map((t) =>
-      isMediaOutput(t) ? t.uri:
+      isMediaOutput(t) ? t.uri.substring(0, 50) + "..." :
         isTextOutput(t) ? t.text : `${t.message.role}: ${t.message.content}`
       )
       .join("\n")

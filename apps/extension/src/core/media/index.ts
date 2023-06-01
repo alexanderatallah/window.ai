@@ -26,7 +26,7 @@ export const open3d = initOpen3D(
     }
   )
 
-export function getMediaGenerationCaller(
+export function getMediaCaller(
   model?: ModelID,
   shouldPreferDirect?: boolean
 ): MediaModel {
