@@ -80,11 +80,11 @@ class TransactionManager extends BaseManager<Transaction> {
       input,
       model,
       numOutputs,
-      temperature, // may be undefined
-      maxTokens, // may be undefined
-      stopSequences, // may be undefined
-      type, // may be undefined
-      numInferenceSteps // may be undefined
+      temperature,
+      maxTokens,
+      stopSequences,
+      type,
+      numInferenceSteps
     }
   }
   

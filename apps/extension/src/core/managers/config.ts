@@ -261,7 +261,6 @@ class ConfigManager extends BaseManager<Config> {
     if (config.models.length > 1) {
       return undefined
     }
-    console.log("GET MODEL", config.models[0])
     return config.models[0]
   }
 

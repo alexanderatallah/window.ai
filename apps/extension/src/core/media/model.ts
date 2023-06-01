@@ -26,7 +26,6 @@ export interface MediaModelConfig {
   authPrefix?: string
   debug?: boolean
   retries?: number
-//   endOfStreamSentinel?: string | null
   cacheGet?: CacheGetter
   cacheSet?: CacheSetter
   adapter?: AxiosRequestConfig["adapter"]
@@ -37,18 +36,11 @@ export interface RequestOptions {
   apiKey?: string | null
   model?: string | null
   origin?: string | null
-//   frequency_penalty?: number
-//   presence_penalty?: number
-//   top_p?: number
-//   stop_sequences?: MediaOutput[] | null
   num_generations?: number
   num_inference_steps?:number
   type?: MediaType
-//   temperature?: number
   timeout?: number
   user_identifier?: string | null
-//   max_tokens?: number | null
-//   stream?: boolean
   adapter?: AxiosRequestConfig["adapter"] | null
 }
 
@@ -157,16 +149,9 @@ export class MediaModel {
       ...requestPrompt,
       model: opts.model,
       identifier: this.config.identifier,
-    //   temperature: opts.temperature,
-    //   top_p: opts.top_p,
-    //   frequency_penalty: opts.frequency_penalty,
-    //   presence_penalty: opts.presence_penalty,
-    //   stop_sequences: opts.stop_sequences,
       num_generations: opts.num_generations,
       type: opts.type,
       num_inference_steps: opts.num_inference_steps,
-    //   max_tokens: opts.max_tokens,
-    //   stream: opts.stream,
       baseUrl: opts.baseUrl
     }
     return {
@@ -248,9 +233,6 @@ export class MediaModel {
     const payload = transformForRequest(request, opts)
     this.log(`COMPLETING id ${id}: ${promptSnippet}...`, {
       modelId: request.model,
-    //   suffix: payload["suffix"],
-    //   max_tokens: payload["max_tokens"],
-    //   stop_sequences: payload["stop_sequences"]
     })
     let responseData: Record<string, any>
     try {
