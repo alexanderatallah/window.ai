@@ -3,7 +3,7 @@ import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
-import { type ChatMessage, ErrorCode, type MediaOutput, MediaExtension, type ThreeDOptions } from "window.ai"
+import { type ChatMessage, ErrorCode, type MediaOutput, MediaMimeType, type ThreeDOptions } from "window.ai"
 
 import { type Err, type Result, err, ok } from "~core/utils/result-monad"
 import { definedValues, parseDataChunks } from "~core/utils/utils"
@@ -37,7 +37,7 @@ export interface RequestOptions {
   model?: string | null
   origin?: string | null
   num_generations?: number
-  extension?: MediaExtension
+  extension?: MediaMimeType
   num_inference_steps?: number | null
   timeout?: number
   user_identifier?: string | null
@@ -83,7 +83,7 @@ export class MediaModel {
       user_identifier: null,
       num_generations: 1,
       num_inference_steps: 32,
-      extension: opts.extension ? opts.extension : MediaExtension.ply,
+      extension: opts.extension ? opts.extension : MediaMimeType.PLY,
       adapter: null,
       ...definedValues(opts)
     }
@@ -149,7 +149,7 @@ export class MediaModel {
       model: opts.model,
       identifier: this.config.identifier,
       num_generations: opts.num_generations,
-      num_inference_steps: opts.num_inference_steps ? opts.num_inference_steps : 32,
+      num_inference_steps: opts.num_inference_steps,
       extension: opts.extension,
       baseUrl: opts.baseUrl
     }

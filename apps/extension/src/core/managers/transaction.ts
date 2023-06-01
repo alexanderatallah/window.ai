@@ -9,7 +9,7 @@ import {
   isPromptInput,
   isTextOutput,
   isMediaOutput,
-  MediaExtension,
+  MediaMimeType,
   type MediaGenerationOptions,
   type ThreeDOptions
 } from "window.ai"
@@ -37,7 +37,7 @@ export interface Transaction<TInput = Input> {
   numInferenceSteps?:number
 
   // general media options
-  extension?: MediaExtension
+  extension?: MediaMimeType
 
   outputs?: InferredOutput<TInput>[] | MediaOutput[]
   error?: string
@@ -79,7 +79,7 @@ class TransactionManager extends BaseManager<Transaction> {
     const {
       numInferenceSteps
     } = options as ThreeDOptions<ModelID | string>
-    
+
     return {
       id: uuidv4(),
       origin,
