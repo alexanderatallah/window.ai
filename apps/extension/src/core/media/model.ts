@@ -83,7 +83,7 @@ export class MediaModel {
       user_identifier: null,
       num_generations: 1,
       num_inference_steps: 32,
-      extension: opts.extension ? opts.extension : MediaMimeType.PLY,
+      extension: opts.extension ? opts.extension : "num_inference_steps" in opts ? MediaMimeType.PLY : MediaMimeType.PNG,
       adapter: null,
       ...definedValues(opts)
     }
