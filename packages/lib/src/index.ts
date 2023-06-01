@@ -186,7 +186,7 @@ export interface WindowAI<TModel = string> {
    * @param options Options for the generation request
    * @returns A promise that resolves a media generation.
    */
-  generateMedia< TInput extends Input = Input>(
+  BETA_generateMedia< TInput extends Input = Input>(
     input: TInput,
     options?: MediaOptions<TModel, TInput>
   ): Promise<MediaOutput[]>
