@@ -182,9 +182,6 @@ export class MediaModel {
     const payload = transformForRequest(request, opts)
     this.log(`ROUTING: ${promptSnippet}...`, {
       modelId: request.model,
-    //   suffix: payload["suffix"],
-    //   max_tokens: payload["max_tokens"],
-    //   stop_sequences: payload["stop_sequences"]
     })
     let responseData: Record<string, any>
     try {
