@@ -1,13 +1,8 @@
 import { ModelID } from "window.ai"
 
 import { init as initOpen3D } from "./open3d"
-// import { init as initDalle } from "./dalle"
 
-// import { init as initLocal } from "./local"
-import { MediaModel } from "./model"
-// import { init as initOpenAI } from "./openai"
-// import { init as initOpenRouter } from "./openrouter"
-// import { init as initTogether } from "./together"
+import { ObjectGenerationModel } from "./model"
 
 // TODO configure basic in-memory lru cache
 // const cache = new Map<string, { completion: string }>()
@@ -17,39 +12,28 @@ import { MediaModel } from "./model"
 const DEFAULT_OBJECT_INFERENCE_STEPS = 32
 const shouldDebugModels = process.env.NODE_ENV !== "production"
 
-export enum MediaModelProvider {
+export enum ObjectGenerationModelProvider {
   OpenRouter = "openrouter",
-  // OpenAI = "openai",
 }
 
 export const open3d = initOpen3D(
     {
       debug: shouldDebugModels,
-      identifier: MediaModelProvider.OpenRouter
+      identifier: ObjectGenerationModelProvider.OpenRouter
     },
     {
       num_inference_steps: DEFAULT_OBJECT_INFERENCE_STEPS
     }
   )
 
-  // export const dalle = initDalle(
-  //   {
-  //     debug: shouldDebugModels,
-  //     identifier: MediaModelProvider.OpenAI,
-  //   },
-  //   {}
-  // )
-
-export function getMediaCaller(
+export function getObjectGenerationCaller(
   model?: ModelID,
   shouldPreferDirect?: boolean
-): MediaModel {
+): ObjectGenerationModel {
   switch (model) {
     case ModelID.OpenRouter3D:
       return open3d
-    // case ModelID.Dalle:
-    //   return dalle
-    case undefined:
+    default:
       return open3d
   }
 }

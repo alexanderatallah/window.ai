@@ -12,7 +12,7 @@ import { Storage } from "@plasmohq/storage"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { getCaller, openrouter } from "~core/llm"
-import { getMediaCaller } from "~core/media"
+import { getObjectGenerationCaller } from "~core/objects"
 import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
@@ -309,8 +309,6 @@ function defaultAPILabel(model: ModelID): string {
       return "Anthropic: Claude 100k"
     case ModelID.OpenRouter3D:
       return "OpenRouter: 3D Model Generator"
-    case ModelID.Dalle:
-      return "Dalle 2"
   }
 }
 

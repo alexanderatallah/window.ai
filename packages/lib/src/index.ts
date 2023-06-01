@@ -8,9 +8,9 @@ declare global {
 }
 
 export enum MediaType {
-  Image = "image",
   Object = "object",
 }
+
 
 // ChatML is a simple markup language for chat messages. More available here:
 // https://github.com/openai/openai-python/blob/main/chatml.md
@@ -101,10 +101,10 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   numOutputs?: number
 }
 
-// MediaOptions allows you to specify options for your media request.
-export interface MediaOptions<TModel, TInput extends Input = Input> {
-  // The type of media to generate.
-  type?: MediaType
+// ThreeDOptions allows you to specify options for your 3D object generation request.
+export interface ThreeDOptions<TModel, TInput extends Input = Input> {
+  // TODO: Add Format of the generated object. Defaults to .ply.
+  // format?: ObjectFormat
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: TModel
   // How many completion choices to attempt to generate. Defaults to 1. If the
@@ -180,14 +180,14 @@ export interface WindowAI<TModel = string> {
     options?: CompletionOptions<TModel, TInput>
   ): Promise<InferredOutput<TInput>[]>
 
-  /** Generates media from a specified model.
-   * @param input The input to use for the generation.
-   * @param options Options for the generation request
-   * @returns A promise that resolves a media generation.
+  /** Generates a 3D Object from a specified model.
+   * @param input The input to use for the object generation.
+   * @param options Options for the object generation request
+   * @returns A promise that resolves a object generation of type MediaOutput[].
    */
-  BETA_generateMedia< TInput extends Input = Input>(
+  BETA_generate3DObject< TInput extends Input = Input>(
     input: TInput,
-    options?: MediaOptions<TModel, TInput>
+    options?: ThreeDOptions<TModel, TInput>
   ): Promise<MediaOutput[]>
 
   /**

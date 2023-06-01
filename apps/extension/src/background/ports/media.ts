@@ -32,7 +32,7 @@ import {
 import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
-import { getMediaCaller } from "~core/media"
+import { getObjectGenerationCaller } from "~core/objects"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Media],
@@ -57,7 +57,7 @@ const handler: PlasmoMessaging.PortHandler<
   if(config.label !== "OpenRouter"){
     return res.send({ response: err(ErrorCode.ModelRejectedRequest), id })
   }
-  const predictedModel = await _getMediaModel(config, txn)
+  const predictedModel = await _getObjectGenerationModel(config, txn)
   if (!isOk(predictedModel)) {
     _maybeInterrupt(id, predictedModel)
     return res.send({ response: predictedModel, id })
@@ -67,7 +67,7 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
   // modelRouter is too abstracted to be used here yet, it uses a different request interface that expects String[]
   // const result = await modelRouter.complete(config, txn)
-  const modelCaller  = await getMediaCaller(txn.routedModel as ModelID)
+  const modelCaller  = await getObjectGenerationCaller(txn.routedModel as ModelID)
   let result;
   try {
     result = await modelCaller.complete(txn.input as any, {
@@ -97,7 +97,7 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
 }
 
-async function _getMediaModel(
+async function _getObjectGenerationModel(
   config: Config,
   txn: Transaction
 ): Promise<Result<string, string>> {
@@ -105,7 +105,6 @@ async function _getMediaModel(
     return  Promise.resolve(ok(ModelID.OpenRouter3D))
   }
   return Promise.resolve(ok(ModelID.OpenRouter3D))
-  // return Promise.resolve(ok(ModelID.Dalle))
 }
 
 async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {

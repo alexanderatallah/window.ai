@@ -9,7 +9,7 @@ import { type Err, type Result, err, ok } from "~core/utils/result-monad"
 import { definedValues, parseDataChunks } from "~core/utils/utils"
 
 // These options are specific to the model shape and archetype
-export interface MediaModelConfig {
+export interface ObjectGenerationModelConfig {
   defaultBaseUrl: string
   identifier: string
   getPath: (request: RequestData) => string
@@ -52,7 +52,7 @@ export type RequestData = Omit<
   Required<RequestOptions>,
   "user_identifier" | "timeout" | "apiKey" | "origin" | "adapter" // These do not affect output of the model
 > &
-  Pick<Required<MediaModelConfig>, "identifier"> & // To distinguish btw providers with same-name models
+  Pick<Required<ObjectGenerationModelConfig>, "identifier"> & // To distinguish btw providers with same-name models
   RequestPrompt
 
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
@@ -66,12 +66,12 @@ export type CacheSetter = (data: {
   completion: MediaOutput[]
 }) => Promise<unknown>
 
-export class MediaModel {
+export class ObjectGenerationModel {
   public api: AxiosInstance
-  public config: Required<MediaModelConfig>
+  public config: Required<ObjectGenerationModelConfig>
   public defaultOptions: Required<RequestOptions>
 
-  constructor(config: MediaModelConfig, opts: RequestOptions = {}) {
+  constructor(config: ObjectGenerationModelConfig, opts: RequestOptions = {}) {
     // Defaults
     this.config = this.addDefaults(config)
     this.defaultOptions = {
@@ -110,8 +110,8 @@ export class MediaModel {
     })
   }
 
-  addDefaults(config: MediaModelConfig): Required<MediaModelConfig> {
-    const opts: Required<MediaModelConfig> = {
+  addDefaults(config: ObjectGenerationModelConfig): Required<ObjectGenerationModelConfig> {
+    const opts: Required<ObjectGenerationModelConfig> = {
       authPrefix: "Bearer ",
       retries: 5,
       debug: true,

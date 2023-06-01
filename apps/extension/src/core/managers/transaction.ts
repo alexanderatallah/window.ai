@@ -10,7 +10,7 @@ import {
   isTextOutput,
   isMediaOutput,
   MediaType,
-  type MediaOptions
+  type ThreeDOptions
 } from "window.ai"
 
 import { BaseManager } from "./base"
@@ -50,11 +50,11 @@ class TransactionManager extends BaseManager<Transaction> {
   init<TInput extends Input>(
     input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID | string, TInput> & MediaOptions<ModelID | string, TInput>
+    options: CompletionOptions<ModelID | string, TInput> & ThreeDOptions<ModelID | string, TInput>
   ): Transaction {
     this._validateInput(input)
   
-    // Extracting parameters common to both CompletionOptions and MediaOptions
+    // Extracting parameters common to both CompletionOptions and ThreeDOptions
     const {
       model,
       numOutputs = 1,
@@ -67,11 +67,10 @@ class TransactionManager extends BaseManager<Transaction> {
       stopSequences
     } = options as CompletionOptions<ModelID | string, TInput>
   
-    // Extracting parameters specific to MediaOptions
+    // Extracting parameters specific to ThreeDOptions
     const {
-      type,
       numInferenceSteps
-    } = options as MediaOptions<ModelID | string, TInput>
+    } = options as ThreeDOptions<ModelID | string, TInput>
   
     return {
       id: uuidv4(),
@@ -83,7 +82,6 @@ class TransactionManager extends BaseManager<Transaction> {
       temperature,
       maxTokens,
       stopSequences,
-      type,
       numInferenceSteps
     }
   }
