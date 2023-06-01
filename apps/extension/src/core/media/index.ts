@@ -1,8 +1,8 @@
 import { ModelID } from "window.ai"
 
-import { init as initOpen3D } from "./open3d"
+import { init as initOpen3D } from "./three-d-objects/openrouter-three-d"
 
-import { ObjectGenerationModel } from "./model"
+import { ObjectGenerationModel } from "./three-d-objects/model"
 
 // TODO configure basic in-memory lru cache
 // const cache = new Map<string, { completion: string }>()
@@ -26,7 +26,7 @@ export const open3d = initOpen3D(
     }
   )
 
-export function getObjectGenerationCaller(
+export function getMediaGenerationCaller(
   model?: ModelID,
   shouldPreferDirect?: boolean
 ): ObjectGenerationModel {

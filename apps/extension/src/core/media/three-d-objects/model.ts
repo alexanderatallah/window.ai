@@ -38,7 +38,6 @@ export interface RequestOptions {
   origin?: string | null
   num_generations?: number
   num_inference_steps?:number
-  type?: MediaType
   timeout?: number
   user_identifier?: string | null
   adapter?: AxiosRequestConfig["adapter"] | null
@@ -82,7 +81,6 @@ export class ObjectGenerationModel {
       timeout: 60000,
       user_identifier: null,
       num_generations: 1,
-      type: MediaType.Object,
       num_inference_steps: 32,
       adapter: null,
       ...definedValues(opts)
@@ -150,7 +148,6 @@ export class ObjectGenerationModel {
       model: opts.model,
       identifier: this.config.identifier,
       num_generations: opts.num_generations,
-      type: opts.type,
       num_inference_steps: opts.num_inference_steps,
       baseUrl: opts.baseUrl
     }

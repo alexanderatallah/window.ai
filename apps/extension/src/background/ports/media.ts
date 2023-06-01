@@ -32,7 +32,7 @@ import {
 import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
-import { getObjectGenerationCaller } from "~core/objects"
+import { getMediaGenerationCaller } from "~core/media"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Media],
@@ -58,7 +58,7 @@ const handler: PlasmoMessaging.PortHandler<
     return res.send({ response: err(ErrorCode.ModelRejectedRequest), id })
   }
 
-  const predictedModel = await _getObjectGenerationModel(config, txn)
+  const predictedModel = await _getMediaGenerationModel(config, txn)
   if (!isOk(predictedModel)) {
     _maybeInterrupt(id, predictedModel)
     return res.send({ response: predictedModel, id })
@@ -68,7 +68,7 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
   // modelRouter is too abstracted to be used here yet, it uses a different request interface that expects String[]
   // const result = await modelRouter.complete(config, txn)
-  const modelCaller  = await getObjectGenerationCaller(txn.routedModel as ModelID)
+  const modelCaller  = await getMediaGenerationCaller(txn.routedModel as ModelID)
   let result;
   try {
     result = await modelCaller.complete(txn.input as any, {
@@ -98,7 +98,7 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
 }
 
-async function _getObjectGenerationModel(
+async function _getMediaGenerationModel(
   config: Config,
   txn: Transaction
 ): Promise<Result<string, string>> {

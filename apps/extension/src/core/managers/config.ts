@@ -12,7 +12,7 @@ import { Storage } from "@plasmohq/storage"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { getCaller, openrouter } from "~core/llm"
-import { getObjectGenerationCaller } from "~core/objects"
+import { getMediaGenerationCaller } from "~core/media"
 import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
