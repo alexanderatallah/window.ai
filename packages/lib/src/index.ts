@@ -110,7 +110,7 @@ export interface MediaOptions<TModel, TInput extends Input = Input> {
   // How many completion choices to attempt to generate. Defaults to 1. If the
   // model doesn't support more than one, then an array with a single element will be returned.
   numOutputs?: number
-  // The number of inference steps to run. Defaults to 32.
+  // The number of inference steps to run. Defaults to 32, with specific default values for each model.
   numInferenceSteps?: number
 }
 

@@ -53,10 +53,10 @@ const handler: PlasmoMessaging.PortHandler<
 
   const txn = request.transaction
   const config = await configManager.forModelWithDefault(txn.model)
+  // only allow openrouter for now, while in BETA
   if(config.label !== "OpenRouter"){
-    return res.send(err(ErrorCode.InvalidRequest))
+    return res.send({ response: err(ErrorCode.ModelRejectedRequest), id })
   }
-
   const predictedModel = await _getMediaModel(config, txn)
   if (!isOk(predictedModel)) {
     _maybeInterrupt(id, predictedModel)
@@ -68,14 +68,21 @@ const handler: PlasmoMessaging.PortHandler<
   // modelRouter is too abstracted to be used here yet, it uses a different request interface that expects String[]
   // const result = await modelRouter.complete(config, txn)
   const modelCaller  = await getMediaCaller(txn.routedModel as ModelID)
-  const result = await modelCaller.complete(txn.input as any, {
-    apiKey: config.apiKey,
-    baseUrl: config.baseUrl,
-    model: txn.routedModel,
-    origin: txn.origin,
-    num_generations: txn.numOutputs,
-    num_inference_steps: txn.numInferenceSteps,
-  })
+  let result;
+  try {
+    result = await modelCaller.complete(txn.input as any, {
+      apiKey: config.apiKey,
+      baseUrl: config.baseUrl,
+      model: txn.routedModel,
+      origin: txn.origin,
+      num_generations: txn.numOutputs,
+      num_inference_steps: txn.numInferenceSteps,
+    })
+  }
+  catch (error) {
+    return res.send({ response: err(ErrorCode.InvalidRequest), id })
+  }
+  
   if (isOk(result)) {
     const outputs = result.data
     res.send({ response: ok(outputs), id })
@@ -88,16 +95,6 @@ const handler: PlasmoMessaging.PortHandler<
 
   // Update the completion with the reply and model used
   await transactionManager.save(txn)
-}
-
-async function _getCompletionModel(
-  config: Config,
-  txn: Transaction
-): Promise<Result<string, string>> {
-  if (txn.model) {
-    return ok(txn.model)
-  }
-  return configManager.predictModel(config, txn)
 }
 
 async function _getMediaModel(

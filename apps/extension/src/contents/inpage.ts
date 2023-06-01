@@ -83,7 +83,6 @@ export const windowAI: WindowAI<ModelID | string> = {
     })
   },
 
-
   async getCompletion(input, options = {}) {
     const shouldReturnMultiple = options.numOutputs && options.numOutputs > 1
     return windowAI.generateText(input, options).then((res) => {
