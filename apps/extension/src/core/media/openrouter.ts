@@ -1,13 +1,13 @@
-import type { ObjectGenerationModelConfig, RequestOptions } from "./model"
-import { ObjectGenerationModel } from "./model"
+import type { MediaModelConfig, RequestOptions } from "./model"
+import { MediaModel } from "./model"
 
 
 export function init(
-  config: Pick<ObjectGenerationModelConfig, "debug" | "identifier"> &
-    Partial<Pick<ObjectGenerationModelConfig, "cacheGet" | "cacheSet">>,
+  config: Pick<MediaModelConfig, "debug" | "identifier"> &
+    Partial<Pick<MediaModelConfig, "cacheGet" | "cacheSet">>,
   opts: RequestOptions
-): ObjectGenerationModel {
-  return new ObjectGenerationModel(
+): MediaModel {
+  return new MediaModel(
     {
       ...config,
       defaultBaseUrl: "http://34.106.214.24:8000",

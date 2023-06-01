@@ -7,8 +7,8 @@ declare global {
   }
 }
 
-export enum MediaType {
-  Object = "object",
+export enum MediaExtension {
+  ply = ".ply",
 }
 
 
@@ -101,23 +101,21 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   numOutputs?: number
 }
 
-// ThreeDOptions allows you to specify options for your 3D object generation request.
-export interface ThreeDOptions<TModel, TInput extends Input = Input> {
-  // TODO: Add Format of the generated object. Defaults to .ply.
-  // format?: ObjectFormat
+// MediaGenerationOptions now includes model, numOutputs, and type properties.
+export interface MediaGenerationOptions<TModel> {
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: TModel
   // How many completion choices to attempt to generate. Defaults to 1. If the
   // model doesn't support more than one, then an array with a single element will be returned.
   numOutputs?: number
-  // The number of inference steps to run. Defaults to 32, with specific default values for each model.
-  numInferenceSteps?: number
+  // type of media to generate
+  extension?: MediaExtension
 }
 
-// MediaGenerationOptions handles options different media generation types
-export interface MediaGenerationOptions<TModel, TInput extends Input = Input> extends ThreeDOptions<TModel, TInput> {
-  // type of media to generate
-  type?: MediaType
+// ThreeDOptions extends MediaGenerationOptions, inheriting its properties, and adds numInferenceSteps.
+export interface ThreeDOptions<TModel> extends MediaGenerationOptions<TModel> {
+  // The number of inference steps to run. Defaults to 32, with specific default values for each model.
+  numInferenceSteps?: number
 }
 
 // Error codes emitted by the extension API
@@ -193,7 +191,7 @@ export interface WindowAI<TModel = string> {
    */
   BETA_generate3DObject< TInput extends Input = Input>(
     input: TInput,
-    options?: MediaGenerationOptions<TModel, TInput>
+    options?: ThreeDOptions<TModel>
   ): Promise<MediaOutput[]>
 
   /**

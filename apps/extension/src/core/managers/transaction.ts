@@ -9,7 +9,7 @@ import {
   isPromptInput,
   isTextOutput,
   isMediaOutput,
-  MediaType,
+  ThreeDExtension,
   type MediaGenerationOptions
 } from "window.ai"
 
@@ -32,11 +32,12 @@ export interface Transaction<TInput = Input> {
   model?: ModelID | string
   routedModel?: ModelID | string
 
-  type?: MediaType
+  // Media generation options
+
   numInferenceSteps?:number
 
 
-  outputs?: InferredOutput<TInput>[] | MediaOutput
+  outputs?: InferredOutput<TInput>[] | MediaOutput[]
   error?: string
 }
 

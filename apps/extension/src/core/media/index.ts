@@ -1,8 +1,8 @@
 import { ModelID } from "window.ai"
 
-import { init as initOpen3D } from "./objects/openrouter-three-d"
+import { init as initOpen3D } from "./openrouter"
 
-import { ObjectGenerationModel } from "./objects/model"
+import { MediaModel } from "./model"
 
 // TODO configure basic in-memory lru cache
 // const cache = new Map<string, { completion: string }>()
@@ -12,14 +12,14 @@ import { ObjectGenerationModel } from "./objects/model"
 const DEFAULT_OBJECT_INFERENCE_STEPS = 32
 const shouldDebugModels = process.env.NODE_ENV !== "production"
 
-export enum ObjectGenerationModelProvider {
+export enum MediaModelProvider {
   OpenRouter = "openrouter",
 }
 
 export const open3d = initOpen3D(
     {
       debug: shouldDebugModels,
-      identifier: ObjectGenerationModelProvider.OpenRouter
+      identifier: MediaModelProvider.OpenRouter
     },
     {
       num_inference_steps: DEFAULT_OBJECT_INFERENCE_STEPS
@@ -29,7 +29,7 @@ export const open3d = initOpen3D(
 export function getMediaGenerationCaller(
   model?: ModelID,
   shouldPreferDirect?: boolean
-): ObjectGenerationModel {
+): MediaModel {
   switch (model) {
     case ModelID.OpenRouter3D:
       return open3d

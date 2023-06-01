@@ -65,8 +65,7 @@ export const windowAI: WindowAI<ModelID | string> = {
     })
   },
 
-  async BETA_generate3DObject(input, options ={}){
-    options.type = MediaType.Object
+  async BETA_generate3DObject(input, options = {}){
     const requestId = _relayRequest(PortName.Media, {
       transaction: transactionManager.init(input, _getOriginData(), options),
     })
