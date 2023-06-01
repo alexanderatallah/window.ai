@@ -18,16 +18,6 @@ import { configManager } from "./config"
 import type { OriginData } from "./origin"
 import { originManager } from "./origin"
 
-// export interface MediaOptions<TModel, TInput extends Input = Input> {
-//   // The type of media to generate.
-//   type?: MediaType
-//   // How many completion choices to attempt to generate. Defaults to 1. If the
-//   // model doesn't support more than one, then an array with a single element will be returned.
-//   numOutputs?: number
-//   // How many completion choices to attempt to generate. Defaults to 1. If the
-//   // model doesn't support more than one, then an array with a single element will be returned.
-//   numInferenceSteps?: number
-// }
 
 export interface Transaction<TInput = Input> {
   id: string
