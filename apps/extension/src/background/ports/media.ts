@@ -67,18 +67,17 @@ const handler: PlasmoMessaging.PortHandler<
   txn.routedModel = predictedModel.data
 
   await transactionManager.save(txn)
-  // modelRouter is too abstracted to be used here yet, it uses a different request interface that expects String[]
-  // const result = await modelRouter.complete(config, txn)
   const modelCaller  = await getMediaGenerationCaller(txn.routedModel as ModelID)
   let result;
   try {
-    result = await modelCaller.complete(txn.input as any, {
+    result = await modelCaller.generate(txn.input as any, {
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
       model: txn.routedModel,
       origin: txn.origin,
       num_generations: txn.numOutputs,
       num_inference_steps: txn.numInferenceSteps,
+      extension: txn.extension,
     })
   }
   catch (error) {
@@ -105,9 +104,6 @@ async function _getMediaGenerationModel(
 ): Promise<Result<string, string>> {
   if (txn.model) {
     return ok(txn.model)
-  }
-  if(txn.type == MediaType.Object){
-    return Promise.resolve(ok(ModelID.OpenRouter3D))
   }
   // fallback to openrouter for now
   return Promise.resolve(ok(ModelID.OpenRouter3D))

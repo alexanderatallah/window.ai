@@ -14,19 +14,29 @@ export function init(
       getPath: () => "/generation",
       transformForRequest: (req, meta) => {
         const {
-        //   stop_sequences,
+          extension,
           num_generations,
           identifier,
           prompt,
           baseUrl,
+          num_inference_steps,
           ...optsToSend
         } = req
+        console.log({
+            ...optsToSend,
+            prompt,
+            user: meta.user_identifier ?? undefined,
+            num_outputs: num_generations,
+            num_inference_steps: num_inference_steps,
+            extension: extension ?? undefined,
+          })
         return {
           ...optsToSend,
           prompt,
           user: meta.user_identifier ?? undefined,
           num_outputs: num_generations,
-          num_inference_steps: optsToSend.num_inference_steps,
+          num_inference_steps: num_inference_steps,
+          extension: extension ?? undefined,
         }
       },
       transformResponse: (res) => {

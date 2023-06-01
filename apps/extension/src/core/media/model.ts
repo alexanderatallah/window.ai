@@ -38,7 +38,7 @@ export interface RequestOptions {
   origin?: string | null
   num_generations?: number
   extension?: MediaExtension
-  num_inference_steps?:number | null
+  num_inference_steps?: number | null
   timeout?: number
   user_identifier?: string | null
   adapter?: AxiosRequestConfig["adapter"] | null
@@ -70,10 +70,6 @@ export class MediaModel {
   public api: AxiosInstance
   public config: Required<MediaModelConfig>
   public defaultOptions: Required<RequestOptions>
-
-  isThreeDOptions(opts: any): opts is ThreeDOptions<any> {
-    return 'numInferenceSteps' in opts;
-  }
   
   constructor(config: MediaModelConfig, opts: RequestOptions = {}) {
     // Defaults
@@ -87,7 +83,7 @@ export class MediaModel {
       user_identifier: null,
       num_generations: 1,
       num_inference_steps: 32,
-      extension: this.isThreeDOptions(opts) ? MediaExtension.ply : MediaExtension.ply,
+      extension: opts.extension ? opts.extension : MediaExtension.ply,
       adapter: null,
       ...definedValues(opts)
     }
@@ -153,7 +149,7 @@ export class MediaModel {
       model: opts.model,
       identifier: this.config.identifier,
       num_generations: opts.num_generations,
-      num_inference_steps: this.isThreeDOptions(opts) ? opts.num_inference_steps : null,
+      num_inference_steps: opts.num_inference_steps ? opts.num_inference_steps : 32,
       extension: opts.extension,
       baseUrl: opts.baseUrl
     }

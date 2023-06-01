@@ -9,8 +9,9 @@ import {
   isPromptInput,
   isTextOutput,
   isMediaOutput,
-  ThreeDExtension,
-  type MediaGenerationOptions
+  MediaExtension,
+  type MediaGenerationOptions,
+  type ThreeDOptions
 } from "window.ai"
 
 import { BaseManager } from "./base"
@@ -32,10 +33,11 @@ export interface Transaction<TInput = Input> {
   model?: ModelID | string
   routedModel?: ModelID | string
 
-  // Media generation options
-
+  // three d generation options
   numInferenceSteps?:number
 
+  // general media options
+  extension?: MediaExtension
 
   outputs?: InferredOutput<TInput>[] | MediaOutput[]
   error?: string
@@ -70,9 +72,14 @@ class TransactionManager extends BaseManager<Transaction> {
   
     // Extracting parameters specific to MediaGenerationOptions
     const {
+      extension,
+    } = options as MediaGenerationOptions<ModelID | string>
+
+    //extracting parameters specific to 3d generation
+    const {
       numInferenceSteps
-    } = options as MediaGenerationOptions<ModelID | string, TInput>
-  
+    } = options as ThreeDOptions<ModelID | string>
+    
     return {
       id: uuidv4(),
       origin,
@@ -83,7 +90,8 @@ class TransactionManager extends BaseManager<Transaction> {
       temperature,
       maxTokens,
       stopSequences,
-      numInferenceSteps
+      numInferenceSteps,
+      extension,
     }
   }
   
