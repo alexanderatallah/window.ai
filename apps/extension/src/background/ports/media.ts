@@ -57,6 +57,7 @@ const handler: PlasmoMessaging.PortHandler<
   if(config.label !== "OpenRouter"){
     return res.send({ response: err(ErrorCode.ModelRejectedRequest), id })
   }
+
   const predictedModel = await _getObjectGenerationModel(config, txn)
   if (!isOk(predictedModel)) {
     _maybeInterrupt(id, predictedModel)
@@ -101,9 +102,10 @@ async function _getObjectGenerationModel(
   config: Config,
   txn: Transaction
 ): Promise<Result<string, string>> {
-  if(txn.type === "object"){
-    return  Promise.resolve(ok(ModelID.OpenRouter3D))
+  if (txn.routedModel) {
+    return ok(txn.routedModel)
   }
+  // fallback to openrouter for now
   return Promise.resolve(ok(ModelID.OpenRouter3D))
 }
 
