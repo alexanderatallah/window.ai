@@ -10,7 +10,7 @@ export function init(
   return new MediaModel(
     {
       ...config,
-      defaultBaseUrl: "https://a74b-34-74-118-245.ngrok-free.app",
+      defaultBaseUrl: "http://34.106.214.24:8000",
       getPath: () => "/generation",
       transformForRequest: (req, meta) => {
         const {
