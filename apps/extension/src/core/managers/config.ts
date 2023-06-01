@@ -11,7 +11,7 @@ import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
-import { getCaller, openrouter } from "~core/llm"
+import { getLLMCaller, openrouter } from "~core/llm"
 import { getMediaGenerationCaller } from "~core/media"
 import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
@@ -242,8 +242,8 @@ class ConfigManager extends BaseManager<Config> {
       // Only proxy w OpenRouter if user has authed and hasn't set a custom base url
       (!config.baseUrl && !this.isLocal(config) && (await isOpenRouterAuthed()))
 
-    //TODO: incorporate with media caller
-    return getCaller(this.getModel(config), !canProxy)
+    
+    return getLLMCaller(this.getModel(config), !canProxy) 
   }
 
   async predictModel(

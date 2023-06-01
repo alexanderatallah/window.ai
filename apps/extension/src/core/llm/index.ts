@@ -78,7 +78,7 @@ export const cohereDirect = initCohere(
   }
 )
 
-export function getCaller(
+export function getLLMCaller(
   model?: ModelID,
   shouldPreferDirect?: boolean
 ): Model {
