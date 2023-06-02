@@ -77,7 +77,7 @@ class ConfigManager extends BaseManager<Config> {
             ModelID.Claude_Instant_V1_100k,
             ModelID.Claude_V1,
             ModelID.Claude_V1_100k,
-            ModelID.OpenRouter3D,
+            ModelID.Shap_e,
           ]
         }
       case AuthType.APIKey:
@@ -306,7 +306,7 @@ function defaultAPILabel(model: ModelID): string {
       return "Anthropic: Claude"
     case ModelID.Claude_V1_100k:
       return "Anthropic: Claude 100k"
-    case ModelID.OpenRouter3D:
+    case ModelID.Shap_e:
       return "OpenRouter: 3D Model Generator"
   }
 }

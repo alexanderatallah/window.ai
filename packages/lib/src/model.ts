@@ -12,7 +12,7 @@ export enum ModelID {
   // Other
   Together = "togethercomputer/GPT-NeoXT-Chat-Base-20B",
   Cohere = "cohere/command-nightly",
-  OpenRouter3D = "openrouter/three-d",
+  Shap_e = "openrouter/shap_e",
 }
 
 // Older namings that will be deprecated

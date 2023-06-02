@@ -31,7 +31,7 @@ export function getMediaCaller(
   shouldPreferDirect?: boolean
 ): MediaModel {
   switch (model) {
-    case ModelID.OpenRouter3D:
+    case ModelID.Shap_e:
       return open3d
     default:
       return open3d

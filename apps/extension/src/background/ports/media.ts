@@ -67,6 +67,7 @@ const handler: PlasmoMessaging.PortHandler<
   txn.routedModel = predictedModel.data
 
   await transactionManager.save(txn)
+
   const modelCaller  = await getMediaCaller(txn.routedModel as ModelID)
   let result;
   try {
@@ -93,7 +94,6 @@ const handler: PlasmoMessaging.PortHandler<
     txn.error = result.error
     _maybeInterrupt(id, result)
   }
-
   // Update the completion with the reply and model used
   await transactionManager.save(txn)
 }
@@ -106,7 +106,7 @@ async function _getMediaModel(
     return ok(txn.model)
   }
   // fallback to openrouter for now
-  return Promise.resolve(ok(ModelID.OpenRouter3D))
+  return Promise.resolve(ok(ModelID.Shap_e))
 }
 
 async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {

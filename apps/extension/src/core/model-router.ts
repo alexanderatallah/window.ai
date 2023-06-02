@@ -25,7 +25,7 @@ export async function route(
       max_tokens: txn?.maxTokens,
       temperature: txn?.temperature,
       stop_sequences: txn?.stopSequences,
-      num_generations: txn?.numOutputs
+      num_generations: txn?.numOutputs,
     })
     return result
   } catch (error) {
