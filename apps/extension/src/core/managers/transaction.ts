@@ -53,7 +53,7 @@ class TransactionManager extends BaseManager<Transaction> {
   init<TInput extends Input>(
     input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID | string, TInput> & MediaOptions<ModelID>
+    options: CompletionOptions<ModelID | string, TInput> | MediaOptions<ModelID>
   ): Transaction {
     this._validateInput(input)
   
