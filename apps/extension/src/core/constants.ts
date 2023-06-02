@@ -18,7 +18,7 @@ export enum PortName {
   Media = "media",
   Permission = "permission",
   Model = "model",
-  Events = "events",
+  Events = "events"
 }
 
 export enum RequestInterruptType {
