@@ -11,8 +11,6 @@ import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
-import { getLLMCaller, openrouter } from "~core/llm"
-import { getMediaGenerationCaller } from "~core/media"
 import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 

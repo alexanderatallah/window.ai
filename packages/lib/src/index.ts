@@ -102,8 +102,8 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   numOutputs?: number
 }
 
-// MediaGenerationOptions now includes model, numOutputs, and type properties.
-export interface MediaGenerationOptions<TModel> {
+// MediaOptions now includes model, numOutputs, and type properties.
+export interface MediaOptions<TModel> {
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: TModel
   // How many completion choices to attempt to generate. Defaults to 1. If the
@@ -113,8 +113,8 @@ export interface MediaGenerationOptions<TModel> {
   extension?: MediaMimeType
 }
 
-// ThreeDOptions extends MediaGenerationOptions, inheriting its properties, and adds numInferenceSteps.
-export interface ThreeDOptions<TModel> extends MediaGenerationOptions<TModel> {
+// ThreeDOptions extends MediaOptions, inheriting its properties, and adds numInferenceSteps.
+export interface ThreeDOptions<TModel> extends MediaOptions<TModel> {
   // The number of inference steps to run. Defaults to 32, with specific default values for each model.
   numInferenceSteps?: number
 }
