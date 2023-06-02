@@ -15,7 +15,6 @@ import {
 } from "window.ai"
 
 import { BaseManager } from "./base"
-import { configManager } from "./config"
 import type { OriginData } from "./origin"
 import { originManager } from "./origin"
 
