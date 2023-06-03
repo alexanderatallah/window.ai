@@ -23,7 +23,7 @@ export const shap_e = initOpenRouter(
     },
     {
       num_inference_steps: DEFAULT_OBJECT_INFERENCE_STEPS,
-      mediaMimeType: MediaMimeType.PLY,
+      mimeType: MediaMimeType.PLY,
     }
   )
 
