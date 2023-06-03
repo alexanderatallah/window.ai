@@ -17,6 +17,7 @@ import { getExternalConfigURL } from "~core/utils/utils"
 import * as modelRouter from "../model-router"
 import { BaseManager } from "./base"
 import type { Transaction } from "./transaction"
+import { getCaller } from "~core/llm"
 
 export enum AuthType {
   // Let another site handle all authentication
@@ -240,7 +241,7 @@ class ConfigManager extends BaseManager<Config> {
       // Only proxy w OpenRouter if user has authed and hasn't set a custom base url
       (!config.baseUrl && !this.isLocal(config) && (await isOpenRouterAuthed()))
 
-    return getLLMCaller(this.getModel(config), !canProxy) 
+    return getCaller(this.getModel(config), !canProxy) 
   }
 
   async predictModel(
