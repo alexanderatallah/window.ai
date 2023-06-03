@@ -15,7 +15,7 @@ import {
 } from "~core/constants"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
-import { type Config, configManager } from "~core/managers/config"
+import { type Config, configManager, AuthType } from "~core/managers/config"
 import {
   type Transaction,
   transactionManager
@@ -52,26 +52,27 @@ const handler: PlasmoMessaging.PortHandler<
   }
 
   const txn = request.transaction
-  const config = await configManager.forModelWithDefault(txn.model)
-  if(config.auth !== "external" || !config.session){
-    return res.send({ response: err(ErrorCode.ModelRejectedRequest), id })
+
+  if ('messages' in txn.input) {
+    return res.send(err(ErrorCode.InvalidRequest))
   }
 
-  console.log("MADE IT HERE")
-
-  const predictedModel = await _getMediaModel(config, txn)
-  if (!isOk(predictedModel)) {
-    _maybeInterrupt(id, predictedModel)
-    return res.send({ response: predictedModel, id })
+  // for now, use openrouter
+  const config = await configManager.forAuthAndModel(AuthType.External)
+  // if not credentialed, present with login flow
+  if(!configManager.isCredentialed(config)){
+    _maybeInterrupt(id, err(ErrorCode.NotAuthenticated))
+    return res.send({ response: err(ErrorCode.NotAuthenticated), id })
   }
-  txn.routedModel = predictedModel.data
 
+  // only openrouter supported for now
+  txn.routedModel = ModelID.Shap_e
   await transactionManager.save(txn)
 
-  const modelCaller  = await getMediaCaller(txn.routedModel as ModelID)
+  const modelCaller = getMediaCaller(ModelID.Shap_e)
   let result;
   try {
-    result = await modelCaller.generate(txn.input as any, {
+    result = await modelCaller.generate(txn.input, {
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
       model: txn.routedModel,
@@ -96,17 +97,6 @@ const handler: PlasmoMessaging.PortHandler<
   }
   // Update the generation with the reply and model used
   await transactionManager.save(txn)
-}
-
-async function _getMediaModel(
-  config: Config,
-  txn: Transaction
-): Promise<Result<string, string>> {
-  if (txn.model) {
-    return ok(txn.model)
-  }
-  // fallback to openrouter for now
-  return Promise.resolve(ok(ModelID.Shap_e))
 }
 
 async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {

@@ -32,7 +32,7 @@ export interface Transaction<TInput = Input> {
   model?: ModelID | string
   routedModel?: ModelID | string
 
-  // three d generation options
+  // 3D generation options
   numInferenceSteps?:number
 
   // general media options
