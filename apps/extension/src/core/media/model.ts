@@ -37,7 +37,7 @@ export interface RequestOptions {
   model?: string | null
   origin?: string | null
   num_generations?: number
-  extension?: MediaMimeType | null
+  mediaMimeType?: MediaMimeType | null
   num_inference_steps?: number | null
   timeout?: number
   user_identifier?: string | null
@@ -83,7 +83,7 @@ export class MediaModel {
       user_identifier: null,
       num_generations: 1,
       num_inference_steps: null,
-      extension: null,
+      mediaMimeType: null,
       adapter: null,
       ...definedValues(opts)
     }
@@ -150,7 +150,7 @@ export class MediaModel {
       identifier: this.config.identifier,
       num_generations: opts.num_generations,
       num_inference_steps: opts.num_inference_steps,
-      extension: opts.extension,
+      mediaMimeType: opts.mediaMimeType,
       baseUrl: opts.baseUrl
     }
     return {

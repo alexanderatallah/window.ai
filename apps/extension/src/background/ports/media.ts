@@ -70,7 +70,7 @@ const handler: PlasmoMessaging.PortHandler<
   await transactionManager.save(txn)
 
   const modelCaller = getMediaCaller(ModelID.Shap_e)
-  let result;
+  let result
   try {
     result = await modelCaller.generate(txn.input, {
       apiKey: config.apiKey,
@@ -79,7 +79,7 @@ const handler: PlasmoMessaging.PortHandler<
       origin: txn.origin,
       num_generations: txn.numOutputs,
       num_inference_steps: txn.numInferenceSteps,
-      extension: txn.extension,
+      mime_type: txn.mime_type,
     })
   }
   catch (error) {

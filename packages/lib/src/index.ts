@@ -109,7 +109,7 @@ export interface MediaOptions<TModel> {
   // model doesn't support more than one, then an array with a single element will be returned.
   numOutputs?: number
   // type of media to generate
-  extension?: MediaMimeType 
+  mediaMimeType?: MediaMimeType 
 }
 
 // ThreeDOptions extends MediaOptions, inheriting its properties, and adds numInferenceSteps.
