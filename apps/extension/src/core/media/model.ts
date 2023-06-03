@@ -37,7 +37,7 @@ export interface RequestOptions {
   model?: string | null
   origin?: string | null
   num_generations?: number
-  extension?: MediaMimeType
+  extension?: MediaMimeType | null
   num_inference_steps?: number | null
   timeout?: number
   user_identifier?: string | null
@@ -82,8 +82,8 @@ export class MediaModel {
       timeout: 60000,
       user_identifier: null,
       num_generations: 1,
-      num_inference_steps: 32,
-      extension: opts.extension ? opts.extension : "num_inference_steps" in opts ? MediaMimeType.PLY : MediaMimeType.PNG,
+      num_inference_steps: null,
+      extension: null,
       adapter: null,
       ...definedValues(opts)
     }

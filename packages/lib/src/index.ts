@@ -9,7 +9,6 @@ declare global {
 
 export enum MediaMimeType {
   PLY = "application/x-ply",
-  PNG = "image/png",
 }
 
 

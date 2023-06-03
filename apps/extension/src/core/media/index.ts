@@ -1,4 +1,4 @@
-import { ModelID } from "window.ai"
+import { MediaMimeType, ModelID } from "window.ai"
 
 import { init as initOpen3D } from "./openrouter"
 
@@ -22,7 +22,8 @@ export const open3d = initOpen3D(
       identifier: MediaModelProvider.OpenRouter
     },
     {
-      num_inference_steps: DEFAULT_OBJECT_INFERENCE_STEPS
+      num_inference_steps: DEFAULT_OBJECT_INFERENCE_STEPS,
+      extension: MediaMimeType.PLY,
     }
   )
 
