@@ -7,7 +7,6 @@ import {
   type RequestID,
   VALID_DOMAIN,
   type WindowAI,
-  MediaType,
 } from "window.ai"
 
 import type {

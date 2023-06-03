@@ -13,7 +13,7 @@ export enum ModelID {
   Together = "togethercomputer/GPT-NeoXT-Chat-Base-20B",
   Cohere = "cohere/command-nightly",
   // Media Models
-  Shap_e = "openrouter/shap_e",
+  Shap_e = "openai/shap-e",
 }
 
 // Older namings that will be deprecated
