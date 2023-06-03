@@ -169,6 +169,28 @@ window.ai.addEventListener((event: EventType, data: unknown) => {
 })
 ```
 
+**(BETA) Generate 3D Objects**: generate a 3D object using a specified model or the user-preferred model.
+
+```ts
+window.ai.BETA_generate3DObject(
+    input: PromptInput,
+    options?: ThreeDOptions
+): Promise<MediaOutput[]>
+```
+
+The `BETA_generate3DObject` function allows you to generate 3D objects with a defined model and options. The input should be a `PromptInput` which contains the description of the object you want to generate. The options parameter is optional and accepts a `ThreeDOptions` object to customize the media generation request.
+
+Here's an example request:
+
+```javascript
+const result = await window.ai.BETA_generate3DObject({ "prompt": "a glazed donut" }, { "extension": "application/x-ply", "numInferenceSteps": 32 });
+
+// base64 representation of your object
+const uri = result[0].uri;
+```
+
+
+
 All public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). Highlights below:
 
 ### CompletionOptions
