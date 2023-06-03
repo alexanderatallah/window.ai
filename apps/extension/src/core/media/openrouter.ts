@@ -11,8 +11,8 @@ export function init(
   return new MediaModel(
     {
       ...config,
-      defaultBaseUrl: `${getExternalConfigURL()}/api/media`,
-      getPath: () => "/shap_e",
+      defaultBaseUrl: `${getExternalConfigURL()}/v1/api`,
+      getPath: () => "/media/shap_e",
       transformForRequest: (req, meta) => {
         const {
           extension,
