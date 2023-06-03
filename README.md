@@ -184,7 +184,9 @@ The `BETA_generate3DObject` function allows you to generate 3D objects with a de
 Here's an example request:
 
 ```javascript
-const result = await window.ai.BETA_generate3DObject({ "prompt": "a glazed donut" }, { "extension": "application/x-ply", "numInferenceSteps": 32 });
+const result = await window.ai.BETA_generate3DObject(
+  { "prompt": "a glazed donut" }, 
+  { "extension": "application/x-ply", "numInferenceSteps": 32 });
 
 // base64 representation of your object
 const uri = result[0].uri;
