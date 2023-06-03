@@ -12,7 +12,7 @@ export function init(
     {
       ...config,
       defaultBaseUrl: `${getExternalConfigURL()}/v1/api`,
-      getPath: () => "/media/shap_e",
+      getPath: () => "/media/generations",
       transformForRequest: (req, meta) => {
         const {
           extension,
