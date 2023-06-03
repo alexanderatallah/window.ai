@@ -190,8 +190,8 @@ export interface WindowAI<TModel = string> {
    * @param options Options for the object generation request
    * @returns A promise that resolves a object generation of type MediaOutput[].
    */
-  BETA_generate3DObject< TInput extends Input = Input>(
-    input: TInput,
+  BETA_generate3DObject(
+    input: PromptInput,
     options?: ThreeDOptions<TModel>
   ): Promise<MediaOutput[]>
 

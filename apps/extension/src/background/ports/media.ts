@@ -94,7 +94,7 @@ const handler: PlasmoMessaging.PortHandler<
     txn.error = result.error
     _maybeInterrupt(id, result)
   }
-  // Update the completion with the reply and model used
+  // Update the generation with the reply and model used
   await transactionManager.save(txn)
 }
 

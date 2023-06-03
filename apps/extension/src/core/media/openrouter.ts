@@ -10,8 +10,8 @@ export function init(
   return new MediaModel(
     {
       ...config,
-      defaultBaseUrl: "http://34.106.214.24:8000",
-      getPath: () => "/generation",
+      defaultBaseUrl: "http://localhost:3002",
+      getPath: () => "/api/media/generation",
       transformForRequest: (req, meta) => {
         const {
           extension,
