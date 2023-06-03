@@ -186,7 +186,7 @@ Here's an example request:
 ```javascript
 const result = await window.ai.BETA_generate3DObject(
   { "prompt": "a glazed donut" }, 
-  { "extension": "application/x-ply", "numInferenceSteps": 32 });
+  { "numInferenceSteps": 32, "mediaMimeType": "application/x-ply" });
 
 // base64 representation of your object
 const uri = result[0].uri;
@@ -242,7 +242,7 @@ export interface MediaOptions<TModel> {
   // model doesn't support more than one, then an array with a single element will be returned.
   numOutputs?: number
   // type of media to generate
-  extension?: MediaMimeType 
+  mediaMimeType?: MediaMimeType 
 }
 
 // ThreeDOptions extends MediaOptions, inheriting its properties, and adds numInferenceSteps.
