@@ -1,6 +1,6 @@
 import { MediaMimeType, ModelID } from "window.ai"
 
-import { init as initOpen3D } from "./openrouter"
+import { init as initOpenRouter } from "./openrouter"
 
 import { MediaModel } from "./model"
 
@@ -16,7 +16,7 @@ export enum MediaModelProvider {
   OpenRouter = "openrouter",
 }
 
-export const open3d = initOpen3D(
+export const shap_e = initOpenRouter(
     {
       debug: shouldDebugModels,
       identifier: MediaModelProvider.OpenRouter
@@ -33,8 +33,8 @@ export function getMediaCaller(
 ): MediaModel {
   switch (model) {
     case ModelID.Shap_e:
-      return open3d
+      return shap_e
     default:
-      return open3d
+      return shap_e
   }
 }

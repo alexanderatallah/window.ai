@@ -188,6 +188,7 @@ export class MediaModel {
       })
       responseData = response.data
     } catch (err: unknown) {
+      console.log(err)
       return this._handleModelAPIError(err)
     }
 

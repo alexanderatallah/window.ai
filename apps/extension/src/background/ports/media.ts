@@ -53,11 +53,11 @@ const handler: PlasmoMessaging.PortHandler<
 
   const txn = request.transaction
   const config = await configManager.forModelWithDefault(txn.model)
-  console.log(config.session)
-  // only allow openrouter for now, while in BETA
-  if(!config.session){
+  if(config.auth !== "external" || !config.session){
     return res.send({ response: err(ErrorCode.ModelRejectedRequest), id })
   }
+
+  console.log("MADE IT HERE")
 
   const predictedModel = await _getMediaModel(config, txn)
   if (!isOk(predictedModel)) {

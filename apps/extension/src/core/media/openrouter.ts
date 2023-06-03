@@ -1,3 +1,4 @@
+import { getExternalConfigURL } from "~core/utils/utils"
 import type { MediaModelConfig, RequestOptions } from "./model"
 import { MediaModel } from "./model"
 
@@ -10,8 +11,8 @@ export function init(
   return new MediaModel(
     {
       ...config,
-      defaultBaseUrl: "http://localhost:3003",
-      getPath: () => "/api/media/shap_e",
+      defaultBaseUrl: `${getExternalConfigURL()}/api/media`,
+      getPath: () => "/shap_e",
       transformForRequest: (req, meta) => {
         const {
           extension,

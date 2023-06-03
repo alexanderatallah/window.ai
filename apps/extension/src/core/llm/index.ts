@@ -6,7 +6,6 @@ import { Model } from "./model"
 import { init as initOpenAI } from "./openai"
 import { init as initOpenRouter } from "./openrouter"
 import { init as initTogether } from "./together"
-import { init as initOpen3D } from "../media/objects/openrouter-three-d"
 
 // TODO configure basic in-memory lru cache
 // const cache = new Map<string, { completion: string }>()
@@ -78,7 +77,7 @@ export const cohereDirect = initCohere(
   }
 )
 
-export function getLLMCaller(
+export function getCaller(
   model?: ModelID,
   shouldPreferDirect?: boolean
 ): Model {
