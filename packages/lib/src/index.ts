@@ -102,7 +102,7 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   numOutputs?: number
 }
 
-// MediaOptionsallows you to specify options for the media generation request.
+// MediaOptions allows you to specify options for the media generation request.
 export interface MediaOptions<TModel> {
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   model?: TModel

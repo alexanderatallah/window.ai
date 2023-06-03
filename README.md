@@ -34,6 +34,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
     - [Getting started](#getting-started)
     - [Functions](#functions)
     - [CompletionOptions](#completionoptions)
+    - [MediaOptions](#mediaoptions)
     - [Model ID Standard](#model-id-standard)
     - [Error codes](#error-codes)
     - [Community tools](#community-tools)
@@ -178,7 +179,7 @@ window.ai.BETA_generate3DObject(
 ): Promise<MediaOutput[]>
 ```
 
-The `BETA_generate3DObject` function allows you to generate 3D objects with a defined model and options. The input should be a `PromptInput` which contains the description of the object you want to generate. The options parameter is optional and accepts a `ThreeDOptions` object to customize the media generation request.
+The `BETA_generate3DObject` function allows you to generate 3D objects with a defined model and options. The input should be a `PromptInput` `{ prompt : string }`. The options parameter is optional and accepts `ThreeDOptions` customize the media generation request.
 
 Here's an example request:
 
@@ -225,6 +226,27 @@ export interface CompletionOptions {
   // Arbitrary strings are allowed, and will be passed to the Local model as `model`.
   // NOTE: this standard is evolving - recommend not using this if you're making an immutable app.
   model?: ModelID | string
+}
+```
+
+### MediaOptions 
+This options dictionary allows you to specify options for the media generation request, with options like `ThreeDOptions` extending `MediaOptions`.
+  
+```ts
+export interface MediaOptions<TModel> {
+  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
+  model?: TModel
+  // How many completion choices to attempt to generate. Defaults to 1. If the
+  // model doesn't support more than one, then an array with a single element will be returned.
+  numOutputs?: number
+  // type of media to generate
+  extension?: MediaMimeType 
+}
+
+// ThreeDOptions extends MediaOptions, inheriting its properties, and adds numInferenceSteps.
+export interface ThreeDOptions<TModel> extends MediaOptions<TModel> {
+  // The number of inference steps to run. Defaults to 32, with specific default values for each model.
+  numInferenceSteps?: number
 }
 ```
 
