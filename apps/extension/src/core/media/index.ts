@@ -30,8 +30,5 @@ export const shap_e = initOpenRouter(
 export function getMediaCaller(
   model?: ModelID
 ): MediaModel {
-  switch (model) {
-    default:
       return shap_e
-  }
 }
