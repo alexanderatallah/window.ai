@@ -10,6 +10,7 @@ import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
 
 import { ActivityItem } from "./ActivityItem"
+import { isMediaOutput } from "window.ai"
 
 export function Activity() {
   const [selectedTxn, selectTxn] = useState<Transaction | undefined>()

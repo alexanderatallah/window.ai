@@ -65,7 +65,7 @@ const handler: PlasmoMessaging.PortHandler<
     return res.send({ response: err(ErrorCode.NotAuthenticated), id })
   }
 
-  // only openrouter supported for now
+  // only shap-e supported for now
   txn.routedModel = ModelID.Shap_e
   await transactionManager.save(txn)
 
@@ -79,7 +79,7 @@ const handler: PlasmoMessaging.PortHandler<
       origin: txn.origin,
       num_generations: txn.numOutputs,
       num_inference_steps: txn.numInferenceSteps,
-      mime_type: txn.mime_type,
+      mime_type: txn.mimeType,
     })
   }
   catch (error) {

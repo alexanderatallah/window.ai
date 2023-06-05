@@ -38,7 +38,7 @@ export interface Transaction<TInput = Input> {
   // general media options
   mimeType?: MediaMimeType
 
-  outputs?: InferredOutput<TInput>[] | MediaOutput[]
+  outputs?: InferredOutput<TInput>[]
   error?: string
 }
 
@@ -143,7 +143,7 @@ class TransactionManager extends BaseManager<Transaction> {
     }
     return txn.outputs
       .map((t) =>
-      isMediaOutput(t) ? t.uri.substring(0, 50) + "..." :
+        isMediaOutput(t) ? t.uri.substring(0,50) + "..." : 
         isTextOutput(t) ? t.text : `${t.message.role}: ${t.message.content}`
       )
       .join("\n")

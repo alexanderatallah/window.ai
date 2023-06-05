@@ -1,3 +1,11 @@
+import {
+  MediaMimeType,
+  isMediaOutput,
+  isPromptInput,
+  mimeTypeToExtension,
+  isMediaMimeType
+} from "window.ai"
+
 import { Logo } from "~core/components/pure/Logo"
 import { Text } from "~core/components/pure/Text"
 import { originManager } from "~core/managers/origin"
@@ -5,9 +13,54 @@ import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
 import { formatDate } from "~core/utils/utils"
 
+function createMediaDownloadLinks(transaction: Transaction) {
+  if (!transaction.input || !transaction.outputs) {
+    return null
+  }
+  const input = transaction.input
+  let mimeType: MediaMimeType
+  let developerMimeType = transaction.mimeType
+  const outputs = transaction.outputs
+  if (!isPromptInput(input) || !outputs.every(isMediaOutput)) {
+    return null
+  }
+  if(developerMimeType){
+    mimeType = developerMimeType
+  }
+  // if mimeType(optional) not defined in transaction, check if a valid mimetype is contained in the data uri
+  if (!developerMimeType) {
+    const mimeTypeFromUri = outputs[0].uri.split(";")[0].split(":")[1]
+    if (isMediaMimeType(mimeTypeFromUri)) {
+      mimeType = mimeTypeFromUri
+    }
+  }
+  
+  return outputs.map((output, index) => {
+    const fileName = `${input.prompt.replace(" ", "-")}_${index}_${mimeTypeToExtension[mimeType]}`
+    return (
+      <>
+        <br></br>
+        <a
+          href={`${output.uri}`}
+          target="_blank"
+          rel="noreferrer"
+          download={fileName}
+          className="text-blue-500 hover:underline"
+          key={index}>
+          Download {fileName}
+        </a>
+      </>
+    )
+  })
+}
+
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)
   const model = transactionManager.getRoutedModel(transaction)
+  const output = transaction?.outputs?.every(isMediaOutput)
+    ? createMediaDownloadLinks(transaction)
+    : transactionManager.formatOutput(transaction)
+  let input = transactionManager.formatInput(transaction)
   return (
     <div className="pb-8">
       <div className="grid grid-cols-6 mb-2">
@@ -43,12 +96,12 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
       )}
 
       <p className="mt-4">
-        <b>Prompt:</b> {transactionManager.formatInput(transaction)}
+        <b>Prompt:</b> {input}
       </p>
 
       <p className="mt-4">
         <b>Response:</b>{" "}
-        {transactionManager.formatOutput(transaction) ||
+        {output ||
           (!transaction.error && <span className="italic">Pending</span>)}
       </p>
 

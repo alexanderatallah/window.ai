@@ -170,7 +170,7 @@ window.ai.addEventListener((event: EventType, data: unknown) => {
 })
 ```
 
-**(BETA) Generate 3D Objects**: generate a 3D object using a specified model or the user-preferred model.
+**(BETA) Generate 3D Objects**: Uses [Shap-e.](https://github.com/openai/shap-e)
 
 ```ts
 window.ai.BETA_generate3DObject(

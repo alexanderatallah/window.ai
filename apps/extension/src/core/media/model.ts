@@ -37,7 +37,7 @@ export interface RequestOptions {
   model?: string | null
   origin?: string | null
   num_generations?: number
-  mimeType?: MediaMimeType | null
+  mime_type?: MediaMimeType | null
   num_inference_steps?: number | null
   timeout?: number
   user_identifier?: string | null

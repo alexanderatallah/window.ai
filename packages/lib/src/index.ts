@@ -11,6 +11,17 @@ export enum MediaMimeType {
   PLY = "application/x-ply",
 }
 
+export enum MediaExtensions {
+  PLY = ".ply",
+}
+
+export const mimeTypeToExtension: { [key in MediaMimeType]?: MediaExtensions } = {
+  [MediaMimeType.PLY]: MediaExtensions.PLY,
+}
+
+export function isMediaMimeType(mimeType: string): mimeType is MediaMimeType {
+  return Object.values(MediaMimeType).includes(mimeType as MediaMimeType);
+}
 
 // ChatML is a simple markup language for chat messages. More available here:
 // https://github.com/openai/openai-python/blob/main/chatml.md
