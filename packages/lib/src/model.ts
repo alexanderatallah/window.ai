@@ -1,6 +1,6 @@
 // ModelID is an enum of the available models.
 // NOTE: this is an evolving standard, and may change in the future.
-export enum ModelID {
+export enum TextModelID {
   // OpenAI models
   GPT_3 = "openai/gpt-3.5-turbo",
   GPT_4 = "openai/gpt-4",
@@ -12,9 +12,17 @@ export enum ModelID {
   // Other
   Together = "togethercomputer/GPT-NeoXT-Chat-Base-20B",
   Cohere = "cohere/command-nightly",
-  // Media Models
+}
+
+export enum MediaModelID {
+  // OpenAI Models
   Shap_e = "openai/shap-e",
 }
+export const ModelID = {
+  ...TextModelID,
+  ...MediaModelID
+} as const
+export type ModelID = (typeof ModelID)[keyof typeof ModelID];
 
 // Older namings that will be deprecated
 const DeprecatedModelID = {
