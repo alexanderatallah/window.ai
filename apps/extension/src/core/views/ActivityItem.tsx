@@ -18,23 +18,17 @@ function createMediaDownloadLinks(transaction: Transaction) {
     return null
   }
   const input = transaction.input
-  let mimeType: MediaMimeType
-  let developerMimeType = transaction.mimeType
+  let mimeType = MediaMimeType.TXT
   const outputs = transaction.outputs
   if (!isPromptInput(input) || !outputs.every(isMediaOutput)) {
     return null
   }
-  if(developerMimeType){
-    mimeType = developerMimeType
+  //check if a valid mimetype is contained in the data uri, otherwise fallback to .txt
+  const mimeTypeFromUri = outputs[0].uri.split(";")[0].split(":")[1]
+  if (isMediaMimeType(mimeTypeFromUri)) {
+    mimeType = mimeTypeFromUri
   }
-  // if mimeType(optional) not defined in transaction, check if a valid mimetype is contained in the data uri
-  if (!developerMimeType) {
-    const mimeTypeFromUri = outputs[0].uri.split(";")[0].split(":")[1]
-    if (isMediaMimeType(mimeTypeFromUri)) {
-      mimeType = mimeTypeFromUri
-    }
-  }
-  
+
   return outputs.map((output, index) => {
     const fileName = `${input.prompt.replace(" ", "-")}_${index}_${mimeTypeToExtension[mimeType]}`
     return (

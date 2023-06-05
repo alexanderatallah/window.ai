@@ -34,9 +34,6 @@ export interface Transaction<TInput = Input> {
   // 3D generation options
   numInferenceSteps?:number
 
-  // general media options
-  mimeType?: MediaMimeType
-
   outputs?: InferredOutput<TInput>[]
   error?: string
 }
@@ -67,11 +64,6 @@ class TransactionManager extends BaseManager<Transaction> {
       maxTokens,
       stopSequences
     } = options as CompletionOptions<ModelID | string, TInput>
-  
-    // Extracting parameters specific to MediaOptions
-    const {
-      mimeType,
-    } = options as MediaOptions<ModelID | string>
 
     //extracting parameters specific to 3d generation
     const {
