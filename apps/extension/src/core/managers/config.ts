@@ -306,7 +306,7 @@ function defaultAPILabel(model: ModelID): string {
     case ModelID.Claude_V1_100k:
       return "Anthropic: Claude 100k"
     case ModelID.Shap_e:
-      return "OpenRouter: 3D Model Generator"
+      return "OpenAI: Shap-E"
   }
 }
 
