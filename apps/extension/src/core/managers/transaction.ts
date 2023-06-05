@@ -81,7 +81,6 @@ class TransactionManager extends BaseManager<Transaction> {
       maxTokens,
       stopSequences,
       numInferenceSteps,
-      mimeType,
     }
   }
   
