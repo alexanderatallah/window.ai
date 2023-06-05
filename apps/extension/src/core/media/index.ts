@@ -23,17 +23,14 @@ export const shap_e = initOpenRouter(
     },
     {
       num_inference_steps: DEFAULT_OBJECT_INFERENCE_STEPS,
-      mimeType: MediaMimeType.PLY,
+      mime_type: MediaMimeType.PLY,
     }
   )
 
 export function getMediaCaller(
-  model?: ModelID,
-  shouldPreferDirect?: boolean
+  model?: ModelID
 ): MediaModel {
   switch (model) {
-    case ModelID.Shap_e:
-      return shap_e
     default:
       return shap_e
   }
