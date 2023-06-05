@@ -119,8 +119,6 @@ export interface MediaOptions<TModel> {
   // How many completion choices to attempt to generate. Defaults to 1. If the
   // model doesn't support more than one, then an array with a single element will be returned.
   numOutputs?: number
-  // type of media to generate
-  mimeType?: MediaMimeType 
 }
 
 // ThreeDOptions extends MediaOptions, inheriting its properties, and adds numInferenceSteps.

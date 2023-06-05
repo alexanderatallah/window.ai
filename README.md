@@ -184,12 +184,12 @@ The `BETA_generate3DObject` function allows you to generate 3D objects with a de
 Here's an example request:
 
 ```javascript
-const result = await window.ai.BETA_generate3DObject(
+const [ result ] = await window.ai.BETA_generate3DObject(
   { "prompt": "a glazed donut" }, 
-  { "numInferenceSteps": 32, "mimeType": "application/x-ply" });
+  { "numInferenceSteps": 32,});
 
-// base64 representation of your object
-const uri = result[0].uri;
+// base64 representation of your 3D object, in ply format
+const uri = result.uri;
 ```
 
 
@@ -241,8 +241,7 @@ export interface MediaOptions<TModel> {
   // How many completion choices to attempt to generate. Defaults to 1. If the
   // model doesn't support more than one, then an array with a single element will be returned.
   numOutputs?: number
-  // type of media to generate
-  mimeType?: MediaMimeType 
+ 
 }
 
 // ThreeDOptions extends MediaOptions, inheriting its properties, and adds numInferenceSteps.

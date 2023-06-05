@@ -4,7 +4,6 @@ import {
   type InferredOutput,
   type Input,
   type ModelID,
-  type MediaOutput,
   isMessagesInput,
   isPromptInput,
   isTextOutput,

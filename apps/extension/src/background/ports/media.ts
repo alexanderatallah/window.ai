@@ -81,8 +81,7 @@ const handler: PlasmoMessaging.PortHandler<
       num_inference_steps: txn.numInferenceSteps,
       mime_type: txn.mimeType,
     })
-  }
-  catch (error) {
+  } catch (error) {
     return res.send({ response: err(ErrorCode.InvalidRequest), id })
   }
   
