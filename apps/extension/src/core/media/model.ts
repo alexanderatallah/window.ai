@@ -82,7 +82,7 @@ export class MediaModel {
       timeout: 60000,
       user_identifier: null,
       num_generations: 1,
-      num_inference_steps: null,
+      num_inference_steps: 32,
       mime_type: null,
       adapter: null,
       ...definedValues(opts)

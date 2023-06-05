@@ -9,7 +9,6 @@ import { MediaModel } from "./model"
 // const cacheGet: CacheGetter = async (key) => cache.get(key)?.completion
 // const cacheSet: CacheSetter = async (data) => cache.set(data.id, data)
 
-const DEFAULT_OBJECT_INFERENCE_STEPS = 32
 const shouldDebugModels = process.env.NODE_ENV !== "production"
 
 export enum MediaModelProvider {
@@ -22,7 +21,6 @@ export const shap_e = initOpenRouter(
       identifier: MediaModelProvider.OpenRouter
     },
     {
-      num_inference_steps: DEFAULT_OBJECT_INFERENCE_STEPS,
       mime_type: MediaMimeType.PLY,
     }
   )
