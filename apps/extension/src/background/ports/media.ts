@@ -1,29 +1,21 @@
 import {
   ErrorCode,
-  type RequestID,
   ModelID,
 } from "window.ai"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import {
-  POPUP_HEIGHT,
-  POPUP_WIDTH,
   type PortRequest,
   type PortResponse,
-  RequestInterruptType
 } from "~core/constants"
 import { PortName } from "~core/constants"
-import { Extension } from "~core/extension"
 import { type Config, configManager, AuthType } from "~core/managers/config"
 import {
-  type Transaction,
   transactionManager
 } from "~core/managers/transaction"
-// import * as modelRouter from "~core/model-router"
+import { Extension } from "~core/extension"
 import {
-  type Err,
-  type Result,
   err,
   isErr,
   isOk,
@@ -62,7 +54,7 @@ const handler: PlasmoMessaging.PortHandler<
   const config = await configManager.forAuthAndModel(AuthType.External)
   // if not credentialed, present with login flow
   if(!configManager.isCredentialed(config)){
-    _maybeInterrupt(id, err(ErrorCode.NotAuthenticated))
+    Extension._maybeInterrupt(id, err(ErrorCode.NotAuthenticated))
     return res.send({ response: err(ErrorCode.NotAuthenticated), id })
   }
 
@@ -92,28 +84,10 @@ const handler: PlasmoMessaging.PortHandler<
   } else {
     res.send({ response: result, id })
     txn.error = result.error
-    _maybeInterrupt(id, result)
+    Extension._maybeInterrupt(id, result)
   }
   // Update the generation with the reply and model used
   await transactionManager.save(txn)
-}
-
-async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
-  if (result.error === ErrorCode.NotAuthenticated) {
-    return _requestInterrupt(id, RequestInterruptType.Authentication)
-  } else if (result.error === ErrorCode.PaymentRequired) {
-    return _requestInterrupt(id, RequestInterruptType.Payment)
-  }
-}
-
-async function _requestInterrupt(
-  requestId: RequestID,
-  type: RequestInterruptType
-) {
-  await Extension.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
-    requestInterruptType: type,
-    requestId
-  })
 }
 
 export default handler
