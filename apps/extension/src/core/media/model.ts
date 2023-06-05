@@ -83,7 +83,7 @@ export class MediaModel {
       user_identifier: null,
       num_generations: 1,
       num_inference_steps: null,
-      mimeType: null,
+      mime_type: null,
       adapter: null,
       ...definedValues(opts)
     }
@@ -150,7 +150,7 @@ export class MediaModel {
       identifier: this.config.identifier,
       num_generations: opts.num_generations,
       num_inference_steps: opts.num_inference_steps,
-      mimeType: opts.mimeType,
+      mime_type: opts.mime_type,
       baseUrl: opts.baseUrl
     }
     return {

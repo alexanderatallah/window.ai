@@ -18,12 +18,13 @@ function createMediaDownloadLinks(transaction: Transaction) {
     return null
   }
   const input = transaction.input
+  // fallback to .txt containing contents
   let mimeType = MediaMimeType.TXT
   const outputs = transaction.outputs
   if (!isPromptInput(input) || !outputs.every(isMediaOutput)) {
     return null
   }
-  //check if a valid mimetype is contained in the data uri, otherwise fallback to .txt
+  //check if a valid mimetype is contained in the data uri
   const mimeTypeFromUri = outputs[0].uri.split(";")[0].split(":")[1]
   if (isMediaMimeType(mimeTypeFromUri)) {
     mimeType = mimeTypeFromUri

@@ -80,7 +80,6 @@ const handler: PlasmoMessaging.PortHandler<
       origin: txn.origin,
       num_generations: txn.numOutputs,
       num_inference_steps: txn.numInferenceSteps,
-      mime_type: txn.mimeType,
     })
   } catch (error) {
     result = unknownErr(error)
