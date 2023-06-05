@@ -8,7 +8,6 @@ import {
   isPromptInput,
   isTextOutput,
   isMediaOutput,
-  MediaMimeType,
   type MediaOptions,
   type ThreeDOptions
 } from "window.ai"
@@ -48,27 +47,31 @@ class TransactionManager extends BaseManager<Transaction> {
   init<TInput extends Input>(
     input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID | string, TInput> | MediaOptions<ModelID>
+    options: CompletionOptions<ModelID | string, TInput> | MediaOptions<ModelID> | ThreeDOptions<ModelID | string>
   ): Transaction {
     this._validateInput(input)
   
-    // Extracting parameters common to both CompletionOptions and MediaOptions
+    // Extracting parameters common to all options
     const {
       model,
       numOutputs = 1,
     } = options
-  
-    // Extracting parameters specific to CompletionOptions
-    const {
-      temperature,
-      maxTokens,
-      stopSequences
-    } = options as CompletionOptions<ModelID | string, TInput>
+
+    let temperature: number | undefined
+    let maxTokens: number | undefined
+    let stopSequences: string[] | undefined
+    let numInferenceSteps: number | undefined
+
+    if ('temperature' in options || 'maxTokens' in options || 'stopSequences' in options) {
+        temperature = options.temperature;
+        maxTokens = options.maxTokens;
+        stopSequences = options.stopSequences;
+    }
 
     //extracting parameters specific to 3d generation
-    const {
-      numInferenceSteps
-    } = options as ThreeDOptions<ModelID | string>
+    if ('numInferenceSteps' in options) {
+        numInferenceSteps = options.numInferenceSteps;
+    }
 
     return {
       id: uuidv4(),
@@ -82,7 +85,8 @@ class TransactionManager extends BaseManager<Transaction> {
       stopSequences,
       numInferenceSteps,
     }
-  }
+}
+
   
   
 
