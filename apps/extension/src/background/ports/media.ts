@@ -27,7 +27,8 @@ import {
   err,
   isErr,
   isOk,
-  ok
+  ok,
+  unknownErr
 } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
@@ -82,7 +83,7 @@ const handler: PlasmoMessaging.PortHandler<
       mime_type: txn.mimeType,
     })
   } catch (error) {
-    return res.send({ response: err(ErrorCode.InvalidRequest), id })
+    result = unknownErr(error)
   }
   
   if (isOk(result)) {
