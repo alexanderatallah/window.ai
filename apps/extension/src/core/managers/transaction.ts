@@ -135,6 +135,7 @@ class TransactionManager extends BaseManager<Transaction> {
     if (!txn.outputs) {
       return undefined
     }
+    // TODO: investigate why truncation needed for long uri outputs
     return txn.outputs
       .map((t) =>
         isMediaOutput(t) ? t.uri.substring(0,50) + "..." : 
