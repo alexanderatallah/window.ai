@@ -8,7 +8,7 @@ import { type Result, unknownErr, unwrap } from "./utils/result-monad"
 import { ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
-const NO_TXN_REFERRER = "__no_txn_origin__"
+export const NO_TXN_REFERRER = "__no_txn_origin__"
 
 export async function route(
   config: Config,

@@ -26,6 +26,8 @@ import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
 import { getMediaCaller } from "~core/media"
+import { originManager } from "~core/managers/origin"
+import { NO_TXN_REFERRER } from "~core/model-router"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Media],
@@ -50,8 +52,8 @@ const handler: PlasmoMessaging.PortHandler<
     return res.send(err(ErrorCode.InvalidRequest))
   }
 
-  // for now, use openrouter
-  const config = await configManager.forAuthAndModel(AuthType.External)
+  // temporarily, use external model config
+  const config = await configManager.forAuthAndModel(AuthType.External, ModelID.Shap_e)
   // if not credentialed, present with login flow
   if(!configManager.isCredentialed(config)){
     Extension._maybeInterrupt(id, err(ErrorCode.NotAuthenticated))
@@ -69,7 +71,7 @@ const handler: PlasmoMessaging.PortHandler<
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
       model: txn.routedModel,
-      origin: txn.origin,
+      origin: txn ? originManager.url(txn.origin) : NO_TXN_REFERRER,
       num_generations: txn.numOutputs,
       num_inference_steps: txn.numInferenceSteps,
     })

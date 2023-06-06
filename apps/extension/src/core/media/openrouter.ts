@@ -11,7 +11,7 @@ export function init(
   return new MediaModel(
     {
       ...config,
-      defaultBaseUrl: `${getExternalConfigURL()}/v1/api`,
+      defaultBaseUrl: `${getExternalConfigURL()}/api/v1`,
       getPath: () => "/media/generations",
       transformForRequest: (req, meta) => {
         const {

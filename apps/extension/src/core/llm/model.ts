@@ -309,7 +309,6 @@ export class Model {
       stop_sequences: payload["stop_sequences"],
       stream: payload["stream"]
     })
-
     try {
       const response = await this.api.post<ReadableStream<string>>(
         getPath(request),
@@ -345,7 +344,7 @@ export class Model {
     return {
       Authorization: opts.apiKey ? `${authPrefix}${opts.apiKey}` : undefined,
       "X-API-KEY": opts.apiKey || undefined,
-      "HTTP-Referer": opts.origin
+      "HTTP-Referer": "__no_txn_origin__",
     }
   }
 
