@@ -12,7 +12,7 @@ async function _requestInterrupt(
       requestId
     })
   }
-export async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
+export async function promptInterrupts(id: RequestID, result: Err<ErrorCode | string>) {
     if (result.error === ErrorCode.NotAuthenticated) {
       return _requestInterrupt(id, RequestInterruptType.Authentication)
     } else if (result.error === ErrorCode.PaymentRequired) {

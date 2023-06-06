@@ -28,7 +28,7 @@ import {
 import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
-import { _maybeInterrupt } from "~background/lib/helpers"
+import { promptInterrupts } from "~background/lib/helpers"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Completion],
@@ -52,7 +52,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   const predictedModel = await _getCompletionModel(config, txn)
   if (!isOk(predictedModel)) {
-    _maybeInterrupt(id, predictedModel)
+    promptInterrupts(id, predictedModel)
     return res.send({ response: predictedModel, id })
   }
   txn.routedModel = predictedModel.data
@@ -73,7 +73,7 @@ const handler: PlasmoMessaging.PortHandler<
       } else {
         res.send({ response: result, id })
         errors.push(result.error)
-        _maybeInterrupt(id, result)
+        promptInterrupts(id, result)
       }
     }
 
@@ -99,7 +99,7 @@ const handler: PlasmoMessaging.PortHandler<
     } else {
       res.send({ response: result, id })
       txn.error = result.error
-      _maybeInterrupt(id, result)
+      promptInterrupts(id, result)
     }
   }
 

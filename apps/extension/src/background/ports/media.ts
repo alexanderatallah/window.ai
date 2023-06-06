@@ -28,7 +28,7 @@ import { requestPermission } from "./permission"
 import { getMediaCaller } from "~core/media"
 import { originManager } from "~core/managers/origin"
 import { NO_TXN_REFERRER } from "~core/model-router"
-import { _maybeInterrupt } from "~background/lib/helpers"
+import { promptInterrupts } from "~background/lib/helpers"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Media],
@@ -57,7 +57,7 @@ const handler: PlasmoMessaging.PortHandler<
   const config = await configManager.forAuthAndModel(AuthType.External, ModelID.Shap_e)
   // if not credentialed, present with login flow
   if(!configManager.isCredentialed(config)){
-    _maybeInterrupt(id, err(ErrorCode.NotAuthenticated))
+    promptInterrupts(id, err(ErrorCode.NotAuthenticated))
     return res.send({ response: err(ErrorCode.NotAuthenticated), id })
   }
 
@@ -87,7 +87,7 @@ const handler: PlasmoMessaging.PortHandler<
   } else {
     res.send({ response: result, id })
     txn.error = result.error
-    _maybeInterrupt(id, result)
+    promptInterrupts(id, result)
   }
   // Update the generation with the reply and model used
   await transactionManager.save(txn)
