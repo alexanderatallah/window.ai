@@ -25,8 +25,6 @@ export const shap_e = initOpenRouter(
     }
   )
 
-export function getMediaCaller(
-  model?: ModelID
-): MediaModel {
+export function getMediaCaller(model?: ModelID): MediaModel {
       return shap_e
 }
