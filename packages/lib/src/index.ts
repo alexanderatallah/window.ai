@@ -9,19 +9,16 @@ declare global {
 
 export enum MediaMimeType {
   PLY = "application/x-ply",
-  TXT = "text/plain"
 }
 
-export enum MediaExtensions {
-  PLY = ".ply",
-  TXT = ".txt"
+export function mimeTypeToExtension(mimeType: MediaMimeType): string | undefined {
+  switch (mimeType) {
+      case MediaMimeType.PLY:
+          return "ply"
+      default:
+          return undefined
+  }
 }
-
-export const mimeTypeToExtension: { [key in MediaMimeType]?: MediaExtensions } = {
-  [MediaMimeType.PLY]: MediaExtensions.PLY,
-  [MediaMimeType.TXT]: MediaExtensions.TXT
-}
-
 export function isMediaMimeType(mimeType: string): mimeType is MediaMimeType {
   return Object.values(MediaMimeType).includes(mimeType as MediaMimeType);
 }

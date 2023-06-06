@@ -26,8 +26,6 @@ export interface MediaModelConfig {
   authPrefix?: string
   debug?: boolean
   retries?: number
-  cacheGet?: CacheGetter
-  cacheSet?: CacheSetter
   adapter?: AxiosRequestConfig["adapter"]
 }
 
@@ -57,14 +55,6 @@ export type RequestData = Omit<
 
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
 
-// TODO cache statistics and log probs etc
-export type CacheGetter = (id: string) => Promise<MediaOutput[] | null | undefined>
-
-export type CacheSetter = (data: {
-  id: string
-  prompt: RequestData
-  completion: MediaOutput[]
-}) => Promise<unknown>
 
 export class MediaModel {
   public api: AxiosInstance
@@ -122,8 +112,6 @@ export class MediaModel {
       getRoutePath: config.getRoutePath || ((request: RequestData) => null),
       overrideModelParam:
         config.overrideModelParam || ((request: RequestData) => request.model),
-      cacheGet: config.cacheGet || (() => Promise.resolve(undefined)),
-      cacheSet: config.cacheSet || (() => Promise.resolve(undefined))
     }
     return opts
   }
@@ -213,7 +201,7 @@ export class MediaModel {
       "HTTP-Referer": opts.origin
     }
   }
-
+  // TODO: Duplicated from llm/model.ts, abstract out to a common place
   private _handleModelAPIError(error: unknown): Err<ErrorCode> {
     if (!(error instanceof AxiosError)) {
       const errorStr = `Unknown error: ${error}`

@@ -14,12 +14,12 @@ import { transactionManager } from "~core/managers/transaction"
 import { formatDate } from "~core/utils/utils"
 
 function createMediaDownloadLinks(transaction: Transaction) {
-  if (!transaction.input || !transaction.outputs) {
+  if (!transaction.outputs) {
     return null
   }
   const input = transaction.input
   // fallback to .txt containing contents
-  let mimeType = MediaMimeType.TXT
+  let mimeType: MediaMimeType
   const outputs = transaction.outputs
   if (!isPromptInput(input) || !outputs.every(isMediaOutput)) {
     return null
@@ -31,20 +31,17 @@ function createMediaDownloadLinks(transaction: Transaction) {
   }
 
   return outputs.map((output, index) => {
-    const fileName = `${input.prompt.replace(" ", "-")}_${index}_${mimeTypeToExtension[mimeType]}`
+    const fileName = `${input.prompt.replace(" ", "-")}-${index}${mimeType ? "." : ""}${mimeTypeToExtension(mimeType)}`
     return (
-      <>
-        <br></br>
         <a
-          href={`${output.uri}`}
+          href={output.uri}
           target="_blank"
           rel="noreferrer"
           download={fileName}
-          className="text-blue-500 hover:underline"
+          className="text-blue-500 hover:underline block"
           key={index}>
           Download {fileName}
         </a>
-      </>
     )
   })
 }
