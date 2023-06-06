@@ -63,14 +63,14 @@ class TransactionManager extends BaseManager<Transaction> {
     let numInferenceSteps: number | undefined
 
     if ('temperature' in options || 'maxTokens' in options || 'stopSequences' in options) {
-        temperature = options.temperature;
-        maxTokens = options.maxTokens;
-        stopSequences = options.stopSequences;
+        temperature = options.temperature
+        maxTokens = options.maxTokens
+        stopSequences = options.stopSequences
     }
 
     //extracting parameters specific to 3d generation
     if ('numInferenceSteps' in options) {
-        numInferenceSteps = options.numInferenceSteps;
+        numInferenceSteps = options.numInferenceSteps
     }
 
     return {
