@@ -34,7 +34,7 @@ export function init(
       },
       transformResponse: (res) => {
         const anyRes = res as any
-        return anyRes["uris"].map((g: string) => {
+        return anyRes["data"]["uris"].map((g: string) => {
           return {
             uri: g
           }

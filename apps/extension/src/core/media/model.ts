@@ -192,7 +192,6 @@ export class MediaModel {
     }
 
     this.log("RESPONSE for id " + id)
-    // return ok([responseData.url]);
     const result = transformResponse(responseData)
     if (!result[0]) {
       const e = new Error(
