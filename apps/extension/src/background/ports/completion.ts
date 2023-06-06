@@ -28,6 +28,7 @@ import {
 import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
+import { _maybeInterrupt } from "~background/lib/helpers"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Completion],
@@ -51,7 +52,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   const predictedModel = await _getCompletionModel(config, txn)
   if (!isOk(predictedModel)) {
-    Extension._maybeInterrupt(id, predictedModel)
+    _maybeInterrupt(id, predictedModel)
     return res.send({ response: predictedModel, id })
   }
   txn.routedModel = predictedModel.data
@@ -72,7 +73,7 @@ const handler: PlasmoMessaging.PortHandler<
       } else {
         res.send({ response: result, id })
         errors.push(result.error)
-        Extension._maybeInterrupt(id, result)
+        _maybeInterrupt(id, result)
       }
     }
 
@@ -98,7 +99,7 @@ const handler: PlasmoMessaging.PortHandler<
     } else {
       res.send({ response: result, id })
       txn.error = result.error
-      Extension._maybeInterrupt(id, result)
+      _maybeInterrupt(id, result)
     }
   }
 

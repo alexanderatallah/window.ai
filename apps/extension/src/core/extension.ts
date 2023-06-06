@@ -1,16 +1,11 @@
 import browser from "webextension-polyfill"
-import { ErrorCode, type RequestID } from "window.ai"
 import {
-  POPUP_HEIGHT,
-  POPUP_WIDTH,
-  RequestInterruptType,
   type PopupParams,
   type PortEvent,
   type PortRequest,
   type PortResponse} from "~core/constants"
 import { PortName } from "~core/constants"
 import { log } from "~core/utils/utils"
-import type { Err } from "./utils/result-monad"
 
 export type Port = browser.Runtime.Port
 export const Extension = {
@@ -157,22 +152,5 @@ export const Extension = {
       }
     }
     browser.windows.onRemoved.addListener(onRemovedListener)
-  },
-  async _requestInterrupt(
-    requestId: RequestID,
-    type: RequestInterruptType
-  ) {
-    await this.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
-      requestInterruptType: type,
-      requestId
-    })
-  },
-  async _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
-    if (result.error === ErrorCode.NotAuthenticated) {
-      return this._requestInterrupt(id, RequestInterruptType.Authentication)
-    } else if (result.error === ErrorCode.PaymentRequired) {
-      return this._requestInterrupt(id, RequestInterruptType.Payment)
-    }
-  },
-
+  }
 }
