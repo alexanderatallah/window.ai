@@ -112,6 +112,12 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   numOutputs?: number
 }
 
+export function isCompletionOptions(
+  options: CompletionOptions<string, Input>
+): options is CompletionOptions<string, Input> {
+  return 'temperature' in options || 'maxTokens' in options || 'stopSequences' in options
+}
+
 // MediaOptions allows you to specify options for the media generation request.
 export interface MediaOptions<TModel> {
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
@@ -148,6 +154,8 @@ export enum EventType {
   // Fired for errors
   Error = "error"
 }
+
+
 
 export type RequestID = string
 

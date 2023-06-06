@@ -8,8 +8,8 @@ import {
   isPromptInput,
   isTextOutput,
   isMediaOutput,
-  type MediaOptions,
-  type ThreeDOptions
+  type ThreeDOptions,
+  isCompletionOptions
 } from "window.ai"
 
 import { BaseManager } from "./base"
@@ -47,7 +47,7 @@ class TransactionManager extends BaseManager<Transaction> {
   init<TInput extends Input>(
     input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID | string, TInput> | MediaOptions<ModelID | string> | ThreeDOptions<ModelID | string>
+    options: CompletionOptions<ModelID | string, TInput> | ThreeDOptions<ModelID | string>
   ): Transaction {
     this._validateInput(input)
   
@@ -62,7 +62,7 @@ class TransactionManager extends BaseManager<Transaction> {
     let stopSequences: string[] | undefined
     let numInferenceSteps: number | undefined
 
-    if ('temperature' in options || 'maxTokens' in options || 'stopSequences' in options) {
+    if (isCompletionOptions(options)) {
         temperature = options.temperature
         maxTokens = options.maxTokens
         stopSequences = options.stopSequences
