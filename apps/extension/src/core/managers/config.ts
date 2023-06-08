@@ -232,7 +232,8 @@ class ConfigManager extends BaseManager<Config> {
 
   async getModelCaller(config: Config) {
     const isOpenRouterAuthed = async () => {
-      return this.isCredentialed(await this.forAuthAndModel(AuthType.External))
+      const c = await this.forAuthAndModel(AuthType.External)
+      return c ? this.isCredentialed(c) : false
     }
 
     const canProxy =

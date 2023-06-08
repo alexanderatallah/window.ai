@@ -49,7 +49,7 @@ export const windowAI: WindowAI<ModelID | string> = {
         requestId,
         (res) => {
           if (isOk(res)) {
-            if (!res.data[0].isPartial) {
+            if (!res.data[0]?.isPartial) {
               resolve(res.data)
             } else {
               onStreamResult && res.data.forEach((d) => onStreamResult(d, null))
