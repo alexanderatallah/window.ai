@@ -277,14 +277,14 @@ const useWebVMProvider = ({
 
       switch (cmd) {
         case "ai": {
-          await shellAI.sendMessage(prompt, (d) => terminal.write(d))
+          await shellAI.sendMessage(prompt!, (d) => terminal.write(d))
           break
         }
 
         case "code": {
           await codeAI.execute(
             {
-              input: prompt,
+              input: prompt!,
               container
             },
             (d) => terminal.write(d)
@@ -300,7 +300,7 @@ const useWebVMProvider = ({
     // OPTIONAL behavior:
 
     // use which to check if cmd exists, if so run it, otherwise, create that script!
-    const whichProc = await container.spawn("which", [cmd], {
+    const whichProc = await container.spawn("which", [cmd!], {
       output: false
     })
 
@@ -311,7 +311,7 @@ const useWebVMProvider = ({
       return
     }
 
-    await addBin(cmd, container)
+    await addBin(cmd!, container)
     terminal.write("\n\n")
     await shellAI.sendMessage(
       `What is a creative output for the following command? 

@@ -103,7 +103,7 @@ export const useAgentManagerProvider = () => {
 
   const getAgent = useCallback(
     (id: string) => {
-      return agentPool[id]!
+      return agentPool[id]
     },
     [agentPool]
   )
