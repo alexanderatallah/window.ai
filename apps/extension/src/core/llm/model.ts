@@ -344,7 +344,7 @@ export class Model {
     return {
       Authorization: opts.apiKey ? `${authPrefix}${opts.apiKey}` : undefined,
       "X-API-KEY": opts.apiKey || undefined,
-      "HTTP-Referer": "__no_txn_origin__",
+      "HTTP-Referer": opts.origin,
     }
   }
 
