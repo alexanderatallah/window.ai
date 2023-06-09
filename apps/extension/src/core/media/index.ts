@@ -1,4 +1,4 @@
-import { MediaMimeType, ModelID } from "window.ai"
+import { MediaExtension, ModelID } from "window.ai"
 
 import { init as initOpenRouter } from "./openrouter"
 
@@ -21,7 +21,7 @@ export const shap_e = initOpenRouter(
       identifier: MediaModelProvider.OpenRouter
     },
     {
-      mime_type: MediaMimeType.PLY,
+      extension: MediaExtension.PLY,
     }
   )
 

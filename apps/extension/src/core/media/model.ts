@@ -3,10 +3,10 @@ import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
-import { type ChatMessage, ErrorCode, type MediaOutput, MediaMimeType, type ThreeDOptions } from "window.ai"
+import { ErrorCode, type MediaOutput, MediaExtension } from "window.ai"
 
 import { type Err, type Result, err, ok } from "~core/utils/result-monad"
-import { definedValues, parseDataChunks } from "~core/utils/utils"
+import { definedValues, } from "~core/utils/utils"
 
 // These options are specific to the model shape and archetype
 export interface MediaModelConfig {
@@ -35,7 +35,7 @@ export interface RequestOptions {
   model?: string | null
   origin?: string | null
   num_generations?: number
-  mime_type?: MediaMimeType | null
+  extension?: MediaExtension | null
   num_inference_steps?: number | null
   timeout?: number
   user_identifier?: string | null
@@ -73,7 +73,7 @@ export class MediaModel {
       user_identifier: null,
       num_generations: 1,
       num_inference_steps: 32,
-      mime_type: null,
+      extension: null,
       adapter: null,
       ...definedValues(opts)
     }
@@ -138,7 +138,7 @@ export class MediaModel {
       identifier: this.config.identifier,
       num_generations: opts.num_generations,
       num_inference_steps: opts.num_inference_steps,
-      mime_type: opts.mime_type,
+      extension: opts.extension,
       baseUrl: opts.baseUrl
     }
     return {

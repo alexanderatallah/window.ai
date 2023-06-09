@@ -15,7 +15,7 @@ export function init(
       getPath: () => "/media/generations",
       transformForRequest: (req, meta) => {
         const {
-          mime_type,
+          extension,
           num_generations,
           identifier,
           prompt,
@@ -29,7 +29,7 @@ export function init(
           user: meta.user_identifier ?? undefined,
           num_outputs: num_generations,
           num_inference_steps: num_inference_steps,
-          mime_type: mime_type ?? undefined,
+          extension: extension ?? undefined,
         }
       },
       transformResponse: (res) => {
