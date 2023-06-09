@@ -112,7 +112,9 @@ const [ response ] : Output[] = await window.ai.generateText(
 console.log(response.message.content) // "I am an AI language model"
 ```
 
-All public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). `Input`, for example, allows you to use both simple strings and [ChatML](https://github.com/openai/openai-python/blob/main/chatml.md).
+All public types, including error messages, are available with comments in the [window.ai library](/packages/lib/src/index.ts). Jump down to `export interface WindowAI` to see the type of the root object.
+
+`Input`, for example, allows you to use both simple strings and [ChatML](https://github.com/openai/openai-python/blob/main/chatml.md).
 
 Example of streaming GPT-4 results to the console:
 
@@ -194,7 +196,7 @@ const uri = result.uri;
 
 
 
-All public types, including error messages, are documented in [this file](/apps/extension/src/public-interface.ts). Highlights below:
+All public types, including error messages, are documented in the [window.ai library](/packages/lib/src/index.ts). Highlights below:
 
 ### CompletionOptions
 
