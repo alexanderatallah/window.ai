@@ -250,7 +250,7 @@ You can configure any local model to work with Window-compatible apps by writing
 
 To quickly set up a local LLM server for experimentation, you can download [local.ai](https://www.localai.app/), which includes a GUI to download models and configure the streaming server:
 
-<video src="https://github.com/louisgv/local.ai/assets/6723574/c56400b4-4520-47da-80fb-ab8552a2683b" controls="controls" style="max-width: 470px;">
+<video src="https://github.com/louisgv/local.ai/assets/6723574/c56400b4-4520-47da-80fb-ab8552a2683b" controls="controls" style="max-width: 360px;">
 </video>
 
 ### Server API Spec
