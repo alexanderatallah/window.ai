@@ -21,8 +21,8 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 ### ℹ️ Contents
 
 - [Window: use your own AI models on the web](#window-use-your-own-ai-models-on-the-web)
-    - [📺 Demo](#-demo)
-    - [ℹ️ Contents](#ℹ️-contents)
+  - [📺 Demo](#-demo)
+  - [ℹ️ Contents](#ℹ️-contents)
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
@@ -63,13 +63,14 @@ It works with these models:
 - OpenAI's [GPT-3.5 and GPT-4](https://platform.openai.com/)
 - Together's [GPT NeoXT 20B](https://github.com/togethercomputer/OpenChatKit/blob/main/docs/GPT-NeoXT-Chat-Base-20B.md)
 - Cohere [Xlarge](https://dashboard.cohere.ai/)
-- Open models, like Alpaca, that can run locally (see [how](#🧠-local-model-setup)).
+- Open models, like MPT or Dolly, that can run locally (see [how](#🧠-local-model-setup)).
 
 ## 📥 Installation
 
 Download the Chrome extension here: https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag
 
 ### Browser support
+
 ✅ [Chrome](https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag)
 ✅ [Brave](https://chrome.google.com/webstore/detail/window-ai/cbhbgmdpcoelfdoihppookkijpmgahag)
 ✏️ Microsoft Edge
@@ -77,6 +78,7 @@ Download the Chrome extension here: https://chrome.google.com/webstore/detail/wi
 ✏️ Safari: https://github.com/alexanderatallah/window.ai/issues/20
 
 ### Beta builds
+
 You can join the [#beta-builds channel on Discord](https://discord.gg/KBPhAPEJNj) to get early access to features being tested and developed by the community.
 
 ## 👀 Find apps
@@ -118,7 +120,7 @@ All public types, including error messages, are available with comments in the [
 Example of streaming GPT-4 results to the console:
 
 ```ts
-const [ { message } ] = await window.ai.generateText(
+const [{ message }] = await window.ai.generateText(
   {
     messages: [{ role: "user", content: "Who are you?" }]
   },
@@ -155,8 +157,7 @@ window.ai.generateText(
 
 `Input` is either a `{ prompt : string }` or `{ messages: ChatMessage[]}`. Examples: see [getting started](#🧑‍💻-getting-started) above.
 
-**Current model**: get the user's currently preferred model. Will be undefined if their chosen model 
-provider doesn't have a model lookup, or the model is unknown.
+**Current model**: get the user's currently preferred model. Will be undefined if their chosen model provider doesn't have a model lookup, or the model is unknown.
 
 ```ts
 window.ai.getCurrentModel(): Promise<ModelID | undefined>
@@ -247,7 +248,7 @@ Hope to eventually make an `awesome-window.ai` repo, but in the meantime:
 
 You can configure any local model to work with Window-compatible apps by writing a simple HTTP server.
 
-Here are instructions for setting up an [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) server locally with FastAPI and Uvicorn: [Alpaca Turbo](https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api).
+To quickly set up a local LLM server for experimentation, you can download [local.ai](https://www.localai.app/), which includes a GUI to download models and configure the streaming server.
 
 ### Server API Spec
 
