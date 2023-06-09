@@ -9,7 +9,8 @@ import {
   isTextOutput,
   isMediaOutput,
   type ThreeDOptions,
-  isCompletionOptions
+  isCompletionOptions,
+  isMediaHosted
 } from "window.ai"
 
 import { BaseManager } from "./base"
@@ -138,7 +139,7 @@ class TransactionManager extends BaseManager<Transaction> {
     // TODO: handle previews for media outputs, when implemented
     return txn.outputs
       .map((t) =>
-        isMediaOutput(t) ? "" : 
+        isMediaOutput(t) ? (isMediaHosted(t) ? t.url : "Media currently not available locally.") : 
         isTextOutput(t) ? t.text : `${t.message.role}: ${t.message.content}`
       )
       .join("\n")

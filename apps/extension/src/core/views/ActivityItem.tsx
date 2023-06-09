@@ -13,8 +13,11 @@ import { transactionManager } from "~core/managers/transaction"
 import { formatDate } from "~core/utils/utils"
 
 function createMediaDownloadLinks({ input, outputs }: Transaction) {
-  if (!outputs || !outputs.every(isMediaHosted)) {
+  if (!outputs) {
     return null
+  }
+  if(!outputs.every(isMediaHosted)){
+    return "Media currently not available locally, however, this may change in the future."
   }
   if (!isPromptInput(input)) {
     return null

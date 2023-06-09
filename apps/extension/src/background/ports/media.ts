@@ -84,15 +84,7 @@ const handler: PlasmoMessaging.PortHandler<
   if (isOk(result)) {
     const outputs = result.data
     res.send({ response: ok(outputs), id })
-    if(outputs.every(isMediaHosted)){
-      txn.outputs = outputs
-    } else{
-      //if not hosted, and unless unlimitedStorage enabled in the future, cannot store locally
-      const BETA_NOTIFICATION_MESSAGE: TextOutput = {
-        "text": "Due to storage constraints, media outputs are currently not downloadable here, but may be soon."
-      }
-      txn.outputs = [BETA_NOTIFICATION_MESSAGE]
-    }
+    txn.outputs = outputs
   } else {
     res.send({ response: result, id })
     txn.error = result.error
