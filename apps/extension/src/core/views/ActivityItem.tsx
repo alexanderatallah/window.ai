@@ -1,7 +1,7 @@
 import {
-  MediaExtension,
   isMediaExtension,
   isMediaHosted,
+  isMediaOutput,
   isPromptInput
 } from "window.ai"
 
@@ -50,7 +50,7 @@ function createMediaDownloadLinks({ input, outputs }: Transaction) {
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)
   const model = transactionManager.getRoutedModel(transaction)
-  const output = transaction?.outputs?.every(isMediaHosted)
+  const output = transaction?.outputs?.every(isMediaOutput)
     ? createMediaDownloadLinks(transaction)
     : transactionManager.formatOutput(transaction)
   let input = transactionManager.formatInput(transaction)
