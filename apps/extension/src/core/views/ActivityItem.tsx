@@ -1,9 +1,8 @@
 import {
-  MediaMimeType,
-  isMediaOutput,
-  isPromptInput,
-  mimeTypeToExtension,
-  isMediaMimeType
+  MediaExtension,
+  isMediaExtension,
+  isMediaHosted,
+  isPromptInput
 } from "window.ai"
 
 import { Logo } from "~core/components/pure/Logo"
@@ -13,35 +12,34 @@ import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
 import { formatDate } from "~core/utils/utils"
 
-function createMediaDownloadLinks(transaction: Transaction) {
-  if (!transaction.outputs) {
+function createMediaDownloadLinks({ input, outputs }: Transaction) {
+  if (!outputs || !outputs.every(isMediaHosted)) {
     return null
   }
-  const input = transaction.input
-  // fallback to .txt containing contents
-  let mimeType: MediaMimeType
-  const outputs = transaction.outputs
-  if (!isPromptInput(input) || !outputs.every(isMediaOutput)) {
+  if (!isPromptInput(input)) {
     return null
   }
-  //check if a valid mimetype is contained in the data uri
-  const mimeTypeFromUri = outputs[0].uri.split(";")[0].split(":")[1]
-  if (isMediaMimeType(mimeTypeFromUri)) {
-    mimeType = mimeTypeFromUri
-  }
-
   return outputs.map((output, index) => {
-    const fileName = `${input.prompt.replace(" ", "-")}-${index}${mimeType ? "." : ""}${mimeTypeToExtension(mimeType)}`
+    // defaults to no extension
+    let extension: string = ""
+    if (output.url) {
+      const base = output.url.split("?")[0]
+      const extensionFromURL = base.split(".").pop()
+      if (extensionFromURL && isMediaExtension(extensionFromURL)) {
+        extension = extensionFromURL
+      }
+    }
+    const fileName = `${input.prompt.replace(" ", "-")}-${index}${extension ? "." : ""}${extension}`
     return (
-        <a
-          href={output.uri}
-          target="_blank"
-          rel="noreferrer"
-          download={fileName}
-          className="text-blue-500 hover:underline block"
-          key={index}>
-          Download {fileName}
-        </a>
+      <a
+        href={output.url}
+        target="_blank"
+        rel="noreferrer"
+        download={fileName}
+        className="text-blue-500 hover:underline block"
+        key={index}>
+        Download {fileName}
+      </a>
     )
   })
 }
@@ -49,7 +47,7 @@ function createMediaDownloadLinks(transaction: Transaction) {
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)
   const model = transactionManager.getRoutedModel(transaction)
-  const output = transaction?.outputs?.every(isMediaOutput)
+  const output = transaction?.outputs?.every(isMediaHosted)
     ? createMediaDownloadLinks(transaction)
     : transactionManager.formatOutput(transaction)
   let input = transactionManager.formatInput(transaction)
@@ -93,8 +91,7 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
 
       <p className="mt-4">
         <b>Response:</b>{" "}
-        {output ||
-          (!transaction.error && <span className="italic">Pending</span>)}
+        {output || (!transaction.error && <span className="italic">Pending</span>)}
       </p>
 
       {transaction.error && (

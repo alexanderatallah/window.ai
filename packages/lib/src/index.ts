@@ -7,20 +7,12 @@ declare global {
   }
 }
 
-export enum MediaMimeType {
-  PLY = "application/x-ply",
+export enum MediaExtension {
+  PLY = "ply",
 }
 
-export function mimeTypeToExtension(mimeType: MediaMimeType): string | undefined {
-  switch (mimeType) {
-      case MediaMimeType.PLY:
-          return "ply"
-      default:
-          return undefined
-  }
-}
-export function isMediaMimeType(mimeType: string): mimeType is MediaMimeType {
-  return Object.values(MediaMimeType).includes(mimeType as MediaMimeType);
+export function isMediaExtension(extension: string): extension is MediaExtension {
+  return Object.values(MediaExtension).includes(extension as MediaExtension)
 }
 
 // ChatML is a simple markup language for chat messages. More available here:
@@ -63,6 +55,7 @@ export type MessageOutput = {
 
 export type MediaOutput = {
   uri: string
+  url?: string
 }
 
 // Output can be either a string or a chat message, depending on which Input type you use.
@@ -79,6 +72,11 @@ export function isMessageOutput(output: Output): output is MessageOutput {
 export function isMediaOutput(output: Output): output is MediaOutput {
   return "uri" in output
 }
+
+export function isMediaHosted(output: Output): output is MediaOutput {
+  return "url" in output && output.url !== null
+}
+
 
 export type InferredOutput<TInput> = TInput extends MessagesInput
   ? MessageOutput

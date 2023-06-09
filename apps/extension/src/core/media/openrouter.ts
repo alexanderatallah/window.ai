@@ -34,11 +34,12 @@ export function init(
       },
       transformResponse: (res) => {
         const anyRes = res as any
-        return anyRes["data"]["uris"].map((g: string) => {
+        return anyRes["data"].map(({uri, url}: {uri: string, url: string | null}) => {
           return {
-            uri: g
+            uri: uri,
+            url: url || null // url is null if the output is not hosted
           }
-        })
+        })        
       }
     },
     opts

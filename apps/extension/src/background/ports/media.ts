@@ -1,8 +1,9 @@
 import {
   ErrorCode,
   ModelID,
+  isMediaHosted,
+  type TextOutput,
 } from "window.ai"
-
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import {
@@ -83,13 +84,21 @@ const handler: PlasmoMessaging.PortHandler<
   if (isOk(result)) {
     const outputs = result.data
     res.send({ response: ok(outputs), id })
-    txn.outputs = outputs
+    if(outputs.every(isMediaHosted)){
+      txn.outputs = outputs
+    } else{
+      //if not hosted, and unless unlimitedStorage granted, cannot store locally
+      const BETA_NOTIFICATION_MESSAGE: TextOutput = {
+        "text": "Due to storage constraints, media outputs are currently not downloadable here, but may be soon."
+      }
+      txn.outputs = [BETA_NOTIFICATION_MESSAGE]
+    }
   } else {
     res.send({ response: result, id })
     txn.error = result.error
     promptInterrupts(id, result)
   }
-  // Update the generation with the reply and model used
+  // Update the generation with the notification message(for now) and model used
   await transactionManager.save(txn)
 }
 

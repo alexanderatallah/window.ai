@@ -135,10 +135,10 @@ class TransactionManager extends BaseManager<Transaction> {
     if (!txn.outputs) {
       return undefined
     }
-    // TODO: investigate why truncation needed for long uri outputs
+    // TODO: handle previews for media outputs, when implemented
     return txn.outputs
       .map((t) =>
-        isMediaOutput(t) ? t.uri.substring(0,50) + "..." : 
+        isMediaOutput(t) ? "" : 
         isTextOutput(t) ? t.text : `${t.message.role}: ${t.message.content}`
       )
       .join("\n")
