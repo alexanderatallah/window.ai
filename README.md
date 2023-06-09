@@ -34,7 +34,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
     - [Getting started](#getting-started)
     - [Functions](#functions)
     - [CompletionOptions](#completionoptions)
-    - [MediaOptions](#mediaoptions)
+    - [ThreeDOptions](#threedoptions)
     - [Model ID Standard](#model-id-standard)
     - [Error codes](#error-codes)
     - [Community tools](#community-tools)
@@ -233,23 +233,17 @@ export interface CompletionOptions {
 }
 ```
 
-### MediaOptions 
-This options dictionary allows you to specify options for the media generation request, with options like `ThreeDOptions` extending `MediaOptions`.
+### ThreeDOptions 
+This options dictionary allows you to specify options for generating a three dimensional object.
   
 ```ts
-export interface MediaOptions<TModel> {
-  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: TModel
-  // How many completion choices to attempt to generate. Defaults to 1. If the
-  // model doesn't support more than one, then an array with a single element will be returned.
-  numOutputs?: number
- 
-}
-
-// ThreeDOptions extends MediaOptions, inheriting its properties, and adds numInferenceSteps.
-export interface ThreeDOptions<TModel> extends MediaOptions<TModel> {
+export interface ThreeDOptions{
   // The number of inference steps to run. Defaults to 32, with specific default values for each model.
   numInferenceSteps?: number
+  // How many generations to create. Defaults to 1.
+  numOutputs?: number
+  // Identifier of the model to use. Defaults to openai/shap-e for now.
+  model?: ModelID | string
 }
 ```
 

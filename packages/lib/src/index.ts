@@ -58,7 +58,7 @@ export type MediaOutput = {
   url?: string
 }
 
-// Output can be either a string or a chat message, depending on which Input type you use.
+// Output can be either a string or a chat message, or media output, depending on which Input type and function you use.
 export type Output = TextOutput | MessageOutput | MediaOutput
 
 export function isTextOutput(output: Output): output is TextOutput {
@@ -84,8 +84,18 @@ export type InferredOutput<TInput> = TInput extends MessagesInput
   ? TextOutput | MediaOutput
   : Output
 
+
+// Base set of options for all requests.
+export interface Options<TModel, TInput extends Input = Input> {
+  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
+  model?: TModel
+  // How many completion choices to attempt to generate. Defaults to 1. If the
+  // model doesn't support more than one, then an array with a single element will be returned.
+  numOutputs?: number
+}
+
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions<TModel, TInput extends Input = Input> {
+export interface CompletionOptions<TModel, TInput extends Input = Input> extends Options<TModel, TInput> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
   // NOT GUARANTEED to return results by every model, so make sure you handle the promise
@@ -103,32 +113,18 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   maxTokens?: number
   // Sequences where the API will stop generating further tokens.
   stopSequences?: string[]
-  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: TModel
-  // How many completion choices to attempt to generate. Defaults to 1. If the
-  // model doesn't support more than one, then an array with a single element will be returned.
-  numOutputs?: number
+}
+
+// ThreeDOptions  you to specify options for your generation request.
+export interface ThreeDOptions<TModel> extends Options<TModel> {
+  // The number of inference steps to run. Defaults to 32, with specific default values for each model.
+  numInferenceSteps?: number
 }
 
 export function isCompletionOptions(
-  options: CompletionOptions<string, Input>
+  options: Options<string, Input>
 ): options is CompletionOptions<string, Input> {
   return 'temperature' in options || 'maxTokens' in options || 'stopSequences' in options
-}
-
-// MediaOptions allows you to specify options for the media generation request.
-export interface MediaOptions<TModel> {
-  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: TModel
-  // How many completion choices to attempt to generate. Defaults to 1. If the
-  // model doesn't support more than one, then an array with a single element will be returned.
-  numOutputs?: number
-}
-
-// ThreeDOptions extends MediaOptions, inheriting its properties, and adds numInferenceSteps.
-export interface ThreeDOptions<TModel> extends MediaOptions<TModel> {
-  // The number of inference steps to run. Defaults to 32, with specific default values for each model.
-  numInferenceSteps?: number
 }
 
 // Error codes emitted by the extension API
