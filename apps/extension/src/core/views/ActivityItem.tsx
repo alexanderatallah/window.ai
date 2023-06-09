@@ -17,7 +17,7 @@ function createMediaDownloadLinks({ input, outputs }: Transaction) {
     return null
   }
   if(!outputs.every(isMediaHosted)){
-    return "Media currently not available locally, however, this may change in the future."
+    return "Due to storage constraints, local media generations are currently not downloadable here, but may be soon."
   }
   if (!isPromptInput(input)) {
     return null
