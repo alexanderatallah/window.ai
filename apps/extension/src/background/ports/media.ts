@@ -3,6 +3,7 @@ import {
   ModelID,
   isMediaHosted,
   type TextOutput,
+  type MediaOutput,
 } from "window.ai"
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
@@ -84,7 +85,11 @@ const handler: PlasmoMessaging.PortHandler<
   if (isOk(result)) {
     const outputs = result.data
     res.send({ response: ok(outputs), id })
-    txn.outputs = outputs
+    // do not store URIs in the transaction, empty string to save storage
+    txn.outputs = outputs.map((output: MediaOutput) => ({
+      ...output,
+      uri: "",
+    }))
   } else {
     res.send({ response: result, id })
     txn.error = result.error
