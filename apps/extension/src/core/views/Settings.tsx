@@ -177,7 +177,7 @@ export function Settings() {
               <Text dimming="less" size="xs">
                 Set up local.ai on your computer{" "}
                 <a
-                  href={"https://www.localai.app/"}
+                  href={"https://localai.app/"}
                   target="_blank"
                   className="font-bold"
                   rel="noreferrer">
