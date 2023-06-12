@@ -46,6 +46,7 @@ export async function complete(
       baseUrl: config.baseUrl,
       model,
       origin: originManager.url(txn.origin),
+      originTitle: txn.origin.title,
       max_tokens: txn.maxTokens,
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences,
@@ -84,6 +85,7 @@ export async function stream(
       baseUrl: config.baseUrl,
       model,
       origin: originManager.url(txn.origin),
+      originTitle: txn.origin.title,
       max_tokens: txn.maxTokens,
       temperature: txn.temperature,
       stop_sequences: txn.stopSequences
