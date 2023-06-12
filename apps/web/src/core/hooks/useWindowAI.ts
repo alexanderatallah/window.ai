@@ -108,7 +108,7 @@ export function useWindowAI(
             temperature
           }
         )
-        responseMsg.content = result.message.content
+        responseMsg.content = result!.message.content
 
         setMessages(
           (messagesRef.current = [...allMessages, { ...responseMsg }])

@@ -1,5 +1,5 @@
 import type { AppProps } from "next/app"
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "~core/components/Analytics"
 import "@vercel/examples-ui/globals.css"
 import Link from "next/link"
 import { Discord } from "~core/components/icons/Discord"

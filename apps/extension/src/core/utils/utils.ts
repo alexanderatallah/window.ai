@@ -8,7 +8,7 @@ export function log(...args: unknown[]) {
 
 export function parseDataChunks(rawData: string): string[] {
   const lines = rawData.split("\n").filter((l) => l.startsWith("data: "))
-  return lines.map((line) => line.split("data: ")[1]?.trim())
+  return lines.map((line) => line.split("data: ")[1]!.trim())
 }
 
 type RemoveUndefinedKeys<T> = {

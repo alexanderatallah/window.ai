@@ -87,7 +87,7 @@ function Home() {
                 an AI{" "}
                 <Link
                   className="underline"
-                  href="https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api"
+                  href="https://localai.app"
                   target="_blank">
                   running on your computer
                 </Link>{" "}

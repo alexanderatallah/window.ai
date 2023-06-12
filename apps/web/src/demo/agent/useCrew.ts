@@ -52,7 +52,7 @@ export const useCrew = ({ id = "", loopLimit = 4, interval = 4200 }) => {
     [
       {
         role: "assistant",
-        content: getSystemPrompt(goal, agent)
+        content: getSystemPrompt(goal, agent!)
       }
     ],
     {
