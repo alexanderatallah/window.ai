@@ -1,5 +1,4 @@
 import {
-  isMediaExtension,
   isMediaHosted,
   isMediaOutput,
   isPromptInput
@@ -10,29 +9,20 @@ import { Text } from "~core/components/pure/Text"
 import { originManager } from "~core/managers/origin"
 import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
-import { formatDate } from "~core/utils/utils"
+import { extractExtensionFromURL, formatDate } from "~core/utils/utils"
 
 function createMediaDownloadLinks({ input, outputs }: Transaction) {
-  if (!outputs) {
-    return null
-  }
-  if(!outputs.every(isMediaHosted)){
-    return "Due to storage constraints, local media generations are currently not downloadable here, but may be soon."
-  }
-  if (!isPromptInput(input)) {
+  if (!outputs || !outputs.every(isMediaOutput) || !isPromptInput(input) || !outputs.every(isMediaHosted)) {
     return null
   }
   return outputs.map((output, index) => {
+    // typescript seems to need this check here, although the isMediaHosted check above should make it redundant
+    if(!output.url) return null
     // defaults to no extension
-    let extension: string = ""
-    if (output.url) {
-      const base = output.url.split("?")[0]
-      const extensionFromURL = base.split(".").pop()
-      if (extensionFromURL && isMediaExtension(extensionFromURL)) {
-        extension = extensionFromURL
-      }
-    }
-    const fileName = `${input.prompt.replace(" ", "-")}-${index}${extension ? "." : ""}${extension}`
+    let fileExtension: string = extractExtensionFromURL(output.url)
+    const fileName = `${input.prompt.replace(" ", "-")}-${index}${
+      fileExtension ? "." : ""
+    }${fileExtension}`
     return (
       <a
         href={output.url}
@@ -94,7 +84,8 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
 
       <p className="mt-4">
         <b>Response:</b>{" "}
-        {output || (!transaction.error && <span className="italic">Pending</span>)}
+        {output ||
+          (!transaction.error && <span className="italic">Pending</span>)}
       </p>
 
       {transaction.error && (

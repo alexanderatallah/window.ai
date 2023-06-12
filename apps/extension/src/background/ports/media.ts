@@ -1,8 +1,6 @@
 import {
   ErrorCode,
   ModelID,
-  isMediaHosted,
-  type TextOutput,
   type MediaOutput,
 } from "window.ai"
 import type { PlasmoMessaging } from "@plasmohq/messaging"

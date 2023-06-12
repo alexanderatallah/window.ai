@@ -73,8 +73,8 @@ export function isMediaOutput(output: Output): output is MediaOutput {
   return "uri" in output
 }
 
-export function isMediaHosted(output: Output): output is MediaOutput {
-  return "url" in output && output.url !== null
+export function isMediaHosted(output: MediaOutput){
+  return "url" in output && !!output.url
 }
 
 
