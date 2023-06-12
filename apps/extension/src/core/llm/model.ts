@@ -38,6 +38,7 @@ export interface RequestOptions {
   apiKey?: string | null
   model?: string | null
   origin?: string | null
+  originTitle?: string | null
   frequency_penalty?: number
   presence_penalty?: number
   top_p?: number
@@ -60,7 +61,12 @@ export interface RequestPrompt
 
 export type RequestData = Omit<
   Required<RequestOptions>,
-  "user_identifier" | "timeout" | "apiKey" | "origin" | "adapter" // These do not affect output of the model
+  | "user_identifier"
+  | "timeout"
+  | "apiKey"
+  | "origin"
+  | "originTitle"
+  | "adapter" // These do not affect output of the model
 > &
   Pick<Required<ModelConfig>, "identifier"> & // To distinguish btw providers with same-name models
   RequestPrompt
@@ -88,6 +94,7 @@ export class Model {
       baseUrl: this.config.defaultBaseUrl,
       model: null,
       origin: null,
+      originTitle: null,
       apiKey: null,
       timeout: 42000,
       user_identifier: null,
@@ -345,6 +352,7 @@ export class Model {
       Authorization: opts.apiKey ? `${authPrefix}${opts.apiKey}` : undefined,
       "X-API-KEY": opts.apiKey || undefined,
       "HTTP-Referer": opts.origin,
+      "X-WINDOWAI-TITLE": opts.originTitle
     }
   }
 

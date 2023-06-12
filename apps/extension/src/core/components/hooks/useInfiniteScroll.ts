@@ -18,7 +18,7 @@ export function useInfiniteScroll<T extends HTMLElement>(
       (entries) => {
         const firstEntry = entries[0]
 
-        if (firstEntry.isIntersecting) {
+        if (firstEntry?.isIntersecting) {
           callback()
         }
       },

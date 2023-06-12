@@ -7,9 +7,9 @@ export const CrewMonitor = ({ id = "" }) => {
   return (
     <AgentMonitor
       id={id}
-      name={agent.name}
-      purpose={agent.purpose}
-      description={agent.description}
+      name={agent!.name}
+      purpose={agent!.purpose}
+      description={agent!.description}
       messages={log.messages}
       // isDebugging
       isThinking={state !== OODAState.Idle && state !== OODAState.Blocked}>

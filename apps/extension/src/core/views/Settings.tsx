@@ -175,11 +175,9 @@ export function Settings() {
             )}
             {isLocalModel && (
               <Text dimming="less" size="xs">
-                Set up Alpaca on your computer{" "}
+                Set up local.ai on your computer{" "}
                 <a
-                  href={
-                    "https://github.com/alexanderatallah/Alpaca-Turbo#using-the-api"
-                  }
+                  href={"https://localai.app/"}
                   target="_blank"
                   className="font-bold"
                   rel="noreferrer">

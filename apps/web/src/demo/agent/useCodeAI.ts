@@ -137,11 +137,11 @@ async function runBash(
     try {
       switch (cmd) {
         case "cd": {
-          cwd = posix.join(cwd, prompt)
+          cwd = posix.join(cwd, prompt!)
           break
         }
         case "mkdir": {
-          await container.fs.mkdir(posix.join(cwd, prompt))
+          await container.fs.mkdir(posix.join(cwd, prompt!))
           break
         }
         case "touch": {
@@ -154,11 +154,11 @@ async function runBash(
 
           const fileContent = extractCodeBlocks(contentResp).join("\n")
 
-          await container.fs.writeFile(posix.join(cwd, prompt), fileContent)
+          await container.fs.writeFile(posix.join(cwd, prompt!), fileContent)
           break
         }
         case "npm": {
-          const proc = await container.spawn("npm", prompt.split(" "))
+          const proc = await container.spawn("npm", prompt!.split(" "))
           proc.output.pipeTo(
             new WritableStream({
               write(data) {
