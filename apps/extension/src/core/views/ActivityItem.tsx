@@ -1,8 +1,4 @@
-import {
-  isMediaHosted,
-  isMediaOutput,
-  isPromptInput
-} from "window.ai"
+import { isMediaHosted, isMediaOutput, isPromptInput } from "window.ai"
 
 import { Logo } from "~core/components/pure/Logo"
 import { Text } from "~core/components/pure/Text"
@@ -12,17 +8,15 @@ import { transactionManager } from "~core/managers/transaction"
 import { extractExtensionFromURL, formatDate } from "~core/utils/utils"
 
 function createMediaDownloadLinks({ input, outputs }: Transaction) {
-  if (!outputs || !outputs.every(isMediaOutput) || !isPromptInput(input) || !outputs.every(isMediaHosted)) {
+  if (!outputs || !outputs.every(isMediaOutput) || !isPromptInput(input) ||!outputs.every(isMediaHosted)) {
     return null
   }
   return outputs.map((output, index) => {
     // typescript seems to need this check here, although the isMediaHosted check above should make it redundant
-    if(!output.url) return null
-    // defaults to no extension
+    if (!output.url) return null
+    // defaults to no extension("")
     let fileExtension: string = extractExtensionFromURL(output.url)
-    const fileName = `${input.prompt.replace(" ", "-")}-${index}${
-      fileExtension ? "." : ""
-    }${fileExtension}`
+    const fileName = `${input.prompt.replace(" ", "-")}-${index}${fileExtension ? "." : ""}${fileExtension}`
     return (
       <a
         href={output.url}
