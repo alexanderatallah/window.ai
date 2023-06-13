@@ -23,7 +23,7 @@ const configSettings: ConfigSetting[] = [
   { auth: AuthType.External }, // OpenRouter
   { auth: AuthType.APIKey, model: ModelID.GPT_3 },
   { auth: AuthType.APIKey, model: ModelID.GPT_4 },
-  { auth: AuthType.APIKey, model: ModelID.Claude_Instant_V1_100k },
+  { auth: AuthType.APIKey, model: ModelID.Claude_Instant_V1 },
   { auth: AuthType.APIKey, model: ModelID.Claude_V1_100k },
   { auth: AuthType.APIKey, model: ModelID.Together },
   { auth: AuthType.APIKey, model: ModelID.Cohere },
@@ -72,8 +72,7 @@ export function Settings() {
   const isExternal = config?.auth === AuthType.External
   const isOpenAIAPI = useMemo(
     () =>
-      needsAPIKey &&
-      !!config?.models.find((m) => m === ModelID.GPT_3 || m === ModelID.GPT_4),
+      needsAPIKey && !!config?.models.find((m) => m.split("/")[0] === "openai"),
     [needsAPIKey, config]
   )
 
