@@ -1,5 +1,11 @@
 # window.ai
 
+## 0.2.2
+
+### Patch Changes
+
+- Add OpenAI 16k support
+
 ## 0.2.1
 
 ### Patch Changes
