@@ -1,5 +1,12 @@
 # window.ai
 
+## 0.2.3
+
+### Beta 3D Model Generation + MediaOutput types
+
+- Add function beta_generate3DModel() to generate 3D models
+- Add MediaOutput type to represent media output + helper functions
+
 ## 0.2.1
 
 ### Patch Changes
