@@ -67,11 +67,11 @@ export function assertNever(value: never): never {
   throw new Error(`Unexpected value: ${value}`)
 }
 
-export function extractExtensionFromURL(url: string): string {
-  let extension: string = ""
+export function extractExtensionFromURL(url: string): string | undefined {
+  let extension: string | undefined
   const urlObject = new URL(url)
   const pathComponents = urlObject.pathname.split(".")
-  const extensionFromURL = pathComponents.pop()
+  const extensionFromURL = pathComponents[pathComponents.length - 1]
 
   if (extensionFromURL && isMediaExtension(extensionFromURL)) {
     extension = extensionFromURL

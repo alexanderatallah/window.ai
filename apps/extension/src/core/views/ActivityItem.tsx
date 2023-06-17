@@ -13,9 +13,11 @@ function createMediaDownloadLinks({ input, outputs }: Transaction) {
   }
   return outputs.map((output, index) => {
     // typescript seems to need this check here, although the isMediaHosted check above should make it redundant
-    if (!output.url) return null
-    // defaults to no extension("")
-    let extension: string = extractExtensionFromURL(output.url)
+    if (!output.url){
+      return null
+    }
+    // defaults to no extension
+    const extension: string | undefined = extractExtensionFromURL(output.url)
     const fileName = `${input.prompt.replace(" ", "-")}-${index}${extension ? "." : ""}${extension}`
     return (
       <a
