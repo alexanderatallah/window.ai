@@ -7,6 +7,12 @@
 - Add function beta_generate3DModel() to generate 3D models
 - Add MediaOutput type to represent media output + helper functions
 
+## 0.2.2
+
+### Patch Changes
+
+- Add OpenAI 16k support
+
 ## 0.2.1
 
 ### Patch Changes
