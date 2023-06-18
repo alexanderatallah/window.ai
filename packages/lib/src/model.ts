@@ -3,6 +3,7 @@
 export enum TextModelID {
   // OpenAI models
   GPT_3 = "openai/gpt-3.5-turbo",
+  GPT_3_16k = "openai/gpt-3.5-turbo-16k",
   GPT_4 = "openai/gpt-4",
   // Anthropic models
   Claude_Instant_V1 = "anthropic/claude-instant-v1",

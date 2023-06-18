@@ -21,8 +21,8 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 ### ℹ️ Contents
 
 - [Window: use your own AI models on the web](#window-use-your-own-ai-models-on-the-web)
-  - [📺 Demo](#-demo)
-  - [ℹ️ Contents](#ℹ️-contents)
+    - [📺 Demo](#-demo)
+    - [ℹ️ Contents](#ℹ️-contents)
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
@@ -61,7 +61,8 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 
 It works with these models:
 
-- OpenAI's [GPT-3.5 and GPT-4](https://platform.openai.com/)
+- OpenAI's [GPT-3.5, GPT-3.5 16k, and GPT-4](https://platform.openai.com/)
+- Anthropic's [Claude, Claude Instant, and 100k models](https://console.anthropic.com/)
 - Together's [GPT NeoXT 20B](https://github.com/togethercomputer/OpenChatKit/blob/main/docs/GPT-NeoXT-Chat-Base-20B.md)
 - Cohere [Xlarge](https://dashboard.cohere.ai/)
 - Open models, like MPT or Dolly, that can run locally (see [how](#🧠-local-model-setup)).

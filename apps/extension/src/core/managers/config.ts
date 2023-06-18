@@ -71,6 +71,7 @@ class ConfigManager extends BaseManager<Config> {
           label,
           models: [
             ModelID.GPT_3,
+            ModelID.GPT_3_16k,
             ModelID.GPT_4,
             ModelID.Claude_Instant_V1,
             ModelID.Claude_Instant_V1_100k,
@@ -292,6 +293,8 @@ function defaultAPILabel(model: ModelID): string {
   switch (model) {
     case ModelID.GPT_3:
       return "OpenAI: GPT-3.5 Turbo"
+    case ModelID.GPT_3_16k:
+      return "OpenAI: GPT-3.5 Turbo 16k"
     case ModelID.GPT_4:
       return "OpenAI: GPT-4"
     case ModelID.Together:
@@ -314,6 +317,7 @@ function defaultAPILabel(model: ModelID): string {
 function APIKeyURL(model: ModelID): string {
   switch (model) {
     case ModelID.GPT_3:
+    case ModelID.GPT_3_16k:
     case ModelID.GPT_4:
       return "https://platform.openai.com/account/api-keys"
     case ModelID.Together:

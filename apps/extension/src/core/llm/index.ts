@@ -87,6 +87,7 @@ export function getCaller(
     case ModelID.Together:
       return togetherDirect
     case ModelID.GPT_3:
+    case ModelID.GPT_3_16k:
     case ModelID.GPT_4:
       // Use OpenRouter unless user overrode baseUrl
       return shouldPreferDirect ? openaiDirect : openrouter
