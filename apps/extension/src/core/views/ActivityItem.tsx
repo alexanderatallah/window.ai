@@ -36,7 +36,7 @@ function createMediaDownloadLinks({ input, outputs }: Transaction) {
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)
   const model = transactionManager.getRoutedModel(transaction)
-  const output = transaction?.outputs?.every(isMediaOutput)
+  const output = transaction?.outputs?.every(isMediaOutput) && transaction?.outputs?.every(isMediaHosted)
     ? createMediaDownloadLinks(transaction)
     : transactionManager.formatOutput(transaction)
   let input = transactionManager.formatInput(transaction)
