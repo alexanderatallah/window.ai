@@ -20,7 +20,7 @@ await window.ai.generateText(
   },
   {
     onStreamResult: (res) =>
-      console.log(result.text)
+      console.log(res.text)
   }
 )
 `
