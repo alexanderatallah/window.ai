@@ -85,9 +85,9 @@ You can join the [#beta-builds channel on Discord](https://discord.gg/KBPhAPEJNj
 
 ## 👀 Find apps
 
-Better ways of doing this are coming soon, but today, you can use the [Discord #app-showcase channel](https://discord.gg/6kMeRxc2TE) to discover new `window.ai`-compatible apps, or you can browse the most popular ones on aggregators:
+Better ways of doing this are coming soon, but today, you can use the [Discord #app-showcase channel](https://discord.gg/6kMeRxc2TE) to discover new `window.ai`-compatible apps, or you can browse user-submitted ones on aggregators:
 
-- [OpenRouter.ai](https://www.openrouter.ai/)
+- [Skylight](https://www.skylightai.io/)
 
 ## 📄 Docs
 
