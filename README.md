@@ -32,6 +32,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
   - [📄 Docs](#-docs)
     - [Why should I build with this?](#why-should-i-build-with-this)
     - [Getting started](#getting-started)
+    - [Examples](#examples)
     - [Functions](#functions)
     - [CompletionOptions](#completionoptions)
     - [Model ID Standard](#model-id-standard)
@@ -84,9 +85,9 @@ You can join the [#beta-builds channel on Discord](https://discord.gg/KBPhAPEJNj
 
 ## 👀 Find apps
 
-Better ways of doing this are coming soon, but today, you can use the [Discord #app-showcase channel](https://discord.gg/6kMeRxc2TE) to discover new `window.ai`-compatible apps, or you can browse user-submitted ones on aggregators:
+Better ways of doing this are coming soon, but today, you can use the [Discord #app-showcase channel](https://discord.gg/6kMeRxc2TE) to discover new `window.ai`-compatible apps, or you can browse the most popular ones on aggregators:
 
-- [Skylight](https://www.skylightai.io/)
+- [OpenRouter.ai](https://www.openrouter.ai/)
 
 ## 📄 Docs
 
@@ -142,6 +143,10 @@ This **does not guarantee that the length of the return result will equal `numOu
 
 The `onStreamResult` handler is similar. You should rely on the promise resolution and only use this
 handler to improve UX, since not all models and config options support it.
+
+### Examples
+
+- [Next.js Window AI](https://github.com/YanniKouloumbis/next-js-window-ai) - A Next.js app that demonstrates how to use Window AI in a chat application. ([Live Demo](https://next-js-window-ai.vercel.app/))
 
 ### Functions
 
