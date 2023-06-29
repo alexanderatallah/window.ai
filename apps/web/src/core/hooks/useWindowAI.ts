@@ -20,7 +20,7 @@ export function useWindowAI(
     cacheSize = 10,
     stream = false,
     prefixMessageCount = 0,
-    maxTokens = 2048,
+    maxTokens = 1024,
     temperature = 0.7
   } = {}
 ) {
