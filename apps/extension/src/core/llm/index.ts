@@ -94,6 +94,8 @@ export function getCaller(
     case ModelID.Claude_Instant_V1_100k:
     case ModelID.Claude_V1:
     case ModelID.Claude_V1_100k:
+    case ModelID.Palm_Chat_Bison:
+    case ModelID.Palm_Code_Chat_Bison:
       return openrouter
     case undefined:
       return shouldPreferDirect ? local : openrouter
