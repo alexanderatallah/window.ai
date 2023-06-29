@@ -62,6 +62,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 It works with these models:
 
 - OpenAI's [GPT-3.5, GPT-3.5 16k, and GPT-4](https://platform.openai.com/)
+- Google's [PaLM 2 Chat and Code Chat](https://ai.google/discover/palm2/)
 - Anthropic's [Claude, Claude Instant, and 100k models](https://console.anthropic.com/)
 - Together's [GPT NeoXT 20B](https://github.com/togethercomputer/OpenChatKit/blob/main/docs/GPT-NeoXT-Chat-Base-20B.md)
 - Cohere [Xlarge](https://dashboard.cohere.ai/)
