@@ -146,8 +146,8 @@ handler to improve UX, since not all models and config options support it.
 
 ### Examples
 
-- [Next.js Window AI](https://github.com/YanniKouloumbis/next-js-window-ai) - A Next.js app that demonstrates how to use Window AI in a chat application. ([Live Demo](https://next-js-window-ai.vercel.app/))
-- [Robot Companion](https://github.com/zoan37/robot-companion) - An  AI robot that can move, emote, and change facial expressions while chatting. ([Live Demo](https://robot-companion.vercel.app/))
+- [Next.js Window AI](https://github.com/YanniKouloumbis/next-js-window-ai) - A Next.js app that demonstrates how to use Window AI in a chat application. ([Demo](https://next-js-window-ai.vercel.app/))
+- [Robot Companion](https://github.com/zoan37/robot-companion) - An  AI robot that can move, emote, and change facial expressions while chatting. ([Demo](https://robot-companion.vercel.app/))
 
 ### Functions
 
