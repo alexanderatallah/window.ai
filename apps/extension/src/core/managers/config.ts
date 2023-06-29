@@ -78,6 +78,8 @@ class ConfigManager extends BaseManager<Config> {
             ModelID.Claude_V1,
             ModelID.Claude_V1_100k,
             ModelID.Shap_e,
+            ModelID.Palm_Chat_Bison,
+            ModelID.Palm_Code_Chat_Bison
           ]
         }
       case AuthType.APIKey:
@@ -117,22 +119,6 @@ class ConfigManager extends BaseManager<Config> {
       (await this.forAuthAndModel(authType, modelId)) ||
       this.init(authType, modelId)
     )
-  }
-
-  async forModel(modelId: ModelID): Promise<Config> {
-    const configId = await this.modelHandlers.get(modelId)
-    if (configId) {
-      const config = await this.get(configId)
-      if (config) {
-        const defaults = this.init(config.auth, modelId)
-        return {
-          ...defaults,
-          ...config
-        }
-      }
-      await this.modelHandlers.remove(modelId)
-    }
-    return this.getOrInit(AuthType.APIKey, modelId)
   }
 
   isCredentialed(config: Config): boolean {
@@ -180,7 +166,7 @@ class ConfigManager extends BaseManager<Config> {
     }
     const model = parseModelID(rawModel)
     if (model) {
-      return this.forModel(model)
+      return this._forModel(model)
     }
     // Local model handles unknowns
     return this.getOrInit(AuthType.APIKey)
@@ -285,6 +271,23 @@ class ConfigManager extends BaseManager<Config> {
         return APIKeyURL(model)
     }
   }
+
+  async _forModel(modelId: ModelID): Promise<Config> {
+    const defaultConfigId = await this.modelHandlers.get(modelId)
+    if (defaultConfigId) {
+      const config = await this.get(defaultConfigId)
+      if (config) {
+        const defaults = this.init(config.auth, modelId)
+        return {
+          ...defaults,
+          ...config
+        }
+      }
+      await this.modelHandlers.remove(modelId)
+    }
+    // OpenRouter handles known, newly added models
+    return this.getOrInit(AuthType.External)
+  }
 }
 
 export const configManager = new ConfigManager()
@@ -311,6 +314,10 @@ function defaultAPILabel(model: ModelID): string {
       return "Anthropic: Claude 100k"
     case ModelID.Shap_e:
       return "OpenAI: Shap-E"
+    case ModelID.Palm_Chat_Bison:
+      return "Google: PaLM 2 Chat"
+    case ModelID.Palm_Code_Chat_Bison:
+      return "Google: PaLM 2 Code Chat"
   }
 }
 
@@ -329,5 +336,8 @@ function APIKeyURL(model: ModelID): string {
     case ModelID.Claude_V1:
     case ModelID.Claude_V1_100k:
       return "https://console.anthropic.com/account/keys"
+    case ModelID.Palm_Chat_Bison:
+    case ModelID.Palm_Code_Chat_Bison:
+      return "https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models"
   }
 }

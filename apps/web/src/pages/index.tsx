@@ -20,7 +20,7 @@ await window.ai.generateText(
   },
   {
     onStreamResult: (res) =>
-      console.log(result.text)
+      console.log(res.text)
   }
 )
 `
@@ -83,8 +83,8 @@ function Home() {
                 on the web. No API keys needed.
                 <br />
                 <br />
-                You can choose from OpenAI, Anthropic, Together, Cohere, or even
-                an AI{" "}
+                You can choose from OpenAI, Google, Anthropic, Together, Cohere,
+                or even an AI{" "}
                 <Link
                   className="underline"
                   href="https://localai.app"

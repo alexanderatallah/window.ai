@@ -10,6 +10,9 @@ export enum TextModelID {
   Claude_Instant_V1_100k = "anthropic/claude-instant-v1-100k",
   Claude_V1 = "anthropic/claude-v1",
   Claude_V1_100k = "anthropic/claude-v1-100k",
+  // Google models
+  Palm_Chat_Bison = "google/palm-2-chat-bison",
+  Palm_Code_Chat_Bison = "google/palm-2-codechat-bison",
   // Other
   Together = "togethercomputer/GPT-NeoXT-Chat-Base-20B",
   Cohere = "cohere/command-nightly",

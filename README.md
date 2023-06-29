@@ -32,6 +32,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
   - [📄 Docs](#-docs)
     - [Why should I build with this?](#why-should-i-build-with-this)
     - [Getting started](#getting-started)
+    - [Examples](#examples)
     - [Functions](#functions)
     - [CompletionOptions](#completionoptions)
     - [ThreeDOptions](#threedoptions)
@@ -62,6 +63,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 It works with these models:
 
 - OpenAI's [GPT-3.5, GPT-3.5 16k, and GPT-4](https://platform.openai.com/)
+- Google's [PaLM 2 Chat and Code Chat](https://ai.google/discover/palm2/)
 - Anthropic's [Claude, Claude Instant, and 100k models](https://console.anthropic.com/)
 - Together's [GPT NeoXT 20B](https://github.com/togethercomputer/OpenChatKit/blob/main/docs/GPT-NeoXT-Chat-Base-20B.md)
 - Cohere [Xlarge](https://dashboard.cohere.ai/)
@@ -143,6 +145,11 @@ This **does not guarantee that the length of the return result will equal `numOu
 
 The `onStreamResult` handler is similar. You should rely on the promise resolution and only use this
 handler to improve UX, since not all models and config options support it.
+
+### Examples
+
+- [Next.js Window AI](https://github.com/YanniKouloumbis/next-js-window-ai) - A Next.js app that demonstrates how to use Window AI in a chat application. ([Demo](https://next-js-window-ai.vercel.app/))
+- [Robot Companion](https://github.com/zoan37/robot-companion) - An  AI robot that can move, emote, and change facial expressions while chatting. ([Demo](https://robot-companion.vercel.app/))
 
 ### Functions
 
