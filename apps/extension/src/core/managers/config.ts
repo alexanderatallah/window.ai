@@ -120,22 +120,6 @@ class ConfigManager extends BaseManager<Config> {
     )
   }
 
-  async forModel(modelId: ModelID): Promise<Config> {
-    const configId = await this.modelHandlers.get(modelId)
-    if (configId) {
-      const config = await this.get(configId)
-      if (config) {
-        const defaults = this.init(config.auth, modelId)
-        return {
-          ...defaults,
-          ...config
-        }
-      }
-      await this.modelHandlers.remove(modelId)
-    }
-    return this.getOrInit(AuthType.APIKey, modelId)
-  }
-
   isCredentialed(config: Config): boolean {
     switch (config.auth) {
       case AuthType.External:
@@ -181,7 +165,7 @@ class ConfigManager extends BaseManager<Config> {
     }
     const model = parseModelID(rawModel)
     if (model) {
-      return this.forModel(model)
+      return this._forModel(model)
     }
     // Local model handles unknowns
     return this.getOrInit(AuthType.APIKey)
@@ -285,6 +269,23 @@ class ConfigManager extends BaseManager<Config> {
         }
         return APIKeyURL(model)
     }
+  }
+
+  async _forModel(modelId: ModelID): Promise<Config> {
+    const defaultConfigId = await this.modelHandlers.get(modelId)
+    if (defaultConfigId) {
+      const config = await this.get(defaultConfigId)
+      if (config) {
+        const defaults = this.init(config.auth, modelId)
+        return {
+          ...defaults,
+          ...config
+        }
+      }
+      await this.modelHandlers.remove(modelId)
+    }
+    // OpenRouter handles known, newly added models
+    return this.getOrInit(AuthType.External)
   }
 }
 
