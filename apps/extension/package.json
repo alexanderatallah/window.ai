@@ -51,7 +51,6 @@
       "http://*/*"
     ],
     "permissions": [
-      "storage",
       "unlimitedStorage"
     ]
   }
