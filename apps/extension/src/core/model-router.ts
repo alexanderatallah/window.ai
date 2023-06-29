@@ -8,7 +8,7 @@ import { type Result, unknownErr, unwrap } from "./utils/result-monad"
 import { ok } from "./utils/result-monad"
 import { log } from "./utils/utils"
 
-const NO_TXN_REFERRER = "__no_txn_origin__"
+export const NO_TXN_REFERRER = "__no_txn_origin__"
 
 export async function route(
   config: Config,
@@ -25,7 +25,7 @@ export async function route(
       max_tokens: txn?.maxTokens,
       temperature: txn?.temperature,
       stop_sequences: txn?.stopSequences,
-      num_generations: txn?.numOutputs
+      num_generations: txn?.numOutputs,
     })
     return result
   } catch (error) {
@@ -57,6 +57,7 @@ export async function complete(
     return unknownErr(error)
   }
 }
+
 
 export async function shouldStream(
   config: Config,

@@ -1,4 +1,4 @@
-import type { ChatMessage } from "window.ai"
+import { type ChatMessage, isMediaExtension } from "window.ai"
 
 export function log(...args: unknown[]) {
   if (process.env.NODE_ENV === "development") {
@@ -65,4 +65,16 @@ export function formatDate(timestampMs: number): string {
 
 export function assertNever(value: never): never {
   throw new Error(`Unexpected value: ${value}`)
+}
+
+export function extractExtensionFromURL(url: string): string | undefined {
+  let extension: string | undefined
+  const urlObject = new URL(url)
+  const pathComponents = urlObject.pathname.split(".")
+  const extensionFromURL = pathComponents[pathComponents.length - 1]
+
+  if (extensionFromURL && isMediaExtension(extensionFromURL)) {
+    extension = extensionFromURL
+  }
+  return extension
 }

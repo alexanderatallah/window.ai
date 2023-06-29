@@ -1,13 +1,45 @@
+import { isMediaHosted, isMediaOutput, isPromptInput } from "window.ai"
+
 import { Logo } from "~core/components/pure/Logo"
 import { Text } from "~core/components/pure/Text"
 import { originManager } from "~core/managers/origin"
 import type { Transaction } from "~core/managers/transaction"
 import { transactionManager } from "~core/managers/transaction"
-import { formatDate } from "~core/utils/utils"
+import { extractExtensionFromURL, formatDate } from "~core/utils/utils"
+
+function createMediaDownloadLinks({ input, outputs }: Transaction) {
+  if (!outputs || !outputs.every(isMediaOutput) || !isPromptInput(input) ||!outputs.every(isMediaHosted)) {
+    return null
+  }
+  return outputs.map((output, index) => {
+    // typescript seems to need this check here, although the isMediaHosted check above should make it redundant
+    if (!output.url){
+      return null
+    }
+    // defaults to no extension
+    const extension: string | undefined = extractExtensionFromURL(output.url)
+    const fileName = `${input.prompt.replace(" ", "-")}-${index}${extension ? "." : ""}${extension}`
+    return (
+      <a
+        href={output.url}
+        target="_blank"
+        rel="noreferrer"
+        download={fileName}
+        className="text-blue-500 hover:underline block"
+        key={index}>
+        Download {fileName}
+      </a>
+    )
+  })
+}
 
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)
   const model = transactionManager.getRoutedModel(transaction)
+  const output = transaction?.outputs?.every(isMediaOutput) && transaction?.outputs?.every(isMediaHosted)
+    ? createMediaDownloadLinks(transaction)
+    : transactionManager.formatOutput(transaction)
+  let input = transactionManager.formatInput(transaction)
   return (
     <div className="pb-8">
       <div className="grid grid-cols-6 mb-2">
@@ -43,12 +75,12 @@ export function ActivityItem({ transaction }: { transaction: Transaction }) {
       )}
 
       <p className="mt-4">
-        <b>Prompt:</b> {transactionManager.formatInput(transaction)}
+        <b>Prompt:</b> {input}
       </p>
 
       <p className="mt-4">
         <b>Response:</b>{" "}
-        {transactionManager.formatOutput(transaction) ||
+        {output ||
           (!transaction.error && <span className="italic">Pending</span>)}
       </p>
 

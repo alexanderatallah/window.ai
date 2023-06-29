@@ -7,6 +7,14 @@ declare global {
   }
 }
 
+export enum MediaExtension {
+  PLY = "ply",
+}
+
+export function isMediaExtension(extension: string): extension is MediaExtension {
+  return Object.values(MediaExtension).includes(extension as MediaExtension)
+}
+
 // ChatML is a simple markup language for chat messages. More available here:
 // https://github.com/openai/openai-python/blob/main/chatml.md
 export type ChatMessage = {
@@ -45,8 +53,13 @@ export type MessageOutput = {
   isPartial?: boolean
 }
 
-// Output can be either a string or a chat message, depending on which Input type you use.
-export type Output = TextOutput | MessageOutput
+export type MediaOutput = {
+  uri: string
+  url?: string
+}
+
+// Output can be either a string or a chat message, or media output, depending on which Input type and function you use.
+export type Output = TextOutput | MessageOutput | MediaOutput
 
 export function isTextOutput(output: Output): output is TextOutput {
   return "text" in output
@@ -56,14 +69,33 @@ export function isMessageOutput(output: Output): output is MessageOutput {
   return "message" in output
 }
 
+export function isMediaOutput(output: Output): output is MediaOutput {
+  return "uri" in output
+}
+
+export function isMediaHosted(output: MediaOutput){
+  return "url" in output && !!output.url
+}
+
+
 export type InferredOutput<TInput> = TInput extends MessagesInput
   ? MessageOutput
   : TInput extends PromptInput
-  ? TextOutput
+  ? TextOutput | MediaOutput
   : Output
 
+
+// Base set of options for all requests.
+export interface Options<TModel, TInput extends Input = Input> {
+  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
+  model?: TModel
+  // How many completion choices to attempt to generate. Defaults to 1. If the
+  // model doesn't support more than one, then an array with a single element will be returned.
+  numOutputs?: number
+}
+
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions<TModel, TInput extends Input = Input> {
+export interface CompletionOptions<TModel, TInput extends Input = Input> extends Options<TModel, TInput> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
   // NOT GUARANTEED to return results by every model, so make sure you handle the promise
@@ -81,11 +113,18 @@ export interface CompletionOptions<TModel, TInput extends Input = Input> {
   maxTokens?: number
   // Sequences where the API will stop generating further tokens.
   stopSequences?: string[]
-  // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
-  model?: TModel
-  // How many completion choices to attempt to generate. Defaults to 1. If the
-  // model doesn't support more than one, then an array with a single element will be returned.
-  numOutputs?: number
+}
+
+// ThreeDOptions  you to specify options for your generation request.
+export interface ThreeDOptions<TModel> extends Options<TModel> {
+  // The number of inference steps to run. Defaults to 32, with specific default values for each model.
+  numInferenceSteps?: number
+}
+
+export function isCompletionOptions(
+  options: Options<string, Input>
+): options is CompletionOptions<string, Input> {
+  return 'temperature' in options || 'maxTokens' in options || 'stopSequences' in options
 }
 
 // Error codes emitted by the extension API
@@ -109,6 +148,8 @@ export enum EventType {
   // Fired for errors
   Error = "error"
 }
+
+
 
 export type RequestID = string
 
@@ -153,6 +194,16 @@ export interface WindowAI<TModel = string> {
     input: TInput,
     options?: CompletionOptions<TModel, TInput>
   ): Promise<InferredOutput<TInput>[]>
+
+  /** Generates a 3D Object from a specified model.
+   * @param input The input to use for the object generation.
+   * @param options Options for the object generation request
+   * @returns A promise that resolves a object generation of type MediaOutput[].
+   */
+  BETA_generate3DObject(
+    input: PromptInput,
+    options?: ThreeDOptions<TModel>
+  ): Promise<MediaOutput[]>
 
   /**
    * Get or stream a completion from the specified (or preferred) model.

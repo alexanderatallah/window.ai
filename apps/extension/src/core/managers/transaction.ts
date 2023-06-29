@@ -6,13 +6,17 @@ import {
   type ModelID,
   isMessagesInput,
   isPromptInput,
-  isTextOutput
+  isTextOutput,
+  isMediaOutput,
+  type ThreeDOptions,
+  isCompletionOptions,
+  isMediaHosted
 } from "window.ai"
 
 import { BaseManager } from "./base"
-import { configManager } from "./config"
 import type { OriginData } from "./origin"
 import { originManager } from "./origin"
+
 
 export interface Transaction<TInput = Input> {
   id: string
@@ -26,6 +30,9 @@ export interface Transaction<TInput = Input> {
   stopSequences?: string[]
   model?: ModelID | string
   routedModel?: ModelID | string
+
+  // 3D generation options
+  numInferenceSteps?:number
 
   outputs?: InferredOutput<TInput>[]
   error?: string
@@ -41,28 +48,48 @@ class TransactionManager extends BaseManager<Transaction> {
   init<TInput extends Input>(
     input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID | string, TInput>
+    options: CompletionOptions<ModelID | string, TInput> | ThreeDOptions<ModelID | string>
   ): Transaction {
     this._validateInput(input)
+  
+    // Extracting parameters common to all options
     const {
-      temperature,
-      maxTokens,
-      stopSequences,
       model,
-      numOutputs = 1
+      numOutputs = 1,
     } = options
+
+    let temperature: number | undefined
+    let maxTokens: number | undefined
+    let stopSequences: string[] | undefined
+    let numInferenceSteps: number | undefined
+
+    if (isCompletionOptions(options)) {
+        temperature = options.temperature
+        maxTokens = options.maxTokens
+        stopSequences = options.stopSequences
+    }
+
+    //extracting parameters specific to 3d generation
+    if ('numInferenceSteps' in options) {
+        numInferenceSteps = options.numInferenceSteps
+    }
+
     return {
       id: uuidv4(),
       origin,
       timestamp: Date.now(),
       input,
+      model,
+      numOutputs,
       temperature,
       maxTokens,
       stopSequences,
-      model,
-      numOutputs
+      numInferenceSteps,
     }
-  }
+}
+
+  
+  
 
   // Override to set numOutputs on old data
   async _batchFetch(ids: string[]): Promise<Transaction[]> {
@@ -109,8 +136,10 @@ class TransactionManager extends BaseManager<Transaction> {
     if (!txn.outputs) {
       return undefined
     }
+    // TODO: handle previews for media outputs, when implemented
     return txn.outputs
       .map((t) =>
+        isMediaOutput(t) ? (isMediaHosted(t) ? t.url : "Media currently not available locally.") : 
         isTextOutput(t) ? t.text : `${t.message.role}: ${t.message.content}`
       )
       .join("\n")

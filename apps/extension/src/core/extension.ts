@@ -1,11 +1,9 @@
 import browser from "webextension-polyfill"
-
-import type {
-  PopupParams,
-  PortEvent,
-  PortRequest,
-  PortResponse
-} from "~core/constants"
+import {
+  type PopupParams,
+  type PortEvent,
+  type PortRequest,
+  type PortResponse} from "~core/constants"
 import { PortName } from "~core/constants"
 import { log } from "~core/utils/utils"
 

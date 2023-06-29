@@ -11,13 +11,13 @@ import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
-import { getCaller, openrouter } from "~core/llm"
 import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
 import * as modelRouter from "../model-router"
 import { BaseManager } from "./base"
 import type { Transaction } from "./transaction"
+import { getCaller } from "~core/llm"
 
 export enum AuthType {
   // Let another site handle all authentication
@@ -77,6 +77,7 @@ class ConfigManager extends BaseManager<Config> {
             ModelID.Claude_Instant_V1_100k,
             ModelID.Claude_V1,
             ModelID.Claude_V1_100k,
+            ModelID.Shap_e,
             ModelID.Palm_Chat_Bison,
             ModelID.Palm_Code_Chat_Bison
           ]
@@ -228,7 +229,7 @@ class ConfigManager extends BaseManager<Config> {
       // Only proxy w OpenRouter if user has authed and hasn't set a custom base url
       (!config.baseUrl && !this.isLocal(config) && (await isOpenRouterAuthed()))
 
-    return getCaller(this.getModel(config), !canProxy)
+    return getCaller(this.getModel(config), !canProxy) 
   }
 
   async predictModel(
@@ -311,6 +312,8 @@ function defaultAPILabel(model: ModelID): string {
       return "Anthropic: Claude"
     case ModelID.Claude_V1_100k:
       return "Anthropic: Claude 100k"
+    case ModelID.Shap_e:
+      return "OpenAI: Shap-E"
     case ModelID.Palm_Chat_Bison:
       return "Google: PaLM 2 Chat"
     case ModelID.Palm_Code_Chat_Bison:

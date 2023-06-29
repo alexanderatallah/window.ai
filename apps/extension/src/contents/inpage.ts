@@ -6,12 +6,13 @@ import {
   type ModelID,
   type RequestID,
   VALID_DOMAIN,
-  type WindowAI
+  type WindowAI,
 } from "window.ai"
 
 import type {
   CompletionResponse,
   EventResponse,
+  MediaResponse,
   ModelResponse,
   PortRequest
 } from "~core/constants"
@@ -57,6 +58,24 @@ export const windowAI: WindowAI<ModelID | string> = {
           } else {
             reject(res.error)
             onStreamResult && onStreamResult(null, res.error)
+          }
+        }
+      )
+    })
+  },
+
+  async BETA_generate3DObject(input, options = {}){
+    const requestId = _relayRequest(PortName.Media, {
+      transaction: transactionManager.init(input, _getOriginData(), options),
+    })
+    return new Promise((resolve, reject) => {
+      _addResponseListener<MediaResponse>(
+        requestId,
+        (res) => {
+          if (isOk(res)) {
+            resolve(res.data)
+          } else {
+            reject(res.error)
           }
         }
       )
@@ -168,23 +187,23 @@ function _addResponseListener<T extends Result<any, string>>(
   _responseListeners.set(requestId, handlerSet)
 }
 
+
 window.addEventListener(
   "message",
   (event) => {
     const { source, data } = event
-
+    
     // We only accept messages our window and a port
     if (source !== window || !data.portName) {
       return
     }
-
     if (data.type === ContentMessageType.Response) {
       const msg = data as { id: RequestID; response: unknown }
-
       const handlers = new Set([
         ...(_responseListeners.get(msg.id) || []),
         ...(_responseListeners.get(null) || [])
       ])
+      
       if (handlers.size === 0) {
         throw new Error(`No handlers found for request ${msg.id}`)
       }

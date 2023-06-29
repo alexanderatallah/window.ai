@@ -2,18 +2,13 @@ import {
   ErrorCode,
   type InferredOutput,
   type Input,
-  type RequestID,
   isMessagesInput
 } from "window.ai"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
-
 import {
-  POPUP_HEIGHT,
-  POPUP_WIDTH,
   type PortRequest,
   type PortResponse,
-  RequestInterruptType
 } from "~core/constants"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
@@ -24,7 +19,6 @@ import {
 } from "~core/managers/transaction"
 import * as modelRouter from "~core/model-router"
 import {
-  type Err,
   type Result,
   err,
   isErr,
@@ -34,6 +28,7 @@ import {
 import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
+import { promptInterrupts } from "~background/lib/helpers"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Completion],
@@ -57,7 +52,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   const predictedModel = await _getCompletionModel(config, txn)
   if (!isOk(predictedModel)) {
-    _maybeInterrupt(id, predictedModel)
+    promptInterrupts(id, predictedModel)
     return res.send({ response: predictedModel, id })
   }
   txn.routedModel = predictedModel.data
@@ -78,7 +73,7 @@ const handler: PlasmoMessaging.PortHandler<
       } else {
         res.send({ response: result, id })
         errors.push(result.error)
-        _maybeInterrupt(id, result)
+        promptInterrupts(id, result)
       }
     }
 
@@ -104,7 +99,7 @@ const handler: PlasmoMessaging.PortHandler<
     } else {
       res.send({ response: result, id })
       txn.error = result.error
-      _maybeInterrupt(id, result)
+      promptInterrupts(id, result)
     }
   }
 
@@ -131,23 +126,4 @@ function _getOutput(
     ? { message: { role: "assistant", content: result }, isPartial }
     : { text: result, isPartial }
 }
-
-async function _maybeInterrupt(id: RequestID, result: Err<ErrorCode | string>) {
-  if (result.error === ErrorCode.NotAuthenticated) {
-    return _requestInterrupt(id, RequestInterruptType.Authentication)
-  } else if (result.error === ErrorCode.PaymentRequired) {
-    return _requestInterrupt(id, RequestInterruptType.Payment)
-  }
-}
-
-async function _requestInterrupt(
-  requestId: RequestID,
-  type: RequestInterruptType
-) {
-  await Extension.openPopup(POPUP_WIDTH, POPUP_HEIGHT, {
-    requestInterruptType: type,
-    requestId
-  })
-}
-
 export default handler

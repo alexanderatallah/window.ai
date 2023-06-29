@@ -35,6 +35,7 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
     - [Examples](#examples)
     - [Functions](#functions)
     - [CompletionOptions](#completionoptions)
+    - [ThreeDOptions](#threedoptions)
     - [Model ID Standard](#model-id-standard)
     - [Error codes](#error-codes)
     - [Community tools](#community-tools)
@@ -180,6 +181,30 @@ window.ai.addEventListener((event: EventType, data: unknown) => {
 })
 ```
 
+**(BETA) Generate 3D Objects**: Uses [Shap-e.](https://github.com/openai/shap-e)
+
+```ts
+window.ai.BETA_generate3DObject(
+    input: PromptInput,
+    options?: ThreeDOptions
+): Promise<MediaOutput[]>
+```
+
+The `BETA_generate3DObject` function allows you to generate 3D objects with a defined model and options. The input should be a `PromptInput` `{ prompt : string }`. The options parameter is optional and accepts `ThreeDOptions` customize the media generation request.
+
+Here's an example request:
+
+```javascript
+const [ result ] = await window.ai.BETA_generate3DObject(
+  { "prompt": "a glazed donut" }, 
+  { "numInferenceSteps": 32,});
+
+// base64 representation of your 3D object, in ply format
+const uri = result.uri;
+```
+
+
+
 All public types, including error messages, are documented in the [window.ai library](/packages/lib/src/index.ts). Highlights below:
 
 ### CompletionOptions
@@ -213,6 +238,20 @@ export interface CompletionOptions {
   // Identifier of the model to use. Defaults to the user's current model, but can be overridden here.
   // Arbitrary strings are allowed, and will be passed to the Local model as `model`.
   // NOTE: this standard is evolving - recommend not using this if you're making an immutable app.
+  model?: ModelID | string
+}
+```
+
+### ThreeDOptions 
+This options dictionary allows you to specify options for generating a three dimensional object.
+  
+```ts
+export interface ThreeDOptions{
+  // The number of inference steps to run. Defaults to 32, with specific default values for each model.
+  numInferenceSteps?: number
+  // How many generations to create. Defaults to 1.
+  numOutputs?: number
+  // Identifier of the model to use. Defaults to openai/shap-e for now.
   model?: ModelID | string
 }
 ```

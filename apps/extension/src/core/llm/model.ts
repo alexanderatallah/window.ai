@@ -316,7 +316,6 @@ export class Model {
       stop_sequences: payload["stop_sequences"],
       stream: payload["stream"]
     })
-
     try {
       const response = await this.api.post<ReadableStream<string>>(
         getPath(request),
