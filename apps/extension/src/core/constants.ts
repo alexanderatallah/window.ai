@@ -57,7 +57,7 @@ export interface PortResponse {
     | { id: RequestID; response: MediaResponse }
     | { id?: RequestID; error: ErrorCode.InvalidRequest }
   [PortName.Permission]:
-    | { requesterId: RequestID; requester: CompletionRequest }
+    | { requesterId: RequestID; requester: CompletionRequest | MediaRequest }
     | {
         id?: RequestID
         error: ErrorCode.InvalidRequest | ErrorCode.RequestNotFound

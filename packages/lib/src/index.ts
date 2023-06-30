@@ -8,10 +8,12 @@ declare global {
 }
 
 export enum MediaExtension {
-  PLY = "ply",
+  PLY = "ply"
 }
 
-export function isMediaExtension(extension: string): extension is MediaExtension {
+export function isMediaExtension(
+  extension: string
+): extension is MediaExtension {
   return Object.values(MediaExtension).includes(extension as MediaExtension)
 }
 
@@ -73,17 +75,15 @@ export function isMediaOutput(output: Output): output is MediaOutput {
   return "uri" in output
 }
 
-export function isMediaHosted(output: MediaOutput){
+export function isMediaHosted(output: MediaOutput) {
   return "url" in output && !!output.url
 }
-
 
 export type InferredOutput<TInput> = TInput extends MessagesInput
   ? MessageOutput
   : TInput extends PromptInput
   ? TextOutput | MediaOutput
   : Output
-
 
 // Base set of options for all requests.
 export interface Options<TModel, TInput extends Input = Input> {
@@ -95,7 +95,8 @@ export interface Options<TModel, TInput extends Input = Input> {
 }
 
 // CompletionOptions allows you to specify options for the completion request.
-export interface CompletionOptions<TModel, TInput extends Input = Input> extends Options<TModel, TInput> {
+export interface CompletionOptions<TModel, TInput extends Input = Input>
+  extends Options<TModel, TInput> {
   // If specified, partial updates will be streamed to this handler as they become available,
   // and only the first partial update will be returned by the Promise.
   // NOT GUARANTEED to return results by every model, so make sure you handle the promise
@@ -124,7 +125,11 @@ export interface ThreeDOptions<TModel> extends Options<TModel> {
 export function isCompletionOptions(
   options: Options<string, Input>
 ): options is CompletionOptions<string, Input> {
-  return 'temperature' in options || 'maxTokens' in options || 'stopSequences' in options
+  return (
+    "temperature" in options ||
+    "maxTokens" in options ||
+    "stopSequences" in options
+  )
 }
 
 // Error codes emitted by the extension API
@@ -148,8 +153,6 @@ export enum EventType {
   // Fired for errors
   Error = "error"
 }
-
-
 
 export type RequestID = string
 

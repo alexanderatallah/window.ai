@@ -11,13 +11,13 @@ import { Storage } from "@plasmohq/storage"
 
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
+import { getCaller } from "~core/llm"
 import { type Result, ok } from "~core/utils/result-monad"
 import { getExternalConfigURL } from "~core/utils/utils"
 
 import * as modelRouter from "../model-router"
 import { BaseManager } from "./base"
 import type { Transaction } from "./transaction"
-import { getCaller } from "~core/llm"
 
 export enum AuthType {
   // Let another site handle all authentication
@@ -73,6 +73,7 @@ class ConfigManager extends BaseManager<Config> {
             ModelID.GPT_3,
             ModelID.GPT_3_16k,
             ModelID.GPT_4,
+            ModelID.GPT_4_32k,
             ModelID.Claude_Instant_V1,
             ModelID.Claude_Instant_V1_100k,
             ModelID.Claude_V1,
@@ -229,7 +230,7 @@ class ConfigManager extends BaseManager<Config> {
       // Only proxy w OpenRouter if user has authed and hasn't set a custom base url
       (!config.baseUrl && !this.isLocal(config) && (await isOpenRouterAuthed()))
 
-    return getCaller(this.getModel(config), !canProxy) 
+    return getCaller(this.getModel(config), !canProxy)
   }
 
   async predictModel(
@@ -300,6 +301,8 @@ function defaultAPILabel(model: ModelID): string {
       return "OpenAI: GPT-3.5 Turbo 16k"
     case ModelID.GPT_4:
       return "OpenAI: GPT-4"
+    case ModelID.GPT_4_32k:
+      return "OpenAI: GPT-4 32k"
     case ModelID.Together:
       return "Together: GPT NeoXT 20B"
     case ModelID.Cohere:
@@ -326,6 +329,7 @@ function APIKeyURL(model: ModelID): string {
     case ModelID.GPT_3:
     case ModelID.GPT_3_16k:
     case ModelID.GPT_4:
+    case ModelID.GPT_4_32k:
       return "https://platform.openai.com/account/api-keys"
     case ModelID.Together:
       return "https://api.together.xyz/"
@@ -339,5 +343,7 @@ function APIKeyURL(model: ModelID): string {
     case ModelID.Palm_Chat_Bison:
     case ModelID.Palm_Code_Chat_Bison:
       return "https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models"
+    case ModelID.Shap_e:
+      return "https://openrouter.ai/keys"
   }
 }

@@ -18,7 +18,7 @@ import { err, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
 const permissionState = new RequestState<
-  CompletionRequest,
+  CompletionRequest | MediaRequest,
   PortRequest[PortName.Permission]["request"]
 >()
 const handler: PlasmoMessaging.PortHandler<

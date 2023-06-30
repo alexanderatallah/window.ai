@@ -5,6 +5,7 @@ export enum TextModelID {
   GPT_3 = "openai/gpt-3.5-turbo",
   GPT_3_16k = "openai/gpt-3.5-turbo-16k",
   GPT_4 = "openai/gpt-4",
+  GPT_4_32k = "openai/gpt-4-32k",
   // Anthropic models
   Claude_Instant_V1 = "anthropic/claude-instant-v1",
   Claude_Instant_V1_100k = "anthropic/claude-instant-v1-100k",
@@ -15,18 +16,18 @@ export enum TextModelID {
   Palm_Code_Chat_Bison = "google/palm-2-codechat-bison",
   // Other
   Together = "togethercomputer/GPT-NeoXT-Chat-Base-20B",
-  Cohere = "cohere/command-nightly",
+  Cohere = "cohere/command-nightly"
 }
 
 export enum MediaModelID {
   // OpenAI Models
-  Shap_e = "openai/shap-e",
+  Shap_e = "openai/shap-e"
 }
 export const ModelID = {
   ...TextModelID,
   ...MediaModelID
 } as const
-export type ModelID = (typeof ModelID)[keyof typeof ModelID];
+export type ModelID = (typeof ModelID)[keyof typeof ModelID]
 
 // Older namings that will be deprecated
 const DeprecatedModelID = {

@@ -43,7 +43,6 @@ export const openrouter = initOpenRouter(
   {}
 )
 
-
 export const openaiDirect = initOpenAI(
   {
     debug: shouldDebugModels,
@@ -89,6 +88,7 @@ export function getCaller(
     case ModelID.GPT_3:
     case ModelID.GPT_3_16k:
     case ModelID.GPT_4:
+    case ModelID.GPT_4_32k:
       // Use OpenRouter unless user overrode baseUrl
       return shouldPreferDirect ? openaiDirect : openrouter
     case ModelID.Claude_Instant_V1:
@@ -97,6 +97,7 @@ export function getCaller(
     case ModelID.Claude_V1_100k:
     case ModelID.Palm_Chat_Bison:
     case ModelID.Palm_Code_Chat_Bison:
+    case ModelID.Shap_e:
       return openrouter
     case undefined:
       return shouldPreferDirect ? local : openrouter
