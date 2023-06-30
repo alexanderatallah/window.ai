@@ -1,5 +1,11 @@
 # window.ai
 
+## 0.2.4
+
+### Patch Changes
+
+- Add GPT-4 32k and PaLM 2 models"
+
 ## 0.2.3
 
 ### Beta 3D Model Generation + MediaOutput types
