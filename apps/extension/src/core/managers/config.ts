@@ -235,13 +235,14 @@ class ConfigManager extends BaseManager<Config> {
 
   async predictModel(
     config: Config,
-    txn?: Transaction
+    txn?: Transaction,
+    shouldStream?: boolean
   ): Promise<Result<ModelID | string, ErrorCode | string>> {
     const currentModel = this.getModel(config)
     if (currentModel) {
       return ok(currentModel)
     }
-    return modelRouter.route(config, txn)
+    return modelRouter.route(config, txn, shouldStream)
   }
 
   getModel(config: Config): ModelID | undefined {

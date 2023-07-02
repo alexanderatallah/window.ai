@@ -12,20 +12,22 @@ export const NO_TXN_REFERRER = "__no_txn_origin__"
 
 export async function route(
   config: Config,
-  txn?: Transaction
+  txn?: Transaction,
+  shouldStream?: boolean
 ): Promise<Result<ModelID | string, ErrorCode | string>> {
   const caller = await configManager.getModelCaller(config)
 
   const input = txn?.input || { prompt: "" }
   try {
     const result = await caller.route(input, {
+      stream: shouldStream ?? false,
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
       origin: txn ? originManager.url(txn.origin) : NO_TXN_REFERRER,
       max_tokens: txn?.maxTokens,
       temperature: txn?.temperature,
       stop_sequences: txn?.stopSequences,
-      num_generations: txn?.numOutputs,
+      num_generations: txn?.numOutputs
     })
     return result
   } catch (error) {
@@ -57,7 +59,6 @@ export async function complete(
     return unknownErr(error)
   }
 }
-
 
 export async function shouldStream(
   config: Config,

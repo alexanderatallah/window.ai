@@ -6,10 +6,9 @@ import {
 } from "window.ai"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
-import {
-  type PortRequest,
-  type PortResponse,
-} from "~core/constants"
+
+import { promptInterrupts } from "~background/lib/helpers"
+import { type PortRequest, type PortResponse } from "~core/constants"
 import { PortName } from "~core/constants"
 import { Extension } from "~core/extension"
 import { type Config, configManager } from "~core/managers/config"
@@ -18,17 +17,10 @@ import {
   transactionManager
 } from "~core/managers/transaction"
 import * as modelRouter from "~core/model-router"
-import {
-  type Result,
-  err,
-  isErr,
-  isOk,
-  ok
-} from "~core/utils/result-monad"
+import { type Result, err, isErr, isOk, ok } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
-import { promptInterrupts } from "~background/lib/helpers"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Completion],
@@ -50,7 +42,8 @@ const handler: PlasmoMessaging.PortHandler<
   const txn = request.transaction
   const config = await configManager.forModelWithDefault(txn.model)
 
-  const predictedModel = await _getCompletionModel(config, txn)
+  const shouldStream = await modelRouter.shouldStream(config, request)
+  const predictedModel = await _getCompletionModel(config, txn, shouldStream)
   if (!isOk(predictedModel)) {
     promptInterrupts(id, predictedModel)
     return res.send({ response: predictedModel, id })
@@ -59,7 +52,7 @@ const handler: PlasmoMessaging.PortHandler<
 
   await transactionManager.save(txn)
 
-  if (await modelRouter.shouldStream(config, request)) {
+  if (shouldStream) {
     const replies: string[] = []
     const errors: string[] = []
 
@@ -109,12 +102,13 @@ const handler: PlasmoMessaging.PortHandler<
 
 async function _getCompletionModel(
   config: Config,
-  txn: Transaction
+  txn: Transaction,
+  shouldStream: boolean
 ): Promise<Result<string, string>> {
   if (txn.model) {
     return ok(txn.model)
   }
-  return configManager.predictModel(config, txn)
+  return configManager.predictModel(config, txn, shouldStream)
 }
 
 function _getOutput(
