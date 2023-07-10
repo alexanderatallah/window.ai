@@ -124,7 +124,7 @@ export class Model {
       retryCondition: (error) => {
         return (
           axiosRetry.isNetworkError(error) ||
-          axiosRetry.isRetryableError(error) ||
+          // axiosRetry.isRetryableError(error) ||
           error.code === "ECONNABORTED" ||
           error.response?.status === 429
         )

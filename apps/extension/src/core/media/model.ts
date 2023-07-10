@@ -3,10 +3,10 @@ import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { AxiosError } from "axios"
 import axiosRetry, { exponentialDelay } from "axios-retry"
 import objectHash from "object-hash"
-import { ErrorCode, type MediaOutput, MediaExtension } from "window.ai"
+import { ErrorCode, MediaExtension, type MediaOutput } from "window.ai"
 
 import { type Err, type Result, err, ok } from "~core/utils/result-monad"
-import { definedValues, } from "~core/utils/utils"
+import { definedValues } from "~core/utils/utils"
 
 // These options are specific to the model shape and archetype
 export interface MediaModelConfig {
@@ -42,7 +42,7 @@ export interface RequestOptions {
   adapter?: AxiosRequestConfig["adapter"] | null
 }
 
-type RequestPrompt = { prompt: string; }
+type RequestPrompt = { prompt: string }
 
 // export interface RequestPrompt extends Partial<RequestPromptBasic>
 
@@ -55,12 +55,11 @@ export type RequestData = Omit<
 
 export type RequestMetadata = Pick<RequestOptions, "user_identifier">
 
-
 export class MediaModel {
   public api: AxiosInstance
   public config: Required<MediaModelConfig>
   public defaultOptions: Required<RequestOptions>
-  
+
   constructor(config: MediaModelConfig, opts: RequestOptions = {}) {
     // Defaults
     this.config = this.addDefaults(config)
@@ -92,7 +91,7 @@ export class MediaModel {
       retryCondition: (error) => {
         return (
           axiosRetry.isNetworkError(error) ||
-          axiosRetry.isRetryableError(error) ||
+          // axiosRetry.isRetryableError(error) ||
           error.code === "ECONNABORTED" ||
           error.response?.status === 429
         )
@@ -111,7 +110,7 @@ export class MediaModel {
       // Functions throw a ts error when placed above the spread
       getRoutePath: config.getRoutePath || ((request: RequestData) => null),
       overrideModelParam:
-        config.overrideModelParam || ((request: RequestData) => request.model),
+        config.overrideModelParam || ((request: RequestData) => request.model)
     }
     return opts
   }
@@ -151,11 +150,7 @@ export class MediaModel {
     requestPrompt: RequestPrompt,
     requestOpts: RequestOptions = {}
   ): Promise<Result<MediaOutput[], ErrorCode>> {
-    const {
-      transformForRequest,
-      getPath,
-      transformResponse
-    } = this.config
+    const { transformForRequest, getPath, transformResponse } = this.config
     const opts: Required<RequestOptions> = {
       ...this.defaultOptions,
       ...definedValues(requestOpts)
@@ -165,7 +160,7 @@ export class MediaModel {
     const promptSnippet = JSON.stringify(requestPrompt).slice(0, 100)
     const payload = transformForRequest(request, opts)
     this.log(`COMPLETING id ${id}: ${promptSnippet}...`, {
-      modelId: request.model,
+      modelId: request.model
     })
     let responseData: Record<string, any>
     try {
@@ -190,8 +185,6 @@ export class MediaModel {
     }
     return ok(result)
   }
-
-
 
   protected _getRequestHeaders(opts: Required<RequestOptions>) {
     const { authPrefix } = this.config
