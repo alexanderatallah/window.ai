@@ -33,11 +33,22 @@ export function init(
       },
       transformResponse: (res) => {
         const anyRes = res as any
-        return anyRes["data"].map(
-          ({ uri, url }: { uri: string; url: string | null }) => {
-            return { uri, url }
-          }
-        )
+        let result = anyRes["data"]
+        if("objects" in result){
+          result = result["objects"].map(
+            ({ uri, url }: { uri: string; url: string | null }) => {
+              return { uri, url }
+            }
+          )
+        }
+        else if(Array.isArray(result)){
+          result = result.map(
+            ({ uri, url }: { uri: string; url: string | null }) => {
+              return { uri, url }
+            }
+          )
+        }
+        throw new Error("Unexpected response from OpenRouter media model.")
       }
     },
     opts
