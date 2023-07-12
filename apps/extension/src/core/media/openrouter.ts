@@ -33,22 +33,19 @@ export function init(
       },
       transformResponse: (res) => {
         const anyRes = res as any
-        let result = anyRes["data"]
-        if("objects" in result){
-          result = result["objects"].map(
-            ({ uri, url }: { uri: string; url: string | null }) => {
-              return { uri, url }
-            }
-          )
+        // TODO: remove this once openrouter endpoint is migrated from returning a "data" param
+        const result = "data" in anyRes ? anyRes.data : anyRes
+        let objects = []
+        if ("objects" in result) {
+          objects = result.objects
+        } else if (Array.isArray(result)) {
+          objects = result
         }
-        else if(Array.isArray(result)){
-          result = result.map(
-            ({ uri, url }: { uri: string; url: string | null }) => {
-              return { uri, url }
-            }
-          )
-        }
-        throw new Error("Unexpected response from OpenRouter media model.")
+        return objects.map(
+          ({ uri, url }: { uri: string; url: string | null }) => {
+            return { uri, url }
+          }
+        )
       }
     },
     opts

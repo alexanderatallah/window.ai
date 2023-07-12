@@ -10,11 +10,10 @@ import {
   type PortResponse,
 } from "~core/constants"
 import { PortName } from "~core/constants"
-import { type Config, configManager, AuthType } from "~core/managers/config"
+import { configManager, AuthType } from "~core/managers/config"
 import {
   transactionManager
 } from "~core/managers/transaction"
-import { Extension } from "~core/extension"
 import {
   err,
   isErr,
