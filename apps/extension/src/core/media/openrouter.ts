@@ -35,7 +35,7 @@ export function init(
         const anyRes = res as any
         // TODO: remove this once openrouter endpoint is migrated from returning a "data" param
         const result = "data" in anyRes ? anyRes.data : anyRes
-        let objects = []
+        let objects: any = []
         if ("objects" in result) {
           objects = result.objects
         } else if (Array.isArray(result)) {
