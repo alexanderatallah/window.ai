@@ -2,7 +2,7 @@ import { type ChatMessage, isMediaExtension } from "window.ai"
 
 export function log(...args: unknown[]) {
   if (process.env.NODE_ENV === "development") {
-    console.log(...args)
+    console.log(`[window.ai]`, ...args)
   }
 }
 

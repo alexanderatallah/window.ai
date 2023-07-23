@@ -30,7 +30,7 @@ const configSettings: ConfigSetting[] = [
   { auth: AuthType.APIKey } // Local model
 ]
 
-export function Settings() {
+export function Settings(props: { onHide: () => void }) {
   const { config, setConfig } = useConfig()
   const { data } = usePermissionPort()
   const { requestId } = useParams()
@@ -64,6 +64,11 @@ export function Settings() {
       apiKey: apiKey || undefined,
       baseUrl: url || undefined
     })
+  }
+
+  async function handleSaveAction() {
+    await saveAll()
+    props.onHide()
   }
 
   const isLocalModel = config && configManager.isLocal(config)
@@ -132,12 +137,22 @@ export function Settings() {
 
           <div>
             {asksForAPIKey && (
-              <Input
-                placeholder="API Key"
-                value={apiKey || ""}
-                onChange={(val) => setApiKey(val)}
-                onBlur={saveAll}
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="API Key"
+                  value={apiKey || ""}
+                  onChange={(val) => setApiKey(val)}
+                  onBlur={saveAll}
+                  onEnter={handleSaveAction}
+                />
+                {Boolean(apiKey) && (
+                  <div className="relative top-1">
+                    <Button onClick={handleSaveAction}>
+                      Save
+                    </Button>
+                  </div>
+                )}
+              </div>
             )}
             {isExternal && <ExternalSettings config={config} />}
             <div className="mt-3"></div>

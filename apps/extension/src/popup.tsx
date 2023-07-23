@@ -49,6 +49,10 @@ function NavFrame() {
     }
   }, [requestId])
 
+  function hideSettings() {
+    setSettingsShown(false)
+  }
+
   return (
     <div className="h-full">
       {requestId ? (
@@ -67,8 +71,8 @@ function NavFrame() {
       <SlidingPane
         shown={settingsShown}
         animated={settingsShown}
-        onHide={() => setSettingsShown(false)}>
-        <Settings />
+        onHide={hideSettings}>
+        <Settings onHide={hideSettings}/>
       </SlidingPane>
     </div>
   )

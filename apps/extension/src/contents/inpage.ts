@@ -25,6 +25,7 @@ import { isOk } from "~core/utils/result-monad"
 
 import { version } from "../../package.json"
 
+
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
   world: "MAIN",
