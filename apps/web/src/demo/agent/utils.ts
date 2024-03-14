@@ -1,6 +1,6 @@
 export function extractCodeBlocks(markdown: string): string[] {
-  // The regular expression to match code blocks with a capturing group
-  const codeBlockRegex = /```([\s\S]*?)```/g
+  // The regular expression to match code blocks, skipping the first line
+  const codeBlockRegex = /```.*\n([\s\S]*?)```/g
 
   // Extract code blocks from the markdown string
   const codeBlocks = []
