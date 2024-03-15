@@ -80,7 +80,7 @@ export const useCodeAI = () => {
     // return
 
     const scaffoldProjectResult = await callAI(
-      `Create a list of bash command to initialize the directory structure of a project with the goal of: \"${input}\". Each command should be separated by a new line. Wrap them inside a markdown code block. Do not use npm to initialize the project - create the package.json manually. The current directory should be the project root. You may use cd, mkdir, and touch only.`,
+      `Create a list of bash command to initialize the directory structure of a project with the goal of: \"${input}\". Each command should be separated by a new line. Wrap them inside a markdown code block. Do not use npm to initialize the project - create the package.json manually. The current directory should be the project root. You may use cd, mkdir, and touch only. Use Express for setting up a node.js server. When editing node.js files, use the ES Module (ESM) syntax.`,
       onData
     )
 
