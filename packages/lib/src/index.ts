@@ -161,6 +161,19 @@ export type EventListenerHandler<T> = (
   data: T | ErrorCode
 ) => void
 
+export type ResponseHandler<T> = (data: T) => void
+
+export type ListenerMetadata = {
+  id: string;
+  createdAt: Date;
+  description?: string;
+}
+
+export type Listener<T> = {
+  handler: ResponseHandler<T>;
+  metadata: ListenerMetadata;
+}
+
 export type ModelProviderOptions = {
   // baseUrl is used to identify the model provider
   baseUrl: string
@@ -168,7 +181,7 @@ export type ModelProviderOptions = {
   // to sign out the user
   session?: {
     email?: string
-    walletAddress?: string
+    walletAddress?: string // TODO: This seems like it's a remnant from an ETH wallet fork. Not sure why wallet address would be needed anywhere
     expiresAt?: number
     paymentUrl?: string
     settingsUrl?: string
@@ -179,6 +192,14 @@ export type ModelProviderOptions = {
 
 export const VALID_DOMAIN = "https://windowai.io" as const
 
+export interface IListenerManager {
+  addListener<T>(key: object, requestId: RequestID | null, handler: ResponseHandler<T>, description?: string): string
+  removeListener(key: object, requestId: RequestID | null, listenerId: string): boolean
+  notifyListeners(key: object, requestId: RequestID, response: any): void
+  clearListeners(key: object): void
+  listListeners(key: object): ListenerMetadata[]
+}
+
 export interface WindowAI<TModel = string> {
   /**
    * Metadata containing the domain and version of the extension API
@@ -187,6 +208,8 @@ export interface WindowAI<TModel = string> {
     domain: typeof VALID_DOMAIN
     version: string
   }
+
+  __listenerManager: IListenerManager;
 
   /** Generate text completions from the specified (or preferred) model.
    * @param input The input to use for the completion.
