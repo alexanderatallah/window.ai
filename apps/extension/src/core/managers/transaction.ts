@@ -4,19 +4,18 @@ import {
   type InferredOutput,
   type Input,
   type ModelID,
-  isMessagesInput,
-  isPromptInput,
-  isTextOutput,
-  isMediaOutput,
   type ThreeDOptions,
   isCompletionOptions,
-  isMediaHosted
+  isMediaHosted,
+  isMediaOutput,
+  isMessagesInput,
+  isPromptInput,
+  isTextOutput
 } from "window.ai"
 
 import { BaseManager } from "./base"
 import type { OriginData } from "./origin"
 import { originManager } from "./origin"
-
 
 export interface Transaction<TInput = Input> {
   id: string
@@ -32,7 +31,7 @@ export interface Transaction<TInput = Input> {
   routedModel?: ModelID | string
 
   // 3D generation options
-  numInferenceSteps?:number
+  numInferenceSteps?: number
 
   outputs?: InferredOutput<TInput>[]
   error?: string
@@ -48,15 +47,14 @@ class TransactionManager extends BaseManager<Transaction> {
   init<TInput extends Input>(
     input: TInput,
     origin: OriginData,
-    options: CompletionOptions<ModelID | string, TInput> | ThreeDOptions<ModelID | string>
+    options:
+      | CompletionOptions<ModelID | string, TInput>
+      | ThreeDOptions<ModelID | string>
   ): Transaction {
     this._validateInput(input)
-  
+
     // Extracting parameters common to all options
-    const {
-      model,
-      numOutputs = 1,
-    } = options
+    const { model, numOutputs = 1 } = options
 
     let temperature: number | undefined
     let maxTokens: number | undefined
@@ -64,14 +62,14 @@ class TransactionManager extends BaseManager<Transaction> {
     let numInferenceSteps: number | undefined
 
     if (isCompletionOptions(options)) {
-        temperature = options.temperature
-        maxTokens = options.maxTokens
-        stopSequences = options.stopSequences
+      temperature = options.temperature
+      maxTokens = options.maxTokens
+      stopSequences = options.stopSequences
     }
 
     //extracting parameters specific to 3d generation
-    if ('numInferenceSteps' in options) {
-        numInferenceSteps = options.numInferenceSteps
+    if ("numInferenceSteps" in options) {
+      numInferenceSteps = options.numInferenceSteps
     }
 
     return {
@@ -84,12 +82,9 @@ class TransactionManager extends BaseManager<Transaction> {
       temperature,
       maxTokens,
       stopSequences,
-      numInferenceSteps,
+      numInferenceSteps
     }
-}
-
-  
-  
+  }
 
   // Override to set numOutputs on old data
   async _batchFetch(ids: string[]): Promise<Transaction[]> {
@@ -139,8 +134,13 @@ class TransactionManager extends BaseManager<Transaction> {
     // TODO: handle previews for media outputs, when implemented
     return txn.outputs
       .map((t) =>
-        isMediaOutput(t) ? (isMediaHosted(t) ? t.url : "Media currently not available locally.") : 
-        isTextOutput(t) ? t.text : `${t.message.role}: ${t.message.content}`
+        isMediaOutput(t)
+          ? isMediaHosted(t)
+            ? t.url
+            : "Media currently not available locally."
+          : isTextOutput(t)
+          ? t.text
+          : `${t.message.role}: ${t.message.content}`
       )
       .join("\n")
   }

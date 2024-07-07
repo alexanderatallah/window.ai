@@ -8,17 +8,24 @@ import { transactionManager } from "~core/managers/transaction"
 import { extractExtensionFromURL, formatDate } from "~core/utils/utils"
 
 function createMediaDownloadLinks({ input, outputs }: Transaction) {
-  if (!outputs || !outputs.every(isMediaOutput) || !isPromptInput(input) ||!outputs.every(isMediaHosted)) {
+  if (
+    !outputs ||
+    !outputs.every(isMediaOutput) ||
+    !isPromptInput(input) ||
+    !outputs.every(isMediaHosted)
+  ) {
     return null
   }
   return outputs.map((output, index) => {
     // typescript seems to need this check here, although the isMediaHosted check above should make it redundant
-    if (!output.url){
+    if (!output.url) {
       return null
     }
     // defaults to no extension
     const extension: string | undefined = extractExtensionFromURL(output.url)
-    const fileName = `${input.prompt.replace(" ", "-")}-${index}${extension ? "." : ""}${extension}`
+    const fileName = `${input.prompt.replace(" ", "-")}-${index}${
+      extension ? "." : ""
+    }${extension}`
     return (
       <a
         href={output.url}
@@ -36,9 +43,11 @@ function createMediaDownloadLinks({ input, outputs }: Transaction) {
 export function ActivityItem({ transaction }: { transaction: Transaction }) {
   const url = originManager.url(transaction.origin)
   const model = transactionManager.getRoutedModel(transaction)
-  const output = transaction?.outputs?.every(isMediaOutput) && transaction?.outputs?.every(isMediaHosted)
-    ? createMediaDownloadLinks(transaction)
-    : transactionManager.formatOutput(transaction)
+  const output =
+    transaction?.outputs?.every(isMediaOutput) &&
+    transaction?.outputs?.every(isMediaHosted)
+      ? createMediaDownloadLinks(transaction)
+      : transactionManager.formatOutput(transaction)
   let input = transactionManager.formatInput(transaction)
   return (
     <div className="pb-8">

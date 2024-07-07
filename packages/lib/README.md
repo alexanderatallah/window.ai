@@ -29,8 +29,9 @@ ai.addEventListener(...)
 
 ModelID is an enum of the available models, which are available as a
 TypeScript enum:
+
 ```ts
-import { ModelID, parseModelID } from 'window.ai'
+import { ModelID, parseModelID } from "window.ai"
 
 const model: ModelID = parseModelID(rawString)
 ```

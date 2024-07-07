@@ -72,7 +72,7 @@ function NavFrame() {
         shown={settingsShown}
         animated={settingsShown}
         onHide={hideSettings}>
-        <Settings onHide={hideSettings}/>
+        <Settings onHide={hideSettings} />
       </SlidingPane>
     </div>
   )

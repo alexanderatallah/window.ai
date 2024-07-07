@@ -214,7 +214,10 @@ function generateStreamingResponse(
                 // @ts-ignore
                 if (d.isPartial)
                   controller.enqueue(
-                    new TextEncoder().encode(d.message.content)
+                    // @ts-ignore
+                    new TextEncoder().encode(
+                      d?.text ? d.text : d?.message?.content
+                    )
                   )
                 else controller.close()
               })
