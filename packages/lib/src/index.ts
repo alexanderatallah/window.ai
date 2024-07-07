@@ -3,7 +3,7 @@ export { parseModelID, ModelID } from "./model"
 
 declare global {
   interface Window {
-    ai: WindowAI
+    ai: WindowAI | AIPolyfill
   }
 }
 
@@ -164,14 +164,14 @@ export type EventListenerHandler<T> = (
 export type ResponseHandler<T> = (data: T) => void
 
 export type ListenerMetadata = {
-  id: string;
-  createdAt: Date;
-  description?: string;
+  id: string
+  createdAt: Date
+  description?: string
 }
 
 export type Listener<T> = {
-  handler: ResponseHandler<T>;
-  metadata: ListenerMetadata;
+  handler: ResponseHandler<T>
+  metadata: ListenerMetadata
 }
 
 export type ModelProviderOptions = {
@@ -193,8 +193,17 @@ export type ModelProviderOptions = {
 export const VALID_DOMAIN = "https://windowai.io" as const
 
 export interface IListenerManager {
-  addListener<T>(key: object, requestId: RequestID | null, handler: ResponseHandler<T>, description?: string): string
-  removeListener(key: object, requestId: RequestID | null, listenerId: string): boolean
+  addListener<T>(
+    key: object,
+    requestId: RequestID | null,
+    handler: ResponseHandler<T>,
+    description?: string
+  ): string
+  removeListener(
+    key: object,
+    requestId: RequestID | null,
+    listenerId: string
+  ): boolean
   notifyListeners(key: object, requestId: RequestID, response: any): void
   clearListeners(key: object): void
   listListeners(key: object): ListenerMetadata[]
@@ -209,7 +218,7 @@ export interface WindowAI<TModel = string> {
     version: string
   }
 
-  __listenerManager: IListenerManager;
+  // __listenerManager: IListenerManager;
 
   /** Generate text completions from the specified (or preferred) model.
    * @param input The input to use for the completion.
@@ -264,4 +273,37 @@ export interface WindowAI<TModel = string> {
    *          undefined if not available.
    */
   BETA_updateModelProvider(options: ModelProviderOptions): Promise<void>
+}
+
+export type AIModelAvailability = "readily" | "after-download" | "no"
+
+export interface AIPolyfill {
+  canCreateTextSession(): Promise<AIModelAvailability>
+  createTextSession(options?: AITextSessionOptions): Promise<AITextSession>
+  ontextmodeldownloadprogress:
+    | ((this: AIPolyfill, ev: ProgressEvent) => any)
+    | null
+  textModelInfo(): Promise<AITextModelInfo>
+}
+
+export interface AITextSession {
+  prompt(input: string): Promise<string>
+  promptStreaming(input: string): ReadableStream
+  readonly topK: number
+  readonly temperature: number
+  clone(): Promise<AITextSession>
+  destroy(): void
+}
+
+export interface AITextSessionOptions {
+  topK?: number
+  temperature?: number
+  systemPrompt?: string
+  initialPrompts?: ChatMessage[]
+}
+
+export interface AITextModelInfo {
+  defaultTopK: number
+  maxTopK: number
+  defaultTemperature: number
 }
