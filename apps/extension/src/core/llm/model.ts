@@ -352,7 +352,7 @@ export class Model {
       Authorization: opts.apiKey ? `${authPrefix}${opts.apiKey}` : undefined,
       "X-API-KEY": opts.apiKey || undefined,
       "HTTP-Referer": opts.origin,
-      "X-WINDOWAI-TITLE": opts.originTitle
+      "X-WINDOWAI-TITLE": encodeURIComponent(opts.originTitle)
     }
   }
 
