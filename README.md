@@ -21,8 +21,8 @@ https://user-images.githubusercontent.com/1011391/230610706-96755450-4a3b-4530-b
 ### ℹ️ Contents
 
 - [Window: use your own AI models on the web](#window-use-your-own-ai-models-on-the-web)
-    - [📺 Demo](#-demo)
-    - [ℹ️ Contents](#ℹ️-contents)
+  - [📺 Demo](#-demo)
+  - [ℹ️ Contents](#ℹ️-contents)
   - [⭐️ Main features](#️-main-features)
   - [⚙️ How it works](#️-how-it-works)
   - [📥 Installation](#-installation)
@@ -149,7 +149,7 @@ handler to improve UX, since not all models and config options support it.
 ### Examples
 
 - [Next.js Window AI](https://github.com/YanniKouloumbis/next-js-window-ai) - A Next.js app that demonstrates how to use Window AI in a chat application. ([Demo](https://next-js-window-ai.vercel.app/))
-- [Robot Companion](https://github.com/zoan37/robot-companion) - An  AI robot that can move, emote, and change facial expressions while chatting. ([Demo](https://robot-companion.vercel.app/))
+- [Robot Companion](https://github.com/zoan37/robot-companion) - An AI robot that can move, emote, and change facial expressions while chatting. ([Demo](https://robot-companion.vercel.app/))
 
 ### Functions
 
@@ -195,15 +195,14 @@ The `BETA_generate3DObject` function allows you to generate 3D objects with a de
 Here's an example request:
 
 ```javascript
-const [ result ] = await window.ai.BETA_generate3DObject(
-  { "prompt": "a glazed donut" }, 
-  { "numInferenceSteps": 32,});
+const [result] = await window.ai.BETA_generate3DObject(
+  { prompt: "a glazed donut" },
+  { numInferenceSteps: 32 }
+)
 
 // base64 representation of your 3D object, in ply format
-const uri = result.uri;
+const uri = result.uri
 ```
-
-
 
 All public types, including error messages, are documented in the [window.ai library](/packages/lib/src/index.ts). Highlights below:
 
@@ -242,11 +241,12 @@ export interface CompletionOptions {
 }
 ```
 
-### ThreeDOptions 
+### ThreeDOptions
+
 This options dictionary allows you to specify options for generating a three dimensional object.
-  
+
 ```ts
-export interface ThreeDOptions{
+export interface ThreeDOptions {
   // The number of inference steps to run. Defaults to 32, with specific default values for each model.
   numInferenceSteps?: number
   // How many generations to create. Defaults to 1.

@@ -147,9 +147,7 @@ export function Settings(props: { onHide: () => void }) {
                 />
                 {Boolean(apiKey) && (
                   <div className="relative top-1">
-                    <Button onClick={handleSaveAction}>
-                      Save
-                    </Button>
+                    <Button onClick={handleSaveAction}>Save</Button>
                   </div>
                 )}
               </div>

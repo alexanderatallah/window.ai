@@ -11,7 +11,6 @@ export const config: PlasmoCSConfig = {
   run_at: "document_start"
 }
 
-
 const portStates: Record<
   PortName,
   { port?: Port; listener?: (message: PortEvent[PortName], port: Port) => void }

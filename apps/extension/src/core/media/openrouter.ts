@@ -35,7 +35,9 @@ export function init(
         const anyRes = res as any
         // TODO: remove this once openrouter endpoint is migrated from returning a "data" param
         const results = "data" in anyRes ? anyRes.data : anyRes
-        const generations = Array.isArray(results) ? results : results.generations
+        const generations = Array.isArray(results)
+          ? results
+          : results.generations
         return generations.map(
           ({ uri, url }: { uri: string; url: string | null }) => {
             return { uri, url }

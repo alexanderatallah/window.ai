@@ -11,15 +11,8 @@ import Link from "next/link"
 const COOKIE_NAME = "nextjs-example-ai-chat-gpt3"
 
 export function Chat() {
-  const {
-    permissionDenied,
-    loading,
-    messages,
-    sendMessage,
-    showInstallMessage
-  } = useWindowAI(initialMessages, {
-    stream: true
-  })
+  const { messages, sendMessage, streamMessage, loading, permissionDenied } =
+    useWindowAI()
 
   const [cookie, setCookie] = useCookies([COOKIE_NAME])
 
@@ -65,7 +58,7 @@ export function Chat() {
             window.ai permission denied!
           </span>
         )}
-        {showInstallMessage && (
+        {false && (
           <div className="flex flex-col gap-2 text-sm">
             <p className="px-4 text-center text-slate-11">
               window.ai not found on your browser!
@@ -78,7 +71,11 @@ export function Chat() {
             </div>
           </div>
         )}
-        <InputMessage sendMessage={sendMessage} clearInput />
+        <InputMessage
+          streamMessage={streamMessage}
+          sendMessage={sendMessage}
+          clearInput
+        />
       </div>
     </div>
   )

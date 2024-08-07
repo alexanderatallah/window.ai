@@ -1,33 +1,19 @@
-import {
-  ErrorCode,
-  ModelID,
-  type MediaOutput,
-} from "window.ai"
+import { ErrorCode, type MediaOutput, ModelID } from "window.ai"
+
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
-import {
-  type PortRequest,
-  type PortResponse,
-} from "~core/constants"
+import { promptInterrupts } from "~background/lib/helpers"
+import { type PortRequest, type PortResponse } from "~core/constants"
 import { PortName } from "~core/constants"
-import { configManager, AuthType } from "~core/managers/config"
-import {
-  transactionManager
-} from "~core/managers/transaction"
-import {
-  err,
-  isErr,
-  isOk,
-  ok,
-  unknownErr
-} from "~core/utils/result-monad"
+import { AuthType, configManager } from "~core/managers/config"
+import { originManager } from "~core/managers/origin"
+import { transactionManager } from "~core/managers/transaction"
+import { getMediaCaller } from "~core/media"
+import { NO_TXN_REFERRER } from "~core/model-router"
+import { err, isErr, isOk, ok, unknownErr } from "~core/utils/result-monad"
 import { log } from "~core/utils/utils"
 
 import { requestPermission } from "./permission"
-import { getMediaCaller } from "~core/media"
-import { originManager } from "~core/managers/origin"
-import { NO_TXN_REFERRER } from "~core/model-router"
-import { promptInterrupts } from "~background/lib/helpers"
 
 const handler: PlasmoMessaging.PortHandler<
   PortRequest[PortName.Media],
@@ -48,14 +34,17 @@ const handler: PlasmoMessaging.PortHandler<
 
   const txn = request.transaction
 
-  if ('messages' in txn.input) {
+  if ("messages" in txn.input) {
     return res.send(err(ErrorCode.InvalidRequest))
   }
 
   // temporarily, use external model config
-  const config = await configManager.forAuthAndModel(AuthType.External, ModelID.Shap_e)
+  const config = await configManager.forAuthAndModel(
+    AuthType.External,
+    ModelID.Shap_e
+  )
   // if not credentialed, present with login flow
-  if(!configManager.isCredentialed(config)){
+  if (!configManager.isCredentialed(config)) {
     promptInterrupts(id, err(ErrorCode.NotAuthenticated))
     return res.send({ response: err(ErrorCode.NotAuthenticated), id })
   }
@@ -73,19 +62,19 @@ const handler: PlasmoMessaging.PortHandler<
       model: txn.routedModel,
       origin: txn ? originManager.url(txn.origin) : NO_TXN_REFERRER,
       num_generations: txn.numOutputs,
-      num_inference_steps: txn.numInferenceSteps,
+      num_inference_steps: txn.numInferenceSteps
     })
   } catch (error) {
     result = unknownErr(error)
   }
-  
+
   if (isOk(result)) {
     const outputs = result.data
     res.send({ response: ok(outputs), id })
     // do not store URIs in the transaction, empty string to save storage
     txn.outputs = outputs.map((output: MediaOutput) => ({
       ...output,
-      uri: "",
+      uri: ""
     }))
   } else {
     res.send({ response: result, id })

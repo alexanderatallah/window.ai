@@ -8,6 +8,10 @@ type InputMessageProps = {
   buttonText?: string
   clearInput?: boolean
   defaultInput?: string
+  streamMessage: (
+    message: string,
+    onData: (data: string) => void
+  ) => Promise<string | null>
 }
 
 export const InputMessage = ({
@@ -15,12 +19,20 @@ export const InputMessage = ({
   placeholder = "Type a message",
   buttonText = "Say",
   clearInput = false,
-  defaultInput = ""
+  defaultInput = "",
+  streamMessage
 }: InputMessageProps) => {
   const [input, setInput] = useState(defaultInput)
 
   const submit = useCallback(() => {
     sendMessage(input)
+    if (clearInput) {
+      setInput("")
+    }
+  }, [input, clearInput])
+
+  const submitAndStream = useCallback(() => {
+    streamMessage(input, async (data) => console.log(data))
     if (clearInput) {
       setInput("")
     }
@@ -57,6 +69,14 @@ export const InputMessage = ({
           submit()
         }}>
         {buttonText}
+      </Button>
+      <Button
+        type="submit"
+        className="ml-4 flex-none"
+        onClick={() => {
+          submitAndStream()
+        }}>
+        {buttonText} stream
       </Button>
     </div>
   )

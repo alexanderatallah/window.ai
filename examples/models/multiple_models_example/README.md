@@ -1,6 +1,6 @@
 # Examples: Multiple Models
 
-*This is a Window demo app which shows how you can use multiple local models on the same endpoint.*
+_This is a Window demo app which shows how you can use multiple local models on the same endpoint._
 
 ## Installation and Running
 
